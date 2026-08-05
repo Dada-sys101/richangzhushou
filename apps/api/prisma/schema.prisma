@@ -101,6 +101,20 @@ enum DraftStatus {
   FAILED
 }
 
+enum AttachmentScanStatus {
+  PENDING
+  SCANNED
+  FAILED
+}
+
+enum AttachmentOwnerType {
+  TRANSACTION_DRAFT
+}
+
+enum DraftTargetType {
+  TRANSACTION
+}
+
 model SystemSetting {
   id                  String   @id @default("singleton")
   registrationEnabled Boolean  @default(false) @map("registration_enabled")
@@ -135,6 +149,9 @@ model User {
   financialAccounts   FinancialAccount[]
   transactions        Transaction[]
   budgets             Budget[]
+  deviceCredentials   DeviceCredential[]
+  drafts              DraftRecord[]
+  attachments         Attachment[]
 
   @@index([status])
   @@index([createdAt])
@@ -313,4 +330,70 @@ model Budget {
   @@index([userId, month])
   @@index([userId, categoryId])
   @@map("budgets")
+}
+
+model DeviceCredential {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  name       String   @db.VarChar(60)
+  tokenHash  String   @unique @map("token_hash")
+  tokenPrefix String  @map("token_prefix") @db.VarChar(8)
+  scopes     Json     @map("scopes")
+  lastUsedAt DateTime? @map("last_used_at")
+  revokedAt  DateTime? @map("revoked_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([userId, createdAt])
+  @@map("device_credentials")
+}
+
+model Attachment {
+  id                   String              @id @default(cuid())
+  userId               String              @map("user_id")
+  ownerType            AttachmentOwnerType @map("owner_type")
+  ownerId              String?             @map("owner_id")
+  objectKey            String              @unique @map("object_key")
+  mimeType             String              @map("mime_type") @db.VarChar(100)
+  size                 Int                 @map("size")
+  sha256               String?             @map("sha256") @db.VarChar(64)
+  scanStatus           AttachmentScanStatus @default(PENDING) @map("scan_status")
+  uploadTokenHash      String?             @unique @map("upload_token_hash") @db.VarChar(64)
+  uploadIntentExpiresAt DateTime?          @map("upload_intent_expires_at")
+  contentStoredAt      DateTime?           @map("content_stored_at")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+  deletedAt            DateTime?           @map("deleted_at")
+  user                 User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  drafts               DraftRecord[]
+
+  @@index([userId, ownerType, ownerId])
+  @@index([userId, createdAt])
+  @@map("attachments")
+}
+
+model DraftRecord {
+  id               String          @id @default(cuid())
+  userId           String          @map("user_id")
+  source           RecordSource    @map("source")
+  targetType       DraftTargetType @map("target_type")
+  payloadJson      Json            @map("payload_json")
+  confidenceJson   Json?           @map("confidence_json")
+  status           DraftStatus     @default(PENDING)
+  clientMutationId String?         @unique @map("client_mutation_id")
+  attachmentId     String?         @map("attachment_id")
+  failureReason    String?         @map("failure_reason") @db.VarChar(200)
+  version          Int             @default(1)
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+  confirmedAt      DateTime?       @map("confirmed_at")
+  discardedAt      DateTime?       @map("discarded_at")
+  resultId         String?         @map("result_id")
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attachment       Attachment?     @relation(fields: [attachmentId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status, createdAt])
+  @@index([userId, createdAt])
+  @@map("draft_records")
 }

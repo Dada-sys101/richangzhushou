@@ -14,6 +14,23 @@ npm run prisma:migrate:deploy --workspace @daily-assistant/api
 
 No production or shared database URL belongs in this repository.
 
+## WP4 Shortcuts/OCR migration（20260805085724_wp4_shortcuts_ocr）
+
+- 新增表：`device_credentials`、`attachments`、`draft_records`；新增枚举
+  `AttachmentScanStatus`（PENDING/SCANNED/FAILED）、`AttachmentOwnerType`
+  （TRANSACTION_DRAFT）与 `DraftTargetType`（TRANSACTION）。
+- 设备凭证：`token_hash` 唯一且只存 SHA-256；`scopes` 以 JSON 数组保存
+  `ShortcutScope` 字符串（`transaction:draft:create` / `finance:summary:read`，
+  冒号值不适用 MySQL ENUM，因此不使用枚举列）。
+- 附件：`object_key` 与 `upload_token_hash` 唯一；上传令牌只存哈希；
+  `scan_status` 完成前门控；软删除使用 `deleted_at`。
+- 草稿：`client_mutation_id` 唯一用于幂等；`attachment_id` 外键 SetNull；
+  `result_id` 在确认后指向正式记录。
+- 回滚：`prisma migrate resolve --rolled-back 20260805085724_wp4_shortcuts_ocr`
+  后删除该 migration 目录，再 `prisma migrate deploy`；或对非生产库执行
+  `DROP TABLE draft_records, attachments, device_credentials`（先删草稿，
+  再删附件与凭证，注意外键顺序）。
+
 ## WP3 Finance migration（20260805080803_wp3_finance）
 
 - 新增表：`categories`、`financial_accounts`、`transactions`、`budgets`；新增枚举

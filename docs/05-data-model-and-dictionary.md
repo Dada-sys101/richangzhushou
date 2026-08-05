@@ -46,7 +46,7 @@ erDiagram
 | `InviteCode` | codeHash, status, expiresAt, maxUses, usedCount | codeHash 唯一；状态/过期索引 |
 | `InviteRedemption` | inviteId, userId, redeemedAt | userId 唯一；事务内创建 |
 | `Session` | userId, refreshTokenHash, expiresAt, revokedAt | token 哈希唯一 |
-| `DeviceCredential` | userId, name, tokenHash, scopes, revokedAt | 快捷指令凭证仅保存哈希 |
+| `DeviceCredential` | userId, name, tokenHash（唯一）, tokenPrefix, scopes（JSON）, lastUsedAt, revokedAt | 快捷指令凭证仅保存 SHA-256 哈希与展示前缀；scopes 为 ShortcutScope JSON 数组；撤销置 revokedAt |
 | `Transaction` | type, status, amount, currency, categoryId, accountId, merchant, occurredAt, note, source, originalTransactionId, isUnlinkedRefund, sourceFingerprint, clientMutationId, version, deletedAt | userId+occurredAt；clientMutationId 唯一；软删除用 deletedAt |
 | `Category` | kind（EXPENSE/INCOME）, name, color, isArchived, version | userId+kind+name 唯一；归档而非物理删除 |
 | `FinancialAccount` | name, kind（CASH/DEBIT_CARD/CREDIT_CARD/DIGITAL_WALLET/OTHER）, isArchived, version | userId+name 唯一；归档而非物理删除 |
@@ -57,8 +57,8 @@ erDiagram
 | `Trip` | title, destination, startDate, endDate, budgetAmount | userId+startDate |
 | `TripItem` | tripId, type, startsAt, endsAt, location, position | tripId+position |
 | `PackingItem` | tripId, text, checked, position | tripId+position |
-| `Attachment` | ownerType, ownerId, objectKey, mimeType, size, scanStatus | userId+ownerType+ownerId |
-| `DraftRecord` | source, targetType, payloadJson, status, confidenceJson | userId+status+createdAt |
+| `Attachment` | userId, ownerType, ownerId, objectKey（唯一）, mimeType, size, sha256, scanStatus, uploadTokenHash（唯一）, uploadIntentExpiresAt, contentStoredAt, deletedAt | 上传意图一次性令牌只存哈希；完成确认前不可用于 OCR |
+| `DraftRecord` | userId, source, targetType, payloadJson, confidenceJson, status, clientMutationId（唯一）, attachmentId, failureReason, version, confirmedAt, discardedAt, resultId | 幂等键唯一；确认后 resultId 指向正式记录 |
 | `SyncMutation` | userId, clientMutationId, requestHash, resultRef | userId+clientMutationId 唯一 |
 | `AdminAudit` | actorId, action, targetType, targetId, beforeJson, afterJson, reason | createdAt；不可从产品 API 删除 |
 
@@ -79,6 +79,10 @@ erDiagram
 | `ReminderStatus` | `SCHEDULED`, `SENT`, `CANCELLED`, `FAILED`, `SUPPRESSED` |
 | `SyncState` | `SYNCED`, `PENDING_SYNC`, `SYNC_FAILED`, `CONFLICT` |
 | `DraftStatus` | `PENDING`, `CONFIRMED`, `DISCARDED`, `FAILED` |
+| `ShortcutScope` | `transaction:draft:create`, `finance:summary:read` |
+| `AttachmentScanStatus` | `PENDING`, `SCANNED`, `FAILED` |
+| `AttachmentOwnerType` | `TRANSACTION_DRAFT` |
+| `DraftTargetType` | `TRANSACTION` |
 
 ## 容量计算
 
@@ -96,3 +100,15 @@ erDiagram
 - 账单金额一律 `DECIMAL(18,2)`，API 使用两位小数字符串；退款使用 `REFUND` 类型与正金额，必须引用原支出账单或标记 `isUnlinkedRefund=true`。
 - 统计只计入 `status=CONFIRMED` 且 `deletedAt IS NULL` 的记录；月预算按 `Asia/Shanghai` 自然月（月份字符串 `YYYY-MM`）计算，退款冲减支出。
 - 分类与账户使用 `isArchived` 归档，不物理删除；预算使用 `deletedAt` 软删除。
+
+## WP4 补充说明（2026-08-05）
+
+- 设备凭证明文只在创建响应中展示一次；数据库只存 SHA-256 哈希与 8 位展示前缀；
+  `scopes` 使用 JSON 数组保存 `ShortcutScope` 字符串（冒号值不适合 MySQL ENUM）。
+- 草稿确认在单个数据库事务内将 `DraftRecord` 标记为 `CONFIRMED` 并创建
+  `CONFIRMED` 交易，保留 `source` 与 `clientMutationId`；未确认草稿不计入任何统计。
+- 附件采用“短期上传意图 + 一次性 uploadToken（只存哈希）+ 完成确认”流程；
+  扫描未通过或内容未存储时不可用于 OCR；本地临时存储写入
+  `apps/api/.local-storage`（gitignored）。
+- 批量丢弃/清空草稿为高风险操作：先获取短期确认令牌，二次确认后执行并写
+  `AdminAudit`（action=`DRAFT_BATCH_DISCARD`）。
