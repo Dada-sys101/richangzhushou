@@ -2,14 +2,14 @@
 
 ## Last Updated
 
-2026-08-05（随提交 `docs: add automatic project state recovery workflow` 更新）
+2026-08-05（随 WP3 本地验收完成更新）
 
 ## Repository State
 
 - repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
 - current_branch: `codex/wp3-finance`
-- latest_commit: `3fe6739`（feat(web): WP3 记账页面…），以 `git log -1 --oneline` 为准
-- working_tree_status: 3 个未提交修改——`apps/api/src/finance/finance.controller.ts`（DTO import 调整）、`apps/admin/src/api/client.ts` 与 `apps/web/src/api/client.ts`（HTTP 错误解析防御性修复）；来源未完全确认，已全部保留，未纳入本次提交
+- latest_commit: 以 `git log -1 --oneline` 为准（WP3 验收提交见 Recent Changes）
+- working_tree_status: 干净（WP3 相关修改已全部提交）
 
 ## Project Summary
 
@@ -18,36 +18,33 @@ Daily Assistant：面向 10–20 名受邀用户的个人日常助手（V1.0）�
 ## Current Development Stage
 
 - WP0（规划）、WP1（工程骨架）、WP2（身份/容量/邀请码/管理端）已完成并通过本地验收（`docs/13`、`docs/14`）。
-- WP3（基础记账与今日财务）已获授权并执行中：Finance 契约、表结构/migration、API 与集成测试、用户端页面已提交；验收与文档同步未完成（TODO DA-0308 IN_PROGRESS）。
+- WP3（基础记账与今日财务）已完成并通过本地验收（`docs/16-wp3-acceptance-report.md`）。
 - WP4–WP8 未开始；无生产部署。
 
 ## Last Completed Task
 
-建立“跨任务自动恢复项目状态”固定机制（仅文档）：AGENTS.md 增加 Project State Recovery、Required workflow before every task、Task completion state updates、Task priority rules；`.project/context.md` 规范化为固定结构；同步 progress、changelog 与状态文件。提交：`docs: add automatic project state recovery workflow`。
+WP3 基础记账与今日财务：完成 Finance 契约、Prisma migration、账单/分类/账户/预算/统计/CSV API、29/29 集成测试、用户端记账页面与浏览器矩阵验收，输出 `docs/16-wp3-acceptance-report.md` 并同步状态文档。
 
 ## Current Task
 
-- 当前任务：WP3 收尾——完成验收、处理 3 个未提交的业务文件修改（`finance.controller.ts`、`admin/src/api/client.ts`、`web/src/api/client.ts`）并提交，输出 `docs/16-wp3-acceptance-report.md` 并同步状态文档（对应 TODO DA-0308）。
-- 当前完成程度：功能代码已提交（`c1c8f92`、`3fcf1df`、`e7b971c`、`3fe6739`）；验收/文档未完成；存在 1 个未提交的业务文件修改。
-- 涉及模块：`apps/api/src/finance`、`apps/web/src/views`（记账页面）、`packages/api-contracts`、`docs`。
-- 验收标准：`npm run quality` 通过；真实 MySQL 空库 migration 与集成测试通过；浏览器 5 宽度矩阵通过；验收报告与状态文档同步。
+- 当前任务：无进行中任务。等待用户决定是否推送 WP2/WP3 分支并确认远端 CI，或授权 WP4。
+- 当前完成程度：WP3 全部 checkpoint 完成（DA-0301~0308 全部 DONE）；`npm run quality`、空库 migration、29/29 集成测试与浏览器矩阵全部通过。
 
 ## Next Recommended Task
 
-完成 WP3 本地验收并提交：先确认并提交 `apps/api/src/finance/finance.controller.ts` 的未提交修改，再运行 `npm run quality`、真实 MySQL 集成测试与浏览器矩阵，输出 `docs/16-wp3-acceptance-report.md`。
-依据：WP3 功能代码已提交（`3fe6739` 等），当前唯一进行中任务为 DA-0308（验收与文档同步）；这是 `docs/progress.md` 中依赖已满足的最高优先级进行中任务。
+1. 确认 WP2/WP3 分支是否推送与远端 CI 结果（需推送授权；本机 `gh` 未登录）。
+2. WP4 快捷指令/OCR/统一录入开工需另行授权，规划见 `docs/12-development-handoff.md`。
 
 ## Completed Work
 
 - WP0：规划文档体系（提交 `5d52395`）。
 - WP1：Monorepo 骨架、OpenAPI 3.1、Prisma/MySQL 枚举基线、CI、本地质量门（提交 `6169ac0`；`docs/13`）。
 - WP2：身份/会话/容量/邀请码/账号生命周期/管理端/审计/前端页面；空库 migration、18/18 集成测试、浏览器矩阵（`docs/14`）。
-- WP3（已提交、未验收）：Finance 契约、表结构/migration/seed、账单/分类/账户/预算/统计/CSV API 与集成测试、用户端记账页面（`c1c8f92`、`3fcf1df`、`e7b971c`、`3fe6739`）。
+- WP3：Finance 契约、表结构/migration/seed、账单/分类/账户/预算/统计/CSV API 与集成测试、用户端记账页面、浏览器矩阵与验收报告（`c1c8f92`、`3fcf1df`、`e7b971c`、`3fe6739`、`3db5b40`；`docs/16`）。
 - 机制建立：跨任务自动恢复项目状态（本次 docs 提交）。
 
 ## Remaining Work
 
-- WP3 验收与文档同步（DA-0308 IN_PROGRESS）；3 个未提交的业务文件修改待确认提交。
 - WP4 快捷指令/OCR/统一录入、WP5 日程/待办/提醒、WP6 行程、WP7 PWA/离线同步、WP8 全量质量与发布准备：全部未开始。
 - 工程债：浏览器 QA 一键脚本（OPEN-009）、远端 CI 确认、便携 MySQL 复跑说明。
 
@@ -60,25 +57,27 @@ Daily Assistant：面向 10–20 名受邀用户的个人日常助手（V1.0）�
 
 ## Known Issues
 
-- `apps/api/src/finance/finance.controller.ts`、`apps/admin/src/api/client.ts`、`apps/web/src/api/client.ts` 存在来源未完全确认的未提交修改，已全部保留未提交。
+- WP3 已知边界：整体预算 NULL 唯一性由服务层校验；原账单软删除后其退款仍计入统计；统计摘要仅按 CNY 汇总；CSV 单次导出上限 10,000 行（详见 `docs/16`）。
 - 浏览器 QA 未固化为仓库内一键脚本（OPEN-009）；`docs/13` 曾记录的 favicon 404 与“0 error”表述需以最新验收为准。
 - origin 仓库名 `richangzhushou` 与产品名 Daily Assistant 不一致（OPEN-002）。
 - 本机 Git 全局代理 `127.0.0.1:7890` 不可用；系统代理 `127.0.0.1:7897` 可用（远程 Git 操作临时覆盖，未修改全局配置）。
 
 ## Verification Status
 
-- 已通过（记录）：WP2 复核时 `npm run quality`；WP2 空库 migration + 18/18 集成测试；WP2 浏览器 5 宽度矩阵。
-- 构建状态：WP1/WP2 基线构建通过；WP3 提交后尚未在本轮复跑。
-- 未运行/未确认：WP3 提交后的 `npm run quality`、集成测试、浏览器矩阵；远端 CI。
-- 尚未验证：WP4–WP8 全部功能；WP3 验收结论。
+- 已通过：WP3 `npm run quality`；空库 `prisma migrate deploy` + seed；WP2+WP3 集成测试 29/29；浏览器 5 宽度矩阵 30/30 与主流程/错误状态；`git diff --check`（`docs/16`）。
+- 已通过（历史）：WP2 复核时 quality、空库 migration、18/18 集成测试与浏览器矩阵（`docs/14`）。
+- 未运行/未确认：远端 CI（分支未推送）；WP4–WP8 全部功能。
 
 ## Recent Changes
 
-- `3fe6739` feat(web): WP3 记账页面（今日卡片、账单、表单、分类、账户、预算与 CSV 导出）
-- `e7b971c` feat(finance): WP3 账单/分类/账户/预算/统计/CSV API 与集成测试
-- `3fcf1df` feat(db): WP3 Finance 表结构、migration、seed 与回滚说明
+- `820ef78` docs: WP3 开工状态切换与任务清单
 - `c1c8f92` feat(contracts): 补全 WP3 Finance OpenAPI、共享类型、错误码与契约测试
-- 本次：docs: add automatic project state recovery workflow
+- `3fcf1df` feat(db): WP3 Finance 表结构、migration、seed 与回滚说明
+- `e7b971c` feat(finance): WP3 账单/分类/账户/预算/统计/CSV API 与集成测试
+- `3fe6739` feat(web): WP3 记账页面（今日卡片、账单、表单、分类、账户、预算与 CSV 导出）
+- `1aab5ec` docs: add automatic project state recovery workflow
+- `3db5b40` fix: 查询 DTO 元数据与前端非 JSON 错误体处理
+- 本次：docs/状态：WP3 本地验收完成（`docs/16-wp3-acceptance-report.md`）
 
 ## Important Constraints
 

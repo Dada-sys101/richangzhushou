@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-08-05 — WP3 基础记账与今日财务本地验收通过
+
+- 契约先行：OpenAPI 3.1 补全 Finance 请求/响应/DTO/错误码（`DUPLICATE_RESOURCE`、`POSSIBLE_DUPLICATE` 警告），共享类型与契约测试同步（`c1c8f92`）。
+- 数据：新增 `categories`、`financial_accounts`、`transactions`、`budgets` 与枚举 `CategoryKind`、`FinancialAccountKind`；migration `20260805080803_wp3_finance` 空库部署通过（`3fcf1df`）。
+- 后端：账单 CRUD/软删除/恢复、退款校验、疑似重复提示、分类/账户归档、预算 CRUD 与自然月校验、统计/今日卡片、CSV 导出；用户内容路由增加 `UserOnlyGuard`（管理员 403）（`e7b971c`）。
+- 前端：今日财务卡片、账单列表/表单、分类、账户、预算页面与 CSV 导出（`3fe6739`）。
+- 修复：查询 DTO 编译元数据（控制器 `import type` → 运行时导入）与非 JSON 错误体处理（`3db5b40`）。
+- 验收：`npm run quality`、空库 migration+seed、WP2+WP3 集成测试 29/29、浏览器 5 宽度矩阵 30/30 与主流程/错误状态全部通过（`docs/16-wp3-acceptance-report.md`）。
+- 未推送、未部署、未创建生产资源；WP4 未实现。
+
 ## 2026-08-05 — 跨任务自动恢复项目状态机制
 
 - `AGENTS.md` 新增 Project State Recovery、Required workflow before every task、任务结束更新与任务优先级规则。

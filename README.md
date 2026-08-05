@@ -2,13 +2,13 @@
 
 面向 10–20 名受邀早期用户的个人日常助手。V1.0 聚焦记账、日程、待办、提醒、行程、Apple 快捷指令辅助记账，以及云端同步和本地离线能力。
 
-> 当前阶段：WP1 工程骨架与共享契约。尚未实现注册、邀请码、记账、日程、待办、行程或同步业务，也没有生产环境。
+> 当前阶段：WP1 工程骨架、WP2 身份/容量/邀请码/管理端、WP3 基础记账与今日财务已在本机完成并验收；日程、待办、行程、快捷指令、离线同步等业务尚未实现；没有生产环境。
 
 ## 工程结构
 
-- `apps/web`：Vue 3 + TypeScript + Vite 用户端 PWA 空壳。
-- `apps/admin`：Vue 3 + TypeScript + Vite + Element Plus 管理端空壳。
-- `apps/api`：NestJS 单体 API 与 Prisma/MySQL 基线，仅实现非敏感健康检查。
+- `apps/web`：Vue 3 + TypeScript + Vite 用户端 PWA（注册/登录/账号/记账页面）。
+- `apps/admin`：Vue 3 + TypeScript + Vite + Element Plus 管理端（概览/邀请码/用户/设置/审计）。
+- `apps/api`：NestJS 单体 API 与 Prisma/MySQL（身份、容量、管理端、Finance API）。
 - `packages/api-contracts`：OpenAPI 3.1、共享枚举、API 边界类型和契约测试。
 - `packages/config`：共享 TypeScript、ESLint 及安全的非秘密默认配置。
 

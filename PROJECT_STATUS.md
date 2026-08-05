@@ -1,15 +1,15 @@
 # Project Status
 
-版本：0.7<br>
-状态：WP3 执行中（已获用户授权；WP1、WP2 本地验收完成）<br>
+版本：0.8<br>
+状态：WP3 本地验收完成（WP1、WP2、WP3 均已通过本地验收）<br>
 更新：2026-08-05
 
 ## 当前状态
 
 - 项目：Daily Assistant（临时名称）
 - 位置：`D:\daily-assistant`
-- 当前工作包：WP3 基础记账与今日财务（分支 `codex/wp3-finance`，未推送）
-- 代码：WP2 已实现身份、邀请码、容量、账号生命周期、管理端 API 与页面；WP3 开始实现 Finance 契约与 API
+- 当前工作包：WP3 已完成本地验收（分支 `codex/wp3-finance`，未推送）
+- 代码：WP2 身份/容量/邀请码/管理端已实现；WP3 账单/分类/账户/预算/统计/CSV API 与用户端记账页面已实现
 - Git 仓库：独立仓库，当前分支 `codex/wp3-finance`（未推送）
 - 上下文：`.project/context.md` 与 `docs/` 接管文档已建立（见 `docs/README.md`）
 - 自动恢复机制：`AGENTS.md` 增加 Project State Recovery / Required workflow，`.project/context.md` 已规范化为固定结构
@@ -34,9 +34,8 @@
 
 ## 下一步
 
-- 按 `docs/15-wp3-codex-execution-plan.md` 完成 WP3 全部 checkpoint。
-- 完成真实 MySQL 空库 migration、集成测试、`npm run quality`、浏览器矩阵与 WP3 验收报告。
-- 确认 WP2 远端 CI 结果（需推送授权）。
+- 确认 WP2/WP3 远端 CI 结果（需推送授权）。
+- WP4 快捷指令、OCR 与统一录入开工需另行授权（规划见 `docs/12-development-handoff.md`）。
 
 ## 阻塞项
 

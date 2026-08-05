@@ -28,4 +28,4 @@
 | DA-0305 | 预算 CRUD 与自然月校验 | DONE | WP3 |
 | DA-0306 | 统计与今日财务卡片 | DONE | WP3 |
 | DA-0307 | CSV 导出（仅当前用户、安全文件名、UTF-8/Excel 兼容） | DONE | WP3 |
-| DA-0308 | 用户端页面、文档、状态与 WP3 验收报告同步 | IN_PROGRESS | WP3 |
+| DA-0308 | 用户端页面、文档、状态与 WP3 验收报告同步 | DONE | WP3 |

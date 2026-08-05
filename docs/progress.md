@@ -32,6 +32,11 @@
 | WP2 集成与浏览器验收 | `apps/api/src/integration/wp2.integration.test.ts`；`output/playwright/wp2` |
 | WP2 复核（2026-08-05）：空库迁移、seed、18/18 集成测试与 5 宽度浏览器矩阵 | `docs/14-wp2-acceptance-report.md` v2.0；`output/playwright/wp2` |
 | 跨任务自动恢复机制（Project State Recovery 工作流） | 本次提交；`AGENTS.md`、`.project/context.md` |
+| WP3 契约：Finance OpenAPI/共享类型/错误码/契约测试 | `c1c8f92`；`packages/api-contracts` |
+| WP3 Prisma 实体、migration、seed 与回滚说明 | `3fcf1df`；`apps/api/prisma`；`migrations/20260805080803_wp3_finance` |
+| WP3 Finance API 与单元/集成测试 | `e7b971c`；`apps/api/src/finance`、`apps/api/src/integration/wp3.integration.test.ts` |
+| WP3 用户端记账页面 | `3fe6739`；`apps/web/src/views`、`stores/finance.ts` |
+| WP3 修复与浏览器矩阵验收 | `3db5b40`；`docs/16-wp3-acceptance-report.md`；`output/playwright/wp3` |
 
 ## 部分完成
 
@@ -44,7 +49,7 @@
 
 ## 进行中
 
-- WP3 基础记账与今日财务：Finance 契约、表结构/migration、API 与集成测试、用户端页面已提交（`c1c8f92`、`3fcf1df`、`e7b971c`、`3fe6739`）；验收、文档同步与 3 个未提交的业务文件修改待处理（DA-0308 IN_PROGRESS）。
+- 无进行中业务任务。
 
 ## 未开始
 
@@ -54,7 +59,7 @@
 - WP7 PWA 与离线同步
 - WP8 全量质量与发布准备
 
-以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP2 已 DONE，WP3 IN_PROGRESS（DA-0308），WP4–WP8 为 `NOT_STARTED`。
+以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP3 已 DONE（WP3 验收见 `docs/16`），WP4–WP8 为 `NOT_STARTED`。
 
 ## 已知问题
 
@@ -64,13 +69,12 @@
 | 浏览器 QA 未固化为仓库内一键脚本 | 复现依赖 `playwright-cli` 与本地服务 | 待后续固化 |
 | 远端 CI 未执行 | “CI 通过”无法被远端证实 | 待推送授权 |
 | origin 仓库名 `richangzhushou` 与产品名 Daily Assistant 不一致 | 品牌/仓库命名 `[待确认]` | OPEN-001/002 |
-| `apps/api/src/finance/finance.controller.ts`、`apps/admin/src/api/client.ts`、`apps/web/src/api/client.ts` 存在未提交修改（import 调整与 HTTP 错误解析修复） | 来源未完全确认，已保留未提交 | 待 WP3 收尾确认并提交 |
+| WP3 整体预算 NULL 唯一性由服务层校验；原账单软删除后其退款仍计入统计；统计摘要仅按 CNY 汇总；CSV 单次上限 10,000 行 | 边界行为，V1 规模可接受 | 记录于 `docs/16` |
 
 ## 待验证事项
 
-- 当前机器 `npm run quality` 已复跑通过（WP2 分支）。
-- 便携 MySQL 8.4 空库 `prisma migrate deploy` 已真实执行通过；集成测试在 `TEST_DATABASE_URL` 下通过。
-- GitHub Actions 首次远端执行。
-- 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 复跑验证；一键脚本化复现待后续（OPEN-009）。
-- WP3 提交后的 `npm run quality`、真实 MySQL 集成测试与浏览器矩阵尚未复跑；WP3 验收报告未输出。
+- 当前机器 `npm run quality` 已复跑通过（WP3 分支，2026-08-05）。
+- 便携 MySQL 8.4 空库 `prisma migrate deploy`（2 migrations）与 seed 已真实执行通过；WP2+WP3 集成测试 29/29 通过。
+- GitHub Actions 远端执行待推送授权。
+- 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 复跑验证（30/30）；一键脚本化复现待后续（OPEN-009）。
 - 未实现功能一律不得视为已验证；计划中的功能不得写成已完成。
