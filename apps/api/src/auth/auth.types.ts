@@ -12,4 +12,12 @@ export interface AuthUser {
 export interface AuthenticatedRequest extends RequestWithId {
   user?: AuthUser;
   refreshSession?: Session & { user: User };
+  deviceCredential?: DeviceCredentialPrincipal;
+}
+
+export interface DeviceCredentialPrincipal {
+  id: string;
+  userId: string;
+  name: string;
+  scopes: string[];
 }

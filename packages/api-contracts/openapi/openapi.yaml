@@ -639,8 +639,7 @@ paths:
         content:
           application/json:
             schema: { $ref: "#/components/schemas/OcrDraftRequest" }
-      x-error-codes:
-        [OCR_UNAVAILABLE, ATTACHMENT_NOT_READY, RESOURCE_NOT_FOUND]
+      x-error-codes: [OCR_UNAVAILABLE, ATTACHMENT_NOT_READY, RESOURCE_NOT_FOUND]
       responses:
         "201":
           description: PENDING draft created from OCR text
@@ -750,9 +749,7 @@ paths:
           content:
             application/json:
               schema:
-                {
-                  $ref: "#/components/schemas/DraftBatchDiscardIntentResponse",
-                }
+                { $ref: "#/components/schemas/DraftBatchDiscardIntentResponse" }
         "400": { $ref: "#/components/responses/ApiError" }
   /drafts/batch-discard/confirm:
     post:
@@ -790,7 +787,8 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: "#/components/schemas/ShortcutCredentialCreateRequest" }
+            schema:
+              { $ref: "#/components/schemas/ShortcutCredentialCreateRequest" }
       x-error-codes: [VALIDATION_ERROR]
       responses:
         "201":
@@ -878,7 +876,8 @@ paths:
           description: Fixed-point spend summary
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/ShortcutTodaySpendResponse" }
+              schema:
+                { $ref: "#/components/schemas/ShortcutTodaySpendResponse" }
         "401": { $ref: "#/components/responses/ApiError" }
         "403": { $ref: "#/components/responses/ApiError" }
         "429": { $ref: "#/components/responses/ApiError" }
@@ -1169,7 +1168,8 @@ paths:
           description: Upload completed and scan status finalized
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/AttachmentCompleteResponse" }
+              schema:
+                { $ref: "#/components/schemas/AttachmentCompleteResponse" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
         "409": { $ref: "#/components/responses/ApiError" }
         "422": { $ref: "#/components/responses/ApiError" }
@@ -2484,7 +2484,7 @@ components:
       additionalProperties: false
       required: [confirmationToken, affectedDraftIds, expiresAt]
       properties:
-        confirmationToken: { type: string, minLength: 32, maxLength: 256 }
+        confirmationToken: { type: string, minLength: 32, maxLength: 512 }
         affectedDraftIds:
           type: array
           items: { $ref: "#/components/schemas/Identifier" }
@@ -2494,7 +2494,7 @@ components:
       additionalProperties: false
       required: [confirmationToken]
       properties:
-        confirmationToken: { type: string, minLength: 32, maxLength: 256 }
+        confirmationToken: { type: string, minLength: 32, maxLength: 512 }
     DraftBatchDiscardResult:
       type: object
       additionalProperties: false

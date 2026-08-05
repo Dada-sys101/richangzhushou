@@ -13,6 +13,7 @@ import type {
 import {
   Prisma,
   type Budget,
+  type PrismaClient,
   type Transaction,
 } from "../generated/prisma/client.js";
 import { ApiException } from "../common/api-error.js";
@@ -99,13 +100,16 @@ export class FinanceService {
   async createTransaction(
     userId: string,
     dto: CreateTransactionDto,
+    tx?: Prisma.TransactionClient,
   ): Promise<TransactionCreatedResponse> {
+    const db = tx ?? this.prisma;
     const input = this.normalizeCreateInput(userId, dto);
 
     if (input.clientMutationId) {
       const replayed = await this.findByIdempotencyKey(
         userId,
         input.clientMutationId,
+        db,
       );
       if (replayed) {
         this.assertSameMutation(replayed, input);
@@ -113,13 +117,13 @@ export class FinanceService {
       }
     }
 
-    await this.validateRefundRules(userId, input);
-    await this.resolveCategory(userId, input.categoryId, input.type);
-    await this.resolveAccount(userId, input.accountId);
-    const duplicate = await this.findPossibleDuplicate(userId, input);
+    await this.validateRefundRules(userId, input, db);
+    await this.resolveCategory(userId, input.categoryId, input.type, db);
+    await this.resolveAccount(userId, input.accountId, db);
+    const duplicate = await this.findPossibleDuplicate(userId, input, db);
 
     try {
-      const created = await this.prisma.transaction.create({
+      const created = await db.transaction.create({
         data: {
           accountId: input.accountId,
           amount: input.amount,
@@ -145,6 +149,7 @@ export class FinanceService {
         const replayed = await this.findByIdempotencyKey(
           userId,
           input.clientMutationId,
+          db,
         );
         if (replayed) {
           this.assertSameMutation(replayed, input);
@@ -225,10 +230,20 @@ export class FinanceService {
       userId,
     } satisfies NormalizedTransactionInput;
 
-    await this.validateRefundRules(userId, input);
-    await this.resolveCategory(userId, input.categoryId, input.type);
-    await this.resolveAccount(userId, input.accountId);
-    const duplicate = await this.findPossibleDuplicate(userId, input, id);
+    await this.validateRefundRules(userId, input, this.prisma);
+    await this.resolveCategory(
+      userId,
+      input.categoryId,
+      input.type,
+      this.prisma,
+    );
+    await this.resolveAccount(userId, input.accountId, this.prisma);
+    const duplicate = await this.findPossibleDuplicate(
+      userId,
+      input,
+      this.prisma,
+      id,
+    );
 
     const updated = await this.prisma.transaction.updateMany({
       data: {
@@ -920,6 +935,7 @@ export class FinanceService {
       originalTransactionId: string | null;
       type: TransactionTypeValue;
     },
+    db: Prisma.TransactionClient | PrismaClient,
   ): Promise<void> {
     if (input.type !== "REFUND") {
       if (input.originalTransactionId) {
@@ -953,7 +969,7 @@ export class FinanceService {
       );
     }
     if (input.originalTransactionId) {
-      const original = await this.prisma.transaction.findFirst({
+      const original = await db.transaction.findFirst({
         where: {
           deletedAt: null,
           id: input.originalTransactionId,
@@ -976,11 +992,12 @@ export class FinanceService {
     userId: string,
     categoryId: string | null,
     type: TransactionTypeValue,
+    db: Prisma.TransactionClient | PrismaClient,
   ): Promise<void> {
     if (!categoryId) {
       return;
     }
-    const category = await this.prisma.category.findFirst({
+    const category = await db.category.findFirst({
       where: {
         deletedAt: null,
         id: categoryId,
@@ -1004,11 +1021,12 @@ export class FinanceService {
   private async resolveAccount(
     userId: string,
     accountId: string | null,
+    db: Prisma.TransactionClient | PrismaClient,
   ): Promise<void> {
     if (!accountId) {
       return;
     }
-    const account = await this.prisma.financialAccount.findFirst({
+    const account = await db.financialAccount.findFirst({
       where: {
         deletedAt: null,
         id: accountId,
@@ -1034,6 +1052,7 @@ export class FinanceService {
       occurredAt: Date;
       sourceFingerprint: string | null;
     },
+    db: Prisma.TransactionClient | PrismaClient,
     excludeId?: string,
   ): Promise<Transaction | null> {
     const or: Prisma.TransactionWhereInput[] = [];
@@ -1046,7 +1065,7 @@ export class FinanceService {
     if (or.length === 0) {
       return null;
     }
-    return this.prisma.transaction.findFirst({
+    return db.transaction.findFirst({
       orderBy: { occurredAt: "desc" },
       where: {
         amount: input.amount,
@@ -1067,8 +1086,9 @@ export class FinanceService {
   private async findByIdempotencyKey(
     userId: string,
     clientMutationId: string,
+    db: Prisma.TransactionClient | PrismaClient,
   ): Promise<Transaction | null> {
-    return this.prisma.transaction.findFirst({
+    return db.transaction.findFirst({
       where: { clientMutationId, userId },
     });
   }
