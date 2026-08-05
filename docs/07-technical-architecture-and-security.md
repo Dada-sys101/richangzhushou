@@ -1,0 +1,82 @@
+# 07 技术架构与安全
+
+文档版本：0.1  
+状态：设计建议  
+更新：2026-08-04  
+适用版本：V1.0
+
+## 技术栈
+
+- Monorepo：npm workspaces。
+- 用户端：Vue 3、TypeScript、Vite、Pinia、Vue Router、PWA。
+- 管理端：Vue 3、TypeScript、Vite、Element Plus。
+- 后端：NestJS 单体、TypeScript。
+- 数据：MySQL 8.x，ORM 建议 Prisma。
+- 契约：OpenAPI 3.1 + 生成/共享 TypeScript 类型。
+- 测试：Vitest（前端/共享）、后端单元与集成测试、Playwright 浏览器测试。
+
+## 逻辑架构
+
+```mermaid
+flowchart TB
+    WEB[Vue PWA] --> API[NestJS API]
+    ADMIN[Vue Admin] --> API
+    SC[Apple Shortcuts] --> API
+    API --> DB[(MySQL)]
+    API --> OBJ[Object Storage Adapter]
+    API --> OCR[OCR Adapter]
+    API --> AI[AI Adapter]
+    API --> MAIL[Mail Adapter]
+    API --> NOTIFY[Notification Adapter]
+    API --> JOB[Database-backed Scheduler]
+```
+
+## 后端模块
+
+- `auth`：注册、登录、会话、密码恢复。
+- `users`：账号状态、关闭、恢复、删除。
+- `capacity`：注册配置、容量锁和计数。
+- `invites`：邀请码生命周期。
+- `finance`：账单、分类、账户、预算、统计。
+- `drafts`：OCR/AI/快捷指令草稿及确认。
+- `calendar`、`tasks`、`reminders`。
+- `trips`。
+- `attachments`。
+- `sync`：变更游标、幂等和冲突。
+- `admin`、`audit`、`health`。
+- `integrations`：外部服务适配器。
+
+## 客户端离线架构
+
+- IndexedDB 保存用户范围内的近期业务数据、同步游标和待发送变更。
+- 本地记录以用户 ID/账号隔离；退出或关闭账号清除可解密本地数据与凭证。
+- Service Worker 缓存应用外壳，不缓存认证响应或跨用户敏感 API 响应。
+- 同步器按创建顺序重试，采用指数退避并允许用户手动重试。
+- 版本冲突进入专门页面，不在后台静默覆盖金额、日期、状态和删除。
+
+## 安全基线
+
+- 密码使用 Argon2id 或平台认可的强哈希参数。
+- 刷新令牌只存哈希，并支持单设备撤销和全量撤销。
+- 登录、找回密码、邀请码尝试和快捷指令端点限流。
+- DTO allow-list 校验，禁止批量赋值越权字段。
+- 数据访问服务统一要求 `userId`；跨用户访问对外返回 404。
+- 管理端单独授权守卫，所有写操作记录审计。
+- CORS 精确配置；生产强制 HTTPS、安全头和安全 Cookie 属性。
+- 文件限制 MIME、扩展名、魔数和大小；对象键随机生成；上传后扫描状态通过才可使用。
+- 日志禁止记录密码、令牌、邀请码明文、账单正文、图片内容和完整邮箱。
+- OCR/AI 发送前最小化数据，用户可选择识别后删除原图。
+
+## 容量并发策略
+
+注册事务锁定单例容量配置行，再计算占用用户并创建用户和兑换记录。数据库隔离级别、唯一约束和重试策略必须通过“两个请求争抢最后一个名额”集成测试。
+
+## 提醒调度
+
+V1 使用数据库记录加单进程周期扫描；领取任务时使用原子状态更新避免重复发送。多实例部署前必须引入数据库租约或等价互斥，不直接增加消息队列。
+
+## 可观察性
+
+- 结构化脱敏日志和请求 ID。
+- 指标：登录失败、容量拒绝、同步失败、提醒失败、OCR/AI失败、HTTP错误率。
+- 健康检查区分存活与就绪，不泄露依赖凭据或内部错误。
