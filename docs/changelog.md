@@ -24,6 +24,8 @@
 - 验收：`npm run quality`、空库 migration+seed、集成测试 41/41、浏览器 5 宽度
   矩阵 25/25 与主流程全部通过（`docs/18-wp4-acceptance-report.md`）。
 - 未推送、未部署、未创建生产资源、未进入 WP5。
+- 修复：附件非法类型错误码改由服务层返回 `ATTACHMENT_TYPE_NOT_ALLOWED`
+  （`c1cfc33`）。
 
 ## 2026-08-05 — 持久化项目状态恢复机制（v2）
 

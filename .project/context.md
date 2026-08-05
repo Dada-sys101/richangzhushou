@@ -96,6 +96,7 @@ None（当前没有正在进行的开发任务；等待用户授权推送 WP1–
 - `7cb7656` feat(contracts): WP4 shortcuts, drafts and attachments OpenAPI contracts
 - `4be9524` feat(db): WP4 device credentials, drafts and attachments schema and migration
 - `4cd75e9` feat(api): WP4 device credentials, shortcut drafts, draft center, and attachment OCR
+- `c1cfc33` fix(api): return ATTACHMENT_TYPE_NOT_ALLOWED from service after DTO validation
 - 本次：feat(web): WP4 快捷记录/草稿中心/快捷指令配置页与验收文档（提交后以 `git log` 为准）
 
 ## Important Constraints

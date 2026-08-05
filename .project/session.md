@@ -85,7 +85,8 @@ None（本任务）；项目级阻塞见 `.project/context.md` Blockers。
 
 ## Resume Instructions
 
-1. 本任务已完成；提交哈希以 `git log` 为准（分支 `codex/wp4-shortcuts-ocr`）。
+1. 本任务已完成；提交哈希以 `git log` 为准（分支 `codex/wp4-shortcuts-ocr`，
+   含 `c1cfc33` 附件类型错误码修复）。
 2. 下次任务开始前，按 AGENTS.md 恢复顺序读取状态文件与 Git 历史。
 3. 若用户说“继续开发”且未指定任务，按 context 的 Next Recommended Task 执行
    （远端 CI 确认需授权；下一开发任务为 WP5）。
