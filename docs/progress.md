@@ -31,6 +31,7 @@
 | WP2 用户端与管理端页面 | `apps/web/src/views`、`apps/admin/src/views` |
 | WP2 集成与浏览器验收 | `apps/api/src/integration/wp2.integration.test.ts`；`output/playwright/wp2` |
 | WP2 复核（2026-08-05）：空库迁移、seed、18/18 集成测试与 5 宽度浏览器矩阵 | `docs/14-wp2-acceptance-report.md` v2.0；`output/playwright/wp2` |
+| 跨任务自动恢复机制（Project State Recovery 工作流） | 本次提交；`AGENTS.md`、`.project/context.md` |
 
 ## 部分完成
 
@@ -43,18 +44,17 @@
 
 ## 进行中
 
-- 无业务工作在进行中。等待 WP2 本地提交确认、远端 CI 结果与 WP3 授权。
+- WP3 基础记账与今日财务：Finance 契约、表结构/migration、API 与集成测试、用户端页面已提交（`c1c8f92`、`3fcf1df`、`e7b971c`、`3fe6739`）；验收、文档同步与 3 个未提交的业务文件修改待处理（DA-0308 IN_PROGRESS）。
 
 ## 未开始
 
-- WP3 基础记账与今日财务
 - WP4 快捷指令、OCR 与统一录入
 - WP5 日程、待办与提醒
 - WP6 行程
 - WP7 PWA 与离线同步
 - WP8 全量质量与发布准备
 
-以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP2 已 DONE，WP3–WP8 为 `NOT_STARTED`。
+以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP2 已 DONE，WP3 IN_PROGRESS（DA-0308），WP4–WP8 为 `NOT_STARTED`。
 
 ## 已知问题
 
@@ -64,6 +64,7 @@
 | 浏览器 QA 未固化为仓库内一键脚本 | 复现依赖 `playwright-cli` 与本地服务 | 待后续固化 |
 | 远端 CI 未执行 | “CI 通过”无法被远端证实 | 待推送授权 |
 | origin 仓库名 `richangzhushou` 与产品名 Daily Assistant 不一致 | 品牌/仓库命名 `[待确认]` | OPEN-001/002 |
+| `apps/api/src/finance/finance.controller.ts`、`apps/admin/src/api/client.ts`、`apps/web/src/api/client.ts` 存在未提交修改（import 调整与 HTTP 错误解析修复） | 来源未完全确认，已保留未提交 | 待 WP3 收尾确认并提交 |
 
 ## 待验证事项
 
@@ -71,4 +72,5 @@
 - 便携 MySQL 8.4 空库 `prisma migrate deploy` 已真实执行通过；集成测试在 `TEST_DATABASE_URL` 下通过。
 - GitHub Actions 首次远端执行。
 - 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 复跑验证；一键脚本化复现待后续（OPEN-009）。
+- WP3 提交后的 `npm run quality`、真实 MySQL 集成测试与浏览器矩阵尚未复跑；WP3 验收报告未输出。
 - 未实现功能一律不得视为已验证；计划中的功能不得写成已完成。

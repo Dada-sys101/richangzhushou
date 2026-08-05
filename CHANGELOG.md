@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-05 — 跨任务自动恢复项目状态机制
+
+- `AGENTS.md` 新增 Project State Recovery、Required workflow before every task、任务结束更新与任务优先级规则。
+- `.project/context.md` 规范化为固定结构（含 Repository State、Current Task、Next Recommended Task、Handoff Instructions 等）。
+- 同步更新 `docs/progress.md`、`docs/changelog.md`、`PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`。
+- 仅文档改动；保留未提交的 `apps/api/src/finance/finance.controller.ts` 修改；未推送。
+
 ## 2026-08-05 — WP2 真实验收复核通过（quality + 空库迁移 + 集成 + 浏览器矩阵）
 
 - 在全新空库 MySQL 8.4.9 上重新执行 `prisma migrate deploy`、seed 与 `npm run test:integration`：18/18 通过。

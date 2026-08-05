@@ -1,6 +1,6 @@
 # Project Status
 
-版本：0.6<br>
+版本：0.7<br>
 状态：WP3 执行中（已获用户授权；WP1、WP2 本地验收完成）<br>
 更新：2026-08-05
 
@@ -12,6 +12,7 @@
 - 代码：WP2 已实现身份、邀请码、容量、账号生命周期、管理端 API 与页面；WP3 开始实现 Finance 契约与 API
 - Git 仓库：独立仓库，当前分支 `codex/wp3-finance`（未推送）
 - 上下文：`.project/context.md` 与 `docs/` 接管文档已建立（见 `docs/README.md`）
+- 自动恢复机制：`AGENTS.md` 增加 Project State Recovery / Required workflow，`.project/context.md` 已规范化为固定结构
 - 部署：尚未创建
 - 当前用户：本地验收数据（非生产）
 

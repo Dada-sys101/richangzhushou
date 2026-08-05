@@ -4,6 +4,15 @@
 更新：2026-08-05
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-05 — 跨任务自动恢复项目状态机制
+
+提交信息：`docs: add automatic project state recovery workflow`
+
+- `AGENTS.md` 新增 Project State Recovery（15 条）、Required workflow before every task（Step 1–8）、Task completion state updates、Task priority rules。
+- `.project/context.md` 规范化为固定结构（Last Updated / Repository State / Project Summary / Current Development Stage / Last Completed Task / Current Task / Next Recommended Task / Completed Work / Remaining Work / Blockers / Known Issues / Verification Status / Recent Changes / Important Constraints / Handoff Instructions）。
+- 同步更新 `docs/progress.md`（WP3 状态改为进行中）与根状态文件。
+- 未修改业务代码；保留未提交的 `apps/api/src/finance/finance.controller.ts` 修改。
+
 ## 2026-08-05 — WP2 身份、容量与账号生命周期（本地完成）
 
 提交：`ee0d3c9`（分支 `codex/wp2-identity-capacity`）

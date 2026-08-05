@@ -1,77 +1,103 @@
-# 实时项目上下文（Project Context）
+# Project Context
 
-更新时间：2026-08-05
-维护规则：每次会话开始与结束时更新本文件；本文是后续模型恢复项目状态时优先读取的文件。
+## Last Updated
 
-## 项目当前状态
+2026-08-05（随提交 `docs: add automatic project state recovery workflow` 更新）
 
-- 项目：Daily Assistant（临时名称，正式产品名待确认）。
-- 阶段：WP0/WP1/WP2 已完成（WP2 于 2026-08-05 复核通过）；WP3 已获授权并开始执行；WP4–WP8 未开始。
-- 本轮任务：按 `docs/15-wp3-codex-execution-plan.md` 执行 WP3“基础记账与今日财务”（账单、分类、账户、预算、统计、CSV、今日卡片）。
+## Repository State
 
-## 当前分支
+- repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
+- current_branch: `codex/wp3-finance`
+- latest_commit: `3fe6739`（feat(web): WP3 记账页面…），以 `git log -1 --oneline` 为准
+- working_tree_status: 3 个未提交修改——`apps/api/src/finance/finance.controller.ts`（DTO import 调整）、`apps/admin/src/api/client.ts` 与 `apps/web/src/api/client.ts`（HTTP 错误解析防御性修复）；来源未完全确认，已全部保留，未纳入本次提交
 
-- `codex/wp3-finance`（新建，未推送；`codex/wp2-identity-capacity` 已完成本地验收未推送；`main` 保留 WP0 规划基线，`codex/wp1-foundation` 已推送）。
+## Project Summary
 
-## 最近一次有效提交
+Daily Assistant：面向 10–20 名受邀用户的个人日常助手（V1.0），聚焦记账、日程、待办、提醒、行程、Apple 快捷指令辅助记账、云端同步与本地离线。技术栈：npm workspaces monorepo；Vue 3 + Vite PWA 用户端、Vue 3 + Element Plus 管理端、NestJS 单体 API、Prisma 7 + MySQL 8；OpenAPI 3.1 共享契约（`packages/api-contracts`）。
 
-- 最新提交以 `git log -1 --oneline` 为准（本文不固化具体 hash，避免文档滞后）。
+## Current Development Stage
 
-## 最近修改的模块
+- WP0（规划）、WP1（工程骨架）、WP2（身份/容量/邀请码/管理端）已完成并通过本地验收（`docs/13`、`docs/14`）。
+- WP3（基础记账与今日财务）已获授权并执行中：Finance 契约、表结构/migration、API 与集成测试、用户端页面已提交；验收与文档同步未完成（TODO DA-0308 IN_PROGRESS）。
+- WP4–WP8 未开始；无生产部署。
 
-- 本轮（WP3 进行中）：`apps/api`（finance 模块）、`apps/web`（记账页面）、`packages/api-contracts`（Finance 契约）、Prisma migration、文档与状态文件。
+## Last Completed Task
 
-## 当前运行情况
+建立“跨任务自动恢复项目状态”固定机制（仅文档）：AGENTS.md 增加 Project State Recovery、Required workflow before every task、Task completion state updates、Task priority rules；`.project/context.md` 规范化为固定结构；同步 progress、changelog 与状态文件。提交：`docs: add automatic project state recovery workflow`。
 
-- 验收时曾启动 API（127.0.0.1:3000）、用户端（localhost:5173）、管理端（localhost:5174）与便携 MySQL 8.4（127.0.0.1:3307）。
-- `prisma migrate deploy` 已在便携 MySQL 8.4 真实空库执行通过。
-- 最近一次 `npm run quality` 通过；WP2 集成测试在 `TEST_DATABASE_URL` 下通过。
+## Current Task
 
-## 当前部署状态
+- 当前任务：WP3 收尾——完成验收、处理 3 个未提交的业务文件修改（`finance.controller.ts`、`admin/src/api/client.ts`、`web/src/api/client.ts`）并提交，输出 `docs/16-wp3-acceptance-report.md` 并同步状态文档（对应 TODO DA-0308）。
+- 当前完成程度：功能代码已提交（`c1c8f92`、`3fcf1df`、`e7b971c`、`3fe6739`）；验收/文档未完成；存在 1 个未提交的业务文件修改。
+- 涉及模块：`apps/api/src/finance`、`apps/web/src/views`（记账页面）、`packages/api-contracts`、`docs`。
+- 验收标准：`npm run quality` 通过；真实 MySQL 空库 migration 与集成测试通过；浏览器 5 宽度矩阵通过；验收报告与状态文档同步。
 
-- 无任何部署，未创建云资源。
-- `codex/wp1-foundation` 已推送（提交 `518477e`）；`codex/wp2-identity-capacity` 未推送。
-- GitHub Actions 首次运行与 WP2 CI 结果待确认（本机 `gh` 未登录，无法查询）。
-- origin 为 `https://github.com/Dada-sys101/richangzhushou.git`。
+## Next Recommended Task
 
-## 已完成任务
+完成 WP3 本地验收并提交：先确认并提交 `apps/api/src/finance/finance.controller.ts` 的未提交修改，再运行 `npm run quality`、真实 MySQL 集成测试与浏览器矩阵，输出 `docs/16-wp3-acceptance-report.md`。
+依据：WP3 功能代码已提交（`3fe6739` 等），当前唯一进行中任务为 DA-0308（验收与文档同步）；这是 `docs/progress.md` 中依赖已满足的最高优先级进行中任务。
 
-- WP0：产品、规则、数据、API、架构、测试、部署与交接文档（提交 `5d52395`）。
-- WP1：Monorepo 骨架、OpenAPI 3.1、Prisma/MySQL 基线、CI、本地质量门与浏览器矩阵（提交 `6169ac0`，详见 `docs/13-wp1-acceptance-report.md`）。
-- WP2：契约、migration、身份与会话、容量与邀请码、账号生命周期、管理端与审计、前端页面与验收（详见 `docs/14-wp2-acceptance-report.md`）。
+## Completed Work
 
-## 正在进行的任务
+- WP0：规划文档体系（提交 `5d52395`）。
+- WP1：Monorepo 骨架、OpenAPI 3.1、Prisma/MySQL 枚举基线、CI、本地质量门（提交 `6169ac0`；`docs/13`）。
+- WP2：身份/会话/容量/邀请码/账号生命周期/管理端/审计/前端页面；空库 migration、18/18 集成测试、浏览器矩阵（`docs/14`）。
+- WP3（已提交、未验收）：Finance 契约、表结构/migration/seed、账单/分类/账户/预算/统计/CSV API 与集成测试、用户端记账页面（`c1c8f92`、`3fcf1df`、`e7b971c`、`3fe6739`）。
+- 机制建立：跨任务自动恢复项目状态（本次 docs 提交）。
 
-- WP3 执行中：契约 → Prisma migration → Finance API → 集成测试 → 用户端页面 → 验收与文档。
+## Remaining Work
 
-## 下一步建议任务
+- WP3 验收与文档同步（DA-0308 IN_PROGRESS）；3 个未提交的业务文件修改待确认提交。
+- WP4 快捷指令/OCR/统一录入、WP5 日程/待办/提醒、WP6 行程、WP7 PWA/离线同步、WP8 全量质量与发布准备：全部未开始。
+- 工程债：浏览器 QA 一键脚本（OPEN-009）、远端 CI 确认、便携 MySQL 复跑说明。
 
-1. 完成 WP3 各 checkpoint 并在本地提交。
-2. 完成 `npm run quality`、真实 MySQL 集成测试与浏览器矩阵验收。
-3. 输出 `docs/16-wp3-acceptance-report.md` 并同步状态文档。
-4. 确认 OPEN-008（邮箱验证策略）后再决定公开试用注册流程。
+## Blockers
 
-## 当前阻塞问题
+- 远端 CI 结果未确认（本机 `gh` 未登录；WP2/WP3 分支未推送）。
+- 便携 MySQL 8.4 位于仓库外，其他机器复跑集成测试需自备 MySQL 8.x。
+- 邮件供应商未确定（OPEN-003），当前使用内存 MailAdapter。
+- 产品名、部署地域、保留期等未决（OPEN-001~008）。
 
-- 远端 CI 运行结果未确认（当前分支未推送，本机 `gh` 未登录）。
-- 便携 MySQL 位于仓库外，其他机器需要自行准备 MySQL 8.x 才能复跑集成测试。
-- 邮件供应商未确定，当前使用内存 MailAdapter（OPEN-003）。
-- 产品名、供应商、部署地域、保留期、邮件验证策略等未决（`docs/decisions.md` OPEN-001~008）。
+## Known Issues
 
-## 重要注意事项
+- `apps/api/src/finance/finance.controller.ts`、`apps/admin/src/api/client.ts`、`apps/web/src/api/client.ts` 存在来源未完全确认的未提交修改，已全部保留未提交。
+- 浏览器 QA 未固化为仓库内一键脚本（OPEN-009）；`docs/13` 曾记录的 favicon 404 与“0 error”表述需以最新验收为准。
+- origin 仓库名 `richangzhushou` 与产品名 Daily Assistant 不一致（OPEN-002）。
+- 本机 Git 全局代理 `127.0.0.1:7890` 不可用；系统代理 `127.0.0.1:7897` 可用（远程 Git 操作临时覆盖，未修改全局配置）。
 
-- 遵循 `AGENTS.md`：不擅自改架构、不删功能、不碰无关文件、不动 `D:\codex-worker` 的开封旅游助手仓库。
-- 涉及数据库/API/部署的变更必须先检查数据字典、OpenAPI、migration 与回滚、环境变量、CORS/安全配置兼容性。
-- 跨工作区变更必须通过 `npm run quality` 与 `git diff --check`；任务完成后更新进度文档并独立提交。
-- 真实凭据（密码、Token、API Key、私钥、生产数据库 URL）严禁写入仓库或文档。
-- 未实现的功能不得写成已完成；无法确认的信息必须标注“待确认/未发现实现/文档与代码不一致”。
-- 本机 Git 全局代理 `127.0.0.1:7890` 当前不可用；系统代理 `127.0.0.1:7897` 可用。远程 Git 操作可临时加 `-c http.proxy=http://127.0.0.1:7897 -c https.proxy=http://127.0.0.1:7897`；未修改全局配置。
+## Verification Status
 
-## 后续模型接手时的阅读顺序
+- 已通过（记录）：WP2 复核时 `npm run quality`；WP2 空库 migration + 18/18 集成测试；WP2 浏览器 5 宽度矩阵。
+- 构建状态：WP1/WP2 基线构建通过；WP3 提交后尚未在本轮复跑。
+- 未运行/未确认：WP3 提交后的 `npm run quality`、集成测试、浏览器矩阵；远端 CI。
+- 尚未验证：WP4–WP8 全部功能；WP3 验收结论。
 
-1. `.project/context.md`（本文件）
-2. `AGENTS.md`
-3. `PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`CHANGELOG.md`
-4. `docs/README.md` → `docs/project-overview.md`、`docs/architecture.md`、`docs/progress.md`、`docs/roadmap.md`、`docs/decisions.md`、`docs/changelog.md`
-5. 当前工作包定义：`docs/12-development-handoff.md`
-6. 实现代码与详细文档：`docs/05-data-model-and-dictionary.md`、`docs/06-api-and-integrations.md`、`docs/07-technical-architecture-and-security.md`、`docs/09-test-and-acceptance.md`
+## Recent Changes
+
+- `3fe6739` feat(web): WP3 记账页面（今日卡片、账单、表单、分类、账户、预算与 CSV 导出）
+- `e7b971c` feat(finance): WP3 账单/分类/账户/预算/统计/CSV API 与集成测试
+- `3fcf1df` feat(db): WP3 Finance 表结构、migration、seed 与回滚说明
+- `c1c8f92` feat(contracts): 补全 WP3 Finance OpenAPI、共享类型、错误码与契约测试
+- 本次：docs: add automatic project state recovery workflow
+
+## Important Constraints
+
+- 遵循 `AGENTS.md`：任务前先恢复状态；用户当前任务优先；不自动执行多个 roadmap 任务；未经授权不 push、不部署、不改生产；保留未知未提交修改。
+- 不擅自改架构、不删功能、不碰无关文件、不动 `D:\codex-worker` 的开封旅游助手仓库。
+- 数据库/API/部署变更必须先检查数据字典、OpenAPI、migration 与回滚、环境变量、CORS/安全配置兼容性。
+- 跨工作区变更必须通过 `npm run quality` 与 `git diff --check`。
+- 真实凭据严禁写入仓库或文档；未验证功能不得写成已验证；未实现功能不得写成已完成。
+
+## Handoff Instructions
+
+Before starting any task:
+
+1. Read AGENTS.md.
+2. Read .project/context.md.
+3. Read docs/progress.md.
+4. Read docs/roadmap.md.
+5. Inspect the current Git branch and working tree.
+6. Inspect relevant recent commits.
+7. Compare documentation with actual code.
+8. Execute the current user request only after project state has been restored.
+9. Update this file after completing the task.
