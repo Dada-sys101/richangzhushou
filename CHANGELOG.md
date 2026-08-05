@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-05 — WP2 真实验收复核通过（quality + 空库迁移 + 集成 + 浏览器矩阵）
+
+- 在全新空库 MySQL 8.4.9 上重新执行 `prisma migrate deploy`、seed 与 `npm run test:integration`：18/18 通过。
+- 复跑 `npm run quality`：格式、Lint、类型、单测、构建、Prisma、OpenAPI、migration diff、依赖审计全部通过。
+- 复跑 Playwright 浏览器矩阵：用户端注册/登录/账号与管理端登录/概览/邀请码/用户/设置/审计在 375/390/430/768/1440 无横向溢出；控制台 0 error / 0 warning。
+- 修正 OpenAPI info 中“WP1 未实现”的过时描述，同步为 WP2 已实现状态。
+- 输出 WP3 可执行规划 `docs/15-wp3-codex-execution-plan.md`；未推送、未部署；WP3 未实现。
+
 ## 2026-08-05 — WP2 identity, capacity, and admin completed locally
 
 - 在 `codex/wp2-identity-capacity` 完成 WP2：身份认证、邀请码、容量限制、账号生命周期和管理端。

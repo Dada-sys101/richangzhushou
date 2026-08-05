@@ -1,9 +1,9 @@
 # 14 WP2 验收报告
 
-报告版本：1.0<br>
-日期：2026-08-05<br>
+报告版本：2.0<br>
+日期：2026-08-05（v1.0 首次验收；v2.0 复核）<br>
 分支：`codex/wp2-identity-capacity`（未推送）<br>
-结论：WP2 本地验收通过；未推送、未部署、未进入 WP3
+结论：WP2 本地验收通过，v2.0 复核再次通过；未推送、未部署、未进入 WP3
 
 ## 范围结论
 
@@ -15,6 +15,23 @@
 - 管理端：独立角色守卫；所有管理写操作要求原因并写入脱敏、不可由产品 API 删除的 `AdminAudit`；管理员默认不能访问用户生活数据正文。
 - 邮件：通过 `MailAdapter` 接入；测试使用内存假实现，不向日志/stdout 输出重置令牌。
 - 默认设置：`registrationEnabled=false`、`inviteRequired=true`、`maxActiveUsers=20`；提供一次性管理员 bootstrap CLI，无管理员公开注册接口。
+
+## 2026-08-05 复核记录（v2.0）
+
+在全新空库上重新执行真实验收：
+
+| 检查 | 结果 |
+| --- | --- |
+| `npm run quality`（格式、Lint、类型、单测、构建、Prisma、OpenAPI、migration diff、依赖审计） | PASS |
+| 空库 `prisma migrate deploy`（MySQL 8.4.9，`daily_assistant_wp2_verify`） | PASS |
+| `prisma:seed` | PASS，默认 `registrationEnabled=false`、`inviteRequired=true`、`maxActiveUsers=20` |
+| `npm run test:integration`（真实 MySQL） | PASS，18/18 |
+| 用户端浏览器矩阵 375/390/430/768/1440（`/register`、`/login`、`/account`） | PASS，无横向溢出；注册（430）与登录（375）主流程通过 |
+| 管理端浏览器矩阵 375/390/430/768/1440（`/login`、`/dashboard`、`/invites`、`/users`、`/settings`、`/audits`） | PASS，无横向溢出；设置保存与邀请码创建通过 |
+| 控制台 | 0 error / 0 warning（仅 Chromium 内部 DOM 无障碍提示，非页面错误） |
+| `git diff --check` | PASS |
+
+复核产物：`output/playwright/wp2/.playwright-cli/`（时间戳截图与快照，gitignored）。
 
 ## 自动化验收证据
 

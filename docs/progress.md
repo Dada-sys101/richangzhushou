@@ -30,6 +30,7 @@
 | WP2 管理端 API、角色守卫与审计 | `apps/api/src/admin`、`apps/api/src/audit` |
 | WP2 用户端与管理端页面 | `apps/web/src/views`、`apps/admin/src/views` |
 | WP2 集成与浏览器验收 | `apps/api/src/integration/wp2.integration.test.ts`；`output/playwright/wp2` |
+| WP2 复核（2026-08-05）：空库迁移、seed、18/18 集成测试与 5 宽度浏览器矩阵 | `docs/14-wp2-acceptance-report.md` v2.0；`output/playwright/wp2` |
 
 ## 部分完成
 
@@ -69,5 +70,5 @@
 - 当前机器 `npm run quality` 已复跑通过（WP2 分支）。
 - 便携 MySQL 8.4 空库 `prisma migrate deploy` 已真实执行通过；集成测试在 `TEST_DATABASE_URL` 下通过。
 - GitHub Actions 首次远端执行。
-- 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 验证；一键脚本化复现待后续。
+- 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 复跑验证；一键脚本化复现待后续（OPEN-009）。
 - 未实现功能一律不得视为已验证；计划中的功能不得写成已完成。

@@ -1,6 +1,7 @@
 node_modules/
 .playwright-cli/
 output/playwright/
+output/browser-qa/
 dist/
 coverage/
 .vite/

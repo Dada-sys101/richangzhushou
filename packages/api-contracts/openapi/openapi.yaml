@@ -2,11 +2,12 @@ openapi: 3.1.0
 info:
   title: Daily Assistant API
   version: 0.1.0
-  summary: WP1 contract baseline for the Daily Assistant V1 API
+  summary: Daily Assistant V1 API contract
   description: >-
-    Contract-only baseline. Except for the infrastructure health route, these operations
-    are not implemented in WP1. IDs are strings, timestamps are ISO 8601, and money is a
-    fixed-point decimal string.
+    WP2 implements authentication, account lifecycle, capacity, invites, and admin
+    operations. Finance, drafts, shortcuts, calendar, tasks, reminders, trips,
+    attachments, and sync remain contract-only for later work packages. IDs are
+    strings, timestamps are ISO 8601, and money is a fixed-point decimal string.
 servers:
   - url: /api/v1
     description: Versioned API base path

@@ -6,8 +6,8 @@
 ## 项目当前状态
 
 - 项目：Daily Assistant（临时名称，正式产品名待确认）。
-- 阶段：WP0/WP1 已完成；WP2 本地验收完成；WP3–WP8 未开始且未获授权。
-- 本轮任务：WP2 身份认证、邀请码、容量限制、账号生命周期与管理端（已完成本地实现与验收）。
+- 阶段：WP0/WP1 已完成；WP2 本地实现与验收完成，并于 2026-08-05 复核通过；WP3–WP8 未开始且未获授权。
+- 本轮任务：WP2 全部验收条件真实复核（quality、空库 migration、18/18 集成测试、5 宽度浏览器矩阵），并输出 WP3 可执行规划（`docs/15-wp3-codex-execution-plan.md`）。
 
 ## 当前分支
 
@@ -15,7 +15,7 @@
 
 ## 最近一次有效提交
 
-- 截至本文撰写：`ee0d3c9`（feat: complete WP2 identity, capacity, invites, account lifecycle and admin）；最新提交以 `git log -1 --oneline` 为准。
+- 最新提交以 `git log -1 --oneline` 为准（本文不固化具体 hash，避免文档滞后）。
 
 ## 最近修改的模块
 
@@ -49,6 +49,7 @@
 1. 检查 `codex/wp2-identity-capacity` 本地提交与 `git diff --check`。
 2. 如需远端验证，推送前需另行授权；CI 已加入 WP2 集成测试步骤。
 3. 确认 OPEN-008（邮箱验证策略）后再决定公开试用注册流程。
+4. WP3 开工需另行授权；授权后按 `docs/15-wp3-codex-execution-plan.md` 执行。
 
 ## 当前阻塞问题
 
