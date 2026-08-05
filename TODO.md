@@ -21,8 +21,8 @@
 | DA-0207 | API 集成、并发、安全、前端和 Playwright 验收 | DONE | WP2 |
 | DA-0208 | 文档、状态与 WP2 验收报告同步 | DONE | WP2 |
 | DA-0301 | 补全 Finance OpenAPI、共享类型、错误码与契约测试 | DONE | WP3 |
-| DA-0302 | Finance Prisma 实体、约束、索引、migration、seed 与回滚说明 | IN_PROGRESS | WP3 |
-| DA-0303 | 账单 CRUD、软删除/恢复与疑似重复提示 | NOT_STARTED | WP3 |
+| DA-0302 | Finance Prisma 实体、约束、索引、migration、seed 与回滚说明 | DONE | WP3 |
+| DA-0303 | 账单 CRUD、软删除/恢复与疑似重复提示 | IN_PROGRESS | WP3 |
 | DA-0304 | 分类、账户 CRUD（归档而非物理删除） | NOT_STARTED | WP3 |
 | DA-0305 | 预算 CRUD 与自然月校验 | NOT_STARTED | WP3 |
 | DA-0306 | 统计与今日财务卡片 | NOT_STARTED | WP3 |

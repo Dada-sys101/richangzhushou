@@ -54,6 +54,19 @@ enum RecordSource {
   IMPORT
 }
 
+enum CategoryKind {
+  EXPENSE
+  INCOME
+}
+
+enum FinancialAccountKind {
+  CASH
+  DEBIT_CARD
+  CREDIT_CARD
+  DIGITAL_WALLET
+  OTHER
+}
+
 enum TaskStatus {
   OPEN
   COMPLETED
@@ -100,24 +113,28 @@ model SystemSetting {
 }
 
 model User {
-  id                   String            @id @default(cuid())
-  email                String            @unique
-  normalizedEmail      String            @unique @map("normalized_email")
-  displayName          String            @map("display_name")
-  passwordHash         String            @map("password_hash")
-  role                 UserRole          @default(USER)
-  status               UserStatus        @default(ACTIVE)
-  createdAt            DateTime          @default(now()) @map("created_at")
-  updatedAt            DateTime          @updatedAt @map("updated_at")
-  closedAt             DateTime?         @map("closed_at")
-  deletionRequestedAt  DateTime?         @map("deletion_requested_at")
-  lastLoginAt          DateTime?         @map("last_login_at")
-  sessions             Session[]
-  recoveryCodes        RecoveryCode[]
-  invitedBy            InviteRedemption?
-  adminAudits          AdminAudit[]
-  inviteCodesCreated   InviteCode[]      @relation("InviteCreator")
-  inviteCodesRevoked   InviteCode[]      @relation("InviteRevoker")
+  id                  String             @id @default(cuid())
+  email               String             @unique
+  normalizedEmail     String             @unique @map("normalized_email")
+  displayName         String             @map("display_name")
+  passwordHash        String             @map("password_hash")
+  role                UserRole           @default(USER)
+  status              UserStatus         @default(ACTIVE)
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @updatedAt @map("updated_at")
+  closedAt            DateTime?          @map("closed_at")
+  deletionRequestedAt DateTime?          @map("deletion_requested_at")
+  lastLoginAt         DateTime?          @map("last_login_at")
+  sessions            Session[]
+  recoveryCodes       RecoveryCode[]
+  invitedBy           InviteRedemption?
+  adminAudits         AdminAudit[]
+  inviteCodesCreated  InviteCode[]       @relation("InviteCreator")
+  inviteCodesRevoked  InviteCode[]       @relation("InviteRevoker")
+  categories          Category[]
+  financialAccounts   FinancialAccount[]
+  transactions        Transaction[]
+  budgets             Budget[]
 
   @@index([status])
   @@index([createdAt])
@@ -140,14 +157,14 @@ model Session {
 }
 
 model RecoveryCode {
-  id        String            @id @default(cuid())
-  userId    String            @map("user_id")
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
   kind      RecoveryCodeKind
-  tokenHash String            @unique @map("token_hash")
-  expiresAt DateTime          @map("expires_at")
-  usedAt    DateTime?         @map("used_at")
-  createdAt DateTime          @default(now()) @map("created_at")
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String           @unique @map("token_hash")
+  expiresAt DateTime         @map("expires_at")
+  usedAt    DateTime?        @map("used_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, kind, usedAt])
   @@index([expiresAt])
@@ -155,21 +172,21 @@ model RecoveryCode {
 }
 
 model InviteCode {
-  id           String            @id @default(cuid())
-  codeHash     String            @unique @map("code_hash")
-  codePrefix   String            @map("code_prefix")
-  status       InviteStatus      @default(ACTIVE)
-  maxUses      Int               @default(1) @map("max_uses")
-  usedCount    Int               @default(0) @map("used_count")
-  expiresAt    DateTime?         @map("expires_at")
-  revokedAt    DateTime?         @map("revoked_at")
-  createdById  String?           @map("created_by_id")
-  revokedById  String?           @map("revoked_by_id")
-  createdAt    DateTime          @default(now()) @map("created_at")
-  updatedAt    DateTime          @updatedAt @map("updated_at")
-  createdBy    User?             @relation("InviteCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  revokedBy    User?             @relation("InviteRevoker", fields: [revokedById], references: [id], onDelete: SetNull)
-  redemptions  InviteRedemption[]
+  id          String             @id @default(cuid())
+  codeHash    String             @unique @map("code_hash")
+  codePrefix  String             @map("code_prefix")
+  status      InviteStatus       @default(ACTIVE)
+  maxUses     Int                @default(1) @map("max_uses")
+  usedCount   Int                @default(0) @map("used_count")
+  expiresAt   DateTime?          @map("expires_at")
+  revokedAt   DateTime?          @map("revoked_at")
+  createdById String?            @map("created_by_id")
+  revokedById String?            @map("revoked_by_id")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+  createdBy   User?              @relation("InviteCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  revokedBy   User?              @relation("InviteRevoker", fields: [revokedById], references: [id], onDelete: SetNull)
+  redemptions InviteRedemption[]
 
   @@index([status, expiresAt])
   @@index([createdById])
@@ -204,4 +221,96 @@ model AdminAudit {
   @@index([actorId, createdAt])
   @@index([targetType, targetId])
   @@map("admin_audits")
+}
+
+model Category {
+  id           String        @id @default(cuid())
+  userId       String        @map("user_id")
+  kind         CategoryKind
+  name         String        @db.VarChar(40)
+  color        String        @default("#64748B") @db.VarChar(7)
+  isArchived   Boolean       @default(false) @map("is_archived")
+  version      Int           @default(1)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  deletedAt    DateTime?     @map("deleted_at")
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([userId, kind, name])
+  @@index([userId, isArchived])
+  @@map("categories")
+}
+
+model FinancialAccount {
+  id           String               @id @default(cuid())
+  userId       String               @map("user_id")
+  name         String               @db.VarChar(40)
+  kind         FinancialAccountKind
+  isArchived   Boolean              @default(false) @map("is_archived")
+  version      Int                  @default(1)
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+  deletedAt    DateTime?            @map("deleted_at")
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@unique([userId, name])
+  @@index([userId, isArchived])
+  @@map("financial_accounts")
+}
+
+model Transaction {
+  id                    String            @id @default(cuid())
+  userId                String            @map("user_id")
+  type                  TransactionType
+  status                RecordStatus      @default(CONFIRMED)
+  amount                Decimal           @db.Decimal(18, 2)
+  currency              String            @default("CNY") @db.VarChar(3)
+  categoryId            String?           @map("category_id")
+  accountId             String?           @map("account_id")
+  merchant              String?           @map("merchant") @db.VarChar(100)
+  occurredAt            DateTime          @map("occurred_at")
+  note                  String?           @db.VarChar(500)
+  source                RecordSource      @default(MANUAL)
+  originalTransactionId String?           @map("original_transaction_id")
+  isUnlinkedRefund      Boolean           @default(false) @map("is_unlinked_refund")
+  sourceFingerprint     String?           @map("source_fingerprint") @db.VarChar(128)
+  clientMutationId      String?           @unique @map("client_mutation_id")
+  version               Int               @default(1)
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+  deletedAt             DateTime?         @map("deleted_at")
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category              Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  account               FinancialAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  originalTransaction   Transaction?      @relation("RefundOriginal", fields: [originalTransactionId], references: [id], onDelete: SetNull)
+  refunds               Transaction[]     @relation("RefundOriginal")
+
+  @@index([userId, occurredAt])
+  @@index([userId, status, deletedAt])
+  @@index([userId, categoryId])
+  @@index([userId, accountId])
+  @@map("transactions")
+}
+
+model Budget {
+  id         String    @id @default(cuid())
+  userId     String    @map("user_id")
+  categoryId String?   @map("category_id")
+  month      String    @db.VarChar(7)
+  amount     Decimal   @db.Decimal(18, 2)
+  currency   String    @default("CNY") @db.VarChar(3)
+  version    Int       @default(1)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, month, categoryId])
+  @@index([userId, month])
+  @@index([userId, categoryId])
+  @@map("budgets")
 }
