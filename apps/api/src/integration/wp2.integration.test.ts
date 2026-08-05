@@ -480,17 +480,18 @@ describeWithDb("WP2 identity, capacity, and admin integration", () => {
 
   it("QA-SEC-002: admin role cannot reach user content endpoints", async () => {
     const admin = await login("admin@example.com", ADMIN_PASSWORD);
-    const paths = [
-      "/api/v1/transactions",
-      "/api/v1/calendar-events",
-      "/api/v1/tasks",
-      "/api/v1/trips",
+    const paths: Array<{ path: string; status: number }> = [
+      // WP3 implements finance endpoints; admin is rejected by UserOnlyGuard.
+      { path: "/api/v1/transactions", status: 403 },
+      { path: "/api/v1/calendar-events", status: 404 },
+      { path: "/api/v1/tasks", status: 404 },
+      { path: "/api/v1/trips", status: 404 },
     ];
-    for (const path of paths) {
+    for (const { path, status } of paths) {
       const response = await request(app1.getHttpServer())
         .get(path)
         .set("Authorization", `Bearer ${admin.accessToken}`);
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(status);
     }
   });
 
