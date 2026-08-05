@@ -6,9 +6,9 @@ info:
   description: >-
     WP2 implements authentication, account lifecycle, capacity, invites, and admin
     operations. WP3 implements finance. WP4 implements drafts, shortcuts, and
-    attachments. Calendar, tasks, reminders, trips, and sync remain contract-only
-    for later work packages. IDs are strings, timestamps are ISO 8601, and money
-    is a fixed-point decimal string.
+    attachments. WP5 implements calendar events, tasks, and reminders. Trips and
+    sync remain contract-only for later work packages. IDs are strings,
+    timestamps are ISO 8601, and money is a fixed-point decimal string.
 servers:
   - url: /api/v1
     description: Versioned API base path
@@ -886,14 +886,51 @@ paths:
       operationId: listCalendarEvents
       summary: List calendar events in the current user scope
       tags: [Calendar]
+      description: >-
+        Lists user-scoped calendar events with cursor pagination. Filters by
+        Asia/Shanghai date or natural month, status, and soft-deleted state.
+        All-day events use local date boundaries.
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/CalendarDate"
+        - $ref: "#/components/parameters/Month"
+        - $ref: "#/components/parameters/CalendarEventStatusQuery"
+        - $ref: "#/components/parameters/IncludeDeleted"
       responses:
-        "200": { description: Calendar events }
+        "200":
+          description: Calendar events
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CalendarEventListResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
     post:
       operationId: createCalendarEvent
       summary: Create a calendar event in the current user scope
       tags: [Calendar]
+      description: >-
+        Creates a user-scoped event. EndsAt must not precede startsAt; all-day
+        events must use Asia/Shanghai midnight boundaries. Overlapping events
+        return an overlapWarning without blocking creation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CalendarEventCreateRequest" }
+      x-error-codes: [VALIDATION_ERROR, IDEMPOTENCY_CONFLICT]
       responses:
-        "201": { description: Calendar event created }
+        "201":
+          description: Calendar event created
+          content:
+            application/json:
+              schema:
+                { $ref: "#/components/schemas/CalendarEventCreatedResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /calendar-events/{id}:
     get:
       operationId: getCalendarEvent
@@ -901,16 +938,36 @@ paths:
       tags: [Calendar]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
       responses:
-        "200": { description: Calendar event }
+        "200":
+          description: Calendar event
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CalendarEventSummary" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
     patch:
       operationId: updateCalendarEvent
       summary: Update a calendar event in the current user scope
       tags: [Calendar]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: >-
+        Updates a calendar event with optimistic concurrency (version). The
+        same time validation and overlap warning rules apply as on create.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CalendarEventUpdateRequest" }
+      x-error-codes: [VALIDATION_ERROR, VERSION_CONFLICT]
       responses:
-        "200": { description: Calendar event updated }
+        "200":
+          description: Calendar event updated
+          content:
+            application/json:
+              schema:
+                { $ref: "#/components/schemas/CalendarEventCreatedResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
     delete:
       operationId: deleteCalendarEvent
       summary: Delete a calendar event in the current user scope
@@ -919,19 +976,62 @@ paths:
       responses:
         "204": { description: Calendar event deleted }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /calendar-events/{id}/restore:
+    post:
+      operationId: restoreCalendarEvent
+      summary: Restore a soft-deleted calendar event in the current user scope
+      tags: [Calendar]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200":
+          description: Calendar event restored
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CalendarEventSummary" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
   /tasks:
     get:
       operationId: listTasks
       summary: List tasks in the current user scope
       tags: [Tasks]
+      description: >-
+        Lists user-scoped tasks with cursor pagination and optional status and
+        soft-deleted filters. overdue is computed from dueAt in Asia/Shanghai.
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/TaskStatusQuery"
+        - $ref: "#/components/parameters/IncludeDeleted"
       responses:
-        "200": { description: Tasks }
+        "200":
+          description: Tasks
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TaskListResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
     post:
       operationId: createTask
       summary: Create a task in the current user scope
       tags: [Tasks]
+      description: Creates an OPEN task with optional priority and due time.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TaskCreateRequest" }
+      x-error-codes: [VALIDATION_ERROR, IDEMPOTENCY_CONFLICT]
       responses:
-        "201": { description: Task created }
+        "201":
+          description: Task created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TaskSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /tasks/{id}:
     get:
       operationId: getTask
@@ -939,16 +1039,35 @@ paths:
       tags: [Tasks]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
       responses:
-        "200": { description: Task }
+        "200":
+          description: Task
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TaskSummary" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
     patch:
       operationId: updateTask
       summary: Update a task in the current user scope
       tags: [Tasks]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: >-
+        Updates title, priority, due time, or status with optimistic
+        concurrency. Terminal transitions write completedAt or cancelledAt.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TaskUpdateRequest" }
+      x-error-codes: [VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE]
       responses:
-        "200": { description: Task updated }
+        "200":
+          description: Task updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TaskSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
     delete:
       operationId: deleteTask
       summary: Delete a task in the current user scope
@@ -957,28 +1076,80 @@ paths:
       responses:
         "204": { description: Task deleted }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /tasks/{id}/restore:
+    post:
+      operationId: restoreTask
+      summary: Restore a soft-deleted task in the current user scope
+      tags: [Tasks]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200":
+          description: Task restored
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TaskSummary" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
   /tasks/{id}/complete:
     post:
       operationId: completeTask
       summary: Complete a task in the current user scope
       tags: [Tasks]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: Marks an OPEN task COMPLETED and records completedAt.
+      x-error-codes: [INVALID_STATE]
       responses:
-        "200": { description: Task completed }
+        "200":
+          description: Task completed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TaskCompleteResponse" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /reminders:
     get:
       operationId: listReminders
       summary: List reminders in the current user scope
       tags: [Reminders]
+      description: >-
+        Lists user-scoped reminders with cursor pagination and optional status
+        and soft-deleted filters.
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/ReminderStatusQuery"
+        - $ref: "#/components/parameters/IncludeDeleted"
       responses:
-        "200": { description: Reminders }
+        "200":
+          description: Reminders
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReminderListResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
     post:
       operationId: createReminder
       summary: Create a reminder in the current user scope
       tags: [Reminders]
+      description: >-
+        Creates a reminder with a once/daily/weekly/monthly schedule. scheduledAt
+        is computed as the next occurrence in Asia/Shanghai.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReminderCreateRequest" }
+      x-error-codes: [VALIDATION_ERROR, IDEMPOTENCY_CONFLICT]
       responses:
-        "201": { description: Reminder created }
+        "201":
+          description: Reminder created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReminderSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /reminders/{id}:
     get:
       operationId: getReminder
@@ -986,16 +1157,35 @@ paths:
       tags: [Reminders]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
       responses:
-        "200": { description: Reminder }
+        "200":
+          description: Reminder
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReminderSummary" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
     patch:
       operationId: updateReminder
       summary: Update a reminder in the current user scope
       tags: [Reminders]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: >-
+        Updates reminder content or schedule with optimistic concurrency.
+        Cancelling a sent reminder is rejected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReminderUpdateRequest" }
+      x-error-codes: [VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE]
       responses:
-        "200": { description: Reminder updated }
+        "200":
+          description: Reminder updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReminderSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
     delete:
       operationId: deleteReminder
       summary: Delete a reminder in the current user scope
@@ -1003,6 +1193,19 @@ paths:
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
       responses:
         "204": { description: Reminder deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /reminders/{id}/restore:
+    post:
+      operationId: restoreReminder
+      summary: Restore a soft-deleted reminder in the current user scope
+      tags: [Reminders]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200":
+          description: Reminder restored
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReminderSummary" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
   /trips:
     get:
@@ -1475,6 +1678,26 @@ components:
       in: query
       required: false
       schema: { $ref: "#/components/schemas/DraftStatus" }
+    CalendarDate:
+      name: date
+      in: query
+      required: false
+      schema: { type: string, pattern: "^\\d{4}-\\d{2}-\\d{2}$" }
+    CalendarEventStatusQuery:
+      name: status
+      in: query
+      required: false
+      schema: { $ref: "#/components/schemas/CalendarEventStatus" }
+    TaskStatusQuery:
+      name: status
+      in: query
+      required: false
+      schema: { $ref: "#/components/schemas/TaskStatus" }
+    ReminderStatusQuery:
+      name: status
+      in: query
+      required: false
+      schema: { $ref: "#/components/schemas/ReminderStatus" }
   responses:
     ApiError:
       description: Structured, non-sensitive API error
@@ -2305,9 +2528,18 @@ components:
     Priority:
       type: string
       enum: [LOW, MEDIUM, HIGH]
+    CalendarEventStatus:
+      type: string
+      enum: [SCHEDULED, CANCELLED]
     ReminderStatus:
       type: string
       enum: [SCHEDULED, SENT, CANCELLED, FAILED, SUPPRESSED]
+    ReminderScheduleType:
+      type: string
+      enum: [ONCE, DAILY, WEEKLY, MONTHLY]
+    ReminderTargetType:
+      type: string
+      enum: [CALENDAR_EVENT, TASK, STANDALONE]
     SyncState:
       type: string
       enum: [SYNCED, PENDING_SYNC, SYNC_FAILED, CONFLICT]
@@ -2501,6 +2733,321 @@ components:
       required: [discardedCount]
       properties:
         discardedCount: { type: integer, minimum: 0 }
+    CalendarOverlapWarning:
+      type: object
+      additionalProperties: false
+      required: [code, conflictingEventId, message]
+      properties:
+        code: { type: string, const: OVERLAP_WARNING }
+        conflictingEventId: { $ref: "#/components/schemas/Identifier" }
+        message: { type: string, minLength: 1 }
+    CalendarEventSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          title,
+          startsAt,
+          endsAt,
+          allDay,
+          status,
+          createdAt,
+          updatedAt,
+          deletedAt,
+          version,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        title: { type: string, minLength: 1, maxLength: 200 }
+        startsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        endsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        allDay: { type: boolean }
+        status: { $ref: "#/components/schemas/CalendarEventStatus" }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        version: { type: integer, minimum: 1 }
+    CalendarEventCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [title, startsAt, endsAt]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        startsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        endsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        allDay: { type: boolean, default: false }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
+    CalendarEventUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        startsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        endsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        allDay: { type: boolean }
+        status: { $ref: "#/components/schemas/CalendarEventStatus" }
+        version: { type: integer, minimum: 1 }
+    CalendarEventListResponse:
+      type: object
+      additionalProperties: false
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CalendarEventSummary" }
+        nextCursor:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+    CalendarEventCreatedResponse:
+      type: object
+      additionalProperties: false
+      required: [calendarEvent]
+      properties:
+        calendarEvent: { $ref: "#/components/schemas/CalendarEventSummary" }
+        overlapWarning: { $ref: "#/components/schemas/CalendarOverlapWarning" }
+    TaskSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          title,
+          status,
+          priority,
+          dueAt,
+          overdue,
+          completedAt,
+          cancelledAt,
+          createdAt,
+          updatedAt,
+          deletedAt,
+          version,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        title: { type: string, minLength: 1, maxLength: 200 }
+        status: { $ref: "#/components/schemas/TaskStatus" }
+        priority: { $ref: "#/components/schemas/Priority" }
+        dueAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        overdue: { type: boolean }
+        completedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        cancelledAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        version: { type: integer, minimum: 1 }
+    TaskCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        priority: { $ref: "#/components/schemas/Priority" }
+        dueAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
+    TaskUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        priority: { $ref: "#/components/schemas/Priority" }
+        dueAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        status: { $ref: "#/components/schemas/TaskStatus" }
+        version: { type: integer, minimum: 1 }
+    TaskListResponse:
+      type: object
+      additionalProperties: false
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/TaskSummary" }
+        nextCursor:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+    TaskCompleteResponse:
+      type: object
+      additionalProperties: false
+      required: [task]
+      properties:
+        task: { $ref: "#/components/schemas/TaskSummary" }
+    ReminderRecurrence:
+      type: object
+      additionalProperties: false
+      properties:
+        interval:
+          type: integer
+          minimum: 1
+          maximum: 366
+          default: 1
+        weekdays:
+          type: array
+          minItems: 1
+          maxItems: 7
+          uniqueItems: true
+          items: { type: integer, minimum: 1, maximum: 7 }
+        dayOfMonth:
+          type: integer
+          minimum: 1
+          maximum: 31
+        until:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+    ReminderSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          title,
+          note,
+          targetType,
+          targetId,
+          scheduleType,
+          scheduledAt,
+          recurrence,
+          status,
+          attemptCount,
+          sentAt,
+          suppressedAt,
+          failureReason,
+          createdAt,
+          updatedAt,
+          deletedAt,
+          version,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        title: { type: string, minLength: 1, maxLength: 200 }
+        note:
+          anyOf:
+            - { type: string, maxLength: 500 }
+            - { type: "null" }
+        targetType: { $ref: "#/components/schemas/ReminderTargetType" }
+        targetId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        scheduleType: { $ref: "#/components/schemas/ReminderScheduleType" }
+        scheduledAt: { $ref: "#/components/schemas/IsoDateTime" }
+        recurrence:
+          anyOf:
+            - { $ref: "#/components/schemas/ReminderRecurrence" }
+            - { type: "null" }
+        status: { $ref: "#/components/schemas/ReminderStatus" }
+        attemptCount: { type: integer, minimum: 0 }
+        sentAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        suppressedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        failureReason:
+          anyOf:
+            - { type: string, maxLength: 200 }
+            - { type: "null" }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        version: { type: integer, minimum: 1 }
+    ReminderCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [title, scheduleType, startsAt]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        note:
+          anyOf:
+            - { type: string, maxLength: 500 }
+            - { type: "null" }
+        targetType: { $ref: "#/components/schemas/ReminderTargetType" }
+        targetId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        scheduleType: { $ref: "#/components/schemas/ReminderScheduleType" }
+        startsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        recurrence:
+          anyOf:
+            - { $ref: "#/components/schemas/ReminderRecurrence" }
+            - { type: "null" }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
+    ReminderUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        note:
+          anyOf:
+            - { type: string, maxLength: 500 }
+            - { type: "null" }
+        targetType: { $ref: "#/components/schemas/ReminderTargetType" }
+        targetId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        scheduleType: { $ref: "#/components/schemas/ReminderScheduleType" }
+        startsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        recurrence:
+          anyOf:
+            - { $ref: "#/components/schemas/ReminderRecurrence" }
+            - { type: "null" }
+        status: { $ref: "#/components/schemas/ReminderStatus" }
+        version: { type: integer, minimum: 1 }
+    ReminderListResponse:
+      type: object
+      additionalProperties: false
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/ReminderSummary" }
+        nextCursor:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
     ShortcutCredentialSummary:
       type: object
       additionalProperties: false

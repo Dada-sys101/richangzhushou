@@ -2,12 +2,18 @@ import type {
   ApiErrorCode,
   AttachmentOwnerType,
   AttachmentScanStatus,
+  CalendarEventStatus,
   CategoryKind,
   DraftTargetType,
   FinancialAccountKind,
+  Priority,
   RecordSource,
   RecordStatus,
+  ReminderScheduleType,
+  ReminderStatus,
+  ReminderTargetType,
   ShortcutScope,
+  TaskStatus,
   TransactionType,
 } from "./enums.js";
 
@@ -331,6 +337,131 @@ export interface FinanceSummaryResponse {
   todaySpend: Money;
   budgets: BudgetProgress[];
   updatedAt: IsoDateTime;
+}
+
+export interface CalendarOverlapWarning {
+  code: "OVERLAP_WARNING";
+  conflictingEventId: Identifier;
+  message: string;
+}
+
+export interface CalendarEventSummary extends VersionedResource {
+  title: string;
+  startsAt: IsoDateTime;
+  endsAt: IsoDateTime;
+  allDay: boolean;
+  status: CalendarEventStatus;
+}
+
+export interface CalendarEventCreateRequest {
+  title: string;
+  startsAt: IsoDateTime;
+  endsAt: IsoDateTime;
+  allDay?: boolean;
+  clientMutationId?: string | null;
+}
+
+export interface CalendarEventUpdateRequest {
+  title?: string;
+  startsAt?: IsoDateTime;
+  endsAt?: IsoDateTime;
+  allDay?: boolean;
+  status?: CalendarEventStatus;
+  version: number;
+}
+
+export interface CalendarEventListResponse {
+  items: CalendarEventSummary[];
+  nextCursor: Identifier | null;
+}
+
+export interface CalendarEventCreatedResponse {
+  calendarEvent: CalendarEventSummary;
+  overlapWarning?: CalendarOverlapWarning;
+}
+
+export interface TaskSummary extends VersionedResource {
+  title: string;
+  status: TaskStatus;
+  priority: Priority;
+  dueAt: IsoDateTime | null;
+  overdue: boolean;
+  completedAt: IsoDateTime | null;
+  cancelledAt: IsoDateTime | null;
+}
+
+export interface TaskCreateRequest {
+  title: string;
+  priority?: Priority;
+  dueAt?: IsoDateTime | null;
+  clientMutationId?: string | null;
+}
+
+export interface TaskUpdateRequest {
+  title?: string;
+  priority?: Priority;
+  dueAt?: IsoDateTime | null;
+  status?: TaskStatus;
+  version: number;
+}
+
+export interface TaskListResponse {
+  items: TaskSummary[];
+  nextCursor: Identifier | null;
+}
+
+export interface TaskCompleteResponse {
+  task: TaskSummary;
+}
+
+export interface ReminderRecurrence {
+  interval?: number;
+  weekdays?: number[];
+  dayOfMonth?: number;
+  until?: IsoDateTime | null;
+}
+
+export interface ReminderSummary extends VersionedResource {
+  title: string;
+  note: string | null;
+  targetType: ReminderTargetType;
+  targetId: Identifier | null;
+  scheduleType: ReminderScheduleType;
+  scheduledAt: IsoDateTime;
+  recurrence: ReminderRecurrence | null;
+  status: ReminderStatus;
+  attemptCount: number;
+  sentAt: IsoDateTime | null;
+  suppressedAt: IsoDateTime | null;
+  failureReason: string | null;
+}
+
+export interface ReminderCreateRequest {
+  title: string;
+  note?: string | null;
+  targetType?: ReminderTargetType;
+  targetId?: Identifier | null;
+  scheduleType: ReminderScheduleType;
+  startsAt: IsoDateTime;
+  recurrence?: ReminderRecurrence | null;
+  clientMutationId?: string | null;
+}
+
+export interface ReminderUpdateRequest {
+  title?: string;
+  note?: string | null;
+  targetType?: ReminderTargetType;
+  targetId?: Identifier | null;
+  scheduleType?: ReminderScheduleType;
+  startsAt?: IsoDateTime;
+  recurrence?: ReminderRecurrence | null;
+  status?: ReminderStatus;
+  version: number;
+}
+
+export interface ReminderListResponse {
+  items: ReminderSummary[];
+  nextCursor: Identifier | null;
 }
 
 export interface TransactionDraftPayload {

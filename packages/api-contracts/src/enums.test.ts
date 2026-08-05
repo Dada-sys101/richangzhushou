@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   ATTACHMENT_SCAN_STATUSES,
+  CALENDAR_EVENT_STATUSES,
   RECORD_SOURCES,
+  REMINDER_SCHEDULE_TYPES,
+  REMINDER_TARGET_TYPES,
   SHORTCUT_SCOPES,
   USER_STATUSES,
 } from "./enums.js";
@@ -31,5 +34,20 @@ describe("shared enums", () => {
       "finance:summary:read",
     ]);
     expect(ATTACHMENT_SCAN_STATUSES).toEqual(["PENDING", "SCANNED", "FAILED"]);
+  });
+
+  it("keeps WP5 calendar, task, and reminder enums stable", () => {
+    expect(CALENDAR_EVENT_STATUSES).toEqual(["SCHEDULED", "CANCELLED"]);
+    expect(REMINDER_SCHEDULE_TYPES).toEqual([
+      "ONCE",
+      "DAILY",
+      "WEEKLY",
+      "MONTHLY",
+    ]);
+    expect(REMINDER_TARGET_TYPES).toEqual([
+      "CALENDAR_EVENT",
+      "TASK",
+      "STANDALONE",
+    ]);
   });
 });

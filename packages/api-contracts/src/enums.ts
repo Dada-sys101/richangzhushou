@@ -52,6 +52,9 @@ export type TaskStatus = (typeof TASK_STATUSES)[number];
 export const PRIORITIES = ["LOW", "MEDIUM", "HIGH"] as const;
 export type Priority = (typeof PRIORITIES)[number];
 
+export const CALENDAR_EVENT_STATUSES = ["SCHEDULED", "CANCELLED"] as const;
+export type CalendarEventStatus = (typeof CALENDAR_EVENT_STATUSES)[number];
+
 export const REMINDER_STATUSES = [
   "SCHEDULED",
   "SENT",
@@ -60,6 +63,21 @@ export const REMINDER_STATUSES = [
   "SUPPRESSED",
 ] as const;
 export type ReminderStatus = (typeof REMINDER_STATUSES)[number];
+
+export const REMINDER_SCHEDULE_TYPES = [
+  "ONCE",
+  "DAILY",
+  "WEEKLY",
+  "MONTHLY",
+] as const;
+export type ReminderScheduleType = (typeof REMINDER_SCHEDULE_TYPES)[number];
+
+export const REMINDER_TARGET_TYPES = [
+  "CALENDAR_EVENT",
+  "TASK",
+  "STANDALONE",
+] as const;
+export type ReminderTargetType = (typeof REMINDER_TARGET_TYPES)[number];
 
 export const SYNC_STATES = [
   "SYNCED",

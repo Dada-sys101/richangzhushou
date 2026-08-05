@@ -6,6 +6,7 @@ import { parse } from "yaml";
 import {
   API_ERROR_CODES,
   ATTACHMENT_SCAN_STATUSES,
+  CALENDAR_EVENT_STATUSES,
   CATEGORY_KINDS,
   DRAFT_STATUSES,
   FINANCIAL_ACCOUNT_KINDS,
@@ -13,7 +14,9 @@ import {
   PRIORITIES,
   RECORD_SOURCES,
   RECORD_STATUSES,
+  REMINDER_SCHEDULE_TYPES,
   REMINDER_STATUSES,
+  REMINDER_TARGET_TYPES,
   SHORTCUT_SCOPES,
   SYNC_STATES,
   TASK_STATUSES,
@@ -156,7 +159,10 @@ describe("OpenAPI baseline", () => {
     ["FinancialAccountKind", FINANCIAL_ACCOUNT_KINDS],
     ["TaskStatus", TASK_STATUSES],
     ["Priority", PRIORITIES],
+    ["CalendarEventStatus", CALENDAR_EVENT_STATUSES],
     ["ReminderStatus", REMINDER_STATUSES],
+    ["ReminderScheduleType", REMINDER_SCHEDULE_TYPES],
+    ["ReminderTargetType", REMINDER_TARGET_TYPES],
     ["SyncState", SYNC_STATES],
     ["DraftStatus", DRAFT_STATUSES],
     ["ShortcutScope", SHORTCUT_SCOPES],
@@ -268,6 +274,57 @@ describe("OpenAPI baseline", () => {
     }
   });
 
+  it("defines the WP5 calendar, task, and reminder contracts", () => {
+    const schemas = document.components.schemas;
+    for (const name of [
+      "CalendarEventSummary",
+      "CalendarEventCreateRequest",
+      "CalendarEventUpdateRequest",
+      "CalendarEventListResponse",
+      "CalendarEventCreatedResponse",
+      "CalendarOverlapWarning",
+      "TaskSummary",
+      "TaskCreateRequest",
+      "TaskUpdateRequest",
+      "TaskListResponse",
+      "TaskCompleteResponse",
+      "ReminderRecurrence",
+      "ReminderSummary",
+      "ReminderCreateRequest",
+      "ReminderUpdateRequest",
+      "ReminderListResponse",
+    ]) {
+      expect(schemas[name]).toBeDefined();
+    }
+    expect(schemas.CalendarEventCreateRequest?.required).toEqual([
+      "title",
+      "startsAt",
+      "endsAt",
+    ]);
+    expect(schemas.CalendarEventUpdateRequest?.required).toEqual(["version"]);
+    expect(schemas.TaskCreateRequest?.required).toEqual(["title"]);
+    expect(schemas.TaskUpdateRequest?.required).toEqual(["version"]);
+    expect(schemas.ReminderCreateRequest?.required).toEqual([
+      "title",
+      "scheduleType",
+      "startsAt",
+    ]);
+    expect(schemas.ReminderUpdateRequest?.required).toEqual(["version"]);
+    expect(schemas.CalendarOverlapWarning?.properties?.code).toEqual({
+      type: "string",
+      const: "OVERLAP_WARNING",
+    });
+    expect(schemas.CalendarEventStatus?.enum).toEqual([
+      ...CALENDAR_EVENT_STATUSES,
+    ]);
+    expect(schemas.ReminderScheduleType?.enum).toEqual([
+      ...REMINDER_SCHEDULE_TYPES,
+    ]);
+    expect(schemas.ReminderTargetType?.enum).toEqual([
+      ...REMINDER_TARGET_TYPES,
+    ]);
+  });
+
   it("keeps every finance operation secured by the access token", () => {
     const financePaths = [
       "/transactions",
@@ -329,6 +386,29 @@ describe("OpenAPI baseline", () => {
     );
     for (const operation of contentOperations) {
       expect(operation.security).toEqual([]);
+    }
+  });
+
+  it("keeps calendar, task, and reminder operations on the access token", () => {
+    const wp5Paths = [
+      "/calendar-events",
+      "/calendar-events/{id}",
+      "/calendar-events/{id}/restore",
+      "/tasks",
+      "/tasks/{id}",
+      "/tasks/{id}/restore",
+      "/tasks/{id}/complete",
+      "/reminders",
+      "/reminders/{id}",
+      "/reminders/{id}/restore",
+    ];
+    for (const path of wp5Paths) {
+      for (const [method, operation] of Object.entries(document.paths[path])) {
+        expect(operation.security ?? document.security).toEqual([
+          { accessToken: [] },
+        ]);
+        void method;
+      }
     }
   });
 });
