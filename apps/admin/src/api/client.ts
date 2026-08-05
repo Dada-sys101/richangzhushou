@@ -91,13 +91,20 @@ async function http<T>(
     return undefined as T;
   }
   const text = await response.text();
-  const data = text ? (JSON.parse(text) as unknown) : null;
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text) as unknown;
+    } catch {
+      data = null;
+    }
+  }
   if (!response.ok) {
-    const error = data as { code?: string; message?: string };
+    const error = (data ?? {}) as { code?: string; message?: string };
     throw new ApiClientError(
       response.status,
-      error.code ?? "INTERNAL_ERROR",
-      error.message ?? "Request failed",
+      error.code ?? "SERVICE_UNAVAILABLE",
+      error.message ?? "服务暂时不可用，请稍后重试",
     );
   }
   return data as T;

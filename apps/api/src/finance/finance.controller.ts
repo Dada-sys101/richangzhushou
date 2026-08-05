@@ -19,7 +19,7 @@ import { AccessTokenGuard } from "../auth/access-token.guard.js";
 import type { AuthenticatedRequest } from "../auth/auth.types.js";
 import { UserOnlyGuard } from "../auth/user-only.guard.js";
 import { FinanceService } from "./finance.service.js";
-import type {
+import {
   CreateBudgetDto,
   CreateCategoryDto,
   CreateFinancialAccountDto,

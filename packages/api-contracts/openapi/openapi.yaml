@@ -328,7 +328,8 @@ paths:
           description: Transaction created (or prior identical result replayed)
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/TransactionCreatedResponse" }
+              schema:
+                { $ref: "#/components/schemas/TransactionCreatedResponse" }
         "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
         "409": { $ref: "#/components/responses/ApiError" }
@@ -366,7 +367,8 @@ paths:
           description: Transaction updated
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/TransactionCreatedResponse" }
+              schema:
+                { $ref: "#/components/schemas/TransactionCreatedResponse" }
         "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
         "409": { $ref: "#/components/responses/ApiError" }
@@ -546,8 +548,7 @@ paths:
         content:
           application/json:
             schema: { $ref: "#/components/schemas/BudgetUpdateRequest" }
-      x-error-codes:
-        [VALIDATION_ERROR, VERSION_CONFLICT, DUPLICATE_RESOURCE]
+      x-error-codes: [VALIDATION_ERROR, VERSION_CONFLICT, DUPLICATE_RESOURCE]
       responses:
         "200":
           description: Budget updated
@@ -1361,7 +1362,12 @@ components:
         name: { type: string, minLength: 1, maxLength: 40 }
         color:
           anyOf:
-            - { type: string, minLength: 4, maxLength: 7, pattern: "^#[0-9A-Fa-f]{6}$" }
+            - {
+                type: string,
+                minLength: 4,
+                maxLength: 7,
+                pattern: "^#[0-9A-Fa-f]{6}$",
+              }
             - { type: "null" }
     CategoryUpdateRequest:
       type: object
@@ -1372,7 +1378,12 @@ components:
         name: { type: string, minLength: 1, maxLength: 40 }
         color:
           anyOf:
-            - { type: string, minLength: 4, maxLength: 7, pattern: "^#[0-9A-Fa-f]{6}$" }
+            - {
+                type: string,
+                minLength: 4,
+                maxLength: 7,
+                pattern: "^#[0-9A-Fa-f]{6}$",
+              }
             - { type: "null" }
         isArchived: { type: boolean }
         version: { type: integer, minimum: 1 }
@@ -1388,16 +1399,7 @@ components:
       type: object
       additionalProperties: false
       required:
-        [
-          id,
-          name,
-          kind,
-          isArchived,
-          version,
-          createdAt,
-          updatedAt,
-          deletedAt,
-        ]
+        [id, name, kind, isArchived, version, createdAt, updatedAt, deletedAt]
       properties:
         id: { $ref: "#/components/schemas/Identifier" }
         name: { type: string, minLength: 1, maxLength: 40 }
@@ -1685,7 +1687,8 @@ components:
     BudgetProgress:
       type: object
       additionalProperties: false
-      required: [budgetId, categoryId, categoryName, amount, spent, remaining, progress]
+      required:
+        [budgetId, categoryId, categoryName, amount, spent, remaining, progress]
       properties:
         budgetId: { $ref: "#/components/schemas/Identifier" }
         categoryId:
