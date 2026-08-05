@@ -6,12 +6,12 @@
 ## 项目当前状态
 
 - 项目：Daily Assistant（临时名称，正式产品名待确认）。
-- 阶段：WP0/WP1 已完成；WP2 本地实现与验收完成，并于 2026-08-05 复核通过；WP3–WP8 未开始且未获授权。
-- 本轮任务：WP2 全部验收条件真实复核（quality、空库 migration、18/18 集成测试、5 宽度浏览器矩阵），并输出 WP3 可执行规划（`docs/15-wp3-codex-execution-plan.md`）。
+- 阶段：WP0/WP1/WP2 已完成（WP2 于 2026-08-05 复核通过）；WP3 已获授权并开始执行；WP4–WP8 未开始。
+- 本轮任务：按 `docs/15-wp3-codex-execution-plan.md` 执行 WP3“基础记账与今日财务”（账单、分类、账户、预算、统计、CSV、今日卡片）。
 
 ## 当前分支
 
-- `codex/wp2-identity-capacity`（未推送；`main` 保留 WP0 规划基线，`codex/wp1-foundation` 已推送）。
+- `codex/wp3-finance`（新建，未推送；`codex/wp2-identity-capacity` 已完成本地验收未推送；`main` 保留 WP0 规划基线，`codex/wp1-foundation` 已推送）。
 
 ## 最近一次有效提交
 
@@ -19,7 +19,7 @@
 
 ## 最近修改的模块
 
-- 本轮：`apps/api`（auth/account/admin/capacity/audit/mail/prisma）、`apps/web`、`apps/admin`、`packages/api-contracts`、CI、文档与状态文件。
+- 本轮（WP3 进行中）：`apps/api`（finance 模块）、`apps/web`（记账页面）、`packages/api-contracts`（Finance 契约）、Prisma migration、文档与状态文件。
 
 ## 当前运行情况
 
@@ -42,14 +42,14 @@
 
 ## 正在进行的任务
 
-- 等待：WP2 分支本地提交确认与远端 CI 结果；WP3 开工授权。
+- WP3 执行中：契约 → Prisma migration → Finance API → 集成测试 → 用户端页面 → 验收与文档。
 
 ## 下一步建议任务
 
-1. 检查 `codex/wp2-identity-capacity` 本地提交与 `git diff --check`。
-2. 如需远端验证，推送前需另行授权；CI 已加入 WP2 集成测试步骤。
-3. 确认 OPEN-008（邮箱验证策略）后再决定公开试用注册流程。
-4. WP3 开工需另行授权；授权后按 `docs/15-wp3-codex-execution-plan.md` 执行。
+1. 完成 WP3 各 checkpoint 并在本地提交。
+2. 完成 `npm run quality`、真实 MySQL 集成测试与浏览器矩阵验收。
+3. 输出 `docs/16-wp3-acceptance-report.md` 并同步状态文档。
+4. 确认 OPEN-008（邮箱验证策略）后再决定公开试用注册流程。
 
 ## 当前阻塞问题
 
