@@ -38,3 +38,11 @@
 | DA-0406 | 附件上传意图/内容上传/完成/删除与 OCR 适配器 | DONE | WP4 |
 | DA-0407 | 用户端快捷记录、草稿中心、DraftReviewCard 与快捷指令配置页 | DONE | WP4 |
 | DA-0408 | 集成、并发、安全、前端验收、文档与 WP4 验收报告同步 | DONE | WP4 |
+| DA-0501 | 补全 Calendar/Tasks/Reminders OpenAPI、共享类型、CalendarEventStatus 等枚举与契约测试 | DONE | WP5 |
+| DA-0502 | WP5 Prisma 实体、约束、索引、migration、seed 与回滚说明 | DONE | WP5 |
+| DA-0503 | 日程 CRUD：时间校验、重叠提示、软删除/恢复、幂等与版本并发 | DONE | WP5 |
+| DA-0504 | 待办 CRUD 与状态机：OPEN/COMPLETED/CANCELLED、完成/取消时间与过期计算 | DONE | WP5 |
+| DA-0505 | 提醒 CRUD 与重复展开：一次性/日/周/月、Asia/Shanghai 边界与抑制规则 | DONE | WP5 |
+| DA-0506 | 提醒调度器：原子领取、防重、失败重试上限与 FAILED/SUPPRESSED 可诊断状态 | DONE | WP5 |
+| DA-0507 | 通知适配器与用户端：今日安排卡片、日程/待办/提醒页与通知权限降级 | DONE | WP5 |
+| DA-0508 | 集成、并发、安全、前端与浏览器矩阵验收、文档与 WP5 验收报告同步 | DONE | WP5 |

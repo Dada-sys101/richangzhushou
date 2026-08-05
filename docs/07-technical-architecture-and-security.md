@@ -36,8 +36,11 @@ flowchart TB
 - `auth`：注册、登录、会话、密码恢复。
 - `users`：账号状态、关闭、恢复、删除。
 - `capacity`：注册配置、容量锁和计数。
-- `invites`：邀请码生命周期。
-- `finance`：账单、分类、账户、预算、统计。
+  - `invites`：邀请码生命周期。
+  - `finance`：账单、分类、账户、预算、统计。
+  - `calendar`：日程 CRUD、时间校验、重叠提示。
+  - `tasks`：待办 CRUD、状态机与过期计算。
+  - `reminders`：提醒 CRUD、重复展开与调度器。
 - `drafts`：OCR/AI/快捷指令草稿及确认。
 - `calendar`、`tasks`、`reminders`。
 - `trips`。
@@ -73,7 +76,19 @@ flowchart TB
 
 ## 提醒调度
 
-V1 使用数据库记录加单进程周期扫描；领取任务时使用原子状态更新避免重复发送。多实例部署前必须引入数据库租约或等价互斥，不直接增加消息队列。
+V1 使用数据库记录加单进程周期扫描；领取任务时使用原子状态更新避免重复发送。
+`reminders` 表以 `attempt_count`/`next_attempt_at`/`last_attempt_at` 支撑领取与
+失败重试（上限 3 次，退避 60 秒）；账号 `CLOSED`/`SUSPENDED`/`DELETION_PENDING`
+时标记 `SUPPRESSED` 且不发送。多实例部署前必须引入数据库租约或等价互斥，
+不直接增加消息队列。调度周期由 `REMINDER_SCHEDULER_ENABLED=true` 开启，
+间隔与重试上限可通过环境变量调整。
+
+## 通知适配器
+
+`NotificationAdapter` 接口（`send({ userId, title, body?, scheduledAt })`）由
+`IntegrationsModule` 提供本地假实现（`FakeNotificationAdapter`，可注入
+`FAKE_NOTIFICATION_FAIL=true` 模拟失败）。无推送权限时保留应用内提醒，前端显示
+“通知未开启”；真实 Web Push/系统通知通道按供应商接入（OPEN-005）。
 
 ## 可观察性
 

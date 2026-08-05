@@ -157,3 +157,59 @@
 - Related Files: `apps/api/src/common/security.service.ts`、
   `apps/api/src/drafts`
 - Related Commit: `4cd75e9`
+
+## ADR-014: WP5 日程/待办/提醒契约与枚举
+
+- Date: 2026-08-05
+- Status: Accepted
+- Context: WP5 需要 Calendar/Tasks/Reminders 的 OpenAPI 契约，并新增
+  `CalendarEventStatus`、`ReminderScheduleType` 与 `ReminderTargetType`。
+- Decision: 契约先行补齐 `/calendar-events`、`/tasks`、`/reminders` 及恢复
+  端点；`CalendarEventStatus`（SCHEDULED/CANCELLED）、`ReminderTargetType`
+  （含 STANDALONE）与提醒 `title`/`note` 属 `[关键假设]`，待产品确认。
+- Alternatives Considered: 将提醒目标限定为事件/待办（否决：无法表达独立提醒）。
+- Consequences: 契约测试 118/118；枚举与数据字典、Prisma、前端映射保持一致。
+- Related Files: `packages/api-contracts`、`apps/api/prisma/schema.prisma`、
+  `docs/05`、`docs/06`
+- Related Commit: WP5 contracts commit
+
+## ADR-015: 提醒重复规则 JSON 与调度器字段
+
+- Date: 2026-08-05
+- Status: Accepted
+- Context: BR-REM-001 支持一次性/日/周/月；调度器需要可诊断状态与防重。
+- Decision: `recurrence_json` 存 `{ interval?, weekdays?, dayOfMonth?, until? }`，
+  `starts_at` 为重复锚点，`scheduled_at` 恒为下一次应发送时间；调度器用
+  `attempt_count`/`next_attempt_at`/`last_attempt_at` 原子领取，失败重试上限 3 次，
+  账号非 `ACTIVE` 时标记 `SUPPRESSED`。
+- Alternatives Considered: 消息队列（否决：违反架构不变量）；状态枚举增加
+  PROCESSING（否决：保持规划的五态语义，用重试字段表达在途）。
+- Consequences: 集成测试覆盖防重、重试上限与抑制；多实例部署前需数据库租约。
+- Related Files: `apps/api/src/reminders`、`apps/api/prisma/schema.prisma`
+- Related Commit: WP5 db/reminders commit
+
+## ADR-016: NotificationAdapter 适配层与本地假实现
+
+- Date: 2026-08-05
+- Status: Accepted
+- Context: OPEN-005 通知通道未定；外部能力必须通过适配层并明确降级。
+- Decision: `NotificationAdapter` 接口由 `IntegrationsModule` 提供
+  `FakeNotificationAdapter`；`FAKE_NOTIFICATION_FAIL=true` 可模拟失败；无推送
+  权限时保留应用内提醒并显示“通知未开启”。
+- Alternatives Considered: 直接写浏览器推送（否决：通道/权限未定，且违反适配层约束）。
+- Consequences: 调度失败可测试；真实 Web Push 接入时替换适配器实现。
+- Related Files: `apps/api/src/integrations`、`apps/web/src/views/RemindersView.vue`
+- Related Commit: WP5 api/web commit
+
+## ADR-017: 提醒调度器单进程周期扫描
+
+- Date: 2026-08-05
+- Status: Accepted
+- Context: 架构不变量禁止消息队列；V1 单实例部署。
+- Decision: `RemindersScheduler` 以 `REMINDER_SCHEDULER_ENABLED=true` 开启
+  周期扫描（默认 30 秒），通过原子 `updateMany` 领取任务；多实例部署前必须引入
+  数据库租约或等价互斥。
+- Alternatives Considered: 常驻 worker 进程（否决：增加部署复杂度）。
+- Consequences: 集成测试验证并发双跑仅发送一次；文档记录多实例前置条件。
+- Related Files: `apps/api/src/reminders/reminders.scheduler.ts`、`docs/07`
+- Related Commit: WP5 api commit

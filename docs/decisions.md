@@ -33,6 +33,10 @@
 | DEC-114 | 附件采用“短期上传意图 + 一次性上传令牌（只存哈希）+ 完成确认”流程；本地临时存储适配器写入 `apps/api/.local-storage` | `[代码] apps/api/src/attachments`、`integrations/local-storage.adapter.ts` | 失败不产生悬空正式附件；供应商未定前用本地实现（OPEN-006） |
 | DEC-115 | 草稿确认在单个事务内将 `DraftRecord` 标记 `CONFIRMED` 并创建 `CONFIRMED` 交易，`resultId` 指向结果，保留 `source` 与 `clientMutationId` | `[代码] apps/api/src/drafts/drafts.service.ts`、`finance/finance.service.ts` | 保证草稿状态与正式记录原子一致（QA-DRAFT-002） |
 | DEC-116 | 批量丢弃/清空草稿采用 HMAC 短期确认令牌（两阶段）并写 `AdminAudit`（`DRAFT_BATCH_DISCARD`） | `[代码] apps/api/src/common/security.service.ts`、`drafts/drafts.service.ts` | 高风险操作二次确认 + 可追溯（BR-AI-004 / QA-DRAFT-003） |
+| DEC-117 | WP5 新增 `CalendarEventStatus`（SCHEDULED/CANCELLED）与 `ReminderTargetType`（CALENDAR_EVENT/TASK/STANDALONE）取值；提醒补充 `title`/`note` 字段 | `[代码] packages/api-contracts/src/enums.ts`、`apps/api/prisma/schema.prisma` | 数据字典未定义具体取值，属 `[关键假设]`，待产品确认 |
+| DEC-118 | 提醒重复规则以 JSON `{ interval?, weekdays?, dayOfMonth?, until? }` 存储，`startsAt` 作为重复锚点，`scheduledAt` 恒为下一次应发送时间 | `[代码] apps/api/src/reminders/recurrence.util.ts`、`prisma/schema.prisma` | `Asia/Shanghai` 边界与调度器需要稳定锚点（BR-REM-001） |
+| DEC-119 | 提醒调度器采用数据库记录 + 单进程周期扫描：`attempt_count`/`next_attempt_at`/`last_attempt_at` 原子领取，失败重试上限 3 次，账号非 `ACTIVE` 标记 `SUPPRESSED` | `[代码] apps/api/src/reminders/reminders.scheduler.ts` | 防重、可诊断状态（QA-REM-001）；多实例部署前需租约（docs/07） |
+| DEC-120 | `NotificationAdapter` 接口 + 本地 `FakeNotificationAdapter`（`FAKE_NOTIFICATION_FAIL=true` 模拟失败）；无推送权限时保留应用内提醒并显示“通知未开启” | `[代码] apps/api/src/integrations/*`、`apps/web/src/views/RemindersView.vue` | OPEN-005 真实通道未定，按适配层降级 |
 
 ## 尚未确定的决策
 

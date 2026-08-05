@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-05 — WP5 日程、待办与提醒本地验收通过
+
+- 契约：Calendar/Tasks/Reminders OpenAPI、共享类型与枚举；契约测试 118/118。
+- 数据：`calendar_events`/`tasks`/`reminders` 与 migration
+  `20260805095154_wp5_calendar_tasks_reminders`；seed 演示数据。
+- 后端：日程/待办/提醒 CRUD、状态机、重复展开、调度器与通知适配器。
+- 前端：今日安排卡片、日程/待办/提醒页与通知权限降级。
+- 验收：quality、空库 migration+seed、集成 48/48、浏览器矩阵 20/20；
+  报告见 `docs/20-wp5-acceptance-report.md`。
+- 未推送、未部署、未创建生产资源、未进入 WP6。
+
 ## 2026-08-05 — WP4 快捷指令、OCR 与统一录入本地验收通过
 
 - 契约：Shortcuts/Drafts/Attachments OpenAPI、共享类型、`ShortcutScope` 与错误码

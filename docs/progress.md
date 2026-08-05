@@ -42,6 +42,10 @@
 | WP4 Prisma 实体、migration、回滚说明与数据字典 | `4be9524`；`apps/api/prisma`；`migrations/20260805085724_wp4_shortcuts_ocr` |
 | WP4 设备凭证、快捷指令 API、草稿中心、附件/OCR 与集成测试 | `4cd75e9`；`apps/api/src/{shortcuts,drafts,attachments,integrations}`；`wp4.integration.test.ts` |
 | WP4 前端快捷记录/草稿中心/快捷指令配置页与浏览器矩阵 | 本次提交；`apps/web/src`；`docs/18-wp4-acceptance-report.md` |
+| WP5 契约：Calendar/Tasks/Reminders OpenAPI、共享类型、枚举与契约测试 | 本次提交；`packages/api-contracts` |
+| WP5 数据：`calendar_events`/`tasks`/`reminders`、migration、seed 与回滚说明 | 本次提交；`apps/api/prisma`；`docs/05` |
+| WP5 后端：日程/待办/提醒 CRUD、状态机、重复展开、调度器与通知适配器 | 本次提交；`apps/api/src/{calendar,tasks,reminders,integrations}`；`wp5.integration.test.ts` |
+| WP5 前端：今日安排卡片、日程/待办/提醒页与通知权限降级 | 本次提交；`apps/web/src`；`docs/20-wp5-acceptance-report.md` |
 
 ## 部分完成
 
@@ -58,13 +62,12 @@
 
 ## 未开始
 
-- WP5 日程、待办与提醒
 - WP6 行程
 - WP7 PWA 与离线同步
 - WP8 全量质量与发布准备
 
-以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP4 已 DONE（WP4 验收见
-`docs/18`），WP5–WP8 为 `NOT_STARTED`。
+以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP5 已 DONE（WP5 验收见
+`docs/20`），WP6–WP8 为 `NOT_STARTED`。
 
 ## 已知问题
 
@@ -75,12 +78,13 @@
 | 远端 CI 未执行 | “CI 通过”无法被远端证实 | 待推送授权 |
 | origin 仓库名 `richangzhushou` 与产品名 Daily Assistant 不一致 | 品牌/仓库命名 `[待确认]` | OPEN-001/002 |
 | WP3 整体预算 NULL 唯一性由服务层校验；原账单软删除后其退款仍计入统计；统计摘要仅按 CNY 汇总；CSV 单次上限 10,000 行 | 边界行为，V1 规模可接受 | 记录于 `docs/16` |
+| 真实 Web Push/系统通知通道未接入（OPEN-005）；提醒调度器按单进程周期扫描实现 | 应用内提醒完整可用；多实例部署前需数据库租约 | 记录于 `docs/20`、`docs/07` |
 
 ## 待验证事项
 
-- 当前机器 `npm run quality` 已复跑通过（WP3 分支，2026-08-05）。
-- 便携 MySQL 8.4 空库 `prisma migrate deploy`（2 migrations）与 seed 已真实执行通过；WP2+WP3 集成测试 29/29 通过。
+- 当前机器 `npm run quality` 已复跑通过（WP5 分支，2026-08-05）。
+- 便携 MySQL 8.4 空库 `prisma migrate deploy`（4 migrations）与 seed 已真实执行通过；WP2+WP3+WP4+WP5 集成测试 48/48 通过。
 - GitHub Actions 远端执行待推送授权。
-- 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 复跑验证（30/30）；一键脚本化复现待后续（OPEN-009）。
+- 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 验证首页/日程/待办/提醒（20/20 无横向溢出）；一键脚本化复现待后续（OPEN-009）。
 - `npm run check:context` 与 `npm run quality` 已在本次机制任务中复跑通过。
 - 未实现功能一律不得视为已验证；计划中的功能不得写成已完成。

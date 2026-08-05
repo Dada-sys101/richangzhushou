@@ -4,6 +4,21 @@
 更新：2026-08-05
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-05 — WP5 日程、待办与提醒本地验收通过
+
+- 契约：Calendar/Tasks/Reminders OpenAPI 请求/响应/DTO/枚举（`CalendarEventStatus`、
+  `ReminderScheduleType`、`ReminderTargetType`）与契约测试 118/118。
+- 数据：新增 `calendar_events`、`tasks`、`reminders` 表与 migration
+  `20260805095154_wp5_calendar_tasks_reminders`；seed 增加演示日程/待办/提醒。
+- 后端：日程 CRUD（时间校验、重叠提示、软删除/恢复）、待办 CRUD 与状态机
+  （完成/取消时间、过期计算）、提醒 CRUD 与重复展开、提醒调度器（原子领取、
+  防重、失败重试上限、`FAILED`/`SUPPRESSED`）、`NotificationAdapter` 与本地假实现。
+- 前端：今日安排卡片、日程页、待办页、提醒设置页与通知权限降级提示。
+- 安全：跨用户 404、管理员 403；幂等/版本冲突与 Finance/草稿一致。
+- 验收：`npm run quality`、空库 4 migrations+seed、集成 48/48、浏览器矩阵
+  20/20 无横向溢出（报告见 `docs/20-wp5-acceptance-report.md`）。
+- 未推送、未部署、未创建生产资源、未进入 WP6。
+
 ## 2026-08-05 — WP4 快捷指令、OCR 与统一录入本地验收通过
 
 提交：`7cb7656`、`4be9524`、`4cd75e9`（分支 `codex/wp4-shortcuts-ocr`）

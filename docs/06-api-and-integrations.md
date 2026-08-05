@@ -93,11 +93,34 @@ OCR/AI 只填充草稿，不直接创建 `CONFIRMED` 业务记录。
 
 - `GET/POST /calendar-events`
 - `GET/PATCH/DELETE /calendar-events/:id`
+- `POST /calendar-events/:id/restore`
 - `GET/POST /tasks`
 - `GET/PATCH/DELETE /tasks/:id`
+- `POST /tasks/:id/restore`
 - `POST /tasks/:id/complete`
 - `GET/POST /reminders`
 - `GET/PATCH/DELETE /reminders/:id`
+- `POST /reminders/:id/restore`
+
+WP5 契约要点：
+- 三个资源均为用户范围内容 API（`AccessTokenGuard` + `UserOnlyGuard`），
+  管理员默认 403；跨用户访问 404；软删除/恢复、`version` 乐观并发与
+  `clientMutationId` 幂等与 Finance/草稿一致。
+- 日程：`endsAt` 不得早于 `startsAt`；全天事件使用 `Asia/Shanghai` 本地午夜
+  边界（endsAt 为次日后边界）；重叠只返回 `overlapWarning` 不阻止创建；
+  列表支持 `date`/`month`/`status`/`includeDeleted` 过滤。
+- 待办：`overdue` 为计算状态（仅 `OPEN` 且 `dueAt` 已过）；`POST
+  /tasks/:id/complete` 仅对 `OPEN` 生效并写入 `completedAt`；`PATCH` 状态
+  转换写入 `completedAt`/`cancelledAt`，终态不可再转换。
+- 提醒：`scheduleType` 为 `ONCE`/`DAILY`/`WEEKLY`/`MONTHLY`；
+  `scheduledAt` 恒为下一次应发送时间；`recurrence` 为
+  `{ interval?, weekdays?, dayOfMonth?, until? }`；`targetType` 支持
+  `CALENDAR_EVENT`/`TASK`/`STANDALONE`，目标必须属于当前用户。
+- 调度器为数据库记录 + 单进程周期扫描；领取采用原子状态/重试字段更新，
+  防重、失败重试上限与 `FAILED`/`SUPPRESSED` 可诊断状态；多实例部署前必须
+  引入数据库租约或等价互斥。
+- 通知适配器：`NotificationAdapter` 接口 + 本地假实现；无推送权限时保留
+  应用内提醒并显示“通知未开启”。
 
 ### 行程
 
