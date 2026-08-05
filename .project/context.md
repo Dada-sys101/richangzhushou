@@ -15,7 +15,7 @@
 
 ## 最近一次有效提交
 
-- 截至本文撰写：WP2 分支本地提交待创建；最新提交以 `git log -1 --oneline` 为准。
+- 截至本文撰写：`ee0d3c9`（feat: complete WP2 identity, capacity, invites, account lifecycle and admin）；最新提交以 `git log -1 --oneline` 为准。
 
 ## 最近修改的模块
 

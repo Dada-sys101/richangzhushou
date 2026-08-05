@@ -6,7 +6,7 @@
 
 ## 2026-08-05 — WP2 身份、容量与账号生命周期（本地完成）
 
-提交：待创建（分支 `codex/wp2-identity-capacity`）
+提交：`ee0d3c9`（分支 `codex/wp2-identity-capacity`）
 
 - 契约先行：OpenAPI、共享类型、错误码与账号状态机更新并通过契约测试。
 - 新增 Prisma 实体与首个 migration：`SystemSetting`、`User`、`Session`、`RecoveryCode`、`InviteCode`、`InviteRedemption`、`AdminAudit`。
