@@ -19,5 +19,6 @@
 11. `10-deployment-and-operations.md`
 12. `11-roadmap-risks-and-decisions.md`
 13. `12-development-handoff.md`
+14. `13-wp1-acceptance-report.md`
 
 所有文档以稳定编号引用规则、功能、页面、数据、API 和验收项。未确认信息必须标记为 `[待确认]` 或 `[关键假设]`。

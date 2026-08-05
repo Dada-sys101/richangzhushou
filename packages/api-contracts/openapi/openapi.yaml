@@ -1,0 +1,882 @@
+openapi: 3.1.0
+info:
+  title: Daily Assistant API
+  version: 0.1.0
+  summary: WP1 contract baseline for the Daily Assistant V1 API
+  description: >-
+    Contract-only baseline. Except for the infrastructure health route, these operations
+    are not implemented in WP1. IDs are strings, timestamps are ISO 8601, and money is a
+    fixed-point decimal string.
+servers:
+  - url: /api/v1
+    description: Versioned API base path
+security:
+  - accessToken: []
+tags:
+  - name: Health
+    description: Infrastructure liveness and readiness contracts.
+  - name: Authentication
+    description: Registration and session lifecycle contracts.
+  - name: Account
+    description: Current-user account and session controls.
+  - name: Finance
+    description: Transaction, category, account, budget, and summary contracts.
+  - name: Drafts
+    description: User-confirmed OCR, AI, text, and manual draft contracts.
+  - name: Shortcuts
+    description: Revocable device credentials and idempotent Apple Shortcut contracts.
+  - name: Calendar
+    description: User-scoped calendar event contracts.
+  - name: Tasks
+    description: User-scoped task lifecycle contracts.
+  - name: Reminders
+    description: User-scoped reminder scheduling contracts.
+  - name: Trips
+    description: User-scoped trips, itinerary items, and packing contracts.
+  - name: Attachments
+    description: Safe upload-intent and attachment lifecycle contracts.
+  - name: Sync
+    description: Offline mutation, cursor, idempotency, and conflict contracts.
+  - name: Admin
+    description: Metadata-only administration and redacted audit contracts.
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Check API liveness without exposing dependency details
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: API process is alive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /auth/register:
+    post:
+      operationId: register
+      summary: Register with an invitation subject to global capacity
+      tags: [Authentication]
+      security: []
+      x-error-codes:
+        [
+          REGISTRATION_DISABLED,
+          CAPACITY_REACHED,
+          INVITE_INVALID,
+          INVITE_EXPIRED,
+          INVITE_EXHAUSTED,
+        ]
+      responses:
+        "201": { description: Account created }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "409": { $ref: "#/components/responses/ApiError" }
+        "410": { $ref: "#/components/responses/ApiError" }
+  /auth/login:
+    post:
+      operationId: login
+      summary: Create an authenticated session
+      tags: [Authentication]
+      security: []
+      responses:
+        "200": { description: Session created }
+        default: { $ref: "#/components/responses/ApiError" }
+  /auth/refresh:
+    post:
+      operationId: refreshSession
+      summary: Rotate a refresh session and issue an access token
+      tags: [Authentication]
+      security:
+        - refreshCookie: []
+      responses:
+        "200": { description: Session refreshed }
+        default: { $ref: "#/components/responses/ApiError" }
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Revoke the current refresh session
+      tags: [Authentication]
+      responses:
+        "204": { description: Session revoked }
+        default: { $ref: "#/components/responses/ApiError" }
+  /auth/forgot-password:
+    post:
+      operationId: requestPasswordReset
+      summary: Request a non-enumerating password reset
+      tags: [Authentication]
+      security: []
+      responses:
+        "202": { description: Request accepted regardless of account existence }
+        default: { $ref: "#/components/responses/ApiError" }
+  /auth/reset-password:
+    post:
+      operationId: resetPassword
+      summary: Reset a password using a single-use secret
+      tags: [Authentication]
+      security: []
+      responses:
+        "204": { description: Password reset }
+        default: { $ref: "#/components/responses/ApiError" }
+  /me:
+    get:
+      operationId: getCurrentUser
+      summary: Get the current account summary
+      tags: [Account]
+      responses:
+        "200": { description: Current account summary }
+        default: { $ref: "#/components/responses/ApiError" }
+  /me/close:
+    post:
+      operationId: closeCurrentAccount
+      summary: Close the current account and release capacity
+      tags: [Account]
+      responses:
+        "204": { description: Account closed }
+        default: { $ref: "#/components/responses/ApiError" }
+  /me/reopen:
+    post:
+      operationId: reopenCurrentAccount
+      summary: Reopen the current account after rechecking capacity
+      tags: [Account]
+      x-error-codes: [REOPEN_CAPACITY_REACHED]
+      responses:
+        "204": { description: Account reopened }
+        "409": { $ref: "#/components/responses/ApiError" }
+        default: { $ref: "#/components/responses/ApiError" }
+  /me/request-deletion:
+    post:
+      operationId: requestCurrentAccountDeletion
+      summary: Request delayed deletion of the current account
+      tags: [Account]
+      responses:
+        "202": { description: Deletion requested }
+        default: { $ref: "#/components/responses/ApiError" }
+  /me/sessions/{sessionId}:
+    delete:
+      operationId: revokeSession
+      summary: Revoke one session owned by the current user
+      tags: [Account]
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "204": { description: Session revoked }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /transactions:
+    get:
+      operationId: listTransactions
+      summary: List transactions in the current user scope
+      tags: [Finance]
+      responses:
+        "200": { description: Paginated transactions }
+        default: { $ref: "#/components/responses/ApiError" }
+    post:
+      operationId: createTransaction
+      summary: Create a transaction in the current user scope
+      tags: [Finance]
+      responses:
+        "201": { description: Transaction created }
+        default: { $ref: "#/components/responses/ApiError" }
+  /transactions/{id}:
+    get:
+      operationId: getTransaction
+      summary: Get a transaction in the current user scope
+      tags: [Finance]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Transaction }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    patch:
+      operationId: updateTransaction
+      summary: Update a transaction in the current user scope
+      tags: [Finance]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Transaction updated }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    delete:
+      operationId: deleteTransaction
+      summary: Soft-delete a transaction in the current user scope
+      tags: [Finance]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Transaction deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /transactions/{id}/restore:
+    post:
+      operationId: restoreTransaction
+      summary: Restore a soft-deleted transaction in the current user scope
+      tags: [Finance]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Transaction restored }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /categories:
+    get:
+      operationId: listCategories
+      summary: List categories in the current user scope
+      tags: [Finance]
+      responses:
+        "200": { description: Categories }
+    post:
+      operationId: createCategory
+      summary: Create a category in the current user scope
+      tags: [Finance]
+      responses:
+        "201": { description: Category created }
+    patch:
+      operationId: updateCategory
+      summary: Update a category in the current user scope
+      tags: [Finance]
+      responses:
+        "200": { description: Category updated }
+  /financial-accounts:
+    get:
+      operationId: listFinancialAccounts
+      summary: List financial accounts in the current user scope
+      tags: [Finance]
+      responses:
+        "200": { description: Financial accounts }
+    post:
+      operationId: createFinancialAccount
+      summary: Create a financial account in the current user scope
+      tags: [Finance]
+      responses:
+        "201": { description: Financial account created }
+    patch:
+      operationId: updateFinancialAccount
+      summary: Update a financial account in the current user scope
+      tags: [Finance]
+      responses:
+        "200": { description: Financial account updated }
+  /budgets:
+    get:
+      operationId: listBudgets
+      summary: List budgets in the current user scope
+      tags: [Finance]
+      responses:
+        "200": { description: Budgets }
+    post:
+      operationId: createBudget
+      summary: Create a budget in the current user scope
+      tags: [Finance]
+      responses:
+        "201": { description: Budget created }
+    patch:
+      operationId: updateBudget
+      summary: Update a budget in the current user scope
+      tags: [Finance]
+      responses:
+        "200": { description: Budget updated }
+  /finance/summary:
+    get:
+      operationId: getFinanceSummary
+      summary: Get a fixed-point finance summary for the current user
+      tags: [Finance]
+      responses:
+        "200": { description: Finance summary }
+  /finance/export.csv:
+    get:
+      operationId: exportFinanceCsv
+      summary: Export current-user finance data as CSV
+      tags: [Finance]
+      responses:
+        "200":
+          description: CSV export
+          content:
+            text/csv:
+              schema: { type: string }
+  /drafts/parse-text:
+    post:
+      operationId: parseTextDraft
+      summary: Generate a draft suggestion from text without confirming it
+      tags: [Drafts]
+      responses:
+        "201": { description: Draft suggestion created }
+  /drafts/ocr:
+    post:
+      operationId: createOcrDraft
+      summary: Generate a draft suggestion from OCR without confirming it
+      tags: [Drafts]
+      responses:
+        "201": { description: Draft suggestion created }
+        "503": { $ref: "#/components/responses/ApiError" }
+  /drafts:
+    get:
+      operationId: listDrafts
+      summary: List drafts in the current user scope
+      tags: [Drafts]
+      responses:
+        "200": { description: Drafts }
+  /drafts/{id}:
+    get:
+      operationId: getDraft
+      summary: Get a draft in the current user scope
+      tags: [Drafts]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Draft }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    patch:
+      operationId: updateDraft
+      summary: Update a draft in the current user scope
+      tags: [Drafts]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Draft updated }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /drafts/{id}/confirm:
+    post:
+      operationId: confirmDraft
+      summary: Confirm a draft before creating a formal record
+      tags: [Drafts]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "201": { description: Formal record created from confirmed draft }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /drafts/{id}/discard:
+    post:
+      operationId: discardDraft
+      summary: Discard a draft in the current user scope
+      tags: [Drafts]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Draft discarded }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /shortcut-credentials:
+    post:
+      operationId: createShortcutCredential
+      summary: Create a revocable least-privilege shortcut credential
+      tags: [Shortcuts]
+      responses:
+        "201": { description: Credential created and plaintext shown once }
+    get:
+      operationId: listShortcutCredentials
+      summary: List shortcut credential metadata without plaintext secrets
+      tags: [Shortcuts]
+      responses:
+        "200": { description: Credential metadata }
+  /shortcut-credentials/{id}:
+    delete:
+      operationId: revokeShortcutCredential
+      summary: Revoke a shortcut credential owned by the current user
+      tags: [Shortcuts]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Credential revoked }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /shortcuts/transaction-drafts:
+    post:
+      operationId: createShortcutTransactionDraft
+      summary: Idempotently create a transaction draft from a shortcut
+      tags: [Shortcuts]
+      security:
+        - shortcutToken: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      x-error-codes: [IDEMPOTENCY_CONFLICT]
+      responses:
+        "201": { description: Draft created or prior identical result returned }
+        "409": { $ref: "#/components/responses/ApiError" }
+  /shortcuts/today-spend:
+    get:
+      operationId: getShortcutTodaySpend
+      summary: Get today's spend using a read-scoped shortcut credential
+      tags: [Shortcuts]
+      security:
+        - shortcutToken: []
+      responses:
+        "200": { description: Fixed-point spend summary }
+  /calendar-events:
+    get:
+      operationId: listCalendarEvents
+      summary: List calendar events in the current user scope
+      tags: [Calendar]
+      responses:
+        "200": { description: Calendar events }
+    post:
+      operationId: createCalendarEvent
+      summary: Create a calendar event in the current user scope
+      tags: [Calendar]
+      responses:
+        "201": { description: Calendar event created }
+  /calendar-events/{id}:
+    get:
+      operationId: getCalendarEvent
+      summary: Get a calendar event in the current user scope
+      tags: [Calendar]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Calendar event }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    patch:
+      operationId: updateCalendarEvent
+      summary: Update a calendar event in the current user scope
+      tags: [Calendar]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Calendar event updated }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    delete:
+      operationId: deleteCalendarEvent
+      summary: Delete a calendar event in the current user scope
+      tags: [Calendar]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Calendar event deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /tasks:
+    get:
+      operationId: listTasks
+      summary: List tasks in the current user scope
+      tags: [Tasks]
+      responses:
+        "200": { description: Tasks }
+    post:
+      operationId: createTask
+      summary: Create a task in the current user scope
+      tags: [Tasks]
+      responses:
+        "201": { description: Task created }
+  /tasks/{id}:
+    get:
+      operationId: getTask
+      summary: Get a task in the current user scope
+      tags: [Tasks]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Task }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    patch:
+      operationId: updateTask
+      summary: Update a task in the current user scope
+      tags: [Tasks]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Task updated }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    delete:
+      operationId: deleteTask
+      summary: Delete a task in the current user scope
+      tags: [Tasks]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Task deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /tasks/{id}/complete:
+    post:
+      operationId: completeTask
+      summary: Complete a task in the current user scope
+      tags: [Tasks]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Task completed }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /reminders:
+    get:
+      operationId: listReminders
+      summary: List reminders in the current user scope
+      tags: [Reminders]
+      responses:
+        "200": { description: Reminders }
+    post:
+      operationId: createReminder
+      summary: Create a reminder in the current user scope
+      tags: [Reminders]
+      responses:
+        "201": { description: Reminder created }
+  /reminders/{id}:
+    get:
+      operationId: getReminder
+      summary: Get a reminder in the current user scope
+      tags: [Reminders]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Reminder }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    patch:
+      operationId: updateReminder
+      summary: Update a reminder in the current user scope
+      tags: [Reminders]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Reminder updated }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    delete:
+      operationId: deleteReminder
+      summary: Delete a reminder in the current user scope
+      tags: [Reminders]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Reminder deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /trips:
+    get:
+      operationId: listTrips
+      summary: List trips in the current user scope
+      tags: [Trips]
+      responses:
+        "200": { description: Trips }
+    post:
+      operationId: createTrip
+      summary: Create a trip in the current user scope
+      tags: [Trips]
+      responses:
+        "201": { description: Trip created }
+  /trips/{id}:
+    get:
+      operationId: getTrip
+      summary: Get a trip in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Trip }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    patch:
+      operationId: updateTrip
+      summary: Update a trip in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Trip updated }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    delete:
+      operationId: deleteTrip
+      summary: Delete a trip in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Trip deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /trips/{id}/items:
+    post:
+      operationId: createTripItem
+      summary: Create an item in a trip owned by the current user
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "201": { description: Trip item created }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /trip-items/{id}:
+    patch:
+      operationId: updateTripItem
+      summary: Update a trip item in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Trip item updated }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    delete:
+      operationId: deleteTripItem
+      summary: Delete a trip item in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Trip item deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /trips/{id}/packing-items:
+    post:
+      operationId: createPackingItem
+      summary: Create a packing item in a trip owned by the current user
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "201": { description: Packing item created }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /packing-items/{id}:
+    patch:
+      operationId: updatePackingItem
+      summary: Update a packing item in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Packing item updated }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+    delete:
+      operationId: deletePackingItem
+      summary: Delete a packing item in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Packing item deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /attachments/upload-intents:
+    post:
+      operationId: createAttachmentUploadIntent
+      summary: Create a short-lived attachment upload intent
+      tags: [Attachments]
+      responses:
+        "201": { description: Upload intent created }
+  /attachments/{id}/complete:
+    post:
+      operationId: completeAttachmentUpload
+      summary: Confirm an owned attachment upload before use
+      tags: [Attachments]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200": { description: Upload completed }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /attachments/{id}:
+    delete:
+      operationId: deleteAttachment
+      summary: Delete an attachment in the current user scope
+      tags: [Attachments]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Attachment deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /sync/changes:
+    get:
+      operationId: listSyncChanges
+      summary: List current-user changes after a sync cursor
+      tags: [Sync]
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200": { description: Ordered changes and next cursor }
+  /sync/mutations:
+    post:
+      operationId: applySyncMutations
+      summary: Idempotently apply an ordered batch of current-user mutations
+      tags: [Sync]
+      x-error-codes: [IDEMPOTENCY_CONFLICT, VERSION_CONFLICT]
+      responses:
+        "200": { description: Per-mutation results }
+        "409": { $ref: "#/components/responses/ApiError" }
+  /sync/status:
+    get:
+      operationId: getSyncStatus
+      summary: Get current-user sync status without exposing other users
+      tags: [Sync]
+      responses:
+        "200": { description: Sync status }
+  /admin/dashboard:
+    get:
+      operationId: getAdminDashboard
+      summary: Get aggregate administrative health without user content
+      tags: [Admin]
+      responses:
+        "200": { description: Aggregate dashboard }
+  /admin/invites:
+    get:
+      operationId: listAdminInvites
+      summary: List invitation metadata as an administrator
+      tags: [Admin]
+      responses:
+        "200": { description: Invitation metadata }
+    post:
+      operationId: createAdminInvite
+      summary: Create an invitation as an administrator
+      tags: [Admin]
+      responses:
+        "201": { description: Invitation created }
+  /admin/invites/{id}/revoke:
+    post:
+      operationId: revokeAdminInvite
+      summary: Revoke an invitation as an administrator
+      tags: [Admin]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Invitation revoked }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /admin/users:
+    get:
+      operationId: listAdminUsers
+      summary: List account metadata without private user content
+      tags: [Admin]
+      responses:
+        "200": { description: Account metadata }
+  /admin/users/{id}/suspend:
+    post:
+      operationId: suspendAdminUser
+      summary: Suspend an account without releasing capacity
+      tags: [Admin]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Account suspended }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /admin/users/{id}/close:
+    post:
+      operationId: closeAdminUser
+      summary: Close an account and release capacity
+      tags: [Admin]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Account closed }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /admin/users/{id}/reopen:
+    post:
+      operationId: reopenAdminUser
+      summary: Reopen an account after rechecking global capacity
+      tags: [Admin]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      x-error-codes: [REOPEN_CAPACITY_REACHED]
+      responses:
+        "204": { description: Account reopened }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
+  /admin/settings/registration:
+    get:
+      operationId: getAdminRegistrationSettings
+      summary: Get registration and capacity settings
+      tags: [Admin]
+      responses:
+        "200": { description: Registration settings }
+    patch:
+      operationId: updateAdminRegistrationSettings
+      summary: Update registration and capacity settings with audit
+      tags: [Admin]
+      responses:
+        "200": { description: Registration settings updated }
+  /admin/audits:
+    get:
+      operationId: listAdminAudits
+      summary: List redacted administrative audit events
+      tags: [Admin]
+      responses:
+        "200": { description: Redacted audit events }
+  /admin/health:
+    get:
+      operationId: getAdminHealth
+      summary: Get redacted dependency readiness as an administrator
+      tags: [Admin]
+      responses:
+        "200": { description: Redacted dependency readiness }
+components:
+  securitySchemes:
+    accessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Short-lived access token; refresh secrets are never stored in JavaScript storage.
+    refreshCookie:
+      type: apiKey
+      in: cookie
+      name: da_refresh
+      description: HttpOnly, Secure in production, SameSite=Lax, rotated refresh-session cookie.
+    shortcutToken:
+      type: http
+      scheme: bearer
+      description: Revocable device credential with endpoint-specific least-privilege scopes.
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      schema: { $ref: "#/components/schemas/Identifier" }
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema: { $ref: "#/components/schemas/Identifier" }
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema: { type: string, minLength: 1 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 16, maxLength: 128 }
+  responses:
+    ApiError:
+      description: Structured, non-sensitive API error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+    ResourceNotFound:
+      description: Resource does not exist or is outside the current user scope
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+          example:
+            code: RESOURCE_NOT_FOUND
+            message: Resource not found
+            requestId: req_example
+  schemas:
+    Identifier:
+      type: string
+      minLength: 1
+      examples: ["01JEXAMPLE0000000000000000"]
+    IsoDateTime:
+      type: string
+      format: date-time
+      examples: ["2026-08-05T01:00:00.000Z"]
+    Money:
+      type: string
+      pattern: '^-?\d+\.\d{2}$'
+      examples: ["123.45"]
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [service, status]
+      properties:
+        service: { type: string, const: daily-assistant-api }
+        status: { type: string, const: ok }
+    FieldError:
+      type: object
+      additionalProperties: false
+      required: [field, message]
+      properties:
+        field: { type: string }
+        message: { type: string }
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [code, message, requestId]
+      properties:
+        code:
+          $ref: "#/components/schemas/ApiErrorCode"
+        message: { type: string }
+        requestId: { type: string, minLength: 1 }
+        fieldErrors:
+          type: array
+          items: { $ref: "#/components/schemas/FieldError" }
+    ApiErrorCode:
+      type: string
+      enum:
+        - REGISTRATION_DISABLED
+        - CAPACITY_REACHED
+        - INVITE_INVALID
+        - INVITE_EXPIRED
+        - INVITE_EXHAUSTED
+        - ACCOUNT_NOT_ACTIVE
+        - REOPEN_CAPACITY_REACHED
+        - IDEMPOTENCY_CONFLICT
+        - VERSION_CONFLICT
+        - DRAFT_CONFIRMATION_REQUIRED
+        - RESOURCE_NOT_FOUND
+    UserRole:
+      type: string
+      enum: [USER, ADMIN]
+    UserStatus:
+      type: string
+      enum: [ACTIVE, SUSPENDED, CLOSED, DELETION_PENDING, DELETED]
+    InviteStatus:
+      type: string
+      enum: [ACTIVE, EXHAUSTED, EXPIRED, REVOKED]
+    TransactionType:
+      type: string
+      enum: [EXPENSE, INCOME, REFUND]
+    RecordStatus:
+      type: string
+      enum: [DRAFT, CONFIRMED, DELETED]
+    RecordSource:
+      type: string
+      enum: [MANUAL, SHORTCUT, OCR, TEXT, VOICE, IMPORT]
+    TaskStatus:
+      type: string
+      enum: [OPEN, COMPLETED, CANCELLED]
+    Priority:
+      type: string
+      enum: [LOW, MEDIUM, HIGH]
+    ReminderStatus:
+      type: string
+      enum: [SCHEDULED, SENT, CANCELLED, FAILED, SUPPRESSED]
+    SyncState:
+      type: string
+      enum: [SYNCED, PENDING_SYNC, SYNC_FAILED, CONFLICT]
+    DraftStatus:
+      type: string
+      enum: [PENDING, CONFIRMED, DISCARDED, FAILED]

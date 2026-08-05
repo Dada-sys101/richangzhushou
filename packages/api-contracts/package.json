@@ -1,0 +1,30 @@
+{
+  "name": "@daily-assistant/api-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist",
+    "openapi"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./openapi": "./openapi/openapi.yaml"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint src test vitest.config.ts",
+    "openapi:lint": "redocly lint openapi/openapi.yaml --config redocly.yaml",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^2.44.1",
+    "@types/node": "^24.10.4",
+    "vitest": "^4.1.10",
+    "yaml": "^2.9.0"
+  }
+}

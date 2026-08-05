@@ -1,0 +1,12 @@
+extends:
+  - minimal
+
+rules:
+  info-license: off
+  no-unused-components: off
+  no-empty-servers: error
+  operation-operationId: error
+  operation-summary: error
+  security-defined: error
+  struct: error
+  tag-description: error

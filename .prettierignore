@@ -1,0 +1,8 @@
+node_modules
+.playwright-cli
+output/playwright
+dist
+coverage
+package-lock.json
+apps/api/generated
+*.md
