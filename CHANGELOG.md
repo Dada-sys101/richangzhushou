@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-05 — WP1 branch pushed to origin
+
+- 用户授权后推送 `codex/wp1-foundation`（提交 `518477e`）到 `https://github.com/Dada-sys101/richangzhushou.git`。
+- GitHub Actions 首次运行结果待确认；未创建部署资源。
+- 本机 Git 全局代理 7890 不可用，推送时临时使用系统代理 7897；未修改全局配置。
+
 ## 2026-08-05 — Project context and development handoff
 
 - 完善 `AGENTS.md`：计划先行、范围控制、兼容性检查、验证、进度更新、独立提交与不确定标注。

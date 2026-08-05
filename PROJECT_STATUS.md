@@ -10,7 +10,7 @@
 - 位置：`D:\daily-assistant`
 - 当前工作包：WP1 已完成；WP2 未开始且未获授权
 - 代码：npm workspaces、三应用、两共享包、Prisma/OpenAPI/CI 基线已创建
-- Git 仓库：独立仓库，当前分支 `codex/wp1-foundation`
+- Git 仓库：独立仓库，当前分支 `codex/wp1-foundation`（已推送 origin）
 - 上下文：`.project/context.md` 与 `docs/` 接管文档已建立（见 `docs/README.md`）
 - 部署：尚未创建
 - 当前用户：0
@@ -31,11 +31,11 @@
 
 ## 下一步
 
-- 获得单独推送授权后，将本地 WP1 分支推送到已配置的目标仓库。
+- 确认 GitHub Actions 首次运行结果（已推送提交 `518477e`，CI 状态待确认）。
 - 如需进入 WP2，必须另行明确授权；不得把 WP1 完成视为 WP2 开工授权。
 
 ## 阻塞项
 
-- 本机未安装 MySQL 或 Docker，无法在本地真实空库执行 `prisma migrate deploy`；离线 diff 已验证，CI 路径已配置但因本轮禁止推送尚未在 GitHub 执行。
-- 本轮未获推送权限，因此 GitHub 远端仍未上传本次 WP1 分支。
+- 本机未安装 MySQL 或 Docker，无法在本地真实空库执行 `prisma migrate deploy`；离线 diff 已验证，远端 CI 首次运行结果待确认。
+- 本机 `gh` 未登录，无法通过命令行查询 CI 状态；推送已由用户授权完成。
 - 发布前需确认部署地域、域名、邮件/OCR/AI/对象存储服务及合规要求。

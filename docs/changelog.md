@@ -4,6 +4,14 @@
 更新：2026-08-05
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-05 — 推送 WP1 分支到远端
+
+提交信息：`docs: record wp1 branch push`
+
+- 用户授权后推送 `codex/wp1-foundation`（提交 `518477e`）到 origin。
+- GitHub Actions 首次运行结果待确认（本机 `gh` 未登录）。
+- 推送期间发现本机 Git 全局代理不可用，使用系统代理临时覆盖；未修改全局配置。
+
 ## 2026-08-05 — 项目上下文与开发交接文档（本次提交）
 
 提交信息：`docs: establish project context and development handoff`

@@ -11,12 +11,12 @@
 
 ## 当前分支
 
-- `codex/wp1-foundation`（唯一功能分支；`main` 保留 WP0 规划基线；无远程分支）。
+- `codex/wp1-foundation`（已推送至 `origin/codex/wp1-foundation`；`main` 保留 WP0 规划基线）。
 
 ## 最近一次有效提交
 
-- 截至本文撰写：`6169ac0`（完成 WP1 工程骨架与共享契约）。
-- 本文件所在提交：`docs: establish project context and development handoff`；提交完成后以 `git log -1 --oneline` 为准。
+- 截至本文撰写：`518477e`（docs: establish project context and development handoff）。
+- 本文档后续更新提交：`docs: record wp1 branch push`；最新提交以 `git log -1 --oneline` 为准。
 
 ## 最近修改的模块
 
@@ -32,28 +32,29 @@
 ## 当前部署状态
 
 - 无任何部署，未创建云资源。
-- CI workflow 已配置但未在 GitHub 执行（未推送）。
-- origin 已配置为 `https://github.com/Dada-sys101/richangzhushou.git`，未推送任何分支。
+- 已推送 `codex/wp1-foundation`（提交 `518477e`）至 origin；GitHub Actions 首次运行结果待确认（本机 `gh` 未登录，无法查询）。
+- origin 为 `https://github.com/Dada-sys101/richangzhushou.git`。
 
 ## 已完成任务
 
 - WP0：产品、规则、数据、API、架构、测试、部署与交接文档（提交 `5d52395`）。
 - WP1：Monorepo 骨架、OpenAPI 3.1、Prisma/MySQL 基线、CI、本地质量门与浏览器矩阵（提交 `6169ac0`，详见 `docs/13-wp1-acceptance-report.md`）。
 - 本轮：项目上下文与接管文档体系（DA-0102，见 `TODO.md`）。
+- 推送：`codex/wp1-foundation` 已推送到 origin（提交 `518477e`）。
 
 ## 正在进行的任务
 
-- 无业务开发任务。等待：推送 WP1 分支授权、WP2 开工授权。
+- 无业务开发任务。等待：远端 CI 首次运行结果确认、WP2 开工授权。
 
 ## 下一步建议任务
 
-1. 获得授权后推送 `codex/wp1-foundation`，让 GitHub Actions 首次执行质量门与空库 migration deploy。
+1. 确认 GitHub Actions 首次运行结果（可在 GitHub 页面查看，或登录 `gh` 后查询）。
 2. 确认 OPEN-008（邮箱验证策略）后启动 WP2（身份、容量、邀请码与管理端）。
 3. 并行补齐可复现的浏览器 QA 脚本（R-P0-3），修复/复核 favicon 404 控制台记录。
 
 ## 当前阻塞问题
 
-- 未获推送与远端协作授权；未获 WP2 开工授权。
+- 远端 CI 运行结果未确认（本机 `gh` 未登录）；未获 WP2 开工授权。
 - 本机无 MySQL/Docker，真实 migration 验证受阻（CI 可解但未运行）。
 - 浏览器 QA 证据未固化且存在 favicon 404 记录，`docs/13`“控制台 0 error”待复核。
 - 产品名、供应商、部署地域、保留期、邮件验证策略等未决（`docs/decisions.md` OPEN-001~008）。
@@ -65,6 +66,7 @@
 - 跨工作区变更必须通过 `npm run quality` 与 `git diff --check`；任务完成后更新进度文档并独立提交。
 - 真实凭据（密码、Token、API Key、私钥、生产数据库 URL）严禁写入仓库或文档。
 - 未实现的功能不得写成已完成；无法确认的信息必须标注“待确认/未发现实现/文档与代码不一致”。
+- 本机 Git 全局代理 `127.0.0.1:7890` 当前不可用；系统代理 `127.0.0.1:7897` 可用。远程 Git 操作可临时加 `-c http.proxy=http://127.0.0.1:7897 -c https.proxy=http://127.0.0.1:7897`；未修改全局配置。
 
 ## 后续模型接手时的阅读顺序
 
