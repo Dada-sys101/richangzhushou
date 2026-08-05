@@ -79,12 +79,30 @@ enum Priority {
   HIGH
 }
 
+enum CalendarEventStatus {
+  SCHEDULED
+  CANCELLED
+}
+
 enum ReminderStatus {
   SCHEDULED
   SENT
   CANCELLED
   FAILED
   SUPPRESSED
+}
+
+enum ReminderScheduleType {
+  ONCE
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum ReminderTargetType {
+  CALENDAR_EVENT
+  TASK
+  STANDALONE
 }
 
 enum SyncState {
@@ -152,6 +170,9 @@ model User {
   deviceCredentials   DeviceCredential[]
   drafts              DraftRecord[]
   attachments         Attachment[]
+  calendarEvents      CalendarEvent[]
+  tasks               Task[]
+  reminders           Reminder[]
 
   @@index([status])
   @@index([createdAt])
@@ -396,4 +417,78 @@ model DraftRecord {
   @@index([userId, status, createdAt])
   @@index([userId, createdAt])
   @@map("draft_records")
+}
+
+model CalendarEvent {
+  id               String              @id @default(cuid())
+  userId           String              @map("user_id")
+  title            String              @db.VarChar(200)
+  startsAt         DateTime            @map("starts_at")
+  endsAt           DateTime            @map("ends_at")
+  allDay           Boolean             @default(false) @map("all_day")
+  status           CalendarEventStatus @default(SCHEDULED)
+  clientMutationId String?             @unique @map("client_mutation_id")
+  version          Int                 @default(1)
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedAt        DateTime            @updatedAt @map("updated_at")
+  deletedAt        DateTime?           @map("deleted_at")
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startsAt])
+  @@index([userId, status, deletedAt])
+  @@map("calendar_events")
+}
+
+model Task {
+  id               String     @id @default(cuid())
+  userId           String     @map("user_id")
+  title            String     @db.VarChar(200)
+  status           TaskStatus @default(OPEN)
+  priority         Priority   @default(MEDIUM)
+  dueAt            DateTime?  @map("due_at")
+  completedAt      DateTime?  @map("completed_at")
+  cancelledAt      DateTime?  @map("cancelled_at")
+  clientMutationId String?    @unique @map("client_mutation_id")
+  version          Int        @default(1)
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+  deletedAt        DateTime?  @map("deleted_at")
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, dueAt])
+  @@index([userId, status, deletedAt])
+  @@map("tasks")
+}
+
+model Reminder {
+  id               String               @id @default(cuid())
+  userId           String               @map("user_id")
+  title            String               @db.VarChar(200)
+  note             String?              @db.VarChar(500)
+  targetType       ReminderTargetType   @default(STANDALONE) @map("target_type")
+  targetId         String?              @map("target_id")
+  scheduleType     ReminderScheduleType @map("schedule_type")
+  startsAt         DateTime             @map("starts_at")
+  scheduledAt      DateTime             @map("scheduled_at")
+  recurrenceJson   Json?                @map("recurrence_json")
+  status           ReminderStatus       @default(SCHEDULED)
+  attemptCount     Int                  @default(0) @map("attempt_count")
+  nextAttemptAt    DateTime?            @map("next_attempt_at")
+  lastAttemptAt    DateTime?            @map("last_attempt_at")
+  sentAt           DateTime?            @map("sent_at")
+  suppressedAt     DateTime?            @map("suppressed_at")
+  failureReason    String?              @map("failure_reason") @db.VarChar(200)
+  lastErrorCode    String?              @map("last_error_code") @db.VarChar(50)
+  clientMutationId String?              @unique @map("client_mutation_id")
+  version          Int                  @default(1)
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+  deletedAt        DateTime?            @map("deleted_at")
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status, scheduledAt])
+  @@index([userId, deletedAt])
+  @@index([status, scheduledAt, nextAttemptAt])
+  @@map("reminders")
 }

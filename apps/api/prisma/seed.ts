@@ -90,8 +90,98 @@ async function seedDemoUser(prisma: PrismaClient): Promise<void> {
     });
   }
 
+  const tomorrow = shanghaiTime(1, 9, 0);
+  const tomorrowEvening = shanghaiTime(1, 18, 0);
+  await prisma.calendarEvent.upsert({
+    where: { id: "demo-calendar-event" },
+    create: {
+      allDay: false,
+      endsAt: shanghaiTime(1, 10, 0),
+      id: "demo-calendar-event",
+      startsAt: tomorrow,
+      status: "SCHEDULED",
+      title: "演示日程：项目周会",
+      userId: user.id,
+    },
+    update: {},
+  });
+
+  await prisma.task.upsert({
+    where: { id: "demo-task-open" },
+    create: {
+      dueAt: tomorrowEvening,
+      id: "demo-task-open",
+      priority: "HIGH",
+      status: "OPEN",
+      title: "演示待办：提交周报",
+      userId: user.id,
+    },
+    update: {},
+  });
+  await prisma.task.upsert({
+    where: { id: "demo-task-done" },
+    create: {
+      completedAt: new Date(),
+      id: "demo-task-done",
+      priority: "MEDIUM",
+      status: "COMPLETED",
+      title: "演示待办：整理发票",
+      userId: user.id,
+    },
+    update: {},
+  });
+
+  await prisma.reminder.upsert({
+    where: { id: "demo-reminder-once" },
+    create: {
+      id: "demo-reminder-once",
+      scheduleType: "ONCE",
+      scheduledAt: tomorrow,
+      startsAt: tomorrow,
+      status: "SCHEDULED",
+      targetType: "STANDALONE",
+      title: "演示提醒：明天开会",
+      userId: user.id,
+    },
+    update: {},
+  });
+  await prisma.reminder.upsert({
+    where: { id: "demo-reminder-daily" },
+    create: {
+      id: "demo-reminder-daily",
+      recurrenceJson: { interval: 1 },
+      scheduleType: "DAILY",
+      scheduledAt: tomorrow,
+      startsAt: tomorrow,
+      status: "SCHEDULED",
+      targetType: "STANDALONE",
+      title: "演示提醒：每日喝水",
+      userId: user.id,
+    },
+    update: {},
+  });
+
   console.log(
     `Demo user ready: ${demoEmail} (password only in local development; set SEED_DEMO_USER=false to skip)`,
+  );
+}
+
+function shanghaiTime(daysFromNow: number, hour: number, minute: number): Date {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+  }).formatToParts(new Date());
+  const byType = Object.fromEntries(
+    parts.map((part) => [part.type, part.value]),
+  );
+  const year = Number(byType.year ?? "1970");
+  const month = Number(byType.month ?? "01");
+  const day = Number(byType.day ?? "01");
+  return new Date(
+    Date.UTC(year, month - 1, day + daysFromNow, hour, minute) -
+      8 * 60 * 60 * 1000,
   );
 }
 

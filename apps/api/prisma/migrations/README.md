@@ -46,3 +46,18 @@ No production or shared database URL belongs in this repository.
   `DROP TABLE transactions, budgets, financial_accounts, categories`（注意外键顺序）。
 - 演示数据：`SEED_DEMO_USER=true npm run prisma:seed --workspace @daily-assistant/api`
   会创建本地演示用户及默认分类/账户；默认密码仅用于本地开发，生产不得使用。
+
+## WP5 Calendar/Tasks/Reminders migration（20260805095154_wp5_calendar_tasks_reminders）
+
+- 新增枚举：`CalendarEventStatus`（SCHEDULED/CANCELLED）、`ReminderScheduleType`
+  （ONCE/DAILY/WEEKLY/MONTHLY）与 `ReminderTargetType`
+  （CALENDAR_EVENT/TASK/STANDALONE）。
+- 新增表：`calendar_events`、`tasks`、`reminders`；软删除、`version` 与
+  `client_mutation_id` 唯一键沿用 Finance/草稿的同步资源约定。
+- 提醒调度字段：`reminders.attempt_count`/`next_attempt_at`/`last_attempt_at`
+  支撑原子领取与失败重试；`recurrence_json` 保存 JSON 重复规则（interval/weekdays/
+  dayOfMonth/until）。
+- 回滚：`prisma migrate resolve --rolled-back 20260805095154_wp5_calendar_tasks_reminders`
+  后删除该 migration 目录，再 `prisma migrate deploy` 到上一个版本；或对非生产库执行
+  `DROP TABLE reminders, tasks, calendar_events`（注意外键顺序）。
+- 演示数据：`SEED_DEMO_USER=true` 会额外创建日程、待办与提醒的本地演示记录。

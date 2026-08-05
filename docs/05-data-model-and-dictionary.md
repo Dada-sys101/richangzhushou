@@ -51,9 +51,9 @@ erDiagram
 | `Category` | kind（EXPENSE/INCOME）, name, color, isArchived, version | userId+kind+name 唯一；归档而非物理删除 |
 | `FinancialAccount` | name, kind（CASH/DEBIT_CARD/CREDIT_CARD/DIGITAL_WALLET/OTHER）, isArchived, version | userId+name 唯一；归档而非物理删除 |
 | `Budget` | categoryId?, month（YYYY-MM）, amount, currency, version, deletedAt | userId+month+categoryId 唯一（categoryId 为 NULL 时由服务层校验整体预算唯一） |
-| `CalendarEvent` | title, startsAt, endsAt, allDay, status | userId+startsAt |
-| `Task` | title, status, priority, dueAt, completedAt | userId+status+dueAt |
-| `Reminder` | targetType, targetId, scheduleType, scheduledAt, recurrence, status | userId+status+scheduledAt |
+| `CalendarEvent` | title, startsAt, endsAt, allDay, status, clientMutationId?, version, deletedAt | userId+startsAt；userId+status+deletedAt；clientMutationId 唯一 |
+| `Task` | title, status, priority, dueAt?, completedAt, cancelledAt, clientMutationId?, version, deletedAt | userId+status；userId+dueAt；userId+status+deletedAt；clientMutationId 唯一 |
+| `Reminder` | title, note?, targetType, targetId?, scheduleType, startsAt, scheduledAt, recurrenceJson?, status, attemptCount, nextAttemptAt?, sentAt?, suppressedAt?, failureReason?, clientMutationId?, version, deletedAt | userId+status+scheduledAt；userId+deletedAt；status+scheduledAt+nextAttemptAt（调度器）；clientMutationId 唯一 |
 | `Trip` | title, destination, startDate, endDate, budgetAmount | userId+startDate |
 | `TripItem` | tripId, type, startsAt, endsAt, location, position | tripId+position |
 | `PackingItem` | tripId, text, checked, position | tripId+position |
@@ -76,7 +76,10 @@ erDiagram
 | `FinancialAccountKind` | `CASH`, `DEBIT_CARD`, `CREDIT_CARD`, `DIGITAL_WALLET`, `OTHER` |
 | `TaskStatus` | `OPEN`, `COMPLETED`, `CANCELLED` |
 | `Priority` | `LOW`, `MEDIUM`, `HIGH` |
+| `CalendarEventStatus` | `SCHEDULED`, `CANCELLED` |
 | `ReminderStatus` | `SCHEDULED`, `SENT`, `CANCELLED`, `FAILED`, `SUPPRESSED` |
+| `ReminderScheduleType` | `ONCE`, `DAILY`, `WEEKLY`, `MONTHLY` |
+| `ReminderTargetType` | `CALENDAR_EVENT`, `TASK`, `STANDALONE` |
 | `SyncState` | `SYNCED`, `PENDING_SYNC`, `SYNC_FAILED`, `CONFLICT` |
 | `DraftStatus` | `PENDING`, `CONFIRMED`, `DISCARDED`, `FAILED` |
 | `ShortcutScope` | `transaction:draft:create`, `finance:summary:read` |
@@ -112,3 +115,20 @@ erDiagram
   `apps/api/.local-storage`（gitignored）。
 - 批量丢弃/清空草稿为高风险操作：先获取短期确认令牌，二次确认后执行并写
   `AdminAudit`（action=`DRAFT_BATCH_DISCARD`）。
+
+## WP5 补充说明（2026-08-05）
+
+- `CalendarEventStatus`（SCHEDULED/CANCELLED）、`ReminderTargetType`（含 STANDALONE）
+  与提醒 `title`/`note` 字段为 `[关键假设]`（见 `docs/decisions.md` 与
+  `.project/decisions.md` WP5 ADR），待产品确认。
+- 日程：`endsAt` 不得早于 `startsAt`；全天事件必须使用 `Asia/Shanghai` 本地午夜边界
+  （endsAt 为次日后边界，左闭右开）；时间重叠只返回 `overlapWarning`，不阻止创建/修改。
+- 待办：`OPEN`/`COMPLETED`/`CANCELLED` 为持久状态；`overdue` 是计算状态（仅
+  `OPEN` 且 `dueAt` 早于 `Asia/Shanghai` 当前时刻），不单独持久化；完成/取消写入
+  `completedAt`/`cancelledAt`。
+- 提醒：`recurrenceJson` 保存 `{ interval?, weekdays?, dayOfMonth?, until? }`，
+  `scheduledAt` 恒为下一次应发送时间；调度器以 `attempt_count`/`next_attempt_at`/
+  `last_attempt_at` 做原子领取与失败重试（上限 3 次），账号 `CLOSED`/`SUSPENDED`/
+  `DELETION_PENDING` 时标记 `SUPPRESSED` 且不发送。
+- 三个资源均支持软删除/恢复、`version` 乐观并发与 `clientMutationId` 幂等，沿用
+  Finance/草稿的同步资源约定（为 WP7 同步落地保持语义一致）。
