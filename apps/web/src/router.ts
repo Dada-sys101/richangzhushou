@@ -2,12 +2,17 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import { useAuthStore } from "./stores/auth";
 import AccountView from "./views/AccountView.vue";
+import AccountsView from "./views/AccountsView.vue";
+import BudgetsView from "./views/BudgetsView.vue";
+import CategoriesView from "./views/CategoriesView.vue";
 import ForgotPasswordView from "./views/ForgotPasswordView.vue";
 import HomeView from "./views/HomeView.vue";
 import LoginView from "./views/LoginView.vue";
 import NotFoundView from "./views/NotFoundView.vue";
 import RegisterView from "./views/RegisterView.vue";
 import ResetPasswordView from "./views/ResetPasswordView.vue";
+import TransactionFormView from "./views/TransactionFormView.vue";
+import TransactionsView from "./views/TransactionsView.vue";
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -45,6 +50,42 @@ export const router = createRouter({
       path: "/account",
       name: "account",
       component: AccountView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/transactions",
+      name: "transactions",
+      component: TransactionsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/transactions/new",
+      name: "transaction-new",
+      component: TransactionFormView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/transactions/:id/edit",
+      name: "transaction-edit",
+      component: TransactionFormView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/finance/categories",
+      name: "categories",
+      component: CategoriesView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/finance/accounts",
+      name: "accounts",
+      component: AccountsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/finance/budgets",
+      name: "budgets",
+      component: BudgetsView,
       meta: { requiresAuth: true },
     },
     {
