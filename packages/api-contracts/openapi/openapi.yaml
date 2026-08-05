@@ -282,15 +282,56 @@ paths:
       operationId: listTransactions
       summary: List transactions in the current user scope
       tags: [Finance]
+      description: >-
+        Returns confirmed transactions owned by the current user, ordered by
+        occurredAt descending, excluding soft-deleted records unless
+        includeDeleted=true. Money values are fixed-point decimal strings.
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Month"
+        - $ref: "#/components/parameters/TransactionTypeQuery"
+        - $ref: "#/components/parameters/CategoryId"
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/IncludeDeleted"
       responses:
-        "200": { description: Paginated transactions }
+        "200":
+          description: Paginated transactions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TransactionListResponse" }
         default: { $ref: "#/components/responses/ApiError" }
     post:
       operationId: createTransaction
       summary: Create a transaction in the current user scope
       tags: [Finance]
+      description: >-
+        Creates a CONFIRMED transaction. Amounts are positive fixed-point
+        strings; refunds must reference an original expense or be marked as
+        unlinked. A possible duplicate is returned as a warning, never
+        auto-deleted. clientMutationId enables idempotent replays.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TransactionCreateRequest" }
+      x-error-codes:
+        [
+          VALIDATION_ERROR,
+          INVALID_STATE,
+          IDEMPOTENCY_CONFLICT,
+          DUPLICATE_RESOURCE,
+          RESOURCE_NOT_FOUND,
+        ]
       responses:
-        "201": { description: Transaction created }
+        "201":
+          description: Transaction created (or prior identical result replayed)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TransactionCreatedResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
         default: { $ref: "#/components/responses/ApiError" }
   /transactions/{id}:
     get:
@@ -299,23 +340,43 @@ paths:
       tags: [Finance]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
       responses:
-        "200": { description: Transaction }
+        "200":
+          description: Transaction
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TransactionSummary" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
     patch:
       operationId: updateTransaction
       summary: Update a transaction in the current user scope
       tags: [Finance]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: >-
+        Updates a transaction owned by the current user. The request must carry
+        the current version; a stale version returns VERSION_CONFLICT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TransactionUpdateRequest" }
+      x-error-codes:
+        [VALIDATION_ERROR, INVALID_STATE, VERSION_CONFLICT, RESOURCE_NOT_FOUND]
       responses:
-        "200": { description: Transaction updated }
+        "200":
+          description: Transaction updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TransactionCreatedResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
     delete:
       operationId: deleteTransaction
       summary: Soft-delete a transaction in the current user scope
       tags: [Finance]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
       responses:
-        "204": { description: Transaction deleted }
+        "204": { description: Transaction soft-deleted; statistics exclude it }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
   /transactions/{id}/restore:
     post:
@@ -324,80 +385,220 @@ paths:
       tags: [Finance]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
       responses:
-        "200": { description: Transaction restored }
+        "200":
+          description: Transaction restored and included in statistics again
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TransactionSummary" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
   /categories:
     get:
       operationId: listCategories
       summary: List categories in the current user scope
       tags: [Finance]
+      parameters:
+        - $ref: "#/components/parameters/CategoryKindQuery"
+        - $ref: "#/components/parameters/IncludeArchived"
       responses:
-        "200": { description: Categories }
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CategoryListResponse" }
     post:
       operationId: createCategory
       summary: Create a category in the current user scope
       tags: [Finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CategoryCreateRequest" }
+      x-error-codes: [VALIDATION_ERROR, DUPLICATE_RESOURCE]
       responses:
-        "201": { description: Category created }
+        "201":
+          description: Category created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CategorySummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "409": { $ref: "#/components/responses/ApiError" }
+  /categories/{id}:
     patch:
       operationId: updateCategory
       summary: Update a category in the current user scope
       tags: [Finance]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: Archiving keeps historical transactions intact.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CategoryUpdateRequest" }
+      x-error-codes: [VALIDATION_ERROR, VERSION_CONFLICT, DUPLICATE_RESOURCE]
       responses:
-        "200": { description: Category updated }
+        "200":
+          description: Category updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CategorySummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /financial-accounts:
     get:
       operationId: listFinancialAccounts
       summary: List financial accounts in the current user scope
       tags: [Finance]
+      parameters:
+        - $ref: "#/components/parameters/IncludeArchived"
       responses:
-        "200": { description: Financial accounts }
+        "200":
+          description: Financial accounts
+          content:
+            application/json:
+              schema:
+                { $ref: "#/components/schemas/FinancialAccountListResponse" }
     post:
       operationId: createFinancialAccount
       summary: Create a financial account in the current user scope
       tags: [Finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              { $ref: "#/components/schemas/FinancialAccountCreateRequest" }
+      x-error-codes: [VALIDATION_ERROR, DUPLICATE_RESOURCE]
       responses:
-        "201": { description: Financial account created }
+        "201":
+          description: Financial account created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinancialAccountSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "409": { $ref: "#/components/responses/ApiError" }
+  /financial-accounts/{id}:
     patch:
       operationId: updateFinancialAccount
       summary: Update a financial account in the current user scope
       tags: [Finance]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: Archiving keeps historical transactions intact.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              { $ref: "#/components/schemas/FinancialAccountUpdateRequest" }
+      x-error-codes: [VALIDATION_ERROR, VERSION_CONFLICT, DUPLICATE_RESOURCE]
       responses:
-        "200": { description: Financial account updated }
+        "200":
+          description: Financial account updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinancialAccountSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /budgets:
     get:
       operationId: listBudgets
       summary: List budgets in the current user scope
       tags: [Finance]
+      parameters:
+        - $ref: "#/components/parameters/Month"
+        - $ref: "#/components/parameters/CategoryId"
       responses:
-        "200": { description: Budgets }
+        "200":
+          description: Budgets
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BudgetListResponse" }
     post:
       operationId: createBudget
       summary: Create a budget in the current user scope
       tags: [Finance]
+      description: One budget per user, month, and category (null = overall).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BudgetCreateRequest" }
+      x-error-codes: [VALIDATION_ERROR, DUPLICATE_RESOURCE, RESOURCE_NOT_FOUND]
       responses:
-        "201": { description: Budget created }
+        "201":
+          description: Budget created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BudgetSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
+  /budgets/{id}:
     patch:
       operationId: updateBudget
       summary: Update a budget in the current user scope
       tags: [Finance]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BudgetUpdateRequest" }
+      x-error-codes:
+        [VALIDATION_ERROR, VERSION_CONFLICT, DUPLICATE_RESOURCE]
       responses:
-        "200": { description: Budget updated }
+        "200":
+          description: Budget updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BudgetSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
+    delete:
+      operationId: deleteBudget
+      summary: Soft-delete a budget in the current user scope
+      tags: [Finance]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "204": { description: Budget soft-deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
   /finance/summary:
     get:
       operationId: getFinanceSummary
       summary: Get a fixed-point finance summary for the current user
       tags: [Finance]
+      description: >-
+        Computes confirmed expenses, refunds, net expense, income, today's
+        spend, and budget progress for the Asia/Shanghai natural month.
+      parameters:
+        - $ref: "#/components/parameters/Month"
       responses:
-        "200": { description: Finance summary }
+        "200":
+          description: Finance summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinanceSummaryResponse" }
   /finance/export.csv:
     get:
       operationId: exportFinanceCsv
       summary: Export current-user finance data as CSV
       tags: [Finance]
+      description: >-
+        Exports confirmed, non-deleted transactions owned by the current user.
+        The response is UTF-8 with BOM for Excel compatibility and a safe,
+        deterministic attachment filename.
+      parameters:
+        - $ref: "#/components/parameters/Month"
+        - $ref: "#/components/parameters/TransactionTypeQuery"
       responses:
         "200":
-          description: CSV export
+          description: UTF-8 CSV export with BOM
+          headers:
+            Content-Disposition:
+              schema: { type: string }
           content:
             text/csv:
               schema: { type: string }
@@ -982,6 +1183,46 @@ components:
       in: query
       required: false
       schema: { type: string, minLength: 1 }
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+    Month:
+      name: month
+      in: query
+      required: false
+      schema: { $ref: "#/components/schemas/Month" }
+    TransactionTypeQuery:
+      name: type
+      in: query
+      required: false
+      schema: { $ref: "#/components/schemas/TransactionType" }
+    CategoryKindQuery:
+      name: kind
+      in: query
+      required: false
+      schema: { $ref: "#/components/schemas/CategoryKind" }
+    CategoryId:
+      name: categoryId
+      in: query
+      required: false
+      schema: { $ref: "#/components/schemas/Identifier" }
+    AccountId:
+      name: accountId
+      in: query
+      required: false
+      schema: { $ref: "#/components/schemas/Identifier" }
+    IncludeDeleted:
+      name: includeDeleted
+      in: query
+      required: false
+      schema: { type: boolean, default: false }
+    IncludeArchived:
+      name: includeArchived
+      in: query
+      required: false
+      schema: { type: boolean, default: false }
     IdempotencyKey:
       name: Idempotency-Key
       in: header
@@ -1068,9 +1309,424 @@ components:
         - ADMIN_ACTION_REQUIRES_REASON
         - IDEMPOTENCY_CONFLICT
         - VERSION_CONFLICT
+        - DUPLICATE_RESOURCE
         - DRAFT_CONFIRMATION_REQUIRED
         - RESOURCE_NOT_FOUND
         - INTERNAL_ERROR
+    Month:
+      type: string
+      pattern: "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+      examples: ["2026-08"]
+      description: Natural month in the Asia/Shanghai business time zone.
+    CategoryKind:
+      type: string
+      enum: [EXPENSE, INCOME]
+    FinancialAccountKind:
+      type: string
+      enum: [CASH, DEBIT_CARD, CREDIT_CARD, DIGITAL_WALLET, OTHER]
+    CategorySummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          kind,
+          name,
+          color,
+          isArchived,
+          version,
+          createdAt,
+          updatedAt,
+          deletedAt,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        kind: { $ref: "#/components/schemas/CategoryKind" }
+        name: { type: string, minLength: 1, maxLength: 40 }
+        color: { type: string, minLength: 4, maxLength: 7 }
+        isArchived: { type: boolean }
+        version: { type: integer, minimum: 1 }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+    CategoryCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [kind, name]
+      properties:
+        kind: { $ref: "#/components/schemas/CategoryKind" }
+        name: { type: string, minLength: 1, maxLength: 40 }
+        color:
+          anyOf:
+            - { type: string, minLength: 4, maxLength: 7, pattern: "^#[0-9A-Fa-f]{6}$" }
+            - { type: "null" }
+    CategoryUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        kind: { $ref: "#/components/schemas/CategoryKind" }
+        name: { type: string, minLength: 1, maxLength: 40 }
+        color:
+          anyOf:
+            - { type: string, minLength: 4, maxLength: 7, pattern: "^#[0-9A-Fa-f]{6}$" }
+            - { type: "null" }
+        isArchived: { type: boolean }
+        version: { type: integer, minimum: 1 }
+    CategoryListResponse:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CategorySummary" }
+    FinancialAccountSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          name,
+          kind,
+          isArchived,
+          version,
+          createdAt,
+          updatedAt,
+          deletedAt,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        name: { type: string, minLength: 1, maxLength: 40 }
+        kind: { $ref: "#/components/schemas/FinancialAccountKind" }
+        isArchived: { type: boolean }
+        version: { type: integer, minimum: 1 }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+    FinancialAccountCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [name, kind]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 40 }
+        kind: { $ref: "#/components/schemas/FinancialAccountKind" }
+    FinancialAccountUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 40 }
+        kind: { $ref: "#/components/schemas/FinancialAccountKind" }
+        isArchived: { type: boolean }
+        version: { type: integer, minimum: 1 }
+    FinancialAccountListResponse:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/FinancialAccountSummary" }
+    TransactionSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          type,
+          status,
+          amount,
+          currency,
+          categoryId,
+          accountId,
+          merchant,
+          occurredAt,
+          note,
+          source,
+          originalTransactionId,
+          isUnlinkedRefund,
+          sourceFingerprint,
+          version,
+          createdAt,
+          updatedAt,
+          deletedAt,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        type: { $ref: "#/components/schemas/TransactionType" }
+        status: { $ref: "#/components/schemas/RecordStatus" }
+        amount: { $ref: "#/components/schemas/Money" }
+        currency: { type: string, minLength: 3, maxLength: 3 }
+        categoryId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        accountId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        merchant:
+          anyOf:
+            - { type: string, maxLength: 100 }
+            - { type: "null" }
+        occurredAt: { $ref: "#/components/schemas/IsoDateTime" }
+        note:
+          anyOf:
+            - { type: string, maxLength: 500 }
+            - { type: "null" }
+        source: { $ref: "#/components/schemas/RecordSource" }
+        originalTransactionId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        isUnlinkedRefund: { type: boolean }
+        sourceFingerprint:
+          anyOf:
+            - { type: string, minLength: 8, maxLength: 128 }
+            - { type: "null" }
+        version: { type: integer, minimum: 1 }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+    TransactionCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [type, amount]
+      properties:
+        type: { $ref: "#/components/schemas/TransactionType" }
+        amount: { $ref: "#/components/schemas/Money" }
+        currency:
+          anyOf:
+            - { type: string, minLength: 3, maxLength: 3, default: CNY }
+            - { type: "null" }
+        categoryId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        accountId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        merchant:
+          anyOf:
+            - { type: string, maxLength: 100 }
+            - { type: "null" }
+        occurredAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        note:
+          anyOf:
+            - { type: string, maxLength: 500 }
+            - { type: "null" }
+        source: { $ref: "#/components/schemas/RecordSource" }
+        originalTransactionId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        isUnlinkedRefund: { type: boolean }
+        sourceFingerprint:
+          anyOf:
+            - { type: string, minLength: 8, maxLength: 128 }
+            - { type: "null" }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
+    TransactionUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        type: { $ref: "#/components/schemas/TransactionType" }
+        amount: { $ref: "#/components/schemas/Money" }
+        currency:
+          anyOf:
+            - { type: string, minLength: 3, maxLength: 3 }
+            - { type: "null" }
+        categoryId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        accountId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        merchant:
+          anyOf:
+            - { type: string, maxLength: 100 }
+            - { type: "null" }
+        occurredAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        note:
+          anyOf:
+            - { type: string, maxLength: 500 }
+            - { type: "null" }
+        source: { $ref: "#/components/schemas/RecordSource" }
+        originalTransactionId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        isUnlinkedRefund: { type: boolean }
+        sourceFingerprint:
+          anyOf:
+            - { type: string, minLength: 8, maxLength: 128 }
+            - { type: "null" }
+        version: { type: integer, minimum: 1 }
+    DuplicateWarning:
+      type: object
+      additionalProperties: false
+      required: [code, matchedTransactionId, message]
+      properties:
+        code: { type: string, const: POSSIBLE_DUPLICATE }
+        matchedTransactionId: { $ref: "#/components/schemas/Identifier" }
+        message: { type: string }
+    TransactionCreatedResponse:
+      type: object
+      additionalProperties: false
+      required: [transaction]
+      properties:
+        transaction: { $ref: "#/components/schemas/TransactionSummary" }
+        duplicateWarning: { $ref: "#/components/schemas/DuplicateWarning" }
+    TransactionListResponse:
+      type: object
+      additionalProperties: false
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/TransactionSummary" }
+        nextCursor:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+    BudgetSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          categoryId,
+          month,
+          amount,
+          currency,
+          version,
+          createdAt,
+          updatedAt,
+          deletedAt,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        categoryId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        month: { $ref: "#/components/schemas/Month" }
+        amount: { $ref: "#/components/schemas/Money" }
+        currency: { type: string, minLength: 3, maxLength: 3 }
+        version: { type: integer, minimum: 1 }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+    BudgetCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [month, amount]
+      properties:
+        categoryId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        month: { $ref: "#/components/schemas/Month" }
+        amount: { $ref: "#/components/schemas/Money" }
+        currency:
+          anyOf:
+            - { type: string, minLength: 3, maxLength: 3, default: CNY }
+            - { type: "null" }
+    BudgetUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        categoryId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        month: { $ref: "#/components/schemas/Month" }
+        amount: { $ref: "#/components/schemas/Money" }
+        currency:
+          anyOf:
+            - { type: string, minLength: 3, maxLength: 3 }
+            - { type: "null" }
+        version: { type: integer, minimum: 1 }
+    BudgetListResponse:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/BudgetSummary" }
+    BudgetProgress:
+      type: object
+      additionalProperties: false
+      required: [budgetId, categoryId, categoryName, amount, spent, remaining, progress]
+      properties:
+        budgetId: { $ref: "#/components/schemas/Identifier" }
+        categoryId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        categoryName:
+          anyOf:
+            - { type: string }
+            - { type: "null" }
+        amount: { $ref: "#/components/schemas/Money" }
+        spent: { $ref: "#/components/schemas/Money" }
+        remaining: { $ref: "#/components/schemas/Money" }
+        progress: { type: string, pattern: "^-?\\d+\\.\\d{2}$" }
+    FinanceSummaryResponse:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          month,
+          currency,
+          totalExpense,
+          totalRefund,
+          netExpense,
+          totalIncome,
+          todaySpend,
+          budgets,
+          updatedAt,
+        ]
+      properties:
+        month: { $ref: "#/components/schemas/Month" }
+        currency: { type: string, minLength: 3, maxLength: 3 }
+        totalExpense: { $ref: "#/components/schemas/Money" }
+        totalRefund: { $ref: "#/components/schemas/Money" }
+        netExpense: { $ref: "#/components/schemas/Money" }
+        totalIncome: { $ref: "#/components/schemas/Money" }
+        todaySpend: { $ref: "#/components/schemas/Money" }
+        budgets:
+          type: array
+          items: { $ref: "#/components/schemas/BudgetProgress" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
     Email:
       type: string
       format: email

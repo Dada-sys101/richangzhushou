@@ -1,4 +1,11 @@
-import type { ApiErrorCode } from "./enums.js";
+import type {
+  ApiErrorCode,
+  CategoryKind,
+  FinancialAccountKind,
+  RecordSource,
+  RecordStatus,
+  TransactionType,
+} from "./enums.js";
 
 /** API boundary IDs are strings even if storage choices change. */
 export type Identifier = string;
@@ -161,4 +168,163 @@ export interface AdminAuditEntry {
   requestId: string;
   createdAt: IsoDateTime;
   changes: Record<string, unknown>;
+}
+
+export interface CategorySummary extends VersionedResource {
+  kind: CategoryKind;
+  name: string;
+  color: string;
+  isArchived: boolean;
+}
+
+export interface CategoryCreateRequest {
+  kind: CategoryKind;
+  name: string;
+  color?: string;
+}
+
+export interface CategoryUpdateRequest {
+  kind?: CategoryKind;
+  name?: string;
+  color?: string;
+  isArchived?: boolean;
+  version: number;
+}
+
+export interface CategoryListResponse {
+  items: CategorySummary[];
+}
+
+export interface FinancialAccountSummary extends VersionedResource {
+  name: string;
+  kind: FinancialAccountKind;
+  isArchived: boolean;
+}
+
+export interface FinancialAccountCreateRequest {
+  name: string;
+  kind: FinancialAccountKind;
+}
+
+export interface FinancialAccountUpdateRequest {
+  name?: string;
+  kind?: FinancialAccountKind;
+  isArchived?: boolean;
+  version: number;
+}
+
+export interface FinancialAccountListResponse {
+  items: FinancialAccountSummary[];
+}
+
+export interface TransactionSummary extends VersionedResource {
+  type: TransactionType;
+  status: RecordStatus;
+  amount: Money;
+  currency: string;
+  categoryId: Identifier | null;
+  accountId: Identifier | null;
+  merchant: string | null;
+  occurredAt: IsoDateTime;
+  note: string | null;
+  source: RecordSource;
+  originalTransactionId: Identifier | null;
+  isUnlinkedRefund: boolean;
+  sourceFingerprint: string | null;
+}
+
+export interface TransactionCreateRequest {
+  type: TransactionType;
+  amount: Money;
+  currency?: string;
+  categoryId?: Identifier | null;
+  accountId?: Identifier | null;
+  merchant?: string | null;
+  occurredAt?: IsoDateTime;
+  note?: string | null;
+  source?: RecordSource;
+  originalTransactionId?: Identifier | null;
+  isUnlinkedRefund?: boolean;
+  sourceFingerprint?: string | null;
+  clientMutationId?: string | null;
+}
+
+export interface TransactionUpdateRequest {
+  type?: TransactionType;
+  amount?: Money;
+  currency?: string;
+  categoryId?: Identifier | null;
+  accountId?: Identifier | null;
+  merchant?: string | null;
+  occurredAt?: IsoDateTime;
+  note?: string | null;
+  source?: RecordSource;
+  originalTransactionId?: Identifier | null;
+  isUnlinkedRefund?: boolean;
+  sourceFingerprint?: string | null;
+  version: number;
+}
+
+export interface DuplicateWarning {
+  code: "POSSIBLE_DUPLICATE";
+  matchedTransactionId: Identifier;
+  message: string;
+}
+
+export interface TransactionCreatedResponse {
+  transaction: TransactionSummary;
+  duplicateWarning?: DuplicateWarning;
+}
+
+export interface TransactionListResponse {
+  items: TransactionSummary[];
+  nextCursor: Identifier | null;
+}
+
+export interface BudgetSummary extends VersionedResource {
+  categoryId: Identifier | null;
+  month: string;
+  amount: Money;
+  currency: string;
+}
+
+export interface BudgetCreateRequest {
+  categoryId?: Identifier | null;
+  month: string;
+  amount: Money;
+  currency?: string;
+}
+
+export interface BudgetUpdateRequest {
+  categoryId?: Identifier | null;
+  month?: string;
+  amount?: Money;
+  currency?: string;
+  version: number;
+}
+
+export interface BudgetListResponse {
+  items: BudgetSummary[];
+}
+
+export interface BudgetProgress {
+  budgetId: Identifier;
+  categoryId: Identifier | null;
+  categoryName: string | null;
+  amount: Money;
+  spent: Money;
+  remaining: Money;
+  progress: string;
+}
+
+export interface FinanceSummaryResponse {
+  month: string;
+  currency: string;
+  totalExpense: Money;
+  totalRefund: Money;
+  netExpense: Money;
+  totalIncome: Money;
+  todaySpend: Money;
+  budgets: BudgetProgress[];
+  updatedAt: IsoDateTime;
 }

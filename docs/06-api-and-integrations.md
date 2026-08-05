@@ -32,16 +32,24 @@
 
 `POST /auth/register` 必须在服务端事务中验证注册开关、邀请码和容量。
 
-### 记账
+### 记账（WP3）
 
 - `GET/POST /transactions`
 - `GET/PATCH/DELETE /transactions/:id`
 - `POST /transactions/:id/restore`
-- `GET/POST/PATCH /categories`
-- `GET/POST/PATCH /financial-accounts`
-- `GET/POST/PATCH /budgets`
+- `GET/POST /categories`、`PATCH /categories/:id`（归档而非物理删除）
+- `GET/POST /financial-accounts`、`PATCH /financial-accounts/:id`（归档而非物理删除）
+- `GET/POST /budgets`、`PATCH/DELETE /budgets/:id`
 - `GET /finance/summary`
 - `GET /finance/export.csv`
+
+Finance 契约要点：
+
+- 金额为两位小数字符串（`Money`），支出/收入/退款金额必须大于 0；退款必须引用原账单或标记为无原单退款。
+- 列表支持 `cursor`/`limit` 游标分页与 `month`、`type`、`categoryId`、`accountId`、`includeDeleted` 过滤；分类/账户列表支持 `includeArchived`。
+- 创建支持可选 `clientMutationId` 幂等重放；修改必须携带当前 `version`，过期返回 `VERSION_CONFLICT`。
+- 疑似重复以 `duplicateWarning`（`POSSIBLE_DUPLICATE`）返回，不自动删除。
+- 统计与月预算按 `Asia/Shanghai` 自然月（`YYYY-MM`）计算；CSV 导出仅当前用户已确认未删除账单，UTF-8 带 BOM。
 
 ### 草稿、OCR 和统一录入
 
@@ -118,6 +126,7 @@ OCR/AI 只填充草稿，不直接创建 `CONFIRMED` 业务记录。
 | `REOPEN_CAPACITY_REACHED` | 409 | 恢复时已满员 |
 | `IDEMPOTENCY_CONFLICT` | 409 | 同一幂等键内容不同 |
 | `VERSION_CONFLICT` | 409 | 同步版本冲突 |
+| `DUPLICATE_RESOURCE` | 409 | 分类/账户/预算唯一约束冲突 |
 | `DRAFT_CONFIRMATION_REQUIRED` | 409 | 必须先确认草稿 |
 | `RESOURCE_NOT_FOUND` | 404 | 不存在或不属于当前用户 |
 

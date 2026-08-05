@@ -34,6 +34,18 @@ export const RECORD_SOURCES = [
 ] as const;
 export type RecordSource = (typeof RECORD_SOURCES)[number];
 
+export const CATEGORY_KINDS = ["EXPENSE", "INCOME"] as const;
+export type CategoryKind = (typeof CATEGORY_KINDS)[number];
+
+export const FINANCIAL_ACCOUNT_KINDS = [
+  "CASH",
+  "DEBIT_CARD",
+  "CREDIT_CARD",
+  "DIGITAL_WALLET",
+  "OTHER",
+] as const;
+export type FinancialAccountKind = (typeof FINANCIAL_ACCOUNT_KINDS)[number];
+
 export const TASK_STATUSES = ["OPEN", "COMPLETED", "CANCELLED"] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
@@ -90,6 +102,7 @@ export const API_ERROR_CODES = [
   "ADMIN_ACTION_REQUIRES_REASON",
   "IDEMPOTENCY_CONFLICT",
   "VERSION_CONFLICT",
+  "DUPLICATE_RESOURCE",
   "DRAFT_CONFIRMATION_REQUIRED",
   "RESOURCE_NOT_FOUND",
   "INTERNAL_ERROR",

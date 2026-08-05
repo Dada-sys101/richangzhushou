@@ -28,6 +28,7 @@
 | DEC-109 | 本地端口约定 3000/5173/5174，CORS 默认仅本地来源 | `README.md`、`apps/*/vite.config.ts`、`apps/api/src/main.ts` | 本地开发约定 |
 | DEC-110 | 质量门 = format + lint + typecheck + test + build + Prisma validate + OpenAPI lint + migration diff + audit | 根 `package.json`（`scripts.quality`） | `docs/13` 记录 WP1 全部通过 |
 | DEC-111 | 提交粒度：独立任务一个提交，提交信息使用中文（当前仓库惯例） | `[Git] git log` | 仓库惯例；后续可再约定 |
+| DEC-112 | WP3 补充 `CategoryKind`（EXPENSE/INCOME）与 `FinancialAccountKind`（CASH/DEBIT_CARD/CREDIT_CARD/DIGITAL_WALLET/OTHER）取值；预算唯一约束 userId+month+categoryId（NULL 时服务层校验整体预算唯一） | `[文档] docs/05`、`[代码] WP3` | 数据字典未定义具体取值，属 `[关键假设]`，待产品确认 |
 
 ## 尚未确定的决策
 

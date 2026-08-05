@@ -5,7 +5,9 @@ import { parse } from "yaml";
 
 import {
   API_ERROR_CODES,
+  CATEGORY_KINDS,
   DRAFT_STATUSES,
+  FINANCIAL_ACCOUNT_KINDS,
   INVITE_STATUSES,
   PRIORITIES,
   RECORD_SOURCES,
@@ -53,13 +55,14 @@ const requiredOperations = [
   "POST /transactions/{id}/restore",
   "GET /categories",
   "POST /categories",
-  "PATCH /categories",
+  "PATCH /categories/{id}",
   "GET /financial-accounts",
   "POST /financial-accounts",
-  "PATCH /financial-accounts",
+  "PATCH /financial-accounts/{id}",
   "GET /budgets",
   "POST /budgets",
-  "PATCH /budgets",
+  "PATCH /budgets/{id}",
+  "DELETE /budgets/{id}",
   "GET /finance/summary",
   "GET /finance/export.csv",
   "POST /drafts/parse-text",
@@ -147,6 +150,8 @@ describe("OpenAPI baseline", () => {
     ["TransactionType", TRANSACTION_TYPES],
     ["RecordStatus", RECORD_STATUSES],
     ["RecordSource", RECORD_SOURCES],
+    ["CategoryKind", CATEGORY_KINDS],
+    ["FinancialAccountKind", FINANCIAL_ACCOUNT_KINDS],
     ["TaskStatus", TASK_STATUSES],
     ["Priority", PRIORITIES],
     ["ReminderStatus", REMINDER_STATUSES],
@@ -160,4 +165,71 @@ describe("OpenAPI baseline", () => {
       ]);
     },
   );
+
+  it("defines the WP3 finance request and response contracts", () => {
+    const schemas = document.components.schemas;
+    for (const name of [
+      "TransactionCreateRequest",
+      "TransactionUpdateRequest",
+      "TransactionSummary",
+      "TransactionCreatedResponse",
+      "TransactionListResponse",
+      "CategoryCreateRequest",
+      "CategoryUpdateRequest",
+      "CategorySummary",
+      "FinancialAccountCreateRequest",
+      "FinancialAccountUpdateRequest",
+      "FinancialAccountSummary",
+      "BudgetCreateRequest",
+      "BudgetUpdateRequest",
+      "BudgetSummary",
+      "FinanceSummaryResponse",
+      "DuplicateWarning",
+    ]) {
+      expect(schemas[name]).toBeDefined();
+    }
+    expect(schemas.Month?.pattern).toBe("^(19|20)\\d{2}-(0[1-9]|1[0-2])$");
+    expect(schemas.TransactionCreateRequest?.required).toEqual([
+      "type",
+      "amount",
+    ]);
+    expect(schemas.TransactionUpdateRequest?.required).toEqual(["version"]);
+    expect(schemas.BudgetCreateRequest?.required).toEqual(["month", "amount"]);
+    expect(schemas.FinanceSummaryResponse?.required).toEqual(
+      expect.arrayContaining([
+        "totalExpense",
+        "totalRefund",
+        "netExpense",
+        "totalIncome",
+        "todaySpend",
+        "budgets",
+      ]),
+    );
+    expect(schemas.ApiErrorCode?.enum).toContain("DUPLICATE_RESOURCE");
+    expect(API_ERROR_CODES).toContain("DUPLICATE_RESOURCE");
+  });
+
+  it("keeps every finance operation secured by the access token", () => {
+    const financePaths = [
+      "/transactions",
+      "/transactions/{id}",
+      "/transactions/{id}/restore",
+      "/categories",
+      "/categories/{id}",
+      "/financial-accounts",
+      "/financial-accounts/{id}",
+      "/budgets",
+      "/budgets/{id}",
+      "/finance/summary",
+      "/finance/export.csv",
+    ];
+    for (const path of financePaths) {
+      for (const [method, operation] of Object.entries(document.paths[path])) {
+        expect(operation.security ?? document.security).toEqual([
+          { accessToken: [] },
+        ]);
+        void method;
+      }
+    }
+  });
 });

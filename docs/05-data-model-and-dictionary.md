@@ -47,10 +47,10 @@ erDiagram
 | `InviteRedemption` | inviteId, userId, redeemedAt | userId 唯一；事务内创建 |
 | `Session` | userId, refreshTokenHash, expiresAt, revokedAt | token 哈希唯一 |
 | `DeviceCredential` | userId, name, tokenHash, scopes, revokedAt | 快捷指令凭证仅保存哈希 |
-| `Transaction` | type, status, amount, currency, categoryId, accountId, merchant, occurredAt, tripId, source | userId+occurredAt；clientMutationId 唯一 |
-| `Category` | kind, name, color, isArchived | userId+kind+name 唯一 |
-| `FinancialAccount` | name, kind, isArchived | userId+name 唯一 |
-| `Budget` | categoryId?, month, amount, currency | userId+month+categoryId 唯一 |
+| `Transaction` | type, status, amount, currency, categoryId, accountId, merchant, occurredAt, note, source, originalTransactionId, isUnlinkedRefund, sourceFingerprint, clientMutationId, version, deletedAt | userId+occurredAt；clientMutationId 唯一；软删除用 deletedAt |
+| `Category` | kind（EXPENSE/INCOME）, name, color, isArchived, version | userId+kind+name 唯一；归档而非物理删除 |
+| `FinancialAccount` | name, kind（CASH/DEBIT_CARD/CREDIT_CARD/DIGITAL_WALLET/OTHER）, isArchived, version | userId+name 唯一；归档而非物理删除 |
+| `Budget` | categoryId?, month（YYYY-MM）, amount, currency, version, deletedAt | userId+month+categoryId 唯一（categoryId 为 NULL 时由服务层校验整体预算唯一） |
 | `CalendarEvent` | title, startsAt, endsAt, allDay, status | userId+startsAt |
 | `Task` | title, status, priority, dueAt, completedAt | userId+status+dueAt |
 | `Reminder` | targetType, targetId, scheduleType, scheduledAt, recurrence, status | userId+status+scheduledAt |
@@ -72,6 +72,8 @@ erDiagram
 | `TransactionType` | `EXPENSE`, `INCOME`, `REFUND` |
 | `RecordStatus` | `DRAFT`, `CONFIRMED`, `DELETED` |
 | `RecordSource` | `MANUAL`, `SHORTCUT`, `OCR`, `TEXT`, `VOICE`, `IMPORT` |
+| `CategoryKind` | `EXPENSE`, `INCOME` |
+| `FinancialAccountKind` | `CASH`, `DEBIT_CARD`, `CREDIT_CARD`, `DIGITAL_WALLET`, `OTHER` |
 | `TaskStatus` | `OPEN`, `COMPLETED`, `CANCELLED` |
 | `Priority` | `LOW`, `MEDIUM`, `HIGH` |
 | `ReminderStatus` | `SCHEDULED`, `SENT`, `CANCELLED`, `FAILED`, `SUPPRESSED` |
@@ -87,3 +89,10 @@ erDiagram
 - 普通业务记录先软删除并参与同步墓碑处理。
 - 账号进入 `DELETION_PENDING` 后禁止登录，期满执行异步分批清理。
 - 审计日志只保留最小必要信息并脱敏，不保存账单、日程或行程正文快照。
+
+## WP3 补充说明（2026-08-05）
+
+- `CategoryKind` 与 `FinancialAccountKind` 的取值由 WP3 实现按 V1 基础记账场景补充，属 `[关键假设]`（见 `docs/decisions.md` DEC-112），待产品确认。
+- 账单金额一律 `DECIMAL(18,2)`，API 使用两位小数字符串；退款使用 `REFUND` 类型与正金额，必须引用原支出账单或标记 `isUnlinkedRefund=true`。
+- 统计只计入 `status=CONFIRMED` 且 `deletedAt IS NULL` 的记录；月预算按 `Asia/Shanghai` 自然月（月份字符串 `YYYY-MM`）计算，退款冲减支出。
+- 分类与账户使用 `isArchived` 归档，不物理删除；预算使用 `deletedAt` 软删除。
