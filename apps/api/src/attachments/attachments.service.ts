@@ -17,7 +17,6 @@ import {
 } from "../integrations/integrations.types.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import {
-  ALLOWED_ATTACHMENT_MIME_TYPES,
   MAX_ATTACHMENT_SIZE,
   type UploadIntentDto,
 } from "./dto/attachments.dto.js";
@@ -44,7 +43,8 @@ export class AttachmentsService {
     userId: string,
     dto: UploadIntentDto,
   ): Promise<AttachmentUploadIntentResponse> {
-    if (!ALLOWED_ATTACHMENT_MIME_TYPES.includes(dto.mimeType)) {
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedMimeTypes.includes(dto.mimeType)) {
       throw new ApiException(
         "ATTACHMENT_TYPE_NOT_ALLOWED",
         400,

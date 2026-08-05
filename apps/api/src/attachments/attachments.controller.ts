@@ -18,10 +18,7 @@ import type { AuthenticatedRequest } from "../auth/auth.types.js";
 import { UserOnlyGuard } from "../auth/user-only.guard.js";
 import { ApiException } from "../common/api-error.js";
 import { AttachmentsService } from "./attachments.service.js";
-import {
-  MAX_ATTACHMENT_SIZE,
-  type UploadIntentDto,
-} from "./dto/attachments.dto.js";
+import { MAX_ATTACHMENT_SIZE, UploadIntentDto } from "./dto/attachments.dto.js";
 
 @Controller()
 export class AttachmentsController {
