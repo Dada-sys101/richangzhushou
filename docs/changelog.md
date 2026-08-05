@@ -4,6 +4,19 @@
 更新：2026-08-05
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-05 — WP2 身份、容量与账号生命周期（本地完成）
+
+提交：待创建（分支 `codex/wp2-identity-capacity`）
+
+- 契约先行：OpenAPI、共享类型、错误码与账号状态机更新并通过契约测试。
+- 新增 Prisma 实体与首个 migration：`SystemSetting`、`User`、`Session`、`RecoveryCode`、`InviteCode`、`InviteRedemption`、`AdminAudit`。
+- 后端：Argon2id 密码、访问令牌内存保存、刷新令牌 HttpOnly Cookie 轮换/撤销、密码恢复、账号关闭/暂停/恢复/删除申请。
+- 容量：SystemSetting 单例锁、固定锁顺序、邀请码同事务兑换、有上限重试；注册失败不消耗邀请码。
+- 管理端：角色守卫、原因必填、脱敏审计；管理员默认不能访问用户生活数据正文。
+- 前端：用户端注册/登录/忘记密码/重置密码/账号页；管理端概览/邀请码/用户/设置/审计页。
+- 质量：`npm run quality` 通过；便携 MySQL 8.4 空库 migration 与 `TEST_DATABASE_URL` 集成测试通过；浏览器 5 宽度矩阵通过。
+- 未推送、未部署、未创建生产资源；WP3 未实现。
+
 ## 2026-08-05 — 推送 WP1 分支到远端
 
 提交信息：`docs: record wp1 branch push`

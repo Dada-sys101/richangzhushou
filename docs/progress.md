@@ -23,23 +23,29 @@
 | WP1 本地质量门与 HTTP 冒烟 | `docs/13-wp1-acceptance-report.md` |
 | 浏览器矩阵检查（本机产物，未入库） | `docs/13`；`.playwright-cli/`、`output/playwright/` |
 | 项目上下文与接管文档体系 | 本次提交（见 `docs/changelog.md`） |
+| WP2 契约：OpenAPI/共享类型/错误码/状态机 | `packages/api-contracts`；`docs/14` |
+| WP2 Prisma 实体与首个 migration | `apps/api/prisma/schema.prisma`、`prisma/migrations/20260805000000_wp2_identity_capacity` |
+| WP2 身份与会话：Argon2id、刷新 Cookie、恢复凭证 | `apps/api/src/auth`；`docs/14` |
+| WP2 容量与邀请码事务 | `apps/api/src/capacity`、`apps/api/src/auth`；`docs/14` |
+| WP2 管理端 API、角色守卫与审计 | `apps/api/src/admin`、`apps/api/src/audit` |
+| WP2 用户端与管理端页面 | `apps/web/src/views`、`apps/admin/src/views` |
+| WP2 集成与浏览器验收 | `apps/api/src/integration/wp2.integration.test.ts`；`output/playwright/wp2` |
 
 ## 部分完成
 
 | 条目 | 现状 | 依据 |
 | --- | --- | --- |
-| 共享契约接入应用代码 | 契约包已定义并通过自身测试，但 `apps/*` 尚未引用 `@daily-assistant/api-contracts`，API 也未按契约实现 | `packages/api-contracts`；`rg "@daily-assistant" apps` 无业务 import |
+| 共享契约接入应用代码 | `apps/api` 已引用 `@daily-assistant/api-contracts`；前端使用本地 client 类型 | `apps/api/package.json` |
 | PWA 离线能力 | 仅应用外壳 + manifest；无业务缓存、离线写入、同步队列 | `apps/web/vite.config.ts` |
-| CI 验证 | 配置存在，但仓库未推送，GitHub Actions 未执行 | `.github/workflows/ci.yml`；`docs/13` |
-| 浏览器矩阵验证 | 有截图/快照产物，但未固化为可复现脚本；`docs/13` 声称“控制台 0 error”，而 `.playwright-cli` 留有 favicon.ico 404 记录 | `.playwright-cli/`（gitignored）；`docs/13` |
+| CI 验证 | 配置存在并加入 WP2 集成测试，但当前分支未推送，GitHub Actions 未执行 | `.github/workflows/ci.yml`；`docs/14` |
+| 浏览器矩阵验证 | 已用 `playwright-cli` 完成 5 宽度并保存产物；尚未固化为仓库内一键脚本 | `output/playwright/wp2`（gitignored 部分） |
 
 ## 进行中
 
-- 无业务工作在进行中。当前仅文档/上下文固化；完成后 WP1 保持“本地完成”，WP2 仍未开始且未获授权。
+- 无业务工作在进行中。等待 WP2 本地提交确认、远端 CI 结果与 WP3 授权。
 
 ## 未开始
 
-- WP2 身份、容量、邀请码与管理（`docs/12`）
 - WP3 基础记账与今日财务
 - WP4 快捷指令、OCR 与统一录入
 - WP5 日程、待办与提醒
@@ -47,24 +53,21 @@
 - WP7 PWA 与离线同步
 - WP8 全量质量与发布准备
 
-以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致，均为 `NOT_STARTED`。
+以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP2 已 DONE，WP3–WP8 为 `NOT_STARTED`。
 
 ## 已知问题
 
 | 问题 | 影响 | 状态 |
 | --- | --- | --- |
-| 本机无 MySQL/Docker，真实空库 `prisma migrate deploy` 未执行 | migration 正确性仅有离线 diff 证据 | 环境阻塞；CI 路径已配置但未远端执行 |
-| 浏览器 QA 未固化为仓库脚本（无 Playwright 依赖/配置/npm 脚本） | `docs/13` 的矩阵验收不可复现 | 待补齐 |
-| `.playwright-cli` 留有一条 favicon.ico 404 控制台记录，与“控制台 0 error”表述不一致 | 验收报告与原始记录存在张力 | 待复核 |
-| 应用尚未引用共享契约包 | 契约与运行时实现可能漂移 | WP2 接入时解决 |
-| 远端 CI 未执行 | “CI 通过”无法被证实 | 待推送授权 |
+| 便携 MySQL 8.4 位于仓库外 | 其他机器复跑集成测试需要自备 MySQL 8.x | 记录于 `docs/14` |
+| 浏览器 QA 未固化为仓库内一键脚本 | 复现依赖 `playwright-cli` 与本地服务 | 待后续固化 |
+| 远端 CI 未执行 | “CI 通过”无法被远端证实 | 待推送授权 |
 | origin 仓库名 `richangzhushou` 与产品名 Daily Assistant 不一致 | 品牌/仓库命名 `[待确认]` | OPEN-001/002 |
 
 ## 待验证事项
 
-- 在当前机器重新运行 `npm run quality` 的结果（本文更新时复跑）。
-- 真实 MySQL 8 空库 `prisma migrate deploy`（本地或远端 CI）。
+- 当前机器 `npm run quality` 已复跑通过（WP2 分支）。
+- 便携 MySQL 8.4 空库 `prisma migrate deploy` 已真实执行通过；集成测试在 `TEST_DATABASE_URL` 下通过。
 - GitHub Actions 首次远端执行。
-- 浏览器矩阵（375/390/430/768/1440、404、Back、离线）脚本化复现与控制台断言。
-- 契约包接入后 API 行为与 OpenAPI 的一致性。
+- 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 验证；一键脚本化复现待后续。
 - 未实现功能一律不得视为已验证；计划中的功能不得写成已完成。

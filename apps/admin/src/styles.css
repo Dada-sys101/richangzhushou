@@ -37,3 +37,52 @@ body {
   max-width: 880px;
   margin: clamp(24px, 6vw, 72px) auto;
 }
+
+.admin-nav {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-nav a {
+  color: #2563eb;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.admin-page {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.admin-login-card {
+  max-width: 480px;
+  margin: clamp(40px, 10vw, 120px) auto;
+}
+
+.admin-error {
+  color: #b91c1c;
+  font-weight: 650;
+}
+
+.stat {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.stat-label {
+  color: #6b7280;
+}
+
+.form-card {
+  margin-bottom: 24px;
+}
+
+.plaintext-alert {
+  margin-top: 16px;
+}
+
+.action-card {
+  margin-top: 20px;
+}

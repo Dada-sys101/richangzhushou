@@ -6,7 +6,11 @@ import { RouterView } from "vue-router";
   <div class="app-shell">
     <header class="site-header">
       <span class="wordmark">Daily Assistant</span>
-      <span class="badge">WP1</span>
+      <nav class="site-nav">
+        <RouterLink to="/">首页</RouterLink>
+        <RouterLink to="/login">登录</RouterLink>
+        <RouterLink to="/account">账号</RouterLink>
+      </nav>
     </header>
     <main>
       <RouterView />

@@ -43,6 +43,7 @@ const requiredOperations = [
   "POST /me/close",
   "POST /me/reopen",
   "POST /me/request-deletion",
+  "DELETE /me/sessions",
   "DELETE /me/sessions/{sessionId}",
   "GET /transactions",
   "POST /transactions",

@@ -1,19 +1,19 @@
 # Project Status
 
-版本：0.3<br>
-状态：WP1 本地完成，项目上下文体系已建立，未进入 WP2<br>
+版本：0.4<br>
+状态：WP1、WP2 本地验收完成<br>
 更新：2026-08-05
 
 ## 当前状态
 
 - 项目：Daily Assistant（临时名称）
 - 位置：`D:\daily-assistant`
-- 当前工作包：WP1 已完成；WP2 未开始且未获授权
-- 代码：npm workspaces、三应用、两共享包、Prisma/OpenAPI/CI 基线已创建
-- Git 仓库：独立仓库，当前分支 `codex/wp1-foundation`（已推送 origin）
+- 当前工作包：WP2 已完成本地验收（分支 `codex/wp2-identity-capacity`）
+- 代码：身份、邀请码、容量、账号生命周期、管理端 API 与页面已实现
+- Git 仓库：独立仓库，当前分支 `codex/wp2-identity-capacity`（未推送）
 - 上下文：`.project/context.md` 与 `docs/` 接管文档已建立（见 `docs/README.md`）
 - 部署：尚未创建
-- 当前用户：0
+- 当前用户：本地验收数据（非生产）
 
 ## 已完成
 
@@ -28,14 +28,16 @@
 - Prisma 7 + MySQL schema 基线、安全 `.env.example`、本地开发说明和 GitHub Actions CI。
 - 格式、Lint、类型、单元/契约测试、全部 workspace 构建、Prisma validate、OpenAPI lint、离线 migration diff、依赖审计和浏览器矩阵检查。
 - 项目上下文与开发交接文档体系：`AGENTS.md` 完善、`docs/project-overview.md`、`docs/architecture.md`、`docs/progress.md`、`docs/roadmap.md`、`docs/decisions.md`、`docs/changelog.md`、`.project/context.md`。
+- WP2：OpenAPI/共享契约、Prisma migration、Argon2id 密码、刷新令牌轮换 Cookie、容量事务、邀请码、账号状态、管理端 API 与页面、脱敏审计。
+- WP2 验收：`QA-CAP-001~006`、`QA-SEC-001~003`、并发最后名额、刷新轮换/撤销、密码重置非枚举/限流、浏览器 5 宽度矩阵全部通过（见 `docs/14-wp2-acceptance-report.md`）。
 
 ## 下一步
 
-- 确认 GitHub Actions 首次运行结果（已推送提交 `518477e`，CI 状态待确认）。
-- 如需进入 WP2，必须另行明确授权；不得把 WP1 完成视为 WP2 开工授权。
+- 确认 WP2 远端 CI 结果（当前分支未推送；CI 配置已加入 WP2 集成测试步骤）。
+- WP3 开工需另行授权。
 
 ## 阻塞项
 
-- 本机未安装 MySQL 或 Docker，无法在本地真实空库执行 `prisma migrate deploy`；离线 diff 已验证，远端 CI 首次运行结果待确认。
-- 本机 `gh` 未登录，无法通过命令行查询 CI 状态；推送已由用户授权完成。
+- WP2 使用便携 MySQL 8.4 完成本地真实空库 migration 与集成测试；该 MySQL 位于仓库外，不随仓库分发。
+- 当前分支未推送，远端 CI 结果待确认；`gh` 未登录，无法通过命令行查询。
 - 发布前需确认部署地域、域名、邮件/OCR/AI/对象存储服务及合规要求。

@@ -14,6 +14,7 @@ apps/web/dev-dist/
 apps/web/public/sw.js
 apps/web/public/workbox-*.js
 apps/api/generated/
+apps/api/src/generated/
 
 .idea/
 .vscode/

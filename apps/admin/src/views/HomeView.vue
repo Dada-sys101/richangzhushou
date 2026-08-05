@@ -11,7 +11,7 @@ import "element-plus/es/components/result/style/css";
     <el-result
       icon="success"
       title="Vue 3 + TypeScript + Element Plus 已就绪"
-      sub-title="当前工作包不包含用户、邀请码或业务数据管理功能。"
+      sub-title="WP2 已提供概览、邀请码、用户、设置与审计管理页面。"
     />
   </el-card>
 </template>

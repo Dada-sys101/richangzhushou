@@ -3,9 +3,12 @@ import "reflect-metadata";
 
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import cookieParser from "cookie-parser";
 import helmet from "helmet";
 
 import { AppModule } from "./app.module.js";
+import { AllExceptionsFilter } from "./common/all-exceptions.filter.js";
+import { requestIdMiddleware } from "./common/request-id.middleware.js";
 
 const DEFAULT_API_BASE_PATH = "/api/v1";
 const DEFAULT_PORT = 3000;
@@ -24,6 +27,9 @@ async function bootstrap(): Promise<void> {
 
   app.setGlobalPrefix(process.env.API_BASE_PATH ?? DEFAULT_API_BASE_PATH);
   app.use(helmet());
+  app.use(cookieParser());
+  app.use(requestIdMiddleware);
+  app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       forbidNonWhitelisted: true,

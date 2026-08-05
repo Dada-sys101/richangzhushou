@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
@@ -25,6 +26,11 @@ enum InviteStatus {
   EXHAUSTED
   EXPIRED
   REVOKED
+}
+
+enum RecoveryCodeKind {
+  PASSWORD_RESET
+  REOPEN
 }
 
 enum TransactionType {
@@ -80,4 +86,122 @@ enum DraftStatus {
   CONFIRMED
   DISCARDED
   FAILED
+}
+
+model SystemSetting {
+  id                  String   @id @default("singleton")
+  registrationEnabled Boolean  @default(false) @map("registration_enabled")
+  inviteRequired      Boolean  @default(true) @map("invite_required")
+  maxActiveUsers      Int      @default(20) @map("max_active_users")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  updatedBy           String?  @map("updated_by")
+
+  @@map("system_settings")
+}
+
+model User {
+  id                   String            @id @default(cuid())
+  email                String            @unique
+  normalizedEmail      String            @unique @map("normalized_email")
+  displayName          String            @map("display_name")
+  passwordHash         String            @map("password_hash")
+  role                 UserRole          @default(USER)
+  status               UserStatus        @default(ACTIVE)
+  createdAt            DateTime          @default(now()) @map("created_at")
+  updatedAt            DateTime          @updatedAt @map("updated_at")
+  closedAt             DateTime?         @map("closed_at")
+  deletionRequestedAt  DateTime?         @map("deletion_requested_at")
+  lastLoginAt          DateTime?         @map("last_login_at")
+  sessions             Session[]
+  recoveryCodes        RecoveryCode[]
+  invitedBy            InviteRedemption?
+  adminAudits          AdminAudit[]
+  inviteCodesCreated   InviteCode[]      @relation("InviteCreator")
+  inviteCodesRevoked   InviteCode[]      @relation("InviteRevoker")
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model Session {
+  id               String    @id @default(cuid())
+  userId           String    @map("user_id")
+  refreshTokenHash String    @unique @map("refresh_token_hash")
+  expiresAt        DateTime  @map("expires_at")
+  revokedAt        DateTime? @map("revoked_at")
+  lastUsedAt       DateTime? @map("last_used_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model RecoveryCode {
+  id        String            @id @default(cuid())
+  userId    String            @map("user_id")
+  kind      RecoveryCodeKind
+  tokenHash String            @unique @map("token_hash")
+  expiresAt DateTime          @map("expires_at")
+  usedAt    DateTime?         @map("used_at")
+  createdAt DateTime          @default(now()) @map("created_at")
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind, usedAt])
+  @@index([expiresAt])
+  @@map("recovery_codes")
+}
+
+model InviteCode {
+  id           String            @id @default(cuid())
+  codeHash     String            @unique @map("code_hash")
+  codePrefix   String            @map("code_prefix")
+  status       InviteStatus      @default(ACTIVE)
+  maxUses      Int               @default(1) @map("max_uses")
+  usedCount    Int               @default(0) @map("used_count")
+  expiresAt    DateTime?         @map("expires_at")
+  revokedAt    DateTime?         @map("revoked_at")
+  createdById  String?           @map("created_by_id")
+  revokedById  String?           @map("revoked_by_id")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  createdBy    User?             @relation("InviteCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  revokedBy    User?             @relation("InviteRevoker", fields: [revokedById], references: [id], onDelete: SetNull)
+  redemptions  InviteRedemption[]
+
+  @@index([status, expiresAt])
+  @@index([createdById])
+  @@map("invite_codes")
+}
+
+model InviteRedemption {
+  id         String     @id @default(cuid())
+  inviteId   String     @map("invite_id")
+  userId     String     @unique @map("user_id")
+  redeemedAt DateTime   @default(now()) @map("redeemed_at")
+  invite     InviteCode @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([inviteId, userId])
+  @@map("invite_redemptions")
+}
+
+model AdminAudit {
+  id         String   @id @default(cuid())
+  actorId    String?  @map("actor_id")
+  action     String
+  targetType String   @map("target_type")
+  targetId   String?  @map("target_id")
+  beforeJson Json?    @map("before_json")
+  afterJson  Json?    @map("after_json")
+  reason     String
+  requestId  String   @map("request_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId, createdAt])
+  @@index([targetType, targetId])
+  @@map("admin_audits")
 }

@@ -6,57 +6,55 @@
 ## 项目当前状态
 
 - 项目：Daily Assistant（临时名称，正式产品名待确认）。
-- 阶段：WP0/WP1 已完成（WP1 为“本地完成”）；WP2–WP8 全部未开始且未获授权。
-- 本轮任务：项目分析、文档补齐、进度固化（已完成，无业务代码改动）。
+- 阶段：WP0/WP1 已完成；WP2 本地验收完成；WP3–WP8 未开始且未获授权。
+- 本轮任务：WP2 身份认证、邀请码、容量限制、账号生命周期与管理端（已完成本地实现与验收）。
 
 ## 当前分支
 
-- `codex/wp1-foundation`（已推送至 `origin/codex/wp1-foundation`；`main` 保留 WP0 规划基线）。
+- `codex/wp2-identity-capacity`（未推送；`main` 保留 WP0 规划基线，`codex/wp1-foundation` 已推送）。
 
 ## 最近一次有效提交
 
-- 截至本文撰写：`518477e`（docs: establish project context and development handoff）。
-- 本文档后续更新提交：`docs: record wp1 branch push`；最新提交以 `git log -1 --oneline` 为准。
+- 截至本文撰写：WP2 分支本地提交待创建；最新提交以 `git log -1 --oneline` 为准。
 
 ## 最近修改的模块
 
-- 本轮：`AGENTS.md`、`docs/`（新增 project-overview/architecture/progress/roadmap/decisions/changelog，更新 README）、`.project/context.md`、`PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`CHANGELOG.md`。
-- 上一轮（WP1）：`apps/web`、`apps/admin`、`apps/api`、`packages/api-contracts`、`packages/config`、CI 与工程配置。
+- 本轮：`apps/api`（auth/account/admin/capacity/audit/mail/prisma）、`apps/web`、`apps/admin`、`packages/api-contracts`、CI、文档与状态文件。
 
 ## 当前运行情况
 
-- 本地当前未启动任何服务；可分别启动 API（127.0.0.1:3000）、用户端（5173）、管理端（5174）。
-- 本机无 MySQL/Docker，`prisma migrate deploy` 未在真实空库执行过。
-- 最近一次 `npm run quality` 在本轮文档任务完成后复跑（结果见验证记录）。
+- 验收时曾启动 API（127.0.0.1:3000）、用户端（localhost:5173）、管理端（localhost:5174）与便携 MySQL 8.4（127.0.0.1:3307）。
+- `prisma migrate deploy` 已在便携 MySQL 8.4 真实空库执行通过。
+- 最近一次 `npm run quality` 通过；WP2 集成测试在 `TEST_DATABASE_URL` 下通过。
 
 ## 当前部署状态
 
 - 无任何部署，未创建云资源。
-- 已推送 `codex/wp1-foundation`（提交 `518477e`）至 origin；GitHub Actions 首次运行结果待确认（本机 `gh` 未登录，无法查询）。
+- `codex/wp1-foundation` 已推送（提交 `518477e`）；`codex/wp2-identity-capacity` 未推送。
+- GitHub Actions 首次运行与 WP2 CI 结果待确认（本机 `gh` 未登录，无法查询）。
 - origin 为 `https://github.com/Dada-sys101/richangzhushou.git`。
 
 ## 已完成任务
 
 - WP0：产品、规则、数据、API、架构、测试、部署与交接文档（提交 `5d52395`）。
 - WP1：Monorepo 骨架、OpenAPI 3.1、Prisma/MySQL 基线、CI、本地质量门与浏览器矩阵（提交 `6169ac0`，详见 `docs/13-wp1-acceptance-report.md`）。
-- 本轮：项目上下文与接管文档体系（DA-0102，见 `TODO.md`）。
-- 推送：`codex/wp1-foundation` 已推送到 origin（提交 `518477e`）。
+- WP2：契约、migration、身份与会话、容量与邀请码、账号生命周期、管理端与审计、前端页面与验收（详见 `docs/14-wp2-acceptance-report.md`）。
 
 ## 正在进行的任务
 
-- 无业务开发任务。等待：远端 CI 首次运行结果确认、WP2 开工授权。
+- 等待：WP2 分支本地提交确认与远端 CI 结果；WP3 开工授权。
 
 ## 下一步建议任务
 
-1. 确认 GitHub Actions 首次运行结果（可在 GitHub 页面查看，或登录 `gh` 后查询）。
-2. 确认 OPEN-008（邮箱验证策略）后启动 WP2（身份、容量、邀请码与管理端）。
-3. 并行补齐可复现的浏览器 QA 脚本（R-P0-3），修复/复核 favicon 404 控制台记录。
+1. 检查 `codex/wp2-identity-capacity` 本地提交与 `git diff --check`。
+2. 如需远端验证，推送前需另行授权；CI 已加入 WP2 集成测试步骤。
+3. 确认 OPEN-008（邮箱验证策略）后再决定公开试用注册流程。
 
 ## 当前阻塞问题
 
-- 远端 CI 运行结果未确认（本机 `gh` 未登录）；未获 WP2 开工授权。
-- 本机无 MySQL/Docker，真实 migration 验证受阻（CI 可解但未运行）。
-- 浏览器 QA 证据未固化且存在 favicon 404 记录，`docs/13`“控制台 0 error”待复核。
+- 远端 CI 运行结果未确认（当前分支未推送，本机 `gh` 未登录）。
+- 便携 MySQL 位于仓库外，其他机器需要自行准备 MySQL 8.x 才能复跑集成测试。
+- 邮件供应商未确定，当前使用内存 MailAdapter（OPEN-003）。
 - 产品名、供应商、部署地域、保留期、邮件验证策略等未决（`docs/decisions.md` OPEN-001~008）。
 
 ## 重要注意事项

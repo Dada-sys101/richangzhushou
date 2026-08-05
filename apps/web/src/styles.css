@@ -80,3 +80,158 @@ h1 {
   color: #1d4ed8;
   font-weight: 700;
 }
+
+.site-nav {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.site-nav a {
+  color: #1d4ed8;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.auth-card,
+.account-page {
+  max-width: 560px;
+  padding: clamp(32px, 7vw, 72px) 0;
+}
+
+.auth-card h1,
+.account-page h1 {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+}
+
+.auth-form {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 8px;
+  color: #334155;
+  font-weight: 650;
+}
+
+.auth-form input,
+.auth-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font: inherit;
+}
+
+.primary-button,
+.secondary-button,
+.danger-button {
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-button {
+  color: #ffffff;
+  background: #2563eb;
+}
+
+.secondary-button {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.danger-button {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.form-error {
+  margin: 0;
+  color: #b91c1c;
+  font-weight: 650;
+}
+
+.form-success {
+  margin: 0;
+  color: #15803d;
+  font-weight: 650;
+}
+
+.auth-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.auth-links a {
+  color: #1d4ed8;
+  font-weight: 650;
+}
+
+.account-summary {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.account-summary div {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+}
+
+.account-summary dt {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.account-summary dd {
+  margin: 0;
+}
+
+.risk-form {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.risk-form h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.risk-copy {
+  margin: 8px 0 0;
+  color: #475569;
+}
+
+.risk-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.action-confirmation {
+  margin: 0;
+  color: #92400e;
+  font-weight: 700;
+}
+
+.home-links {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
