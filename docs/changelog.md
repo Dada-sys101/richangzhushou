@@ -4,6 +4,16 @@
 更新：2026-08-05
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-05 — 持久化项目状态恢复机制（v2）
+
+提交信息：`chore: add persistent project state recovery workflow`
+
+- `AGENTS.md` 合并为 Project State Recovery / Required Workflow Before Every Task / Task Completion State Updates / Safety Rules 四章。
+- `.project/context.md` 按新规范重写（含 Last Verified Commit、session 职责）。
+- 新增 `.project/session.md` 与 `.project/decisions.md`（ADR-001~009）。
+- 新增 `scripts/check-project-context.mjs`（`npm run check:context`，已并入 quality）与 `scripts/pre-commit-context-check.mjs`；提供可选 `.githooks/pre-commit` 示例。
+- 同步 README、docs/progress 与根状态文件；未修改业务代码。
+
 ## 2026-08-05 — WP3 基础记账与今日财务本地验收通过
 
 提交：`c1c8f92`、`3fcf1df`、`e7b971c`、`3fe6739`、`3db5b40`（分支 `codex/wp3-finance`）

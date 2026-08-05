@@ -13,6 +13,7 @@
 | DA-0101 | 初始化独立 Git 仓库和工程骨架 | DONE | WP1 |
 | DA-0102 | 建立项目上下文与开发交接文档体系 | DONE | WP1 |
 | DA-0103 | 建立跨任务自动恢复项目状态机制 | DONE | META |
+| DA-0104 | 建立持久化项目状态恢复机制（session/decisions/校验脚本） | DONE | META |
 | DA-0201 | 补全 OpenAPI、共享类型、错误码和账号状态机 | DONE | WP2 |
 | DA-0202 | Prisma 实体、约束、索引、migration、seed 与回滚说明 | DONE | WP2 |
 | DA-0203 | 注册、登录、刷新、退出、密码恢复和会话撤销 | DONE | WP2 |

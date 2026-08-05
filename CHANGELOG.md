@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-05 — 持久化项目状态恢复机制（v2）
+
+- `AGENTS.md` 合并为 Project State Recovery / Required Workflow Before Every Task / Task Completion State Updates / Safety Rules 四章。
+- 新增 `.project/session.md`、`.project/decisions.md` 与 `scripts/check-project-context.mjs`（`npm run check:context`，已并入 quality）；提供可选 `.githooks/pre-commit`。
+- 更新 `.project/context.md`、README、docs/progress、docs/changelog 与根状态文件。
+- 未修改业务代码；未推送。
+
 ## 2026-08-05 — WP3 基础记账与今日财务本地验收通过
 
 - 契约先行：OpenAPI 3.1 补全 Finance 请求/响应/DTO/错误码（`DUPLICATE_RESOURCE`、`POSSIBLE_DUPLICATE` 警告），共享类型与契约测试同步（`c1c8f92`）。

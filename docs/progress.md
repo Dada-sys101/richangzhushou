@@ -37,6 +37,7 @@
 | WP3 Finance API 与单元/集成测试 | `e7b971c`；`apps/api/src/finance`、`apps/api/src/integration/wp3.integration.test.ts` |
 | WP3 用户端记账页面 | `3fe6739`；`apps/web/src/views`、`stores/finance.ts` |
 | WP3 修复与浏览器矩阵验收 | `3db5b40`；`docs/16-wp3-acceptance-report.md`；`output/playwright/wp3` |
+| 持久化项目状态恢复机制（session/decisions/check:context 与可选 Hook） | 本次提交；`.project/session.md`、`.project/decisions.md`、`scripts/check-project-context.mjs` |
 
 ## 部分完成
 
@@ -77,4 +78,5 @@
 - 便携 MySQL 8.4 空库 `prisma migrate deploy`（2 migrations）与 seed 已真实执行通过；WP2+WP3 集成测试 29/29 通过。
 - GitHub Actions 远端执行待推送授权。
 - 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 复跑验证（30/30）；一键脚本化复现待后续（OPEN-009）。
+- `npm run check:context` 与 `npm run quality` 已在本次机制任务中复跑通过。
 - 未实现功能一律不得视为已验证；计划中的功能不得写成已完成。

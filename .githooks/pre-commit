@@ -1,0 +1,6 @@
+#!/bin/sh
+# Optional pre-commit hook for Daily Assistant.
+# Install locally (repository only, no global config changes):
+#   git config core.hooksPath .githooks
+cd "$(dirname "$0")/.." || exit 1
+node scripts/pre-commit-context-check.mjs || exit 1

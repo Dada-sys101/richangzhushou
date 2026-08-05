@@ -41,6 +41,13 @@ npm run prisma:migrate:deploy --workspace @daily-assistant/api
 
 GitHub Actions 使用临时 MySQL 8.4 service 执行同一质量门与空库 migration deploy，不接触生产资源。
 
+## 项目状态恢复机制
+
+- `AGENTS.md` 强制每次任务开始前按 Project State Recovery / Required Workflow Before Every Task 恢复项目状态（context → session → progress → roadmap → changelog → Git 状态），任务结束前更新状态文件。
+- `.project/context.md`：长期项目状态；`.project/session.md`：当前或暂停任务；`.project/decisions.md`：技术决策（ADR）。
+- 校验：`npm run check:context`（已并入 `npm run quality`）。
+- 可选 pre-commit Hook（不自动安装）：`git config core.hooksPath .githooks`；仓库提供 `.githooks/pre-commit` 调用 `node scripts/pre-commit-context-check.mjs`。Windows 下也可直接运行该命令。
+
 ## 已确认边界
 
 - 早期用户规模为 10–20 人，可配置全局有效用户上限。

@@ -34,13 +34,13 @@
 
 ## 工作纪律
 
-- 开始任务前必须按“Project State Recovery”与“Required workflow before every task”恢复项目状态，并按 `.project/context.md` 的阅读顺序读取：`.project/context.md`、`PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`CHANGELOG.md` 和相关工作包文档。
+- 开始任务前必须按“Project State Recovery”与“Required Workflow Before Every Task”恢复项目状态，并按 `.project/context.md` 的阅读顺序读取：`.project/context.md`、`.project/session.md`、`PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`CHANGELOG.md` 和相关工作包文档。
 - 修改前先分析现状并列出计划：说明任务目标、影响范围、涉及文件、兼容性检查和验证方式；发现计划超出任务范围时必须先与用户确认。
 - 不得擅自改变整体架构、技术栈、目录结构或产品不变量；架构性变更必须先成文并经用户确认。
 - 只修改任务相关文件；不得修改无关业务代码，不得删除已有功能，不得破坏用户未提交修改。
 - 涉及数据库、接口、部署配置时，必须先检查兼容性：数据字典/枚举一致、OpenAPI 契约同步、migration 与回滚策略、环境变量、CORS/安全配置。
 - 修改完成后必须运行对应检查或测试；跨工作区或共享配置变更必须通过 `npm run quality` 与 `git diff --check`。
-- 完成任务后必须更新项目进度文档（`.project/context.md`、`docs/progress.md`、`docs/changelog.md`、`PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`CHANGELOG.md`）。
+- 完成任务后必须更新项目进度文档（`.project/context.md`、`.project/session.md`、`docs/progress.md`、`docs/changelog.md`、`PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`CHANGELOG.md`）。
 - 完成功能时同步更新实现、测试、文档、状态与验收记录；未完成或未验证的功能不得写成已完成或已验证。
 - 每个任务应形成清晰、独立的 Git 提交；提交前检查 `git diff`，只包含本任务相关改动。
 - 无法确认的信息必须明确标注“待确认”“未发现实现”或“文档与代码不一致”，不得猜测或编造。
@@ -50,126 +50,193 @@
 
 ## 接手阅读顺序
 
-1. `.project/context.md`：实时项目状态与下一步建议。
-2. `AGENTS.md`（本文件）：项目约束与纪律。
-3. `PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`CHANGELOG.md`：进度快照。
-4. `docs/README.md` → `docs/project-overview.md`、`docs/architecture.md`、`docs/progress.md`、`docs/roadmap.md`、`docs/decisions.md`：项目与架构上下文。
-5. 当前工作包定义：`docs/12-development-handoff.md`。
-6. 实现代码与对应详细文档：`docs/05-data-model-and-dictionary.md`、`docs/06-api-and-integrations.md` 等。
+1. `.project/context.md`：长期项目状态。
+2. `.project/session.md`：当前或最近一次未完成任务。
+3. `AGENTS.md`（本文件）：项目约束与纪律。
+4. `PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`CHANGELOG.md`：进度快照。
+5. `docs/README.md` → `docs/project-overview.md`、`docs/architecture.md`、`docs/progress.md`、`docs/roadmap.md`、`docs/decisions.md`、`docs/changelog.md`、`.project/decisions.md`：项目与架构上下文。
+6. 当前工作包定义：`docs/12-development-handoff.md`（以及对应工作包的可执行规划）。
+7. 实现代码与对应详细文档：`docs/05-data-model-and-dictionary.md`、`docs/06-api-and-integrations.md` 等。
 
 ## Project State Recovery
 
-1. 每次开始任何任务之前，必须先恢复项目状态；恢复完成前不得修改业务代码。
-2. 必须按顺序读取：`.project/context.md`、`docs/progress.md`、`docs/roadmap.md`、`docs/changelog.md`、`README.md`（需要时）。
-3. 必须检查：当前 Git 分支、最近提交、`git status`、当前未提交修改。
-4. 不得仅依赖聊天记录判断项目状态。
-5. 不得仅依据 `.project/context.md` 判断实际完成情况。
-6. 必须使用实际代码、Git 历史和项目文档交叉验证。
-7. 文档与代码不一致时：以实际代码和可验证结果为准；在最终报告中指出不一致；必要时修正项目状态文档。
-8. 在恢复项目状态之前，不得开始修改业务代码。
-9. 如果当前用户只是提出问题或要求分析，可读取必要上下文，但不得因此擅自开发。
-10. 如果用户指定了明确任务，恢复状态后优先执行用户指定任务，而不是擅自选择 roadmap 中的其他任务。
-11. 只有当用户明确要求“继续开发”但没有指定具体任务时，才可以依次从以下位置选择下一项任务：
-    - `.project/context.md` 中的 Current Task
-    - `.project/context.md` 中的 Next Recommended Task
-    - `docs/progress.md` 中的进行中任务
-    - `docs/roadmap.md` 中依赖已满足的最高优先级任务
-12. 开始开发前必须确认：当前目录正确；任务目标明确；验收标准明确；不会覆盖未知未提交修改；不需要缺失的密钥或外部权限。
-13. 每次任务完成后必须更新：`.project/context.md`、`docs/progress.md`、`docs/changelog.md`。
-14. 每次任务结束时必须记录：本次完成的任务、修改的文件、测试结果、未验证内容、当前阻塞问题、下一项建议任务。
-15. 未经用户明确授权：不执行 `git push`；不修改生产环境；不部署上线；不执行破坏性数据库操作；不删除已有功能；不重置 Git 历史。
+1. 每次开始任何开发、修复、测试、重构或部署相关任务前，必须先恢复项目状态；恢复完成前不得修改业务代码。
+2. 恢复顺序为：
+   1. `AGENTS.md`
+   2. `.project/context.md`
+   3. `.project/session.md`
+   4. `docs/progress.md`
+   5. `docs/roadmap.md`
+   6. `docs/changelog.md`
+   7. `docs/architecture.md`
+   8. `README.md`
+   9. 当前 Git 状态（分支、HEAD、`git status --short`、未提交修改）
+   10. 最近相关提交
+   11. 与当前任务相关的实际代码
+3. 不得依赖聊天历史作为项目唯一记忆。
+4. 不得仅依据文档判断功能是否完成。
+5. 必须使用实际代码、Git 历史、测试结果和项目文档交叉验证。
+6. 文档与代码不一致时：以实际代码和可验证结果为准；明确记录不一致；必要时修正状态文档。
+7. 在恢复项目状态之前，不得修改业务代码。
+8. 当前用户明确提出的任务始终优先；状态恢复只补充上下文，不得覆盖用户当前指令。
+9. 不得因为 roadmap 中存在其他任务，就擅自执行无关任务。
+10. 用户只说“继续开发”或“接着做”且没有指定任务时，才按照以下顺序选择：
+    - `.project/session.md` 中未完成任务；
+    - `.project/context.md` 中 Current Task；
+    - `.project/context.md` 中 Next Recommended Task；
+    - `docs/progress.md` 中进行中的任务；
+    - `docs/roadmap.md` 中依赖满足的最高优先级任务。
+11. 一次只执行一个范围明确的任务；不得在完成用户任务后自动连续执行其他任务。
+12. 遇到以下情况必须暂停并询问用户：
+    - 项目目录不正确；
+    - 任务目标不明确；
+    - 存在来源不明的未提交修改；
+    - 文档与代码严重冲突且无法安全判断；
+    - 需要密钥、账号或外部权限；
+    - 需要修改生产环境；
+    - 涉及破坏性数据库迁移；
+    - 多个实现方案会改变整体架构。
 
-## Required workflow before every task
+## Required Workflow Before Every Task
 
-Step 1: Read project state
+## Step 1: Restore project state
 
-- Read `.project/context.md`.
-- Read `docs/progress.md`.
-- Read `docs/roadmap.md`.
-- Read `docs/changelog.md`.
-- Read `README.md` when needed.
+读取：
 
-Step 2: Inspect repository state
+- `.project/context.md`
+- `.project/session.md`
+- `docs/progress.md`
+- `docs/roadmap.md`
+- `docs/changelog.md`
+- 必要时读取 `README.md`、`docs/architecture.md` 和 `.project/decisions.md`
 
-- Run `git status --short`.
-- Determine the current branch.
-- Inspect recent relevant commits.
-- Inspect existing uncommitted changes without modifying them.
+## Step 2: Inspect repository state
 
-Step 3: Reconstruct context
+检查：
 
-- Determine: current development stage, last completed task, current task, next task, blockers, known issues, verification status, relevant project constraints.
+- 当前分支
+- 当前 HEAD
+- `git status --short`
+- 当前未提交修改
+- 最近相关 Git 提交
+- 当前任务涉及的代码
 
-Step 4: Reconcile
+## Step 3: Reconstruct working context
 
-- Compare project documents with actual code and Git history.
-- Do not assume a feature is complete merely because a document says so.
-- Do not mark untested work as verified.
-- Preserve unknown uncommitted changes.
+恢复：
 
-Step 5: Execute the user request
+- 当前开发阶段
+- 上次完成的任务
+- 当前未完成任务
+- 下一项任务
+- 当前阻塞
+- 已知问题
+- 测试与构建状态
+- 重要技术约束
+- 当前修改过但未提交的文件
 
-- The current user request takes priority.
-- Do not automatically execute unrelated roadmap tasks.
-- Only choose the next roadmap task when the user explicitly asks to continue development without specifying a task.
+## Step 4: Reconcile
 
-Step 6: Verify
+- 文档与代码交叉验证；
+- 未测试功能不得标记为已完成；
+- 计划中的功能不得写成已实现；
+- 不覆盖未知未提交修改；
+- 不猜测无法确认的状态。
 
-- Run relevant tests, type checks, lint, build or focused validation.
-- Clearly distinguish passed, failed and not run checks.
+## Step 5: Execute current user request
 
-Step 7: Persist state
+- 当前用户请求优先；
+- 不执行无关 roadmap 任务；
+- 先说明实施计划，再修改代码；
+- 只修改当前任务相关文件。
 
-- Update `.project/context.md`.
-- Update `docs/progress.md`.
-- Update `docs/changelog.md`.
-- Update architecture or decision documents only when the task materially changes them.
+## Step 6: Verify
 
-Step 8: Report
+根据项目能力运行适用的：
 
-- Include: restored project state, work completed, changed files, validation results, remaining issues, next recommended task, Git status, commit information (if a commit was created).
+- lint
+- typecheck
+- unit test
+- integration test
+- build
+- focused validation
+- 启动验证
 
-## Task completion state updates
+明确区分：已通过、失败、未运行、无法运行。
 
-每次开发任务完成后，必须在结束之前更新 `.project/context.md`，更新时必须：
+## Step 7: Persist state
 
-1. 更新 Last Updated。
-2. 更新当前分支和最近提交。
-3. 将完成的 Current Task 移入 Last Completed Task。
-4. 更新 Completed Work。
-5. 更新 Remaining Work。
-6. 更新 Verification Status。
-7. 更新 Recent Changes。
-8. 更新 Next Recommended Task。
-9. 记录未解决的 Blockers 和 Known Issues。
-10. 不得把未测试或失败的功能写成已完成。
-11. 不得把计划中的功能写成已实现。
-12. 不得记录任何密钥、密码、令牌、Cookie 或私钥。
+任务结束前必须更新：
+
+- `.project/context.md`
+- `.project/session.md`
+- `docs/progress.md`
+- `docs/changelog.md`
+
+任务改变架构或重要技术决策时，再更新：
+
+- `docs/architecture.md`
+- `.project/decisions.md`
+- `docs/roadmap.md`
+- `README.md`
+
+## Step 8: Report
+
+最终报告必须包含：
+
+- 恢复出的项目状态
+- 本次执行任务
+- 修改文件
+- 测试结果
+- 未验证内容
+- 阻塞问题
+- 下一项建议任务
+- Git 工作区状态
+- 是否创建提交
+- 提交哈希
+
+## Task Completion State Updates
+
+每次任务完成或暂停前，都必须更新项目状态；不得只更新代码而不更新项目状态文档。
+
+如果任务尚未完成：
+
+- `.project/session.md` 保留当前任务；
+- 记录完成比例、已完成步骤、下一步操作、阻塞原因；
+- 不得将任务写入 Completed。
+
+如果任务已完成：
+
+- 将任务从 Current Task 移入 Last Completed Task；
+- 清空或更新 session；
+- 更新 Next Recommended Task；
+- 记录测试结果、相关文件、真实 Git 提交信息。
+
+更新 `.project/context.md` 时必须：
+
+- 更新 Last Updated；
+- 更新当前分支和最近提交；
+- 更新 Completed Work、Remaining Work、Verification Status、Recent Changes、Next Recommended Task；
+- 记录未解决的 Blockers 和 Known Issues；
+- 不得把未测试或失败的功能写成已完成；
+- 不得把计划中的功能写成已实现；
+- 不得记录任何密钥、密码、令牌、Cookie 或私钥。
 
 提交顺序（如果本次任务需要创建 Git 提交）：
 
-1. 先完成代码修改和测试。
-2. 更新项目状态文档。
-3. 创建任务提交。
-4. 获取真实提交哈希并记录；不得虚构哈希。
+1. 先完成代码修改和测试；
+2. 更新项目状态文档；
+3. 创建任务提交；
+4. 记录真实提交哈希，不得虚构；
 5. 不要为了只更新哈希而制造无限循环提交。
 
-## Task priority rules
+## Safety Rules
 
-1. 用户当前明确提出的任务优先级最高。
-2. 项目状态恢复仅用于补充上下文，不得覆盖用户当前指令。
-3. 用户明确指定功能、缺陷或文件时，只执行该任务。
-4. 用户说“继续开发”“接着做”但没有指定任务时，才读取：Current Task、Next Recommended Task、`docs/progress.md`、`docs/roadmap.md`。
-5. 一次只执行一个边界明确的任务。
-6. 不得因为 roadmap 中还有任务，就在完成用户任务后自动继续执行其他任务。
-7. 遇到以下情况必须暂停并询问用户：
-   - 多个下一任务优先级相同；
-   - 任务会改变整体架构；
-   - 存在来源不明的未提交修改；
-   - 需要生产环境权限；
-   - 需要密钥或账号；
-   - 涉及破坏性数据库迁移；
-   - 文档与代码存在无法安全判断的严重冲突。
+- 未经授权不得 `git push`；不自动部署；不修改生产环境。
+- 不读取无关敏感文件；不提交 `.env`、密钥、令牌或私钥。
+- 不执行破坏性 Git 命令（如 `git reset --hard`、`git clean -fd`、`git checkout -- .`、`git restore .`）。
+- 不删除已有功能；不进行无关重构。
+- 不把失败或未测试功能标记为完成；不自动连续执行多个大型任务。
 
 ## 验证要求
 
@@ -177,3 +244,4 @@ Step 8: Report
 - 数据库变更必须验证 schema、migration、回滚策略和关键并发规则。
 - 用户页面必须在 375、390、430、768 和 1440 CSS 像素检查主要流程、错误状态、离线状态、浏览器 Back、控制台和网络失败。
 - 容量上限、并发抢占最后名额、快捷指令重复提交、用户数据隔离和离线同步是强制测试项。
+- 项目状态文件一致性通过 `npm run check:context` 检查（已并入 `npm run quality`）。

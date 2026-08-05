@@ -1,6 +1,6 @@
 # Project Status
 
-版本：0.8<br>
+版本：0.9<br>
 状态：WP3 本地验收完成（WP1、WP2、WP3 均已通过本地验收）<br>
 更新：2026-08-05
 
@@ -13,6 +13,7 @@
 - Git 仓库：独立仓库，当前分支 `codex/wp3-finance`（未推送）
 - 上下文：`.project/context.md` 与 `docs/` 接管文档已建立（见 `docs/README.md`）
 - 自动恢复机制：`AGENTS.md` 增加 Project State Recovery / Required workflow，`.project/context.md` 已规范化为固定结构
+- 持久化恢复机制 v2：`AGENTS.md` 四章规则、`.project/session.md`、`.project/decisions.md`、`npm run check:context`（并入 quality）与可选 Hook
 - 部署：尚未创建
 - 当前用户：本地验收数据（非生产）
 
