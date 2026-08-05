@@ -559,7 +559,8 @@ textarea {
 
 .capture-page,
 .drafts-page,
-.shortcuts-page {
+.shortcuts-page,
+.planner-page {
   padding: clamp(24px, 4vw, 48px) 0 72px;
 }
 
@@ -866,4 +867,116 @@ textarea {
 .dialog h2 {
   margin: 0;
   font-size: 1.25rem;
+}
+
+.planner-create,
+.planner-edit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.planner-field {
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 650;
+  min-width: 0;
+}
+
+.planner-create .primary-button,
+.planner-edit .primary-button,
+.planner-edit .secondary-button {
+  align-self: end;
+}
+
+.planner-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.planner-main {
+  display: grid;
+  gap: 4px;
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.planner-main small {
+  color: #64748b;
+}
+
+.overdue-mark {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.priority-badge {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #1e40af;
+  background: #dbeafe;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.today-schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 12px 0 16px;
+}
+
+.schedule-card {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  color: inherit;
+  background: #ffffff;
+  text-decoration: none;
+}
+
+.schedule-card strong {
+  font-size: 1.6rem;
+  color: #1d4ed8;
+}
+
+.schedule-card span {
+  color: #64748b;
+  font-weight: 650;
+}
+
+.today-schedule-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.today-schedule-list li {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.schedule-tag {
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: #1e40af;
+  background: #dbeafe;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
 }

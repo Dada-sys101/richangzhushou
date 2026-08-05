@@ -4,10 +4,18 @@ import { RouterLink } from "vue-router";
 
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
+import { usePlannerStore } from "../stores/planner";
+import {
+  formatDateTime,
+  isSameShanghaiDay,
+  todayInShanghai,
+} from "../utils/time";
 
 const auth = useAuthStore();
 const finance = useFinanceStore();
+const planner = usePlannerStore();
 const month = ref(currentMonth());
+const todayDate = todayInShanghai();
 
 const today = computed(() =>
   new Intl.DateTimeFormat("zh-CN", {
@@ -24,9 +32,28 @@ const overallBudget = computed(() =>
 
 const recentTransactions = computed(() => finance.transactions.slice(0, 5));
 
+const todayEvents = computed(() => planner.calendarEvents);
+const todayTasks = computed(() =>
+  planner.openTasks.filter(
+    (task) =>
+      task.overdue ||
+      (task.dueAt !== null && isSameShanghaiDay(task.dueAt, todayDate)),
+  ),
+);
+const todayReminders = computed(() =>
+  planner.scheduledReminders.filter((reminder) =>
+    isSameShanghaiDay(reminder.scheduledAt, todayDate),
+  ),
+);
+
 onMounted(async () => {
   if (auth.isAuthenticated) {
     await finance.loadFinanceData(month.value);
+    await Promise.all([
+      planner.loadCalendarEvents({ date: todayDate }),
+      planner.loadTasks({ status: "OPEN" }),
+      planner.loadReminders({ status: "SCHEDULED" }),
+    ]);
   }
 });
 </script>
@@ -39,9 +66,7 @@ onMounted(async () => {
   >
     <p class="eyebrow">Daily Assistant</p>
     <h1 id="page-title">把每天的事情，放在一个清晰的地方。</h1>
-    <p class="lede">
-      身份认证、邀请注册和账号管理已经可用；记账、预算与今日财务已经可以开始使用。
-    </p>
+    <p class="lede">身份认证、记账、日程、待办与提醒已经可以开始使用。</p>
     <p class="home-links">
       <RouterLink class="home-link" to="/register">注册</RouterLink>
       <RouterLink class="home-link" to="/login">登录</RouterLink>
@@ -102,10 +127,77 @@ onMounted(async () => {
       </div>
     </div>
 
+    <section class="recent-section" aria-labelledby="today-schedule-title">
+      <h2 id="today-schedule-title">今日安排</h2>
+      <div class="today-schedule-grid">
+        <RouterLink class="schedule-card" to="/calendar">
+          <strong>{{ todayEvents.length }}</strong>
+          <span>日程</span>
+        </RouterLink>
+        <RouterLink class="schedule-card" to="/tasks">
+          <strong>{{ todayTasks.length }}</strong>
+          <span>待办</span>
+        </RouterLink>
+        <RouterLink class="schedule-card" to="/reminders">
+          <strong>{{ todayReminders.length }}</strong>
+          <span>提醒</span>
+        </RouterLink>
+      </div>
+      <p
+        v-if="
+          todayEvents.length === 0 &&
+          todayTasks.length === 0 &&
+          todayReminders.length === 0
+        "
+        class="empty-copy"
+      >
+        今天暂无日程、待办或提醒。
+      </p>
+      <ul v-else class="today-schedule-list">
+        <li v-for="event in todayEvents.slice(0, 3)" :key="event.id">
+          <RouterLink to="/calendar" class="transaction-row">
+            <span class="transaction-main">
+              <strong>{{ event.title }}</strong>
+              <small>{{
+                event.allDay ? "全天" : formatDateTime(event.startsAt)
+              }}</small>
+            </span>
+            <span class="schedule-tag">日程</span>
+          </RouterLink>
+        </li>
+        <li v-for="task in todayTasks.slice(0, 3)" :key="task.id">
+          <RouterLink to="/tasks" class="transaction-row">
+            <span class="transaction-main">
+              <strong :class="{ 'overdue-mark': task.overdue }">{{
+                task.title
+              }}</strong>
+              <small v-if="task.dueAt">
+                {{ task.overdue ? "已过期" : formatDateTime(task.dueAt) }}
+              </small>
+              <small v-else>无截止时间</small>
+            </span>
+            <span class="schedule-tag">待办</span>
+          </RouterLink>
+        </li>
+        <li v-for="reminder in todayReminders.slice(0, 3)" :key="reminder.id">
+          <RouterLink to="/reminders" class="transaction-row">
+            <span class="transaction-main">
+              <strong>{{ reminder.title }}</strong>
+              <small>{{ formatDateTime(reminder.scheduledAt) }}</small>
+            </span>
+            <span class="schedule-tag">提醒</span>
+          </RouterLink>
+        </li>
+      </ul>
+    </section>
+
     <div class="quick-actions">
       <RouterLink class="primary-button" to="/capture">快捷记录</RouterLink>
       <RouterLink class="secondary-button" to="/drafts">草稿中心</RouterLink>
       <RouterLink class="secondary-button" to="/shortcuts">快捷指令</RouterLink>
+      <RouterLink class="secondary-button" to="/calendar">日程</RouterLink>
+      <RouterLink class="secondary-button" to="/tasks">待办</RouterLink>
+      <RouterLink class="secondary-button" to="/reminders">提醒</RouterLink>
       <RouterLink class="primary-button" to="/transactions/new"
         >记一笔</RouterLink
       >

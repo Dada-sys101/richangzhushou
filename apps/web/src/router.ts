@@ -4,6 +4,7 @@ import { useAuthStore } from "./stores/auth";
 import AccountView from "./views/AccountView.vue";
 import AccountsView from "./views/AccountsView.vue";
 import BudgetsView from "./views/BudgetsView.vue";
+import CalendarView from "./views/CalendarView.vue";
 import CategoriesView from "./views/CategoriesView.vue";
 import DraftsView from "./views/DraftsView.vue";
 import ForgotPasswordView from "./views/ForgotPasswordView.vue";
@@ -12,8 +13,10 @@ import LoginView from "./views/LoginView.vue";
 import NotFoundView from "./views/NotFoundView.vue";
 import QuickCaptureView from "./views/QuickCaptureView.vue";
 import RegisterView from "./views/RegisterView.vue";
+import RemindersView from "./views/RemindersView.vue";
 import ResetPasswordView from "./views/ResetPasswordView.vue";
 import ShortcutsView from "./views/ShortcutsView.vue";
+import TasksView from "./views/TasksView.vue";
 import TransactionFormView from "./views/TransactionFormView.vue";
 import TransactionsView from "./views/TransactionsView.vue";
 
@@ -89,6 +92,24 @@ export const router = createRouter({
       path: "/shortcuts",
       name: "shortcuts",
       component: ShortcutsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/calendar",
+      name: "calendar",
+      component: CalendarView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/tasks",
+      name: "tasks",
+      component: TasksView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/reminders",
+      name: "reminders",
+      component: RemindersView,
       meta: { requiresAuth: true },
     },
     {

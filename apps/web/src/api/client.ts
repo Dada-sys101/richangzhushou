@@ -237,6 +237,84 @@ export interface AttachmentCompleteResponse {
   attachment: AttachmentSummary;
 }
 
+export type CalendarEventStatus = "SCHEDULED" | "CANCELLED";
+export type TaskStatus = "OPEN" | "COMPLETED" | "CANCELLED";
+export type Priority = "LOW" | "MEDIUM" | "HIGH";
+export type ReminderStatus =
+  "SCHEDULED" | "SENT" | "CANCELLED" | "FAILED" | "SUPPRESSED";
+export type ReminderScheduleType = "ONCE" | "DAILY" | "WEEKLY" | "MONTHLY";
+export type ReminderTargetType = "CALENDAR_EVENT" | "TASK" | "STANDALONE";
+
+export interface CalendarEventSummary {
+  allDay: boolean;
+  createdAt: string;
+  deletedAt: string | null;
+  endsAt: string;
+  id: string;
+  startsAt: string;
+  status: CalendarEventStatus;
+  title: string;
+  updatedAt: string;
+  version: number;
+}
+
+export interface CalendarOverlapWarning {
+  code: "OVERLAP_WARNING";
+  conflictingEventId: string;
+  message: string;
+}
+
+export interface CalendarEventCreatedResponse {
+  calendarEvent: CalendarEventSummary;
+  overlapWarning?: CalendarOverlapWarning;
+}
+
+export interface TaskSummary {
+  cancelledAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  deletedAt: string | null;
+  dueAt: string | null;
+  id: string;
+  overdue: boolean;
+  priority: Priority;
+  status: TaskStatus;
+  title: string;
+  updatedAt: string;
+  version: number;
+}
+
+export interface TaskCompleteResponse {
+  task: TaskSummary;
+}
+
+export interface ReminderRecurrence {
+  dayOfMonth?: number;
+  interval?: number;
+  until?: string | null;
+  weekdays?: number[];
+}
+
+export interface ReminderSummary {
+  attemptCount: number;
+  createdAt: string;
+  deletedAt: string | null;
+  failureReason: string | null;
+  id: string;
+  note: string | null;
+  recurrence: ReminderRecurrence | null;
+  scheduleType: ReminderScheduleType;
+  scheduledAt: string;
+  sentAt: string | null;
+  status: ReminderStatus;
+  suppressedAt: string | null;
+  targetId: string | null;
+  targetType: ReminderTargetType;
+  title: string;
+  updatedAt: string;
+  version: number;
+}
+
 async function http<T>(
   path: string,
   options: { body?: unknown; method?: string } = {},
@@ -277,8 +355,22 @@ async function http<T>(
 }
 
 export const api = {
+  cancelReminder(
+    id: string,
+    body: { status: "CANCELLED" | "SCHEDULED"; version: number },
+  ) {
+    return http<ReminderSummary>(`/reminders/${id}`, {
+      body,
+      method: "PATCH",
+    });
+  },
   completeAttachment(id: string) {
     return http<AttachmentCompleteResponse>(`/attachments/${id}/complete`, {
+      method: "POST",
+    });
+  },
+  completeTask(id: string) {
+    return http<TaskCompleteResponse>(`/tasks/${id}/complete`, {
       method: "POST",
     });
   },
@@ -375,6 +467,44 @@ export const api = {
       method: "POST",
     });
   },
+  createCalendarEvent(body: {
+    allDay?: boolean;
+    clientMutationId?: string | null;
+    endsAt: string;
+    startsAt: string;
+    title: string;
+  }) {
+    return http<CalendarEventCreatedResponse>("/calendar-events", {
+      body,
+      method: "POST",
+    });
+  },
+  createReminder(body: {
+    clientMutationId?: string | null;
+    note?: string | null;
+    recurrence?: ReminderRecurrence | null;
+    scheduleType: ReminderScheduleType;
+    startsAt: string;
+    targetId?: string | null;
+    targetType?: ReminderTargetType;
+    title: string;
+  }) {
+    return http<ReminderSummary>("/reminders", {
+      body,
+      method: "POST",
+    });
+  },
+  createTask(body: {
+    clientMutationId?: string | null;
+    dueAt?: string | null;
+    priority?: Priority;
+    title: string;
+  }) {
+    return http<TaskSummary>("/tasks", {
+      body,
+      method: "POST",
+    });
+  },
   createUploadIntent(body: {
     mimeType: string;
     ownerType: "TRANSACTION_DRAFT";
@@ -408,6 +538,15 @@ export const api = {
   },
   deleteAttachment(id: string) {
     return http<void>(`/attachments/${id}`, { method: "DELETE" });
+  },
+  deleteCalendarEvent(id: string) {
+    return http<void>(`/calendar-events/${id}`, { method: "DELETE" });
+  },
+  deleteReminder(id: string) {
+    return http<void>(`/reminders/${id}`, { method: "DELETE" });
+  },
+  deleteTask(id: string) {
+    return http<void>(`/tasks/${id}`, { method: "DELETE" });
   },
   discardDraft(id: string) {
     return http<void>(`/drafts/${id}/discard`, { method: "POST" });
@@ -452,6 +591,15 @@ export const api = {
   getDraft(id: string) {
     return http<DraftSummary>(`/drafts/${id}`);
   },
+  getCalendarEvent(id: string) {
+    return http<CalendarEventSummary>(`/calendar-events/${id}`);
+  },
+  getReminder(id: string) {
+    return http<ReminderSummary>(`/reminders/${id}`);
+  },
+  getTask(id: string) {
+    return http<TaskSummary>(`/tasks/${id}`);
+  },
   getTransaction(id: string) {
     return http<TransactionSummary>(`/transactions/${id}`);
   },
@@ -485,6 +633,26 @@ export const api = {
       : "";
     return http<DraftListResponse>(`/drafts${query}`);
   },
+  listCalendarEvents(
+    params: {
+      date?: string;
+      includeDeleted?: boolean;
+      limit?: number;
+      month?: string;
+      status?: CalendarEventStatus;
+    } = {},
+  ) {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) {
+        query.set(key, String(value));
+      }
+    }
+    const suffix = query.size > 0 ? `?${query.toString()}` : "";
+    return http<{ items: CalendarEventSummary[]; nextCursor: string | null }>(
+      `/calendar-events${suffix}`,
+    );
+  },
   listFinancialAccounts(params: { includeArchived?: boolean } = {}) {
     const suffix = params.includeArchived ? "?includeArchived=true" : "";
     return http<{ items: FinancialAccountSummary[] }>(
@@ -494,6 +662,42 @@ export const api = {
   listShortcutCredentials() {
     return http<{ items: ShortcutCredentialSummary[] }>(
       "/shortcut-credentials",
+    );
+  },
+  listReminders(
+    params: {
+      includeDeleted?: boolean;
+      limit?: number;
+      status?: ReminderStatus;
+    } = {},
+  ) {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) {
+        query.set(key, String(value));
+      }
+    }
+    const suffix = query.size > 0 ? `?${query.toString()}` : "";
+    return http<{ items: ReminderSummary[]; nextCursor: string | null }>(
+      `/reminders${suffix}`,
+    );
+  },
+  listTasks(
+    params: {
+      includeDeleted?: boolean;
+      limit?: number;
+      status?: TaskStatus;
+    } = {},
+  ) {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) {
+        query.set(key, String(value));
+      }
+    }
+    const suffix = query.size > 0 ? `?${query.toString()}` : "";
+    return http<{ items: TaskSummary[]; nextCursor: string | null }>(
+      `/tasks${suffix}`,
     );
   },
   listTransactions(
@@ -519,6 +723,21 @@ export const api = {
   },
   restoreTransaction(id: string) {
     return http<TransactionSummary>(`/transactions/${id}/restore`, {
+      method: "POST",
+    });
+  },
+  restoreCalendarEvent(id: string) {
+    return http<CalendarEventSummary>(`/calendar-events/${id}/restore`, {
+      method: "POST",
+    });
+  },
+  restoreReminder(id: string) {
+    return http<ReminderSummary>(`/reminders/${id}/restore`, {
+      method: "POST",
+    });
+  },
+  restoreTask(id: string) {
+    return http<TaskSummary>(`/tasks/${id}/restore`, {
       method: "POST",
     });
   },
@@ -605,6 +824,56 @@ export const api = {
     body: { payload: TransactionDraftPayload; version: number },
   ) {
     return http<DraftSummary>(`/drafts/${id}`, { body, method: "PATCH" });
+  },
+  updateCalendarEvent(
+    id: string,
+    body: {
+      allDay?: boolean;
+      endsAt?: string;
+      startsAt?: string;
+      status?: CalendarEventStatus;
+      title?: string;
+      version: number;
+    },
+  ) {
+    return http<CalendarEventCreatedResponse>(`/calendar-events/${id}`, {
+      body,
+      method: "PATCH",
+    });
+  },
+  updateReminder(
+    id: string,
+    body: {
+      note?: string | null;
+      recurrence?: ReminderRecurrence | null;
+      scheduleType?: ReminderScheduleType;
+      startsAt?: string;
+      status?: ReminderStatus;
+      targetId?: string | null;
+      targetType?: ReminderTargetType;
+      title?: string;
+      version: number;
+    },
+  ) {
+    return http<ReminderSummary>(`/reminders/${id}`, {
+      body,
+      method: "PATCH",
+    });
+  },
+  updateTask(
+    id: string,
+    body: {
+      dueAt?: string | null;
+      priority?: Priority;
+      status?: TaskStatus;
+      title?: string;
+      version: number;
+    },
+  ) {
+    return http<TaskSummary>(`/tasks/${id}`, {
+      body,
+      method: "PATCH",
+    });
   },
   uploadAttachmentContent(id: string, uploadToken: string, data: Blob) {
     return fetch(
