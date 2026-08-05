@@ -483,8 +483,9 @@ describeWithDb("WP2 identity, capacity, and admin integration", () => {
     const paths: Array<{ path: string; status: number }> = [
       // WP3 implements finance endpoints; admin is rejected by UserOnlyGuard.
       { path: "/api/v1/transactions", status: 403 },
-      { path: "/api/v1/calendar-events", status: 404 },
-      { path: "/api/v1/tasks", status: 404 },
+      // WP5 implements calendar and task endpoints; admin is rejected by UserOnlyGuard.
+      { path: "/api/v1/calendar-events", status: 403 },
+      { path: "/api/v1/tasks", status: 403 },
       { path: "/api/v1/trips", status: 404 },
     ];
     for (const { path, status } of paths) {
