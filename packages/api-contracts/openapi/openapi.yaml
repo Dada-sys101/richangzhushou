@@ -5,9 +5,10 @@ info:
   summary: Daily Assistant V1 API contract
   description: >-
     WP2 implements authentication, account lifecycle, capacity, invites, and admin
-    operations. Finance, drafts, shortcuts, calendar, tasks, reminders, trips,
-    attachments, and sync remain contract-only for later work packages. IDs are
-    strings, timestamps are ISO 8601, and money is a fixed-point decimal string.
+    operations. WP3 implements finance. WP4 implements drafts, shortcuts, and
+    attachments. Calendar, tasks, reminders, trips, and sync remain contract-only
+    for later work packages. IDs are strings, timestamps are ISO 8601, and money
+    is a fixed-point decimal string.
 servers:
   - url: /api/v1
     description: Versioned API base path
@@ -608,23 +609,63 @@ paths:
       operationId: parseTextDraft
       summary: Generate a draft suggestion from text without confirming it
       tags: [Drafts]
+      description: >-
+        Parses free-form text into a PENDING transaction draft. The draft is
+        never counted in finance statistics until the user confirms it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ParseTextRequest" }
+      x-error-codes: [VALIDATION_ERROR]
       responses:
-        "201": { description: Draft suggestion created }
+        "201":
+          description: PENDING draft created from parsed text
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DraftCreatedResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
   /drafts/ocr:
     post:
       operationId: createOcrDraft
       summary: Generate a draft suggestion from OCR without confirming it
       tags: [Drafts]
+      description: >-
+        Recognizes text from a completed, scanned attachment and creates a
+        PENDING draft. OCR failures return OCR_UNAVAILABLE and never block the
+        manual transaction form.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OcrDraftRequest" }
+      x-error-codes:
+        [OCR_UNAVAILABLE, ATTACHMENT_NOT_READY, RESOURCE_NOT_FOUND]
       responses:
-        "201": { description: Draft suggestion created }
+        "201":
+          description: PENDING draft created from OCR text
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DraftCreatedResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
         "503": { $ref: "#/components/responses/ApiError" }
   /drafts:
     get:
       operationId: listDrafts
       summary: List drafts in the current user scope
       tags: [Drafts]
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/DraftStatusQuery"
       responses:
-        "200": { description: Drafts }
+        "200":
+          description: Drafts owned by the current user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DraftListResponse" }
   /drafts/{id}:
     get:
       operationId: getDraft
@@ -632,53 +673,153 @@ paths:
       tags: [Drafts]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
       responses:
-        "200": { description: Draft }
+        "200":
+          description: Draft owned by the current user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DraftSummary" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
     patch:
       operationId: updateDraft
       summary: Update a draft in the current user scope
       tags: [Drafts]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DraftUpdateRequest" }
+      x-error-codes: [DRAFT_NOT_EDITABLE, VERSION_CONFLICT]
       responses:
-        "200": { description: Draft updated }
+        "200":
+          description: Draft updated while still PENDING
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DraftSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /drafts/{id}/confirm:
     post:
       operationId: confirmDraft
       summary: Confirm a draft before creating a formal record
       tags: [Drafts]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      x-error-codes: [INVALID_STATE, IDEMPOTENCY_CONFLICT, RESOURCE_NOT_FOUND]
       responses:
-        "201": { description: Formal record created from confirmed draft }
+        "200":
+          description: Already-confirmed draft replayed with its transaction
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DraftConfirmResponse" }
+        "201":
+          description: Draft confirmed and CONFIRMED transaction created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DraftConfirmResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /drafts/{id}/discard:
     post:
       operationId: discardDraft
       summary: Discard a draft in the current user scope
       tags: [Drafts]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      x-error-codes: [INVALID_STATE]
       responses:
         "204": { description: Draft discarded }
+        "409": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /drafts/batch-discard:
+    post:
+      operationId: createDraftBatchDiscardIntent
+      summary: Prepare a high-risk batch draft discard with a confirmation token
+      tags: [Drafts]
+      description: >-
+        Returns a short-lived confirmation token for a two-step discard. The
+        second step must be confirmed before any draft is discarded.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DraftBatchDiscardRequest" }
+      responses:
+        "200":
+          description: Confirmation intent for the affected PENDING drafts
+          content:
+            application/json:
+              schema:
+                {
+                  $ref: "#/components/schemas/DraftBatchDiscardIntentResponse",
+                }
+        "400": { $ref: "#/components/responses/ApiError" }
+  /drafts/batch-discard/confirm:
+    post:
+      operationId: confirmDraftBatchDiscard
+      summary: Confirm and execute a high-risk batch draft discard
+      tags: [Drafts]
+      description: >-
+        Executes the prepared batch discard, writes a redacted audit record, and
+        returns the number of drafts actually discarded.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              { $ref: "#/components/schemas/DraftBatchDiscardConfirmRequest" }
+      x-error-codes: [CONFIRMATION_TOKEN_INVALID, CONFIRMATION_TOKEN_EXPIRED]
+      responses:
+        "200":
+          description: Batch discard executed with audit
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DraftBatchDiscardResult" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "410": { $ref: "#/components/responses/ApiError" }
   /shortcut-credentials:
     post:
       operationId: createShortcutCredential
       summary: Create a revocable least-privilege shortcut credential
       tags: [Shortcuts]
+      description: >-
+        Creates a device credential with explicit scopes. The plaintext token is
+        returned exactly once; the database stores only its SHA-256 hash and a
+        display prefix.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ShortcutCredentialCreateRequest" }
+      x-error-codes: [VALIDATION_ERROR]
       responses:
-        "201": { description: Credential created and plaintext shown once }
+        "201":
+          description: Credential created with plaintext shown once
+          content:
+            application/json:
+              schema:
+                {
+                  $ref: "#/components/schemas/ShortcutCredentialCreatedResponse",
+                }
+        "400": { $ref: "#/components/responses/ApiError" }
     get:
       operationId: listShortcutCredentials
       summary: List shortcut credential metadata without plaintext secrets
       tags: [Shortcuts]
       responses:
-        "200": { description: Credential metadata }
+        "200":
+          description: Credential metadata without token hashes or plaintext
+          content:
+            application/json:
+              schema:
+                { $ref: "#/components/schemas/ShortcutCredentialListResponse" }
   /shortcut-credentials/{id}:
     delete:
       operationId: revokeShortcutCredential
       summary: Revoke a shortcut credential owned by the current user
       tags: [Shortcuts]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: Revocation takes effect immediately for shortcut endpoints.
       responses:
         "204": { description: Credential revoked }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
@@ -687,14 +828,39 @@ paths:
       operationId: createShortcutTransactionDraft
       summary: Idempotently create a transaction draft from a shortcut
       tags: [Shortcuts]
+      description: >-
+        Creates a PENDING transaction draft using a device credential scoped to
+        transaction:draft:create. Replays with the same Idempotency-Key return
+        the original draft; the same key with different content conflicts.
       security:
         - shortcutToken: []
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
-      x-error-codes: [IDEMPOTENCY_CONFLICT]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              { $ref: "#/components/schemas/ShortcutTransactionDraftRequest" }
+      x-error-codes:
+        [
+          CREDENTIAL_INVALID,
+          CREDENTIAL_REVOKED,
+          FORBIDDEN,
+          RATE_LIMITED,
+          IDEMPOTENCY_CONFLICT,
+        ]
       responses:
-        "201": { description: Draft created or prior identical result returned }
+        "201":
+          description: Draft created or prior identical result returned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DraftCreatedResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
         "409": { $ref: "#/components/responses/ApiError" }
+        "429": { $ref: "#/components/responses/ApiError" }
   /shortcuts/today-spend:
     get:
       operationId: getShortcutTodaySpend
@@ -702,8 +868,20 @@ paths:
       tags: [Shortcuts]
       security:
         - shortcutToken: []
+      description: >-
+        Returns today's spend in Asia/Shanghai as a fixed-point decimal string
+        using a credential scoped to finance:summary:read.
+      x-error-codes:
+        [CREDENTIAL_INVALID, CREDENTIAL_REVOKED, FORBIDDEN, RATE_LIMITED]
       responses:
-        "200": { description: Fixed-point spend summary }
+        "200":
+          description: Fixed-point spend summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ShortcutTodaySpendResponse" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "429": { $ref: "#/components/responses/ApiError" }
   /calendar-events:
     get:
       operationId: listCalendarEvents
@@ -922,23 +1100,86 @@ paths:
       operationId: createAttachmentUploadIntent
       summary: Create a short-lived attachment upload intent
       tags: [Attachments]
+      description: >-
+        Creates a short-lived, one-time upload intent for a user-owned
+        attachment. The response contains an upload token used exactly once by
+        the content endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              { $ref: "#/components/schemas/AttachmentUploadIntentRequest" }
+      x-error-codes: [ATTACHMENT_TYPE_NOT_ALLOWED, ATTACHMENT_TOO_LARGE]
       responses:
-        "201": { description: Upload intent created }
+        "201":
+          description: Upload intent created with a one-time upload token
+          content:
+            application/json:
+              schema:
+                { $ref: "#/components/schemas/AttachmentUploadIntentResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "413": { $ref: "#/components/responses/ApiError" }
+  /attachments/{id}/content:
+    put:
+      operationId: uploadAttachmentContent
+      summary: Upload raw attachment bytes with a one-time upload token
+      tags: [Attachments]
+      description: >-
+        Streams the raw file bytes to the pending attachment. The upload token
+        is single-use, expires with the intent, and is never stored in plaintext.
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+        - name: uploadToken
+          in: query
+          required: true
+          schema: { type: string, minLength: 16, maxLength: 128 }
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, format: binary }
+      x-error-codes:
+        [
+          UPLOAD_TOKEN_INVALID,
+          UPLOAD_INTENT_EXPIRED,
+          ATTACHMENT_TOO_LARGE,
+          ATTACHMENT_NOT_READY,
+        ]
+      responses:
+        "204": { description: Attachment content stored and verified }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "410": { $ref: "#/components/responses/ApiError" }
+        "413": { $ref: "#/components/responses/ApiError" }
   /attachments/{id}/complete:
     post:
       operationId: completeAttachmentUpload
       summary: Confirm an owned attachment upload before use
       tags: [Attachments]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: >-
+        Marks the uploaded attachment as scanned and usable. Completion is
+        required before OCR may read the attachment.
+      x-error-codes:
+        [ATTACHMENT_NOT_READY, ATTACHMENT_SCAN_FAILED, RESOURCE_NOT_FOUND]
       responses:
-        "200": { description: Upload completed }
+        "200":
+          description: Upload completed and scan status finalized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AttachmentCompleteResponse" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
+        "422": { $ref: "#/components/responses/ApiError" }
   /attachments/{id}:
     delete:
       operationId: deleteAttachment
       summary: Delete an attachment in the current user scope
       tags: [Attachments]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: Soft-deletes the attachment and removes its stored object.
       responses:
         "204": { description: Attachment deleted }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
@@ -1229,6 +1470,11 @@ components:
       in: header
       required: true
       schema: { type: string, minLength: 16, maxLength: 128 }
+    DraftStatusQuery:
+      name: status
+      in: query
+      required: false
+      schema: { $ref: "#/components/schemas/DraftStatus" }
   responses:
     ApiError:
       description: Structured, non-sensitive API error
@@ -1312,6 +1558,18 @@ components:
         - VERSION_CONFLICT
         - DUPLICATE_RESOURCE
         - DRAFT_CONFIRMATION_REQUIRED
+        - CREDENTIAL_INVALID
+        - CREDENTIAL_REVOKED
+        - OCR_UNAVAILABLE
+        - ATTACHMENT_TYPE_NOT_ALLOWED
+        - ATTACHMENT_TOO_LARGE
+        - ATTACHMENT_SCAN_FAILED
+        - ATTACHMENT_NOT_READY
+        - DRAFT_NOT_EDITABLE
+        - UPLOAD_INTENT_EXPIRED
+        - UPLOAD_TOKEN_INVALID
+        - CONFIRMATION_TOKEN_INVALID
+        - CONFIRMATION_TOKEN_EXPIRED
         - RESOURCE_NOT_FOUND
         - INTERNAL_ERROR
     Month:
@@ -2056,3 +2314,341 @@ components:
     DraftStatus:
       type: string
       enum: [PENDING, CONFIRMED, DISCARDED, FAILED]
+    ShortcutScope:
+      type: string
+      enum: [transaction:draft:create, finance:summary:read]
+    AttachmentScanStatus:
+      type: string
+      enum: [PENDING, SCANNED, FAILED]
+    AttachmentOwnerType:
+      type: string
+      enum: [TRANSACTION_DRAFT]
+    DraftTargetType:
+      type: string
+      enum: [TRANSACTION]
+    TransactionDraftPayload:
+      type: object
+      additionalProperties: false
+      required: [type, amount]
+      properties:
+        type: { $ref: "#/components/schemas/TransactionType" }
+        amount: { $ref: "#/components/schemas/Money" }
+        currency:
+          anyOf:
+            - { type: string, minLength: 3, maxLength: 3, default: CNY }
+            - { type: "null" }
+        categoryId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        accountId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        merchant:
+          anyOf:
+            - { type: string, maxLength: 100 }
+            - { type: "null" }
+        occurredAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        note:
+          anyOf:
+            - { type: string, maxLength: 500 }
+            - { type: "null" }
+        originalTransactionId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        isUnlinkedRefund: { type: boolean }
+    DraftSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          source,
+          targetType,
+          payload,
+          confidence,
+          status,
+          clientMutationId,
+          attachmentId,
+          failureReason,
+          version,
+          createdAt,
+          updatedAt,
+          confirmedAt,
+          discardedAt,
+          resultId,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        source: { $ref: "#/components/schemas/RecordSource" }
+        targetType: { $ref: "#/components/schemas/DraftTargetType" }
+        payload: { $ref: "#/components/schemas/TransactionDraftPayload" }
+        confidence:
+          anyOf:
+            - type: object
+              additionalProperties: { type: number, minimum: 0, maximum: 1 }
+            - { type: "null" }
+        status: { $ref: "#/components/schemas/DraftStatus" }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
+        attachmentId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        failureReason:
+          anyOf:
+            - { type: string, maxLength: 200 }
+            - { type: "null" }
+        version: { type: integer, minimum: 1 }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        confirmedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        discardedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        resultId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+    DraftListResponse:
+      type: object
+      additionalProperties: false
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/DraftSummary" }
+        nextCursor:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+    ParseTextRequest:
+      type: object
+      additionalProperties: false
+      required: [text]
+      properties:
+        text: { type: string, minLength: 1, maxLength: 2000 }
+    DraftCreatedResponse:
+      type: object
+      additionalProperties: false
+      required: [draft]
+      properties:
+        draft: { $ref: "#/components/schemas/DraftSummary" }
+    OcrDraftRequest:
+      type: object
+      additionalProperties: false
+      required: [attachmentId]
+      properties:
+        attachmentId: { $ref: "#/components/schemas/Identifier" }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
+    DraftUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [payload, version]
+      properties:
+        payload: { $ref: "#/components/schemas/TransactionDraftPayload" }
+        version: { type: integer, minimum: 1 }
+    DraftConfirmResponse:
+      type: object
+      additionalProperties: false
+      required: [draft, transaction]
+      properties:
+        draft: { $ref: "#/components/schemas/DraftSummary" }
+        transaction: { $ref: "#/components/schemas/TransactionSummary" }
+    DraftBatchDiscardRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        ids:
+          type: array
+          maxItems: 200
+          items: { $ref: "#/components/schemas/Identifier" }
+        reason: { $ref: "#/components/schemas/Reason" }
+    DraftBatchDiscardIntentResponse:
+      type: object
+      additionalProperties: false
+      required: [confirmationToken, affectedDraftIds, expiresAt]
+      properties:
+        confirmationToken: { type: string, minLength: 32, maxLength: 256 }
+        affectedDraftIds:
+          type: array
+          items: { $ref: "#/components/schemas/Identifier" }
+        expiresAt: { $ref: "#/components/schemas/IsoDateTime" }
+    DraftBatchDiscardConfirmRequest:
+      type: object
+      additionalProperties: false
+      required: [confirmationToken]
+      properties:
+        confirmationToken: { type: string, minLength: 32, maxLength: 256 }
+    DraftBatchDiscardResult:
+      type: object
+      additionalProperties: false
+      required: [discardedCount]
+      properties:
+        discardedCount: { type: integer, minimum: 0 }
+    ShortcutCredentialSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [id, name, scopes, tokenPrefix, createdAt, lastUsedAt, revokedAt]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        name: { type: string, minLength: 1, maxLength: 60 }
+        scopes:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items: { $ref: "#/components/schemas/ShortcutScope" }
+        tokenPrefix: { type: string, minLength: 6, maxLength: 12 }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        lastUsedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        revokedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+    ShortcutCredentialCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [name, scopes]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 60 }
+        scopes:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items: { $ref: "#/components/schemas/ShortcutScope" }
+    ShortcutCredentialCreatedResponse:
+      type: object
+      additionalProperties: false
+      required: [credential, plaintextToken]
+      properties:
+        credential: { $ref: "#/components/schemas/ShortcutCredentialSummary" }
+        plaintextToken: { type: string, minLength: 16, maxLength: 128 }
+    ShortcutCredentialListResponse:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/ShortcutCredentialSummary" }
+    ShortcutTransactionDraftRequest:
+      type: object
+      additionalProperties: false
+      required: [type, amount]
+      properties:
+        type: { $ref: "#/components/schemas/TransactionType" }
+        amount: { $ref: "#/components/schemas/Money" }
+        currency:
+          anyOf:
+            - { type: string, minLength: 3, maxLength: 3, default: CNY }
+            - { type: "null" }
+        categoryId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        accountId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        merchant:
+          anyOf:
+            - { type: string, maxLength: 100 }
+            - { type: "null" }
+        occurredAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        note:
+          anyOf:
+            - { type: string, maxLength: 500 }
+            - { type: "null" }
+        originalTransactionId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        isUnlinkedRefund: { type: boolean }
+    ShortcutTodaySpendResponse:
+      type: object
+      additionalProperties: false
+      required: [date, currency, todaySpend]
+      properties:
+        date: { type: string, pattern: "^\\d{4}-\\d{2}-\\d{2}$" }
+        currency: { type: string, minLength: 3, maxLength: 3 }
+        todaySpend: { $ref: "#/components/schemas/Money" }
+    AttachmentUploadIntentRequest:
+      type: object
+      additionalProperties: false
+      required: [ownerType, mimeType]
+      properties:
+        ownerType: { $ref: "#/components/schemas/AttachmentOwnerType" }
+        mimeType: { type: string, maxLength: 100 }
+        size:
+          anyOf:
+            - { type: integer, minimum: 1, maximum: 10485760 }
+            - { type: "null" }
+    AttachmentUploadIntentResponse:
+      type: object
+      additionalProperties: false
+      required: [id, uploadUrl, uploadMethod, uploadToken, expiresAt]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        uploadUrl: { type: string, minLength: 1 }
+        uploadMethod: { type: string, const: PUT }
+        uploadToken: { type: string, minLength: 16, maxLength: 128 }
+        expiresAt: { $ref: "#/components/schemas/IsoDateTime" }
+    AttachmentSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          ownerType,
+          ownerId,
+          mimeType,
+          size,
+          scanStatus,
+          createdAt,
+          updatedAt,
+          deletedAt,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        ownerType: { $ref: "#/components/schemas/AttachmentOwnerType" }
+        ownerId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        mimeType: { type: string, maxLength: 100 }
+        size: { type: integer, minimum: 0 }
+        scanStatus: { $ref: "#/components/schemas/AttachmentScanStatus" }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+    AttachmentCompleteResponse:
+      type: object
+      additionalProperties: false
+      required: [attachment]
+      properties:
+        attachment: { $ref: "#/components/schemas/AttachmentSummary" }

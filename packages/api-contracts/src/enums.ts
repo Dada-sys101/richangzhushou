@@ -77,6 +77,25 @@ export const DRAFT_STATUSES = [
 ] as const;
 export type DraftStatus = (typeof DRAFT_STATUSES)[number];
 
+export const SHORTCUT_SCOPES = [
+  "transaction:draft:create",
+  "finance:summary:read",
+] as const;
+export type ShortcutScope = (typeof SHORTCUT_SCOPES)[number];
+
+export const ATTACHMENT_SCAN_STATUSES = [
+  "PENDING",
+  "SCANNED",
+  "FAILED",
+] as const;
+export type AttachmentScanStatus = (typeof ATTACHMENT_SCAN_STATUSES)[number];
+
+export const ATTACHMENT_OWNER_TYPES = ["TRANSACTION_DRAFT"] as const;
+export type AttachmentOwnerType = (typeof ATTACHMENT_OWNER_TYPES)[number];
+
+export const DRAFT_TARGET_TYPES = ["TRANSACTION"] as const;
+export type DraftTargetType = (typeof DRAFT_TARGET_TYPES)[number];
+
 export const API_ERROR_CODES = [
   "VALIDATION_ERROR",
   "UNAUTHORIZED",
@@ -104,6 +123,18 @@ export const API_ERROR_CODES = [
   "VERSION_CONFLICT",
   "DUPLICATE_RESOURCE",
   "DRAFT_CONFIRMATION_REQUIRED",
+  "CREDENTIAL_INVALID",
+  "CREDENTIAL_REVOKED",
+  "OCR_UNAVAILABLE",
+  "ATTACHMENT_TYPE_NOT_ALLOWED",
+  "ATTACHMENT_TOO_LARGE",
+  "ATTACHMENT_SCAN_FAILED",
+  "ATTACHMENT_NOT_READY",
+  "DRAFT_NOT_EDITABLE",
+  "UPLOAD_INTENT_EXPIRED",
+  "UPLOAD_TOKEN_INVALID",
+  "CONFIRMATION_TOKEN_INVALID",
+  "CONFIRMATION_TOKEN_EXPIRED",
   "RESOURCE_NOT_FOUND",
   "INTERNAL_ERROR",
 ] as const;

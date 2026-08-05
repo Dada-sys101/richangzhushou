@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { RECORD_SOURCES, USER_STATUSES } from "./enums.js";
+import {
+  ATTACHMENT_SCAN_STATUSES,
+  RECORD_SOURCES,
+  SHORTCUT_SCOPES,
+  USER_STATUSES,
+} from "./enums.js";
 
 describe("shared enums", () => {
   it("keeps capacity-occupying account states distinct", () => {
@@ -18,5 +23,13 @@ describe("shared enums", () => {
       "VOICE",
       "IMPORT",
     ]);
+  });
+
+  it("keeps WP4 shortcut scopes and attachment scan statuses stable", () => {
+    expect(SHORTCUT_SCOPES).toEqual([
+      "transaction:draft:create",
+      "finance:summary:read",
+    ]);
+    expect(ATTACHMENT_SCAN_STATUSES).toEqual(["PENDING", "SCANNED", "FAILED"]);
   });
 });

@@ -1,9 +1,13 @@
 import type {
   ApiErrorCode,
+  AttachmentOwnerType,
+  AttachmentScanStatus,
   CategoryKind,
+  DraftTargetType,
   FinancialAccountKind,
   RecordSource,
   RecordStatus,
+  ShortcutScope,
   TransactionType,
 } from "./enums.js";
 
@@ -327,4 +331,155 @@ export interface FinanceSummaryResponse {
   todaySpend: Money;
   budgets: BudgetProgress[];
   updatedAt: IsoDateTime;
+}
+
+export interface TransactionDraftPayload {
+  type: TransactionType;
+  amount: Money;
+  currency?: string;
+  categoryId?: Identifier | null;
+  accountId?: Identifier | null;
+  merchant?: string | null;
+  occurredAt?: IsoDateTime;
+  note?: string | null;
+  originalTransactionId?: Identifier | null;
+  isUnlinkedRefund?: boolean;
+}
+
+export interface DraftSummary {
+  id: Identifier;
+  source: RecordSource;
+  targetType: DraftTargetType;
+  payload: TransactionDraftPayload;
+  confidence: Record<string, number> | null;
+  status: "PENDING" | "CONFIRMED" | "DISCARDED" | "FAILED";
+  clientMutationId: string | null;
+  attachmentId: Identifier | null;
+  failureReason: string | null;
+  version: number;
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
+  confirmedAt: IsoDateTime | null;
+  discardedAt: IsoDateTime | null;
+  resultId: Identifier | null;
+}
+
+export interface DraftListResponse {
+  items: DraftSummary[];
+  nextCursor: Identifier | null;
+}
+
+export interface ParseTextRequest {
+  text: string;
+}
+
+export interface DraftCreatedResponse {
+  draft: DraftSummary;
+}
+
+export interface OcrDraftRequest {
+  attachmentId: Identifier;
+  clientMutationId?: string | null;
+}
+
+export interface DraftUpdateRequest {
+  payload: TransactionDraftPayload;
+  version: number;
+}
+
+export interface DraftConfirmResponse {
+  draft: DraftSummary;
+  transaction: TransactionSummary;
+}
+
+export interface DraftBatchDiscardRequest {
+  ids?: Identifier[];
+  reason: string;
+}
+
+export interface DraftBatchDiscardIntentResponse {
+  confirmationToken: string;
+  affectedDraftIds: Identifier[];
+  expiresAt: IsoDateTime;
+}
+
+export interface DraftBatchDiscardConfirmRequest {
+  confirmationToken: string;
+}
+
+export interface DraftBatchDiscardResult {
+  discardedCount: number;
+}
+
+export interface ShortcutCredentialSummary {
+  id: Identifier;
+  name: string;
+  scopes: ShortcutScope[];
+  tokenPrefix: string;
+  createdAt: IsoDateTime;
+  lastUsedAt: IsoDateTime | null;
+  revokedAt: IsoDateTime | null;
+}
+
+export interface ShortcutCredentialCreateRequest {
+  name: string;
+  scopes: ShortcutScope[];
+}
+
+export interface ShortcutCredentialCreatedResponse {
+  credential: ShortcutCredentialSummary;
+  plaintextToken: string;
+}
+
+export interface ShortcutCredentialListResponse {
+  items: ShortcutCredentialSummary[];
+}
+
+export interface ShortcutTransactionDraftRequest {
+  type: TransactionType;
+  amount: Money;
+  currency?: string;
+  categoryId?: Identifier | null;
+  accountId?: Identifier | null;
+  merchant?: string | null;
+  occurredAt?: IsoDateTime;
+  note?: string | null;
+  originalTransactionId?: Identifier | null;
+  isUnlinkedRefund?: boolean;
+}
+
+export interface ShortcutTodaySpendResponse {
+  date: string;
+  currency: string;
+  todaySpend: Money;
+}
+
+export interface AttachmentUploadIntentRequest {
+  ownerType: AttachmentOwnerType;
+  mimeType: string;
+  size?: number;
+}
+
+export interface AttachmentUploadIntentResponse {
+  id: Identifier;
+  uploadUrl: string;
+  uploadMethod: "PUT";
+  uploadToken: string;
+  expiresAt: IsoDateTime;
+}
+
+export interface AttachmentSummary {
+  id: Identifier;
+  ownerType: AttachmentOwnerType;
+  ownerId: Identifier | null;
+  mimeType: string;
+  size: number;
+  scanStatus: AttachmentScanStatus;
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
+  deletedAt: IsoDateTime | null;
+}
+
+export interface AttachmentCompleteResponse {
+  attachment: AttachmentSummary;
 }

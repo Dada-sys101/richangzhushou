@@ -5,6 +5,7 @@ import { parse } from "yaml";
 
 import {
   API_ERROR_CODES,
+  ATTACHMENT_SCAN_STATUSES,
   CATEGORY_KINDS,
   DRAFT_STATUSES,
   FINANCIAL_ACCOUNT_KINDS,
@@ -13,6 +14,7 @@ import {
   RECORD_SOURCES,
   RECORD_STATUSES,
   REMINDER_STATUSES,
+  SHORTCUT_SCOPES,
   SYNC_STATES,
   TASK_STATUSES,
   TRANSACTION_TYPES,
@@ -157,6 +159,8 @@ describe("OpenAPI baseline", () => {
     ["ReminderStatus", REMINDER_STATUSES],
     ["SyncState", SYNC_STATES],
     ["DraftStatus", DRAFT_STATUSES],
+    ["ShortcutScope", SHORTCUT_SCOPES],
+    ["AttachmentScanStatus", ATTACHMENT_SCAN_STATUSES],
   ] as const)(
     "keeps %s aligned with shared TypeScript",
     (schemaName, values) => {
@@ -209,6 +213,61 @@ describe("OpenAPI baseline", () => {
     expect(API_ERROR_CODES).toContain("DUPLICATE_RESOURCE");
   });
 
+  it("defines the WP4 drafts, shortcuts, and attachments contracts", () => {
+    const schemas = document.components.schemas;
+    for (const name of [
+      "TransactionDraftPayload",
+      "DraftSummary",
+      "DraftListResponse",
+      "ParseTextRequest",
+      "DraftCreatedResponse",
+      "OcrDraftRequest",
+      "DraftUpdateRequest",
+      "DraftConfirmResponse",
+      "DraftBatchDiscardRequest",
+      "DraftBatchDiscardIntentResponse",
+      "DraftBatchDiscardConfirmRequest",
+      "DraftBatchDiscardResult",
+      "ShortcutCredentialSummary",
+      "ShortcutCredentialCreateRequest",
+      "ShortcutCredentialCreatedResponse",
+      "ShortcutCredentialListResponse",
+      "ShortcutTransactionDraftRequest",
+      "ShortcutTodaySpendResponse",
+      "AttachmentUploadIntentRequest",
+      "AttachmentUploadIntentResponse",
+      "AttachmentSummary",
+      "AttachmentCompleteResponse",
+    ]) {
+      expect(schemas[name]).toBeDefined();
+    }
+    expect(schemas.ShortcutScope?.enum).toEqual([...SHORTCUT_SCOPES]);
+    expect(schemas.AttachmentScanStatus?.enum).toEqual([
+      ...ATTACHMENT_SCAN_STATUSES,
+    ]);
+    expect(schemas.ShortcutTransactionDraftRequest?.required).toEqual([
+      "type",
+      "amount",
+    ]);
+    expect(schemas.DraftBatchDiscardRequest?.required).toEqual(["reason"]);
+    for (const code of [
+      "CREDENTIAL_INVALID",
+      "CREDENTIAL_REVOKED",
+      "OCR_UNAVAILABLE",
+      "ATTACHMENT_TYPE_NOT_ALLOWED",
+      "ATTACHMENT_TOO_LARGE",
+      "ATTACHMENT_SCAN_FAILED",
+      "DRAFT_NOT_EDITABLE",
+      "UPLOAD_INTENT_EXPIRED",
+      "UPLOAD_TOKEN_INVALID",
+      "CONFIRMATION_TOKEN_INVALID",
+      "CONFIRMATION_TOKEN_EXPIRED",
+    ]) {
+      expect(API_ERROR_CODES).toContain(code);
+      expect(schemas.ApiErrorCode?.enum).toContain(code);
+    }
+  });
+
   it("keeps every finance operation secured by the access token", () => {
     const financePaths = [
       "/transactions",
@@ -230,6 +289,46 @@ describe("OpenAPI baseline", () => {
         ]);
         void method;
       }
+    }
+  });
+
+  it("keeps shortcut operations on the shortcut token and user content on the access token", () => {
+    const shortcutPaths = [
+      "/shortcuts/transaction-drafts",
+      "/shortcuts/today-spend",
+    ];
+    for (const path of shortcutPaths) {
+      for (const operation of Object.values(document.paths[path])) {
+        expect(operation.security).toEqual([{ shortcutToken: [] }]);
+      }
+    }
+    const userContentPaths = [
+      "/drafts/parse-text",
+      "/drafts/ocr",
+      "/drafts",
+      "/drafts/{id}",
+      "/drafts/{id}/confirm",
+      "/drafts/{id}/discard",
+      "/drafts/batch-discard",
+      "/drafts/batch-discard/confirm",
+      "/shortcut-credentials",
+      "/shortcut-credentials/{id}",
+      "/attachments/upload-intents",
+      "/attachments/{id}/complete",
+      "/attachments/{id}",
+    ];
+    for (const path of userContentPaths) {
+      for (const operation of Object.values(document.paths[path])) {
+        expect(operation.security ?? document.security).toEqual([
+          { accessToken: [] },
+        ]);
+      }
+    }
+    const contentOperations = Object.values(
+      document.paths["/attachments/{id}/content"],
+    );
+    for (const operation of contentOperations) {
+      expect(operation.security).toEqual([]);
     }
   });
 });
