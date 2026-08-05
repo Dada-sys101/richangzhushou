@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-05 — Project context and development handoff
+
+- 完善 `AGENTS.md`：计划先行、范围控制、兼容性检查、验证、进度更新、独立提交与不确定标注。
+- 新增 `docs/project-overview.md`、`docs/architecture.md`、`docs/progress.md`、`docs/roadmap.md`、`docs/decisions.md`、`docs/changelog.md` 与 `.project/context.md`。
+- 更新 `PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`docs/README.md`。
+- 仅文档与上下文改动，未修改业务代码，未创建生产配置。
+
 ## 2026-08-04 — WP0 planning package started
 
 - 创建独立项目规划目录 `D:\daily-assistant`。

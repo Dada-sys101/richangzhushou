@@ -34,11 +34,28 @@
 
 ## 工作纪律
 
-- 开始任务前读取 `PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md` 和 `CHANGELOG.md`。
+- 开始任务前按 `.project/context.md` 的阅读顺序读取：`.project/context.md`、`PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`CHANGELOG.md` 和相关工作包文档。
+- 修改前先分析现状并列出计划：说明任务目标、影响范围、涉及文件、兼容性检查和验证方式；发现计划超出任务范围时必须先与用户确认。
+- 不得擅自改变整体架构、技术栈、目录结构或产品不变量；架构性变更必须先成文并经用户确认。
+- 只修改任务相关文件；不得修改无关业务代码，不得删除已有功能，不得破坏用户未提交修改。
+- 涉及数据库、接口、部署配置时，必须先检查兼容性：数据字典/枚举一致、OpenAPI 契约同步、migration 与回滚策略、环境变量、CORS/安全配置。
+- 修改完成后必须运行对应检查或测试；跨工作区或共享配置变更必须通过 `npm run quality` 与 `git diff --check`。
+- 完成任务后必须更新项目进度文档（`PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`CHANGELOG.md` 和 `docs/progress.md`）。
+- 完成功能时同步更新实现、测试、文档、状态与验收记录；未完成或未验证的功能不得写成已完成或已验证。
+- 每个任务应形成清晰、独立的 Git 提交；提交前检查 `git diff`，只包含本任务相关改动。
+- 无法确认的信息必须明确标注“待确认”“未发现实现”或“文档与代码不一致”，不得猜测或编造。
 - 保留用户未提交修改，禁止破坏性 Git 操作。
 - 数据库、API、前端枚举必须与数据字典一致。
-- 完成功能时同步更新实现、测试、文档、状态与验收记录。
 - 未经授权不得提交、推送、创建 PR、部署或更改外部服务。
+
+## 接手阅读顺序
+
+1. `.project/context.md`：实时项目状态与下一步建议。
+2. `AGENTS.md`（本文件）：项目约束与纪律。
+3. `PROJECT_STATUS.md`、`SESSION_END.md`、`TODO.md`、`CHANGELOG.md`：进度快照。
+4. `docs/README.md` → `docs/project-overview.md`、`docs/architecture.md`、`docs/progress.md`、`docs/roadmap.md`、`docs/decisions.md`：项目与架构上下文。
+5. 当前工作包定义：`docs/12-development-handoff.md`。
+6. 实现代码与对应详细文档：`docs/05-data-model-and-dictionary.md`、`docs/06-api-and-integrations.md` 等。
 
 ## 验证要求
 

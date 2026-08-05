@@ -1,7 +1,7 @@
 # Project Status
 
-版本：0.2<br>
-状态：WP1 本地完成，未进入 WP2<br>
+版本：0.3<br>
+状态：WP1 本地完成，项目上下文体系已建立，未进入 WP2<br>
 更新：2026-08-05
 
 ## 当前状态
@@ -11,6 +11,7 @@
 - 当前工作包：WP1 已完成；WP2 未开始且未获授权
 - 代码：npm workspaces、三应用、两共享包、Prisma/OpenAPI/CI 基线已创建
 - Git 仓库：独立仓库，当前分支 `codex/wp1-foundation`
+- 上下文：`.project/context.md` 与 `docs/` 接管文档已建立（见 `docs/README.md`）
 - 部署：尚未创建
 - 当前用户：0
 
@@ -26,6 +27,7 @@
 - `packages/api-contracts`、`packages/config`、共享枚举与 OpenAPI 3.1 端点基线。
 - Prisma 7 + MySQL schema 基线、安全 `.env.example`、本地开发说明和 GitHub Actions CI。
 - 格式、Lint、类型、单元/契约测试、全部 workspace 构建、Prisma validate、OpenAPI lint、离线 migration diff、依赖审计和浏览器矩阵检查。
+- 项目上下文与开发交接文档体系：`AGENTS.md` 完善、`docs/project-overview.md`、`docs/architecture.md`、`docs/progress.md`、`docs/roadmap.md`、`docs/decisions.md`、`docs/changelog.md`、`.project/context.md`。
 
 ## 下一步
 
