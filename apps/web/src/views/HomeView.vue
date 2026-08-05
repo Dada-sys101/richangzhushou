@@ -103,6 +103,9 @@ onMounted(async () => {
     </div>
 
     <div class="quick-actions">
+      <RouterLink class="primary-button" to="/capture">快捷记录</RouterLink>
+      <RouterLink class="secondary-button" to="/drafts">草稿中心</RouterLink>
+      <RouterLink class="secondary-button" to="/shortcuts">快捷指令</RouterLink>
       <RouterLink class="primary-button" to="/transactions/new"
         >记一笔</RouterLink
       >

@@ -4,6 +4,27 @@
 更新：2026-08-05
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-05 — WP4 快捷指令、OCR 与统一录入本地验收通过
+
+提交：`7cb7656`、`4be9524`、`4cd75e9`（分支 `codex/wp4-shortcuts-ocr`）
+
+- 契约：补全 Shortcuts/Drafts/Attachments OpenAPI 请求/响应/DTO/错误码，
+  新增 `ShortcutScope`、`AttachmentScanStatus`、`AttachmentOwnerType`、
+  `DraftTargetType` 与 WP4 错误码；契约测试 112/112。
+- 数据：`DeviceCredential`（tokenHash 唯一、scopes JSON、revokedAt）、
+  `Attachment`（objectKey/uploadTokenHash 唯一、scanStatus 门控）、
+  `DraftRecord`（clientMutationId 唯一、resultId）；migration
+  `20260805085724_wp4_shortcuts_ocr` 空库部署与回滚说明。
+- API：设备凭证创建/列表/撤销 + Bearer 守卫；快捷指令幂等草稿与今日支出；
+  草稿文本解析/OCR/CRUD/确认/丢弃/批量二次确认；附件上传意图/内容上传/完成/删除；
+  `StorageAdapter`/`OcrAdapter`/`ScanAdapter` 接口与本地假实现。
+- 安全：跨用户 404、管理员 403、数据库无明文令牌、批量丢弃审计。
+- 前端：快捷记录（文本/截图）、草稿中心与 DraftReviewCard、快捷指令配置页；
+  OCR 失败与网络错误降级状态。
+- 验收：`npm run quality`、空库 migration+seed、集成测试 41/41、浏览器 5 宽度
+  矩阵 25/25 与主流程全部通过（`docs/18-wp4-acceptance-report.md`）。
+- 未推送、未部署、未创建生产资源、未进入 WP5。
+
 ## 2026-08-05 — 持久化项目状态恢复机制（v2）
 
 提交信息：`chore: add persistent project state recovery workflow`

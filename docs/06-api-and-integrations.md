@@ -53,24 +53,41 @@ Finance 契约要点：
 
 ### 草稿、OCR 和统一录入
 
-- `POST /drafts/parse-text`
-- `POST /drafts/ocr`
-- `GET /drafts`
-- `GET/PATCH /drafts/:id`
-- `POST /drafts/:id/confirm`
-- `POST /drafts/:id/discard`
+- `POST /drafts/parse-text`：规则解析文本，生成 `source=TEXT` 的 `PENDING` 草稿；
+  无法识别金额时返回 `VALIDATION_ERROR`。
+- `POST /drafts/ocr`：对已上传且 `scanStatus=SCANNED` 的附件调用 OCR 适配器，
+  生成 `source=OCR` 的 `PENDING` 草稿；OCR 不可用时返回 `OCR_UNAVAILABLE`（503），
+  手动录入路径不受影响（QA-DRAFT-001）。
+- `GET /drafts`：当前用户草稿列表，支持 `status`/`cursor`/`limit`。
+- `GET/PATCH /drafts/:id`：查看与编辑；只有 `PENDING` 可编辑，否则返回
+  `DRAFT_NOT_EDITABLE`（409）；编辑携带 `version`，过期返回 `VERSION_CONFLICT`。
+- `POST /drafts/:id/confirm`：单事务内将草稿标记 `CONFIRMED` 并创建
+  `CONFIRMED` 交易，保留 `source` 与 `clientMutationId`；已确认草稿重放返回原交易；
+  未确认草稿不计入任何统计（QA-DRAFT-002）。
+- `POST /drafts/:id/discard`：丢弃 `PENDING` 草稿。
+- `POST /drafts/batch-discard`：高风险批量丢弃/清空的第一次确认，返回短期
+  `confirmationToken` 与受影响草稿 ID；`ids` 省略表示清空全部待确认。
+- `POST /drafts/batch-discard/confirm`：二次确认后执行丢弃并写脱敏审计
+  （action=`DRAFT_BATCH_DISCARD`）（QA-DRAFT-003）。
 
 OCR/AI 只填充草稿，不直接创建 `CONFIRMED` 业务记录。
 
 ### 快捷指令
 
-- `POST /shortcut-credentials`
-- `GET /shortcut-credentials`
-- `DELETE /shortcut-credentials/:id`
-- `POST /shortcuts/transaction-drafts`
-- `GET /shortcuts/today-spend`
+- `POST /shortcut-credentials`：创建设备凭证（名称 + `ShortcutScope[]`），
+  明文令牌只显示一次；数据库只存 SHA-256 哈希与 8 位展示前缀。
+- `GET /shortcut-credentials`：仅返回元数据（名称/范围/前缀/最近使用/撤销时间）。
+- `DELETE /shortcut-credentials/:id`：撤销后立即失效（QA-SC-003）。
+- `POST /shortcuts/transaction-drafts`：设备凭证作用域
+  `transaction:draft:create`，幂等创建 `PENDING` 交易草稿；同一
+  `Idempotency-Key` 相同内容返回原草稿，不同内容返回 `IDEMPOTENCY_CONFLICT`
+  （QA-SC-001/002）。
+- `GET /shortcuts/today-spend`：设备凭证作用域 `finance:summary:read`，
+  返回 `Asia/Shanghai` 今日支出（定点字符串）。
 
-设备凭证按最小范围授权，例如 `transaction:draft:create`、`finance:summary:read`，创建时明文只展示一次，数据库只存哈希。
+设备凭证按最小范围授权，例如 `transaction:draft:create`、`finance:summary:read`，
+创建时明文只展示一次，数据库只存哈希；快捷指令端点经
+`DeviceCredentialGuard` 校验哈希、撤销状态、账号状态、作用域并限流。
 
 ### 日程、待办和提醒
 
@@ -94,11 +111,17 @@ OCR/AI 只填充草稿，不直接创建 `CONFIRMED` 业务记录。
 ### 文件与同步
 
 - `POST /attachments/upload-intents`
+- `PUT /attachments/:id/content?uploadToken=...`：一次性令牌上传原始字节；
+  令牌只存哈希，意图过期返回 `UPLOAD_INTENT_EXPIRED`，超限返回
+  `ATTACHMENT_TOO_LARGE`。
 - `POST /attachments/:id/complete`
 - `DELETE /attachments/:id`
 - `GET /sync/changes?cursor=...`
 - `POST /sync/mutations`
 - `GET /sync/status`
+
+上传采用“短期上传意图 + 一次性上传令牌 + 完成确认”流程；完成前扫描状态门控，
+扫描失败返回 `ATTACHMENT_SCAN_FAILED` 且附件不可用于 OCR；失败不会产生悬空正式附件。
 
 ### 管理端
 

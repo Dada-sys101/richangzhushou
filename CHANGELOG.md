@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-08-05 — WP4 快捷指令、OCR 与统一录入本地验收通过
+
+- 契约：Shortcuts/Drafts/Attachments OpenAPI、共享类型、`ShortcutScope` 与错误码
+  （`7cb7656`）。
+- 数据：`DeviceCredential`、`Attachment`、`DraftRecord` 与 WP4 migration
+  （`4be9524`）。
+- 后端：设备凭证生命周期、快捷指令幂等草稿、草稿中心、附件/OCR 适配器与集成
+  测试（`4cd75e9`）。
+- 前端：快捷记录、草稿中心、快捷指令配置页与错误降级状态。
+- 验收：quality、空库 migration+seed、集成 41/41、浏览器矩阵 25/25；
+  报告见 `docs/18-wp4-acceptance-report.md`。
+- 未推送、未部署、未创建生产资源、未进入 WP5。
+
 ## 2026-08-05 — 持久化项目状态恢复机制（v2）
 
 - `AGENTS.md` 合并为 Project State Recovery / Required Workflow Before Every Task / Task Completion State Updates / Safety Rules 四章。

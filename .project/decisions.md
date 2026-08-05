@@ -100,3 +100,60 @@
 - Consequences: 新任务默认先恢复状态；状态文件一致性可由脚本校验；非 Codex 工具是否自动读取 AGENTS.md 仍需其自身支持。
 - Related Files: `AGENTS.md`、`.project/context.md`、`.project/session.md`、`.project/decisions.md`、`scripts/check-project-context.mjs`、`scripts/pre-commit-context-check.mjs`
 - Related Commit: 本次提交（`chore: add persistent project state recovery workflow`，哈希以 `git log -1` 为准）
+
+## ADR-010: WP4 ShortcutScope 与设备凭证存储
+
+- Date: 2026-08-05
+- Status: Accepted
+- Context: 快捷指令凭证需要最小范围枚举，但范围值包含冒号（
+  `transaction:draft:create`），不适合 MySQL ENUM。
+- Decision: `ShortcutScope` 以共享 TypeScript/OpenAPI 字符串枚举定义；
+  `DeviceCredential.scopes` 使用 JSON 数组存储；凭证明文只在创建时展示一次，
+  数据库只存 SHA-256 哈希与 8 位前缀。
+- Alternatives Considered: MySQL ENUM 存冒号值（否决：枚举扩展与工具兼容差）。
+- Consequences: 通过 QA-SEC-003；作用域校验在 `DeviceCredentialGuard` 完成。
+- Related Files: `packages/api-contracts/src/enums.ts`、
+  `apps/api/prisma/schema.prisma`、`apps/api/src/shortcuts`
+- Related Commit: `7cb7656`、`4be9524`、`4cd75e9`
+
+## ADR-011: 附件上传意图 + 一次性令牌 + 完成确认
+
+- Date: 2026-08-05
+- Status: Accepted
+- Context: 文档要求“短期上传意图 + 完成确认”，失败不得产生悬空正式附件。
+- Decision: `POST /attachments/upload-intents` 返回一次性
+  `uploadToken`（只存哈希）与短期有效期；`PUT /attachments/:id/content` 上传
+  原始字节；`POST /attachments/:id/complete` 执行扫描并门控后续 OCR。
+- Alternatives Considered: 直接 multipart 上传（否决：无意图/完成生命周期）。
+- Consequences: 非法类型/超限/过期/扫描失败均有结构化错误；本地存储适配器写入
+  `apps/api/.local-storage`。
+- Related Files: `apps/api/src/attachments`、`apps/api/src/integrations`
+- Related Commit: `4cd75e9`
+
+## ADR-012: 草稿确认事务与 resultId
+
+- Date: 2026-08-05
+- Status: Accepted
+- Context: 草稿确认必须原子地标记 `CONFIRMED` 并创建 `CONFIRMED` 交易。
+- Decision: `DraftsService.confirmDraft` 在 `prisma.$transaction` 内调用
+  `FinanceService.createTransaction(userId, dto, tx)`，并写
+  `DraftRecord.resultId`；未确认草稿不计入统计。
+- Alternatives Considered: 先建交易再更新草稿（否决：存在中间不一致）。
+- Consequences: 通过 QA-DRAFT-002；FinanceService 支持可选事务客户端。
+- Related Files: `apps/api/src/drafts/drafts.service.ts`、
+  `apps/api/src/finance/finance.service.ts`
+- Related Commit: `4cd75e9`
+
+## ADR-013: 批量丢弃两阶段确认与审计
+
+- Date: 2026-08-05
+- Status: Accepted
+- Context: BR-AI-004 要求批量丢弃/清空草稿二次确认并留下可追溯记录。
+- Decision: 第一步返回 HMAC 短期确认令牌（绑定 userId/草稿 ID/reason/过期时间）；
+  第二步校验后批量置 `DISCARDED` 并写 `AdminAudit`
+  （action=`DRAFT_BATCH_DISCARD`）。
+- Alternatives Considered: 单请求带确认标志（否决：无真实二次确认语义）。
+- Consequences: 通过 QA-DRAFT-003；令牌最长 512 字符。
+- Related Files: `apps/api/src/common/security.service.ts`、
+  `apps/api/src/drafts`
+- Related Commit: `4cd75e9`

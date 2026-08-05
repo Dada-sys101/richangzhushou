@@ -34,6 +34,8 @@
 14. `13-wp1-acceptance-report.md`
 15. `14-wp2-acceptance-report.md`
 16. `15-wp3-codex-execution-plan.md`
+17. `17-wp4-codex-execution-plan.md`
 17. `16-wp3-acceptance-report.md`
+18. `18-wp4-acceptance-report.md`
 
 所有文档以稳定编号引用规则、功能、页面、数据、API 和验收项。未确认信息必须标记为 `[待确认]` 或 `[关键假设]`。

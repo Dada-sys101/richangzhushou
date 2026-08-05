@@ -30,3 +30,11 @@
 | DA-0306 | 统计与今日财务卡片 | DONE | WP3 |
 | DA-0307 | CSV 导出（仅当前用户、安全文件名、UTF-8/Excel 兼容） | DONE | WP3 |
 | DA-0308 | 用户端页面、文档、状态与 WP3 验收报告同步 | DONE | WP3 |
+| DA-0401 | 补全 Shortcuts/Drafts/Attachments OpenAPI、共享类型、ShortcutScope 与错误码 | DONE | WP4 |
+| DA-0402 | WP4 Prisma 实体、约束、索引、migration、seed 与回滚说明 | DONE | WP4 |
+| DA-0403 | 设备凭证创建/列表/撤销、Bearer 守卫、作用域与限流 | DONE | WP4 |
+| DA-0404 | 快捷指令幂等草稿与今日支出 API | DONE | WP4 |
+| DA-0405 | 草稿中心：文本解析、OCR、CRUD、确认/丢弃与批量二次确认 | DONE | WP4 |
+| DA-0406 | 附件上传意图/内容上传/完成/删除与 OCR 适配器 | DONE | WP4 |
+| DA-0407 | 用户端快捷记录、草稿中心、DraftReviewCard 与快捷指令配置页 | DONE | WP4 |
+| DA-0408 | 集成、并发、安全、前端验收、文档与 WP4 验收报告同步 | DONE | WP4 |

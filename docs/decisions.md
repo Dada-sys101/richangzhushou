@@ -29,6 +29,10 @@
 | DEC-110 | 质量门 = format + lint + typecheck + test + build + Prisma validate + OpenAPI lint + migration diff + audit | 根 `package.json`（`scripts.quality`） | `docs/13` 记录 WP1 全部通过 |
 | DEC-111 | 提交粒度：独立任务一个提交，提交信息使用中文（当前仓库惯例） | `[Git] git log` | 仓库惯例；后续可再约定 |
 | DEC-112 | WP3 补充 `CategoryKind`（EXPENSE/INCOME）与 `FinancialAccountKind`（CASH/DEBIT_CARD/CREDIT_CARD/DIGITAL_WALLET/OTHER）取值；预算唯一约束 userId+month+categoryId（NULL 时服务层校验整体预算唯一） | `[文档] docs/05`、`[代码] WP3` | 数据字典未定义具体取值，属 `[关键假设]`，待产品确认 |
+| DEC-113 | `ShortcutScope` 使用冒号字符串（`transaction:draft:create`/`finance:summary:read`），`DeviceCredential.scopes` 以 JSON 数组存储（冒号值不适用 MySQL ENUM）；凭证只存 SHA-256 哈希与展示前缀 | `[代码] apps/api/prisma/schema.prisma`、`shortcuts/*` | 契约枚举与存储解耦，避免 ENUM 特殊字符 |
+| DEC-114 | 附件采用“短期上传意图 + 一次性上传令牌（只存哈希）+ 完成确认”流程；本地临时存储适配器写入 `apps/api/.local-storage` | `[代码] apps/api/src/attachments`、`integrations/local-storage.adapter.ts` | 失败不产生悬空正式附件；供应商未定前用本地实现（OPEN-006） |
+| DEC-115 | 草稿确认在单个事务内将 `DraftRecord` 标记 `CONFIRMED` 并创建 `CONFIRMED` 交易，`resultId` 指向结果，保留 `source` 与 `clientMutationId` | `[代码] apps/api/src/drafts/drafts.service.ts`、`finance/finance.service.ts` | 保证草稿状态与正式记录原子一致（QA-DRAFT-002） |
+| DEC-116 | 批量丢弃/清空草稿采用 HMAC 短期确认令牌（两阶段）并写 `AdminAudit`（`DRAFT_BATCH_DISCARD`） | `[代码] apps/api/src/common/security.service.ts`、`drafts/drafts.service.ts` | 高风险操作二次确认 + 可追溯（BR-AI-004 / QA-DRAFT-003） |
 
 ## 尚未确定的决策
 
@@ -37,7 +41,7 @@
 | OPEN-001 | 正式产品名称 | 使用 Daily Assistant 临时名 | 品牌/域名 |
 | OPEN-002 | 正式仓库与远端 | origin 已配置为 `richangzhushou.git`，未推送 | 提交/协作 |
 | OPEN-003 | 邮件供应商 | 适配器 + 开发假服务 | 注册验证/找回密码 |
-| OPEN-004 | OCR/AI 供应商 | 适配器 + 手动降级 | 智能录入 |
+| OPEN-004 | OCR/AI 供应商 | 适配器 + `FAKE_OCR_TEXT` 假实现 + 手动降级（WP4 已实现接口与假实现） | 真实识别效果验收 |
 | OPEN-005 | 通知渠道 | 应用内 + 支持时 Web Push | 提醒最终验收 |
 | OPEN-006 | 部署地域与备案 | 不创建生产资源 | 生产上线 |
 | OPEN-007 | 关闭/删除保留期 | 暂按 30 天 | 隐私与恢复 |

@@ -8,6 +8,9 @@ import { RouterView } from "vue-router";
       <span class="wordmark">Daily Assistant</span>
       <nav class="site-nav">
         <RouterLink to="/">首页</RouterLink>
+        <RouterLink to="/capture">快捷记录</RouterLink>
+        <RouterLink to="/drafts">草稿</RouterLink>
+        <RouterLink to="/shortcuts">快捷指令</RouterLink>
         <RouterLink to="/transactions">记账</RouterLink>
         <RouterLink to="/finance/budgets">预算</RouterLink>
         <RouterLink to="/finance/categories">分类</RouterLink>

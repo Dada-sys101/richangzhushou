@@ -38,6 +38,10 @@
 | WP3 用户端记账页面 | `3fe6739`；`apps/web/src/views`、`stores/finance.ts` |
 | WP3 修复与浏览器矩阵验收 | `3db5b40`；`docs/16-wp3-acceptance-report.md`；`output/playwright/wp3` |
 | 持久化项目状态恢复机制（session/decisions/check:context 与可选 Hook） | 本次提交；`.project/session.md`、`.project/decisions.md`、`scripts/check-project-context.mjs` |
+| WP4 契约：Shortcuts/Drafts/Attachments OpenAPI、共享类型、ShortcutScope 与错误码 | `7cb7656`；`packages/api-contracts` |
+| WP4 Prisma 实体、migration、回滚说明与数据字典 | `4be9524`；`apps/api/prisma`；`migrations/20260805085724_wp4_shortcuts_ocr` |
+| WP4 设备凭证、快捷指令 API、草稿中心、附件/OCR 与集成测试 | `4cd75e9`；`apps/api/src/{shortcuts,drafts,attachments,integrations}`；`wp4.integration.test.ts` |
+| WP4 前端快捷记录/草稿中心/快捷指令配置页与浏览器矩阵 | 本次提交；`apps/web/src`；`docs/18-wp4-acceptance-report.md` |
 
 ## 部分完成
 
@@ -54,13 +58,13 @@
 
 ## 未开始
 
-- WP4 快捷指令、OCR 与统一录入
 - WP5 日程、待办与提醒
 - WP6 行程
 - WP7 PWA 与离线同步
 - WP8 全量质量与发布准备
 
-以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP3 已 DONE（WP3 验收见 `docs/16`），WP4–WP8 为 `NOT_STARTED`。
+以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP4 已 DONE（WP4 验收见
+`docs/18`），WP5–WP8 为 `NOT_STARTED`。
 
 ## 已知问题
 

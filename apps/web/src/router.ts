@@ -5,12 +5,15 @@ import AccountView from "./views/AccountView.vue";
 import AccountsView from "./views/AccountsView.vue";
 import BudgetsView from "./views/BudgetsView.vue";
 import CategoriesView from "./views/CategoriesView.vue";
+import DraftsView from "./views/DraftsView.vue";
 import ForgotPasswordView from "./views/ForgotPasswordView.vue";
 import HomeView from "./views/HomeView.vue";
 import LoginView from "./views/LoginView.vue";
 import NotFoundView from "./views/NotFoundView.vue";
+import QuickCaptureView from "./views/QuickCaptureView.vue";
 import RegisterView from "./views/RegisterView.vue";
 import ResetPasswordView from "./views/ResetPasswordView.vue";
+import ShortcutsView from "./views/ShortcutsView.vue";
 import TransactionFormView from "./views/TransactionFormView.vue";
 import TransactionsView from "./views/TransactionsView.vue";
 
@@ -68,6 +71,24 @@ export const router = createRouter({
       path: "/transactions/:id/edit",
       name: "transaction-edit",
       component: TransactionFormView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/capture",
+      name: "capture",
+      component: QuickCaptureView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/drafts",
+      name: "drafts",
+      component: DraftsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/shortcuts",
+      name: "shortcuts",
+      component: ShortcutsView,
       meta: { requiresAuth: true },
     },
     {

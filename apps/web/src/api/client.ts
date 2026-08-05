@@ -139,6 +139,104 @@ export interface TransactionCreatedResponse {
   transaction: TransactionSummary;
 }
 
+export type DraftStatus = "PENDING" | "CONFIRMED" | "DISCARDED" | "FAILED";
+export type ShortcutScope = "transaction:draft:create" | "finance:summary:read";
+export type AttachmentScanStatus = "PENDING" | "SCANNED" | "FAILED";
+
+export interface TransactionDraftPayload {
+  accountId?: string | null;
+  amount: string;
+  categoryId?: string | null;
+  currency?: string;
+  isUnlinkedRefund?: boolean;
+  merchant?: string | null;
+  note?: string | null;
+  occurredAt?: string;
+  originalTransactionId?: string | null;
+  type: "EXPENSE" | "INCOME" | "REFUND";
+}
+
+export interface DraftSummary {
+  attachmentId: string | null;
+  clientMutationId: string | null;
+  confidence: Record<string, number> | null;
+  confirmedAt: string | null;
+  createdAt: string;
+  discardedAt: string | null;
+  failureReason: string | null;
+  id: string;
+  payload: TransactionDraftPayload;
+  resultId: string | null;
+  source: string;
+  status: DraftStatus;
+  targetType: "TRANSACTION";
+  updatedAt: string;
+  version: number;
+}
+
+export interface DraftCreatedResponse {
+  draft: DraftSummary;
+}
+
+export interface DraftListResponse {
+  items: DraftSummary[];
+  nextCursor: string | null;
+}
+
+export interface DraftConfirmResponse {
+  draft: DraftSummary;
+  transaction: TransactionSummary;
+}
+
+export interface DraftBatchDiscardIntentResponse {
+  affectedDraftIds: string[];
+  confirmationToken: string;
+  expiresAt: string;
+}
+
+export interface DraftBatchDiscardResult {
+  discardedCount: number;
+}
+
+export interface ShortcutCredentialSummary {
+  createdAt: string;
+  id: string;
+  lastUsedAt: string | null;
+  name: string;
+  revokedAt: string | null;
+  scopes: ShortcutScope[];
+  tokenPrefix: string;
+}
+
+export interface ShortcutCredentialCreatedResponse {
+  credential: ShortcutCredentialSummary;
+  plaintextToken: string;
+}
+
+export interface AttachmentUploadIntentResponse {
+  expiresAt: string;
+  id: string;
+  uploadMethod: "PUT";
+  uploadToken: string;
+  uploadUrl: string;
+}
+
+export interface AttachmentSummary {
+  createdAt: string;
+  deletedAt: string | null;
+  id: string;
+  mimeType: string;
+  ownerId: string | null;
+  ownerType: "TRANSACTION_DRAFT";
+  scanStatus: AttachmentScanStatus;
+  size: number;
+  updatedAt: string;
+}
+
+export interface AttachmentCompleteResponse {
+  attachment: AttachmentSummary;
+}
+
 async function http<T>(
   path: string,
   options: { body?: unknown; method?: string } = {},
@@ -179,8 +277,30 @@ async function http<T>(
 }
 
 export const api = {
+  completeAttachment(id: string) {
+    return http<AttachmentCompleteResponse>(`/attachments/${id}/complete`, {
+      method: "POST",
+    });
+  },
   closeAccount(body: { password: string; reason: string }) {
     return http<void>("/me/close", { body, method: "POST" });
+  },
+  confirmBatchDiscard(body: { confirmationToken: string }) {
+    return http<DraftBatchDiscardResult>("/drafts/batch-discard/confirm", {
+      body,
+      method: "POST",
+    });
+  },
+  confirmDraft(id: string) {
+    return http<DraftConfirmResponse>(`/drafts/${id}/confirm`, {
+      method: "POST",
+    });
+  },
+  createBatchDiscard(body: { ids?: string[]; reason: string }) {
+    return http<DraftBatchDiscardIntentResponse>("/drafts/batch-discard", {
+      body,
+      method: "POST",
+    });
   },
   forgotPassword(email: string) {
     return http<void>("/auth/forgot-password", {
@@ -249,6 +369,21 @@ export const api = {
       method: "POST",
     });
   },
+  createShortcutCredential(body: { name: string; scopes: ShortcutScope[] }) {
+    return http<ShortcutCredentialCreatedResponse>("/shortcut-credentials", {
+      body,
+      method: "POST",
+    });
+  },
+  createUploadIntent(body: {
+    mimeType: string;
+    ownerType: "TRANSACTION_DRAFT";
+  }) {
+    return http<AttachmentUploadIntentResponse>("/attachments/upload-intents", {
+      body,
+      method: "POST",
+    });
+  },
   createTransaction(body: {
     accountId?: string | null;
     amount: string;
@@ -270,6 +405,12 @@ export const api = {
   },
   deleteBudget(id: string) {
     return http<void>(`/budgets/${id}`, { method: "DELETE" });
+  },
+  deleteAttachment(id: string) {
+    return http<void>(`/attachments/${id}`, { method: "DELETE" });
+  },
+  discardDraft(id: string) {
+    return http<void>(`/drafts/${id}/discard`, { method: "POST" });
   },
   deleteTransaction(id: string) {
     return http<void>(`/transactions/${id}`, { method: "DELETE" });
@@ -308,6 +449,9 @@ export const api = {
     const query = month ? `?month=${encodeURIComponent(month)}` : "";
     return http<FinanceSummaryResponse>(`/finance/summary${query}`);
   },
+  getDraft(id: string) {
+    return http<DraftSummary>(`/drafts/${id}`);
+  },
   getTransaction(id: string) {
     return http<TransactionSummary>(`/transactions/${id}`);
   },
@@ -335,10 +479,21 @@ export const api = {
     const suffix = query.size > 0 ? `?${query.toString()}` : "";
     return http<{ items: CategorySummary[] }>(`/categories${suffix}`);
   },
+  listDrafts(params: { status?: DraftStatus } = {}) {
+    const query = params.status
+      ? `?status=${encodeURIComponent(params.status)}`
+      : "";
+    return http<DraftListResponse>(`/drafts${query}`);
+  },
   listFinancialAccounts(params: { includeArchived?: boolean } = {}) {
     const suffix = params.includeArchived ? "?includeArchived=true" : "";
     return http<{ items: FinancialAccountSummary[] }>(
       `/financial-accounts${suffix}`,
+    );
+  },
+  listShortcutCredentials() {
+    return http<{ items: ShortcutCredentialSummary[] }>(
+      "/shortcut-credentials",
     );
   },
   listTransactions(
@@ -364,6 +519,21 @@ export const api = {
   },
   restoreTransaction(id: string) {
     return http<TransactionSummary>(`/transactions/${id}/restore`, {
+      method: "POST",
+    });
+  },
+  revokeShortcutCredential(id: string) {
+    return http<void>(`/shortcut-credentials/${id}`, { method: "DELETE" });
+  },
+  ocrDraft(body: { attachmentId: string; clientMutationId?: string | null }) {
+    return http<DraftCreatedResponse>("/drafts/ocr", {
+      body,
+      method: "POST",
+    });
+  },
+  parseTextDraft(text: string) {
+    return http<DraftCreatedResponse>("/drafts/parse-text", {
+      body: { text },
       method: "POST",
     });
   },
@@ -428,6 +598,34 @@ export const api = {
     return http<TransactionCreatedResponse>(`/transactions/${id}`, {
       body,
       method: "PATCH",
+    });
+  },
+  updateDraft(
+    id: string,
+    body: { payload: TransactionDraftPayload; version: number },
+  ) {
+    return http<DraftSummary>(`/drafts/${id}`, { body, method: "PATCH" });
+  },
+  uploadAttachmentContent(id: string, uploadToken: string, data: Blob) {
+    return fetch(
+      `${API_BASE_URL}/attachments/${id}/content?uploadToken=${encodeURIComponent(uploadToken)}`,
+      {
+        body: data,
+        headers: { "Content-Type": data.type || "application/octet-stream" },
+        method: "PUT",
+      },
+    ).then(async (response) => {
+      if (!response.ok) {
+        const text = await response.text();
+        let message = "上传失败";
+        try {
+          message =
+            (JSON.parse(text) as { message?: string }).message ?? message;
+        } catch {
+          // keep the fallback message
+        }
+        throw new ApiClientError(response.status, "UPLOAD_FAILED", message);
+      }
     });
   },
 };
