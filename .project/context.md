@@ -2,16 +2,15 @@
 
 ## Last Updated
 
-2026-08-06 +08:00（首页界面优化本地验收完成；提交哈希以 `git log -1` 为准，不虚构）
+2026-08-06 +08:00（发布准备第一阶段：推送 codex/wp8-release-prep 并完成远端 CI 验证；提交哈希以 `git log -1` 为准，不虚构）
 
 ## Repository State
 
 - Repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
-- Current Branch: `codex/wp8-release-prep`
-- HEAD Commit: 以 `git log -1 --oneline` 为准（WP8 本地验收提交）
-- Working Tree Status: WP9 与首页界面优化改动均未提交（含 `apps/web/src`、状态文档等）；另有本地未跟踪/忽略文件（如 `apps/api/.env`、`output/playwright/`，gitignored）
-- Last Verified Commit: 以 `git log -1 --oneline` 为准；`npm run quality`、空库 6 migrations+seed、
-  集成 63/63、浏览器矩阵 174/174 通过，记录于 `docs/26-wp8-acceptance-report.md`
+- Current Branch: `codex/wp8-release-prep`（已推送到 origin）
+- HEAD Commit: `3e88808`（ci: generate Prisma client and build contracts before quality gates）
+- Working Tree Status: clean（忽略文件除外，如 `apps/api/.env`、`output/playwright/`，gitignored）
+- Last Verified Commit: `3e88808`；本地 `npm run quality` PASS；远端 GitHub Actions run `31084755305` PASS（含空库 migration deploy 与 MySQL 集成测试）
 
 ## Project Summary
 
@@ -23,18 +22,23 @@
 - 核心模块：auth/account/capacity/invites/admin/audit（WP2）、finance（WP3）、
   shortcuts/drafts/attachments/integrations（WP4）、calendar/tasks/reminders（WP5）、
   trips（WP6）。
-- 当前部署方式：无任何部署；CI workflow 已配置但远端未运行；origin 已配置未推送
-  WP1–WP5 分支。
+- 当前部署方式：无任何部署；`codex/wp8-release-prep` 已推送且远端 CI 通过；origin 已有分支
+  `codex/wp1-foundation`、`codex/wp8-release-prep`（默认分支为 `codex/wp1-foundation`）。
 
 ## Current Development Stage
 
 - WP0（规划）至 WP8（全量质量与发布准备）均已完成本地验收（`docs/13`、`docs/14`、
   `docs/16`、`docs/18`、`docs/20`、`docs/22`、`docs/24`、`docs/26`）。
 - WP9 身份与录入简化、首页界面优化（docs/29）已完成后端/前端本地验收。
-- 无生产部署；未推送。
+- 无生产部署；`codex/wp8-release-prep` 已推送；staging 未创建。
 
 ## Last Completed Task
 
+- Task: 发布准备第一阶段：推送当前代码并完成远程 CI 验证（`codex/wp8-release-prep`）。
+- Completion Date: 2026-08-06
+- Related Files: `.github/workflows/ci.yml`
+- Verification: 首次 CI run `31084434078` 失败（纯净环境缺 Prisma 生成客户端与 api-contracts dist，typecheck 大量 TS2307/TS2339）；修复 workflow 在 quality 前执行 `prisma:generate` 与 contracts `build`；修复提交 `3e88808` 后 run `31084755305` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）；本地 `npm run quality` PASS
+- Related Commit: `3e88808`（已推送 origin）
 - Task: 首页界面优化（今日概览、友好认证状态、精简导航、移动端底部导航、本月财务摘要、
   今日安排说明、空状态、同步状态文案；仅前端，不改 API 契约）。
 - Completion Date: 2026-08-06
@@ -65,21 +69,22 @@
 
 ## Current Task
 
-None（首页界面优化已完成本地验收；未提交、未推送、未部署）。
+None（发布准备第一阶段已完成；未执行 staging/生产部署，未创建 PR，未修改远端默认分支）。
 
 ## Next Recommended Task
 
-- Task: 确认 WP1–WP8 分支推送与远端 CI 结果（需用户授权；本机 `gh` 未登录）。
+- Task: 发布准备第二阶段：按 `docs/27` 完成 staging 创建/部署决策（需用户授权）。
 - Priority: P0（前置动作）
-- Reason: 本地 WP0–WP8 已验收，但远端 CI 从未运行。
-- Dependencies: 用户推送授权；网络代理可用（本机全局代理 7890 不可用，可用 7897 临时覆盖）。
-- Acceptance Criteria: GitHub Actions 在 WP1–WP8 分支首次运行通过（`npm run quality` + 空库 migration）。
+- Reason: WP8 分支远端 CI 已验证通过；staging 是发布清单的下一前置动作。
+- Dependencies: 用户授权创建/部署 staging；远端合并策略需确认（origin 无 `main`，默认分支为 `codex/wp1-foundation`）。
+- Acceptance Criteria: staging 环境按 `docs/27` 创建并验证；合并目标与主分支策略由用户确认后再执行。
 
 下一开发任务：按 `docs/27` 完成 staging 决策（需用户授权）；在账号删除期满清理实现前
 不得宣称“数据已删除”（OPEN-007）。
 
 ## Completed Work
 
+- 发布准备第一阶段：推送 `codex/wp8-release-prep`（`71b9f74` 首推、`3e88808` CI 修复后推送）；修复 CI 纯净环境缺生成产物问题（workflow 前置 `prisma generate` + contracts `build`）；远端 GitHub Actions run `31084755305` PASS（quality + 空库 migration + WP2 集成测试）。
 - 首页界面优化：今日概览标题与日期副标题、未登录/登录失效/请求失败友好状态、
   顶部导航精简为首页/日程/待办/财务/行程/更多、移动端底部导航、快捷操作 4 项带图标、
   本月财务摘要、今日安排说明与入口、空状态、同步状态文案与重试、1280px 浅灰蓝设计体系
@@ -112,19 +117,19 @@ None（首页界面优化已完成本地验收；未提交、未推送、未部�
 ## Remaining Work
 
 - In Progress: None。
-- 待用户授权提交：WP9 身份与录入简化、首页界面优化（均未提交）。
+- 待用户授权推送：WP2–WP7 分支尚未推送；如需远端 CI 逐一验证需另行授权。
 - Partially Completed: 账号删除期满批量清理（未实现，缺口见 `docs/26` CP7/`docs/27`）；
-  远端 CI 验证（未推送）；浏览器 QA 一键脚本化（OPEN-009）。
-- Not Started: 远端 CI；staging 创建/部署（需授权）。
-- Needs Verification: 远端 CI；真实 OCR/对象存储/通知供应商业效（OPEN-004/005/006）。
+  浏览器 QA 一键脚本化（OPEN-009）。
+- Not Started: staging 创建/部署（需授权）；合并主分支决策（origin 无 `main`）。
+- Needs Verification: 真实 OCR/对象存储/通知供应商业效（OPEN-004/005/006）。
 
 ## Blockers
 
-- 远端 CI 结果未确认（本机 `gh` 未登录；WP1–WP8 分支未推送）。
+- 远端无 `main`，默认分支为 `codex/wp1-foundation`；合并策略与主分支创建需用户决定。
+- staging 未创建；部署域、产品名等未定（OPEN-001~008）。
 - 便携 MySQL 8.4 位于仓库外，其他机器复跑集成测试需自备 MySQL 8.x。
 - 邮件/通知/OCR/AI/对象存储供应商未确定（OPEN-003/004/005/006），当前使用本地
   适配器与假实现。
-- 产品名、部署地域、保留期等未决（OPEN-001~008）。
 - 账号删除期满批量清理未实现（OPEN-007；实现前不得宣称数据已删除）。
 
 ## Known Issues
@@ -133,6 +138,7 @@ None（首页界面优化已完成本地验收；未提交、未推送、未部�
 | --- | --- | --- | --- |
 | 浏览器 QA 未固化为仓库内一键脚本 | 复现依赖 `playwright-cli` 与本地服务 | web/admin/CI | OPEN-009 |
 | origin 仓库名 `richangzhushou` 与产品名不一致 | 品牌/仓库命名 | 仓库 | OPEN-002 |
+| CI 纯净环境 typecheck 失败（缺 Prisma 生成客户端与 contracts dist） | 首次远端 CI 失败 | CI/Prisma/api-contracts | 已修复（`3e88808`，run `31084755305` PASS） |
 | WP3 边界：整体预算 NULL 唯一性服务层校验；原账单软删后退款仍计入统计；统计仅 CNY；CSV 上限 10,000 行 | V1 规模可接受 | finance | `docs/16` |
 | OCR/AI 与对象存储供应商未定；当前使用假实现与本地临时存储 | 真实识别/上传能力未验收 | integrations | OPEN-004/006 |
 | 通知通道未定；当前为应用内 + 假适配器；调度器按单进程周期扫描 | 真实推送未验收；多实例部署前需租约 | reminders/integrations | OPEN-005；`docs/20` |
@@ -141,6 +147,7 @@ None（首页界面优化已完成本地验收；未提交、未推送、未部�
 
 ## Verification Status
 
+- 远端 CI（`codex/wp8-release-prep` @ `3e88808`）: PASS（run `31084755305`；quality、空库 migrate deploy、WP2 集成测试全部通过）。
 - 首页界面优化: PASS（`npm run quality` 全绿；用户端 15/15；浏览器 375/390/430/768/1440
   无横向溢出，未登录/登录态、更多菜单、底部导航验证通过；记录于 `docs/29`）
 - WP9（身份与录入简化）: PASS（quality、迁移、92/92 集成/单元、浏览器与重启持久化）
@@ -152,10 +159,13 @@ None（首页界面优化已完成本地验收；未提交、未推送、未部�
 - Build: PASS（全部 workspace）
 - Runtime Verification: PASS（浏览器矩阵 174/174 含 200% 缩放、主流程与错误态、
   离线排队→恢复→单条落库、备份恢复 24/24 表一致、账号删除演练）
-- Unverified Areas: 远端 CI（未推送）；账号删除期满清理；真实 OCR/对象存储/通知供应商业效
+- Unverified Areas: WP2–WP7 分支远端 CI（未推送）；账号删除期满清理；真实 OCR/对象存储/通知供应商业效
 
 ## Recent Changes
 
+- 本次：发布准备第一阶段——推送 `codex/wp8-release-prep`（`71b9f74`）；首轮远端 CI 失败后最小修复 `.github/workflows/ci.yml`（quality 前生成 Prisma client 并构建 api-contracts），提交 `3e88808` 并推送；run `31084755305` PASS。
+- `71b9f74` feat: WP9 身份与录入简化（docs/28）
+- `68f3987` 首页优化（docs/29）
 - 本次：首页界面优化（今日概览/友好认证状态/精简导航/移动端底部导航/本月财务/空状态/
   同步状态；`npm run quality` 通过；未提交）
 - 本次：WP9 身份与录入简化（账号密码登录、管理员建号/重置、首登强制改密、邮箱/邀请码/截图 OCR 下线；`npm run quality` 通过；未提交）

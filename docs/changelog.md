@@ -4,6 +4,15 @@
 更新：2026-08-06
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-06 — 发布准备第一阶段完成（推送 + 远端 CI 验证）
+
+- 推送 `codex/wp8-release-prep` 到 `https://github.com/Dada-sys101/richangzhushou.git`（首推 `71b9f74`）。
+- 首轮远端 CI run `31084434078` 失败：纯净环境缺 Prisma 生成客户端（`apps/api/src/generated`）与
+  `packages/api-contracts` dist，typecheck 大量 TS2307/TS2339；本地因已有生成产物而通过。
+- 最小修复 `.github/workflows/ci.yml`：quality 前执行 `prisma:generate` 与 contracts `build`；
+  提交 `3e88808` 并推送；run `31084755305` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）。
+- 未创建 PR、未部署、未修改远端默认分支；origin 无 `main`，默认分支为 `codex/wp1-foundation`。
+
 ## 2026-08-06 — 首页界面优化完成（docs/29）
 - 首页改为“今日概览”（日期副标题）；未登录/登录失效/请求失败友好状态与按钮，
   不再展示后端技术错误文本。

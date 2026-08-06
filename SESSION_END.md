@@ -1,10 +1,14 @@
 # Session End
 
 日期：2026-08-06<br>
-状态：WP0–WP8、WP9 与首页界面优化本地验收完成；未推送、未部署
+状态：WP0–WP8、WP9 与首页界面优化本地验收完成；`codex/wp8-release-prep` 已推送且远端 CI 通过；未部署
 
 ## 当前断点
 
+- 发布准备第一阶段（2026-08-06）：推送 `codex/wp8-release-prep`（首推 `71b9f74`）；
+  首轮 CI run `31084434078` 失败后修复 `.github/workflows/ci.yml`（quality 前生成 Prisma client
+  并构建 api-contracts），提交 `3e88808` 并推送；run `31084755305` PASS（quality、空库 migrate
+  deploy、WP2 集成测试全部通过）；未创建 PR、未部署、未修改远端默认分支。
 - 首页界面优化（2026-08-06）：今日概览/友好认证状态/精简导航/移动端底部导航/
   本月财务/空状态/同步状态；`npm run quality` 通过；用户端测试 15/15；
   浏览器验证通过；`docs/29`；未提交、未推送、未部署。
@@ -14,7 +18,7 @@
 - WP8 验收通过：`npm run quality`、空库 6 migrations+seed、集成 63/63、浏览器矩阵（Web 102/公开 30/管理端 42，含 200% 缩放）无横向溢出、主流程（注册/登录/记账/日程/行程）与离线排队→恢复→单条落库均通过；备份恢复 24/24 表一致；账号删除演练（DELETION_PENDING/会话撤销/容量释放/脱敏审计）通过，期满清理未实现（缺口已记录，详见 `docs/26-wp8-acceptance-report.md`）。
 - WP8 修复：审计枚举补全 `DRAFT_BATCH_DISCARD`；用户自助关号/申请删除/恢复码重开补写脱敏审计；生产强制 `CONFIRMATION_TOKEN_SECRET`；上传魔数校验；超大上传流 resume；文档一致性（`docs/05` RecoveryCode、`docs/06` DELETE /me/sessions）。
 - 发布准备：`docs/27-wp8-staging-release-checklist.md`（staging 清单、监控告警、隐私/试用门禁、OPEN-001~011）。
-- 分支 `codex/wp8-release-prep`，本地提交；未推送、未部署、未创建生产资源。
+- 分支 `codex/wp8-release-prep`，已推送 `3e88808`；未部署、未创建生产资源。
 
 - WP2 基线（2026-08-05 复核通过）：`npm run quality`、空库 migration、18/18 集成测试与 5 宽度浏览器矩阵均通过（详见 `docs/14-wp2-acceptance-report.md`）。
 - WP3 验收通过：`npm run quality` 全部通过；空库 `prisma migrate deploy`（2 migrations）与 seed 通过；WP2+WP3 集成测试 29/29 通过；浏览器 5 宽度矩阵 30/30 无横向溢出；记账主流程（新增/编辑/删除/恢复、今日卡片、预算、CSV）与错误状态（校验失败、网络失败）通过；控制台 0 error / 0 warning（详见 `docs/16-wp3-acceptance-report.md`）。
@@ -36,4 +40,4 @@
 ## 注意
 
 - 不要修改 `D:\codex-worker` 的开封旅游助手仓库。
-- 本次已授权本地开发和提交，但明确禁止推送、创建 PR、部署或更改外部服务。
+- 本次发布准备第一阶段已获授权推送 `codex/wp8-release-prep`；仍禁止创建 PR、部署、修改远端默认分支或生产资源。

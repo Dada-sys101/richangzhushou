@@ -18,4 +18,4 @@
 
 WP1 已在 `codex/wp1-foundation` 完成；WP2 在 `codex/wp2-identity-capacity` 完成本地实现与验收（报告见 `docs/14-wp2-acceptance-report.md`）。WP3 在 `codex/wp3-finance` 完成本地实现与验收（报告见 `docs/16-wp3-acceptance-report.md`）。WP4 在 `codex/wp4-shortcuts-ocr` 完成本地实现与验收（报告见 `docs/18-wp4-acceptance-report.md`）。WP5 在 `codex/wp5-calendar-tasks` 完成本地实现与验收（报告见 `docs/20-wp5-acceptance-report.md`）。WP6 在 `codex/wp6-trips` 完成本地实现与验收（报告见 `docs/22-wp6-acceptance-report.md`）。均使用本机便携 MySQL 8.4 完成真实空库 migration、API 集成与浏览器矩阵验证。
 WP7 在 `codex/wp7-pwa-sync` 完成本地实现与验收（报告见 `docs/24-wp7-acceptance-report.md`）。
-WP8 在 `codex/wp8-release-prep` 完成本地实现与验收（报告见 `docs/26-wp8-acceptance-report.md`），未推送、未部署。
+WP8 在 `codex/wp8-release-prep` 完成本地实现与验收（报告见 `docs/26-wp8-acceptance-report.md`）；分支已推送 `3e88808` 且远端 CI 通过（run `31084755305`），未部署。

@@ -8,6 +8,13 @@
 
 ## 已完成
 
+### 发布准备第一阶段（2026-08-06）
+- 推送 `codex/wp8-release-prep` 到 origin：首推 `71b9f74`；首轮远端 CI run `31084434078` 失败
+  （纯净环境缺 Prisma 生成客户端与 `packages/api-contracts` dist，typecheck 报 TS2307/TS2339）。
+- 最小修复 `.github/workflows/ci.yml`：在 quality 前执行 `prisma:generate` 与 contracts `build`；
+  提交 `3e88808` 并推送；run `31084755305` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）。
+- 未创建 PR、未部署、未修改远端默认分支；origin 无 `main`，默认分支为 `codex/wp1-foundation`。
+
 ### 首页界面优化（2026-08-06）
 
 - 用户端首页改为“今日概览”，副标题显示日期；未登录/登录失效/请求失败三类友好状态与
@@ -94,7 +101,7 @@
 | --- | --- | --- |
 | 共享契约接入应用代码 | `apps/api` 已引用 `@daily-assistant/api-contracts`；前端使用本地 client 类型 | `apps/api/package.json` |
 | PWA 离线能力 | 应用外壳 + IndexedDB 业务缓存、离线写入队列、同步器与冲突页（WP7 已完成本地验收） | `apps/web/src/offline`、`vite.config.ts` |
-| CI 验证 | 配置存在并加入 WP2 集成测试，但当前分支未推送，GitHub Actions 未执行 | `.github/workflows/ci.yml`；`docs/14` |
+| CI 验证 | `codex/wp8-release-prep` 已推送且 GitHub Actions 通过（run `31084755305`）；WP2–WP7 分支尚未推送 | `.github/workflows/ci.yml`；`docs/14` |
 | 浏览器矩阵验证 | 已用 `playwright-cli` 完成 5 宽度并保存产物；尚未固化为仓库内一键脚本 | `output/playwright/wp2`（gitignored 部分） |
 
 ## 进行中
@@ -104,7 +111,7 @@
 ## 未开始
 
 - WP8 全量质量与发布准备（可执行规划见 `docs/25-wp8-codex-execution-plan.md`）
-- 无（WP8 已完成本地验收；未推送、未部署；后续发布动作需另行授权，见 `docs/26`、`docs/27`）
+- 无（WP8 已完成本地验收并推送 `codex/wp8-release-prep`，远端 CI 通过；staging 创建/部署与合并策略需另行授权，见 `docs/26`、`docs/27`）
 
 以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP7 已 DONE（WP7 验收见
 `docs/24-wp7-acceptance-report.md`），WP8 为 `DONE`（本地验收，`docs/26`）。
@@ -115,7 +122,7 @@
 | --- | --- | --- |
 | 便携 MySQL 8.4 位于仓库外 | 其他机器复跑集成测试需要自备 MySQL 8.x | 记录于 `docs/14` |
 | 浏览器 QA 未固化为仓库内一键脚本 | 复现依赖 `playwright-cli` 与本地服务 | 待后续固化 |
-| 远端 CI 未执行 | “CI 通过”无法被远端证实 | 待推送授权 |
+| 远端 CI 曾因纯净环境缺生成产物失败 | 首次 CI 无法通过 | 已修复（`3e88808`，run `31084755305` PASS）；WP2–WP7 分支未推送待授权 |
 | origin 仓库名 `richangzhushou` 与产品名 Daily Assistant 不一致 | 品牌/仓库命名 `[待确认]` | OPEN-001/002 |
 | WP3 整体预算 NULL 唯一性由服务层校验；原账单软删除后其退款仍计入统计；统计摘要仅按 CNY 汇总；CSV 单次上限 10,000 行 | 边界行为，V1 规模可接受 | 记录于 `docs/16` |
 | 真实 Web Push/系统通知通道未接入（OPEN-005）；提醒调度器按单进程周期扫描实现 | 应用内提醒完整可用；多实例部署前需数据库租约 | 记录于 `docs/20`、`docs/07` |
@@ -124,9 +131,9 @@
 
 - 当前机器 `npm run quality` 已复跑通过（WP5 分支，2026-08-05）。
 - 便携 MySQL 8.4 空库 `prisma migrate deploy`（4 migrations）与 seed 已真实执行通过；WP2+WP3+WP4+WP5 集成测试 48/48 通过。
-- GitHub Actions 远端执行待推送授权。
+- GitHub Actions 远端执行：`codex/wp8-release-prep` 已通过（run `31084755305`）；WP2–WP7 分支未推送待授权。
 - 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 验证首页/日程/待办/提醒（20/20 无横向溢出）；一键脚本化复现待后续（OPEN-009）。
 - `npm run check:context` 与 `npm run quality` 已在本次机制任务中复跑通过。
 - 未实现功能一律不得视为已验证；计划中的功能不得写成已完成。
 - WP8 验收：`npm run quality`、空库 6 migrations+seed、集成 63/63、浏览器矩阵 174/174、备份恢复 24/24 表一致、离线排队→恢复→单条落库均通过（`docs/26`）；账号删除期满清理未实现（缺口已记录）。
-- 远端 CI 仍待推送授权；真实 OCR/AI/对象存储/邮件/通知供应商效果未验证（OPEN-003/004/005/006）。
+- 真实 OCR/AI/对象存储/邮件/通知供应商效果未验证（OPEN-003/004/005/006）。

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-06 — 发布准备第一阶段完成（推送 + 远端 CI 验证）
+- 推送 `codex/wp8-release-prep`（首推 `71b9f74`）；首轮 CI run `31084434078` 失败：纯净环境缺 Prisma
+  生成客户端与 api-contracts dist（typecheck TS2307/TS2339）。
+- 修复 `.github/workflows/ci.yml`（quality 前 `prisma:generate` + contracts `build`），提交 `3e88808`
+  并推送；run `31084755305` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）。
+- 未创建 PR、未部署、未修改远端默认分支；origin 无 `main`，默认分支为 `codex/wp1-foundation`。
+
 ## 2026-08-06 — 首页界面优化完成（docs/29）
 - 首页改为“今日概览”（日期副标题）；未登录/登录失效/请求失败友好状态与按钮，
   不再展示后端技术错误文本。

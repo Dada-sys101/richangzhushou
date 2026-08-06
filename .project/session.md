@@ -2,9 +2,16 @@
 
 ## Session Status
 
-Completed（首页界面优化已验收；WP9 与首页改动均未提交）
+Completed（发布准备第一阶段已完成：`codex/wp8-release-prep` 已推送，远端 CI 通过）
 
 ## Task
+
+## 最近完成：发布准备第一阶段（2026-08-06）
+
+- 任务：推送 `codex/wp8-release-prep` 到 origin 并完成远程 CI 验证；不强制推送、不覆盖远端已有提交、不部署。
+- 结果：首推 `71b9f74` 触发 CI run `31084434078` 失败（纯净环境缺 Prisma 生成客户端与 api-contracts dist，typecheck TS2307/TS2339）；最小修复 `.github/workflows/ci.yml`（quality 前执行 `prisma:generate` 与 contracts `build`），提交 `3e88808` 并推送；run `31084755305` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）。
+- 验证：本地 `npm run quality` PASS；远端 origin 分支 `codex/wp8-release-prep`；未创建 PR、未部署、未修改远端默认分支。
+- 提交：`3e88808`（已推送）。
 
 ## 最近完成：首页界面优化（2026-08-06）
 
@@ -102,7 +109,7 @@ Completed（首页界面优化已验收；WP9 与首页改动均未提交）
 ## Pending Validation
 
 - 同步失败/冲突徽章与空状态的浏览器端真实触发（单元测试覆盖，未人工演练）。
-- 远端 CI（未推送，待授权）。
+- WP2–WP7 分支远端 CI（未推送，待授权）。
 - 账号删除期满批量清理（未实现，OPEN-007）。
 - 真实 OCR/AI/对象存储/邮件/通知供应商效果（OPEN-003/004/005/006）。
 - 浏览器 QA 一键脚本化（OPEN-009）。
@@ -113,16 +120,15 @@ None（本任务）；项目级阻塞见 `.project/context.md` Blockers。
 
 ## Resume Instructions
 
-1. 首页界面优化已完成；提交哈希与分支以 `git log` 为准（分支 `codex/wp8-release-prep`，未推送）。
+1. 发布准备第一阶段已完成；提交哈希与分支以 `git log` 为准（分支 `codex/wp8-release-prep`，已推送 `3e88808`，远端 CI 通过）。
 2. 下次任务开始前按 AGENTS.md 恢复顺序读取状态文件与 Git 历史。
-3. 若用户继续开发：首选确认 WP1–WP8 推送与远端 CI（需授权）；账号删除期满清理实现前
-   不得宣称“数据已删除”（OPEN-007）；首页改动与 WP9 改动待授权后分别提交。
+3. 若用户继续：按 `docs/27` 进行 staging 创建/部署决策（需授权）；确认合并目标（origin 无 `main`，默认分支为 `codex/wp1-foundation`）；账号删除期满清理实现前不得宣称“数据已删除”（OPEN-007）。
 
 ## Completion Criteria
 
 - `docs/09` 质量门通过；浏览器矩阵与主流程通过；备份恢复与账号删除演练真实执行并记录结果。
 - 缺口（删除清理、远端 CI、供应商、OPEN-001~011）全部明确记录，未宣称生产可用。
-- 本地提交完成；未推送、未部署、未创建生产资源。
+- 本地提交完成；`codex/wp8-release-prep` 已推送且远端 CI 通过；未部署、未创建生产资源。
 
 ## Last Updated
 

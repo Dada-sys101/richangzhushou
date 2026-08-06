@@ -1,18 +1,18 @@
 # Project Status
 
 版本：1.0<br>
-状态：WP8/WP9 与首页界面优化本地验收完成（均未提交、未推送、未部署）<br>
+状态：`codex/wp8-release-prep` 已推送，远端 GitHub Actions 验证通过（未部署、未创建 PR）<br>
 更新：2026-08-06
 
 ## 当前状态
 
 - 项目：Daily Assistant（临时名称）
 - 位置：`D:\daily-assistant`
-- 当前工作包：WP8 已完成本地验收（分支 `codex/wp8-release-prep`，未推送）
+- 当前工作包：WP8 已完成本地验收（分支 `codex/wp8-release-prep`，已推送，远端 CI 通过）
 - 首页界面优化：已完成本地验收（今日概览/友好认证状态/精简导航/移动端底部导航/
   本月财务/空状态/同步状态；仅前端，`docs/29`；未提交、未推送、未部署）
 - 代码：WP2 身份/容量/邀请码/管理端已实现；WP3 记账已实现；WP4 快捷指令/草稿/OCR 已实现；WP5 日程/待办/提醒已实现；WP6 行程/节点/行李/账单关联/费用汇总已实现；WP7 PWA/IndexedDB 离线缓存/同步队列/冲突页已实现；WP8 安全/上传/可访问性/全量回归/发布准备已完成（详见 `docs/26`、`docs/27`）
-- Git 仓库：独立仓库，当前分支 `codex/wp8-release-prep`（未推送）
+- Git 仓库：独立仓库，当前分支 `codex/wp8-release-prep`（已推送 `3e88808`；origin 无 `main`，默认分支为 `codex/wp1-foundation`）
 - 上下文：`.project/context.md` 与 `docs/` 接管文档已建立（见 `docs/README.md`）
 - 自动恢复机制：`AGENTS.md` 增加 Project State Recovery / Required workflow，`.project/context.md` 已规范化为固定结构
 - 持久化恢复机制 v2：`AGENTS.md` 四章规则、`.project/session.md`、`.project/decisions.md`、`npm run check:context`（并入 quality）与可选 Hook
@@ -26,6 +26,9 @@
 
 - 首页界面优化：用户端首页现代重构（见 `docs/29`），`npm run quality` 全绿、
   用户端测试 15/15、浏览器 375–1440 无横向溢出。
+- 发布准备第一阶段：推送 `codex/wp8-release-prep`（`71b9f74`）；修复 CI 纯净环境缺生成产物问题
+  （`.github/workflows/ci.yml` 前置 `prisma generate` + contracts `build`，`3e88808`）；远端
+  GitHub Actions run `31084755305` PASS（quality、空库 migration、WP2 集成测试）。
 - 产品定位与早期用户规模确认。
 - 用户容量、邀请码和账号关闭释放名额规则确认。
 - iPhone PWA + 电脑网页、云端同步 + 本地缓存方向确认。
@@ -47,11 +50,13 @@
 
 ## 下一步
 
-- 确认 WP1–WP6 远端 CI 结果（需推送授权）。
-- WP8 全量质量与发布准备（未开始；可执行规划见 `docs/25-wp8-codex-execution-plan.md`）。
+- 按 `docs/27` 完成 staging 创建/部署决策（需用户授权）。
+- 确认合并目标与主分支策略（origin 无 `main`，默认分支为 `codex/wp1-foundation`）。
+- 如需逐一验证，再推送 WP2–WP7 分支并检查远端 CI（需授权）。
 
 ## 阻塞项
 
 - WP2 使用便携 MySQL 8.4 完成本地真实空库 migration 与集成测试；该 MySQL 位于仓库外，不随仓库分发。
-- 当前分支未推送，远端 CI 结果待确认；`gh` 未登录，无法通过命令行查询。
+- 远端无 `main`，合并策略与主分支创建需用户决定。
+- staging 未创建；部署域、产品名、供应商等未定（OPEN-001~008）。
 - 发布前需确认部署地域、域名、邮件/OCR/AI/对象存储服务及合规要求。

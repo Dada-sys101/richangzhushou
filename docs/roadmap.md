@@ -10,7 +10,10 @@
 
 ## 前置动作（需要授权，非开发功能）
 
-- 推送 `codex/wp1-foundation` 分支并首次运行远端 CI（需用户单独授权；origin 已配置但未推送）。
+- `codex/wp8-release-prep` 已推送并通过远端 CI（run `31084755305`）；WP2–WP7 分支尚未推送，
+  如需逐一验证远端 CI 需另行授权。
+- 确认合并目标与主分支策略（origin 无 `main`，默认分支为 `codex/wp1-foundation`）。
+- 按 `docs/27` 创建/部署 staging（需授权）。
 - 确认正式产品名、远端仓库策略、邮件/OCR/AI/对象存储/通知供应商、部署地域与合规、数据保留期（`docs/decisions.md` OPEN-001~008）。
 
 ## P0 必须优先完成
@@ -30,8 +33,8 @@
 - 涉及模块：`apps/api/prisma`、CI。
 - 前置依赖：可用 MySQL/Docker，或推送授权后由 CI 执行。
 - 验收标准：空库部署成功；schema/migration/回滚策略记录完整。
-- 风险：本机无 MySQL/Docker；远端 CI 未运行。
-- 状态：已通过本机便携 MySQL 8.4 空库执行 `prisma migrate deploy`；远端 CI 未运行。
+- 风险：本机无 MySQL/Docker。
+- 状态：已通过本机便携 MySQL 8.4 与远端 CI（run `31084755305`）执行空库 `prisma migrate deploy` 及 WP2 集成测试。
 
 ### R-P0-3 固化浏览器 QA 脚本
 
