@@ -17,6 +17,7 @@ import { MailModule } from "./mail/mail.module.js";
 import { PrismaModule } from "./prisma/prisma.module.js";
 import { RemindersModule } from "./reminders/reminders.module.js";
 import { ShortcutsModule } from "./shortcuts/shortcuts.module.js";
+import { SyncModule } from "./sync/sync.module.js";
 import { TasksModule } from "./tasks/tasks.module.js";
 import { TripsModule } from "./trips/trips.module.js";
 
@@ -38,6 +39,7 @@ import { TripsModule } from "./trips/trips.module.js";
     RemindersModule,
     SecurityModule,
     ShortcutsModule,
+    SyncModule,
     TasksModule,
     TripsModule,
   ],

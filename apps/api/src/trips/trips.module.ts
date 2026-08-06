@@ -8,5 +8,6 @@ import { TripsService } from "./trips.service.js";
   controllers: [TripsController],
   imports: [AuthModule],
   providers: [TripsService],
+  exports: [TripsService],
 })
 export class TripsModule {}

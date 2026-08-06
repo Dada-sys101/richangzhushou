@@ -13,6 +13,8 @@ import type {
 import {
   Prisma,
   type Budget,
+  type Category,
+  type FinancialAccount,
   type PrismaClient,
   type Transaction,
 } from "../generated/prisma/client.js";
@@ -337,6 +339,9 @@ export class FinanceService {
     dto: CreateCategoryDto,
   ): Promise<CategorySummary> {
     const name = dto.name.trim();
+    const color = dto.color ?? DEFAULT_COLOR;
+    const kind = dto.kind;
+    const clientMutationId = dto.clientMutationId ?? null;
     if (!name) {
       throw new ApiException(
         "VALIDATION_ERROR",
@@ -344,11 +349,21 @@ export class FinanceService {
         "Category name is required",
       );
     }
+    if (clientMutationId) {
+      const existing = await this.prisma.category.findFirst({
+        where: { clientMutationId, userId },
+      });
+      if (existing) {
+        this.assertSameCategory(existing, { color, kind, name });
+        return toCategorySummary(existing);
+      }
+    }
     try {
       const row = await this.prisma.category.create({
         data: {
-          color: dto.color ?? DEFAULT_COLOR,
-          kind: dto.kind,
+          clientMutationId: clientMutationId ?? undefined,
+          color,
+          kind,
           name,
           userId,
         },
@@ -356,6 +371,15 @@ export class FinanceService {
       return toCategorySummary(row);
     } catch (error) {
       if (this.isUniqueViolation(error)) {
+        if (clientMutationId) {
+          const replayed = await this.prisma.category.findFirst({
+            where: { clientMutationId, userId },
+          });
+          if (replayed) {
+            this.assertSameCategory(replayed, { color, kind, name });
+            return toCategorySummary(replayed);
+          }
+        }
         throw this.duplicateResource("Category with this name already exists");
       }
       throw error;
@@ -448,6 +472,8 @@ export class FinanceService {
     dto: CreateFinancialAccountDto,
   ): Promise<FinancialAccountSummary> {
     const name = dto.name.trim();
+    const kind = dto.kind;
+    const clientMutationId = dto.clientMutationId ?? null;
     if (!name) {
       throw new ApiException(
         "VALIDATION_ERROR",
@@ -455,13 +481,36 @@ export class FinanceService {
         "Account name is required",
       );
     }
+    if (clientMutationId) {
+      const existing = await this.prisma.financialAccount.findFirst({
+        where: { clientMutationId, userId },
+      });
+      if (existing) {
+        this.assertSameFinancialAccount(existing, { kind, name });
+        return toFinancialAccountSummary(existing);
+      }
+    }
     try {
       const row = await this.prisma.financialAccount.create({
-        data: { kind: dto.kind, name, userId },
+        data: {
+          clientMutationId: clientMutationId ?? undefined,
+          kind,
+          name,
+          userId,
+        },
       });
       return toFinancialAccountSummary(row);
     } catch (error) {
       if (this.isUniqueViolation(error)) {
+        if (clientMutationId) {
+          const replayed = await this.prisma.financialAccount.findFirst({
+            where: { clientMutationId, userId },
+          });
+          if (replayed) {
+            this.assertSameFinancialAccount(replayed, { kind, name });
+            return toFinancialAccountSummary(replayed);
+          }
+        }
         throw this.duplicateResource(
           "Financial account with this name already exists",
         );
@@ -575,6 +624,21 @@ export class FinanceService {
     const amount = toDecimal(dto.amount);
     const categoryId = dto.categoryId ?? null;
     const currency = dto.currency ?? DEFAULT_CURRENCY;
+    const clientMutationId = dto.clientMutationId ?? null;
+    if (clientMutationId) {
+      const existing = await this.prisma.budget.findFirst({
+        where: { clientMutationId, userId },
+      });
+      if (existing) {
+        this.assertSameBudget(existing, {
+          amount,
+          categoryId,
+          currency,
+          month,
+        });
+        return toBudgetSummary(existing);
+      }
+    }
     if (categoryId) {
       const category = await this.prisma.category.findFirst({
         where: {
@@ -601,11 +665,32 @@ export class FinanceService {
     }
     try {
       const row = await this.prisma.budget.create({
-        data: { amount, categoryId, currency, month, userId },
+        data: {
+          amount,
+          categoryId,
+          clientMutationId: clientMutationId ?? undefined,
+          currency,
+          month,
+          userId,
+        },
       });
       return toBudgetSummary(row);
     } catch (error) {
       if (this.isUniqueViolation(error)) {
+        if (clientMutationId) {
+          const replayed = await this.prisma.budget.findFirst({
+            where: { clientMutationId, userId },
+          });
+          if (replayed) {
+            this.assertSameBudget(replayed, {
+              amount,
+              categoryId,
+              currency,
+              month,
+            });
+            return toBudgetSummary(replayed);
+          }
+        }
         throw this.duplicateResource("Budget for this month already exists");
       }
       throw error;
@@ -1167,6 +1252,59 @@ export class FinanceService {
 
   private duplicateResource(message: string): ApiException {
     return new ApiException("DUPLICATE_RESOURCE", 409, message);
+  }
+
+  private assertSameCategory(
+    existing: Category,
+    input: { color: string; kind: CategorySummary["kind"]; name: string },
+  ): void {
+    if (
+      existing.color !== input.color ||
+      existing.kind !== input.kind ||
+      existing.name !== input.name
+    ) {
+      throw new ApiException(
+        "IDEMPOTENCY_CONFLICT",
+        409,
+        "clientMutationId was already used with different content",
+      );
+    }
+  }
+
+  private assertSameFinancialAccount(
+    existing: FinancialAccount,
+    input: { kind: FinancialAccountSummary["kind"]; name: string },
+  ): void {
+    if (existing.kind !== input.kind || existing.name !== input.name) {
+      throw new ApiException(
+        "IDEMPOTENCY_CONFLICT",
+        409,
+        "clientMutationId was already used with different content",
+      );
+    }
+  }
+
+  private assertSameBudget(
+    existing: Budget,
+    input: {
+      amount: Prisma.Decimal;
+      categoryId: string | null;
+      currency: string;
+      month: string;
+    },
+  ): void {
+    if (
+      !existing.amount.equals(input.amount) ||
+      (existing.categoryId ?? null) !== input.categoryId ||
+      existing.currency !== input.currency ||
+      existing.month !== input.month
+    ) {
+      throw new ApiException(
+        "IDEMPOTENCY_CONFLICT",
+        409,
+        "clientMutationId was already used with different content",
+      );
+    }
   }
 
   private isUniqueViolation(error: unknown): boolean {

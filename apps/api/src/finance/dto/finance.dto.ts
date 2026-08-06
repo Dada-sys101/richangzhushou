@@ -188,6 +188,11 @@ export class CreateCategoryDto {
   name!: string;
 
   @IsOptional()
+  @IsString()
+  @Length(16, 128)
+  clientMutationId?: string | null;
+
+  @IsOptional()
   @Matches(COLOR_PATTERN)
   color?: string;
 }
@@ -233,6 +238,11 @@ export class CreateFinancialAccountDto {
 
   @IsIn(FINANCIAL_ACCOUNT_KINDS)
   kind!: "CASH" | "DEBIT_CARD" | "CREDIT_CARD" | "DIGITAL_WALLET" | "OTHER";
+
+  @IsOptional()
+  @IsString()
+  @Length(16, 128)
+  clientMutationId?: string | null;
 }
 
 export class UpdateFinancialAccountDto {
@@ -271,6 +281,11 @@ export class CreateBudgetDto {
 
   @Matches(MONEY_PATTERN)
   amount!: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(16, 128)
+  clientMutationId?: string | null;
 
   @IsOptional()
   @Matches(CURRENCY_PATTERN)
