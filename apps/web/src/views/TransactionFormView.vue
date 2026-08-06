@@ -196,7 +196,9 @@ function messageOf(error: unknown): string {
         <select v-model="tripId">
           <option value="">不关联</option>
           <option
-            v-for="item in trips.trips.filter((trip) => trip.deletedAt === null)"
+            v-for="item in trips.trips.filter(
+              (trip) => trip.deletedAt === null,
+            )"
             :key="item.id"
             :value="item.id"
           >

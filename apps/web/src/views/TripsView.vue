@@ -154,8 +154,13 @@ function messageOf(error: unknown): string {
         <RouterLink :to="`/trips/${item.id}`" class="trip-row">
           <span class="trip-main">
             <strong>{{ item.title }}</strong>
-            <small>{{ item.destination }} 路 {{ item.startDate }} – {{ item.endDate }}</small>
-            <small v-if="item.budgetAmount">预算 楼{{ item.budgetAmount }}</small>
+            <small
+              >{{ item.destination }} 路 {{ item.startDate }} –
+              {{ item.endDate }}</small
+            >
+            <small v-if="item.budgetAmount"
+              >预算 楼{{ item.budgetAmount }}</small
+            >
           </span>
           <span v-if="item.deletedAt" class="revoked-mark">已删除</span>
         </RouterLink>

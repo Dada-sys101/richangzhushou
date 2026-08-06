@@ -202,7 +202,11 @@ async function saveEditItem(item: TripItemSummary) {
     version: itemEditForm.value.version,
   };
   try {
-    const result = await tripsStore.updateTripItem(item.id, tripId.value, payload);
+    const result = await tripsStore.updateTripItem(
+      item.id,
+      tripId.value,
+      payload,
+    );
     showItemResult(result);
     editingItemId.value = "";
   } catch (error) {
@@ -250,9 +254,7 @@ async function confirmOutOfRange() {
   }
 }
 
-function showItemResult(
-  result: { outOfRangeWarning?: { message: string } },
-) {
+function showItemResult(result: { outOfRangeWarning?: { message: string } }) {
   successMessage.value = result.outOfRangeWarning
     ? result.outOfRangeWarning.message
     : "节点已保存";
@@ -429,7 +431,11 @@ function percent(value: string | null): string {
         </div>
       </header>
 
-      <form v-if="editingTrip" class="trip-create" @submit.prevent="saveEditTrip">
+      <form
+        v-if="editingTrip"
+        class="trip-create"
+        @submit.prevent="saveEditTrip"
+      >
         <label class="trip-field">
           标题
           <input v-model="tripForm.title" maxlength="200" required />
@@ -459,7 +465,11 @@ function percent(value: string | null): string {
           <button class="primary-button" :disabled="saving" type="submit">
             保存
           </button>
-          <button class="secondary-button" type="button" @click="editingTrip = false">
+          <button
+            class="secondary-button"
+            type="button"
+            @click="editingTrip = false"
+          >
             取消
           </button>
         </div>
@@ -468,27 +478,44 @@ function percent(value: string | null): string {
       <section class="trip-card" aria-label="费用汇总">
         <div class="today-stat">
           <span class="stat-label">实际支出</span>
-          <strong class="stat-value">楼{{ detail.expense.actualExpense }}</strong>
+          <strong class="stat-value"
+            >楼{{ detail.expense.actualExpense }}</strong
+          >
         </div>
         <div class="today-stat">
           <span class="stat-label">预算</span>
           <strong class="stat-value">
-            {{ detail.expense.budgetAmount ? `楼${detail.expense.budgetAmount}` : "未设置" }}
+            {{
+              detail.expense.budgetAmount
+                ? `楼${detail.expense.budgetAmount}`
+                : "未设置"
+            }}
           </strong>
         </div>
         <div class="today-stat">
           <span class="stat-label">预算进度</span>
-          <strong class="stat-value">{{ percent(detail.expense.budgetProgress) }}</strong>
+          <strong class="stat-value">{{
+            percent(detail.expense.budgetProgress)
+          }}</strong>
         </div>
       </section>
 
       <div v-if="pendingOutOfRange" class="warning-banner" role="alert">
         <p>节点时间超出行程日期范围，仍要保存吗？</p>
         <div class="trip-actions">
-          <button class="primary-button" :disabled="saving" type="button" @click="confirmOutOfRange">
+          <button
+            class="primary-button"
+            :disabled="saving"
+            type="button"
+            @click="confirmOutOfRange"
+          >
             仍要保存
           </button>
-          <button class="secondary-button" type="button" @click="pendingOutOfRange = null">
+          <button
+            class="secondary-button"
+            type="button"
+            @click="pendingOutOfRange = null"
+          >
             取消
           </button>
         </div>
@@ -522,7 +549,9 @@ function percent(value: string | null): string {
           <button class="primary-button" type="submit">添加节点</button>
         </form>
 
-        <p v-if="detail.items.length === 0" class="empty-copy">还没有行程节点。</p>
+        <p v-if="detail.items.length === 0" class="empty-copy">
+          还没有行程节点。
+        </p>
         <ul v-else class="resource-list">
           <li
             v-for="item in detail.items"
@@ -543,19 +572,35 @@ function percent(value: string | null): string {
                 </label>
                 <label class="trip-field">
                   开始
-                  <input v-model="itemEditForm.startsAt" required type="datetime-local" />
+                  <input
+                    v-model="itemEditForm.startsAt"
+                    required
+                    type="datetime-local"
+                  />
                 </label>
                 <label class="trip-field">
                   结束
-                  <input v-model="itemEditForm.endsAt" required type="datetime-local" />
+                  <input
+                    v-model="itemEditForm.endsAt"
+                    required
+                    type="datetime-local"
+                  />
                 </label>
                 <label class="trip-field">
                   地点
-                  <input v-model="itemEditForm.location" maxlength="200" type="text" />
+                  <input
+                    v-model="itemEditForm.location"
+                    maxlength="200"
+                    type="text"
+                  />
                 </label>
                 <div class="trip-actions">
                   <button class="primary-button" type="submit">保存</button>
-                  <button class="secondary-button" type="button" @click="cancelItemEdit">
+                  <button
+                    class="secondary-button"
+                    type="button"
+                    @click="cancelItemEdit"
+                  >
                     取消
                   </button>
                 </div>
@@ -563,8 +608,14 @@ function percent(value: string | null): string {
             </template>
             <template v-else>
               <div class="planner-main">
-                <strong>{{ itemTypeLabel(item.type) }} 路 {{ item.location || "未填地点" }}</strong>
-                <small>{{ formatDateTime(item.startsAt) }} – {{ formatDateTime(item.endsAt) }}</small>
+                <strong
+                  >{{ itemTypeLabel(item.type) }} 路
+                  {{ item.location || "未填地点" }}</strong
+                >
+                <small
+                  >{{ formatDateTime(item.startsAt) }} –
+                  {{ formatDateTime(item.endsAt) }}</small
+                >
                 <span v-if="item.deletedAt" class="revoked-mark">已删除</span>
               </div>
               <div class="row-actions">
@@ -620,11 +671,20 @@ function percent(value: string | null): string {
               <form class="trip-create" @submit.prevent="saveEditPacking(item)">
                 <label class="trip-field">
                   行李项
-                  <input v-model="packingEditText" maxlength="200" required type="text" />
+                  <input
+                    v-model="packingEditText"
+                    maxlength="200"
+                    required
+                    type="text"
+                  />
                 </label>
                 <div class="trip-actions">
                   <button class="primary-button" type="submit">保存</button>
-                  <button class="secondary-button" type="button" @click="editingPackingId = ''">
+                  <button
+                    class="secondary-button"
+                    type="button"
+                    @click="editingPackingId = ''"
+                  >
                     取消
                   </button>
                 </div>
@@ -638,7 +698,9 @@ function percent(value: string | null): string {
                   type="checkbox"
                   @change="togglePacking(item)"
                 />
-                <span :class="{ 'packing-done': item.checked }">{{ item.text }}</span>
+                <span :class="{ 'packing-done': item.checked }">{{
+                  item.text
+                }}</span>
               </label>
               <div class="row-actions">
                 <button
@@ -716,7 +778,9 @@ function percent(value: string | null): string {
       </section>
     </template>
 
-    <p v-else-if="!tripsStore.errorMessage" class="empty-copy">正在加载行程……</p>
+    <p v-else-if="!tripsStore.errorMessage" class="empty-copy">
+      正在加载行程……
+    </p>
   </section>
 </template>
 

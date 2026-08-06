@@ -1408,7 +1408,8 @@ paths:
         content:
           application/json:
             schema: { $ref: "#/components/schemas/PackingItemCreateRequest" }
-      x-error-codes: [VALIDATION_ERROR, RESOURCE_NOT_FOUND, IDEMPOTENCY_CONFLICT]
+      x-error-codes:
+        [VALIDATION_ERROR, RESOURCE_NOT_FOUND, IDEMPOTENCY_CONFLICT]
       responses:
         "201":
           description: Packing item created

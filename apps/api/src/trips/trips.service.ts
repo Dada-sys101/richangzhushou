@@ -211,11 +211,7 @@ export class TripsService {
       title: dto.title === undefined ? current.title : dto.title.trim(),
     };
     if (!input.title.trim()) {
-      throw new ApiException(
-        "VALIDATION_ERROR",
-        400,
-        "Trip title is required",
-      );
+      throw new ApiException("VALIDATION_ERROR", 400, "Trip title is required");
     }
     if (!input.destination.trim()) {
       throw new ApiException(
@@ -615,7 +611,9 @@ export class TripsService {
       this.sumLinked(trip.userId, trip.id, "REFUND"),
     ]);
     const actual = (expense ?? zeroMoney()).minus(refund ?? zeroMoney());
-    const budgetAmount = trip.budgetAmount ? formatMoney(trip.budgetAmount) : null;
+    const budgetAmount = trip.budgetAmount
+      ? formatMoney(trip.budgetAmount)
+      : null;
     const budgetProgress =
       trip.budgetAmount && trip.budgetAmount.gt(0)
         ? actual.div(trip.budgetAmount).toFixed(2)
@@ -680,11 +678,7 @@ export class TripsService {
     const title = dto.title.trim();
     const destination = dto.destination.trim();
     if (!title) {
-      throw new ApiException(
-        "VALIDATION_ERROR",
-        400,
-        "Trip title is required",
-      );
+      throw new ApiException("VALIDATION_ERROR", 400, "Trip title is required");
     }
     if (!destination) {
       throw new ApiException(
@@ -793,7 +787,10 @@ export class TripsService {
   ): boolean {
     const rangeStart = dayBounds(toZonedDay(trip.startDate)).start;
     const rangeEnd = dayBounds(toZonedDay(trip.endDate)).end;
-    return startsAt.getTime() < rangeStart.getTime() || endsAt.getTime() > rangeEnd.getTime();
+    return (
+      startsAt.getTime() < rangeStart.getTime() ||
+      endsAt.getTime() > rangeEnd.getTime()
+    );
   }
 
   private outOfRangeError(): ApiException {
@@ -910,10 +907,7 @@ export class TripsService {
     }
   }
 
-  private assertSamePackingMutation(
-    existing: PackingItem,
-    text: string,
-  ): void {
+  private assertSamePackingMutation(existing: PackingItem, text: string): void {
     if (existing.text !== text) {
       throw new ApiException(
         "IDEMPOTENCY_CONFLICT",

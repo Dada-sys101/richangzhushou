@@ -253,7 +253,10 @@ onMounted(async () => {
           <RouterLink :to="`/trips/${item.id}`" class="transaction-row">
             <span class="transaction-main">
               <strong>{{ item.title }}</strong>
-              <small>{{ item.destination }} 路 {{ item.startDate }} – {{ item.endDate }}</small>
+              <small
+                >{{ item.destination }} 路 {{ item.startDate }} –
+                {{ item.endDate }}</small
+              >
             </span>
             <span class="schedule-tag">行程</span>
           </RouterLink>
