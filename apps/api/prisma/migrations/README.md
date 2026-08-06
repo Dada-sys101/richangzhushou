@@ -76,3 +76,23 @@ No production or shared database URL belongs in this repository.
   `ALTER TABLE transactions DROP FOREIGN KEY transactions_trip_id_fkey, DROP COLUMN trip_id`
   （注意先删子表再删行程，外键顺序）。
 - 演示数据：`SEED_DEMO_USER=true` 会创建本地演示行程、节点与行李清单。
+
+## WP7 Sync migration（20260806074500_wp7_sync）
+
+- 新增枚举：`SyncEntityType`（TRANSACTION/CATEGORY/FINANCIAL_ACCOUNT/BUDGET/
+  CALENDAR_EVENT/TASK/REMINDER/TRIP/TRIP_ITEM/PACKING_ITEM/DRAFT_RECORD）、
+  `SyncAction`（CREATE/UPDATE/DELETE/RESTORE）与 `SyncMutationStatus`
+  （APPLIED/CONFLICTED/FAILED）。
+- 新增表：`sync_mutations`；`user_id + client_mutation_id` 唯一，
+  `request_hash` 保存幂等请求摘要，同键同内容返原结果、同键不同内容返回
+  `IDEMPOTENCY_CONFLICT`；`result_ref` 存储应用结果或错误，支持重放。
+- `categories`/`financial_accounts`/`budgets` 增加 `client_mutation_id` 唯一列，
+  使用户端离线创建的分类/账户/预算也可幂等。
+- 为同步游标添加索引：同步实体 `(user_id, updated_at)` 索引；
+  `trip_items`/`packing_items` 使用 `(trip_id, updated_at)` 索引（节点属于行程，
+  查询通过 `trip.user_id` 隔离）。
+- 回滚：`prisma migrate resolve --rolled-back 20260806074500_wp7_sync`
+  后删除该 migration 目录，再 `prisma migrate deploy` 到上一个版本；或对非生产库执行
+  `DROP TABLE sync_mutations` 并
+  `ALTER TABLE categories/financial_accounts/budgets DROP COLUMN client_mutation_id`
+  及删除相关索引（注意外键顺序）。

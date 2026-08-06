@@ -112,6 +112,33 @@ enum SyncState {
   CONFLICT
 }
 
+enum SyncEntityType {
+  TRANSACTION
+  CATEGORY
+  FINANCIAL_ACCOUNT
+  BUDGET
+  CALENDAR_EVENT
+  TASK
+  REMINDER
+  TRIP
+  TRIP_ITEM
+  PACKING_ITEM
+  DRAFT_RECORD
+}
+
+enum SyncAction {
+  CREATE
+  UPDATE
+  DELETE
+  RESTORE
+}
+
+enum SyncMutationStatus {
+  APPLIED
+  CONFLICTED
+  FAILED
+}
+
 enum DraftStatus {
   PENDING
   CONFIRMED
@@ -182,6 +209,7 @@ model User {
   tasks               Task[]
   reminders           Reminder[]
   trips               Trip[]
+  syncMutations       SyncMutation[]
 
   @@index([status])
   @@index([createdAt])
@@ -277,6 +305,7 @@ model Category {
   name         String        @db.VarChar(40)
   color        String        @default("#64748B") @db.VarChar(7)
   isArchived   Boolean       @default(false) @map("is_archived")
+  clientMutationId String?   @unique @map("client_mutation_id")
   version      Int           @default(1)
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
@@ -287,6 +316,7 @@ model Category {
 
   @@unique([userId, kind, name])
   @@index([userId, isArchived])
+  @@index([userId, updatedAt])
   @@map("categories")
 }
 
@@ -296,6 +326,7 @@ model FinancialAccount {
   name         String               @db.VarChar(40)
   kind         FinancialAccountKind
   isArchived   Boolean              @default(false) @map("is_archived")
+  clientMutationId String?          @unique @map("client_mutation_id")
   version      Int                  @default(1)
   createdAt    DateTime             @default(now()) @map("created_at")
   updatedAt    DateTime             @updatedAt @map("updated_at")
@@ -305,6 +336,7 @@ model FinancialAccount {
 
   @@unique([userId, name])
   @@index([userId, isArchived])
+  @@index([userId, updatedAt])
   @@map("financial_accounts")
 }
 
@@ -342,6 +374,7 @@ model Transaction {
   @@index([userId, categoryId])
   @@index([userId, accountId])
   @@index([userId, tripId])
+  @@index([userId, updatedAt])
   @@map("transactions")
 }
 
@@ -352,6 +385,7 @@ model Budget {
   month      String    @db.VarChar(7)
   amount     Decimal   @db.Decimal(18, 2)
   currency   String    @default("CNY") @db.VarChar(3)
+  clientMutationId String? @unique @map("client_mutation_id")
   version    Int       @default(1)
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
@@ -362,6 +396,7 @@ model Budget {
   @@unique([userId, month, categoryId])
   @@index([userId, month])
   @@index([userId, categoryId])
+  @@index([userId, updatedAt])
   @@map("budgets")
 }
 
@@ -428,6 +463,7 @@ model DraftRecord {
 
   @@index([userId, status, createdAt])
   @@index([userId, createdAt])
+  @@index([userId, updatedAt])
   @@map("draft_records")
 }
 
@@ -448,6 +484,7 @@ model CalendarEvent {
 
   @@index([userId, startsAt])
   @@index([userId, status, deletedAt])
+  @@index([userId, updatedAt])
   @@map("calendar_events")
 }
 
@@ -470,6 +507,7 @@ model Task {
   @@index([userId, status])
   @@index([userId, dueAt])
   @@index([userId, status, deletedAt])
+  @@index([userId, updatedAt])
   @@map("tasks")
 }
 
@@ -502,6 +540,7 @@ model Reminder {
   @@index([userId, status, scheduledAt])
   @@index([userId, deletedAt])
   @@index([status, scheduledAt, nextAttemptAt])
+  @@index([userId, updatedAt])
   @@map("reminders")
 }
 
@@ -525,6 +564,7 @@ model Trip {
 
   @@index([userId, startDate])
   @@index([userId, deletedAt])
+  @@index([userId, updatedAt])
   @@map("trips")
 }
 
@@ -545,6 +585,7 @@ model TripItem {
 
   @@index([tripId, position])
   @@index([tripId, deletedAt])
+  @@index([tripId, updatedAt])
   @@map("trip_items")
 }
 
@@ -563,5 +604,28 @@ model PackingItem {
 
   @@index([tripId, position])
   @@index([tripId, deletedAt])
+  @@index([tripId, updatedAt])
   @@map("packing_items")
+}
+
+model SyncMutation {
+  id               String             @id @default(cuid())
+  userId           String             @map("user_id")
+  clientMutationId String             @map("client_mutation_id")
+  entityType       SyncEntityType     @map("entity_type")
+  entityId         String?            @map("entity_id")
+  action           SyncAction
+  requestHash      String             @map("request_hash") @db.VarChar(64)
+  resultRef        Json?              @map("result_ref")
+  status           SyncMutationStatus @default(FAILED)
+  errorCode        String?            @map("error_code") @db.VarChar(50)
+  errorMessage     String?            @map("error_message") @db.VarChar(500)
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, clientMutationId])
+  @@index([userId, createdAt])
+  @@index([userId, status])
+  @@map("sync_mutations")
 }
