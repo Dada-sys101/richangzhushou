@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
 import type { CalendarEventSummary } from "../api/client";
 import { useAuthStore } from "../stores/auth";
@@ -16,8 +17,14 @@ import {
 
 const auth = useAuthStore();
 const planner = usePlannerStore();
+const route = useRoute();
 
-const date = ref(todayInShanghai());
+const date = ref(
+  typeof route.query.date === "string" &&
+    /^\d{4}-\d{2}-\d{2}$/.test(route.query.date)
+    ? route.query.date
+    : todayInShanghai(),
+);
 const includeDeleted = ref(false);
 const editingId = ref("");
 const saving = ref(false);
@@ -51,6 +58,15 @@ onMounted(() => {
 watch([date, includeDeleted], () => {
   void reload();
 });
+
+watch(
+  () => route.query.date,
+  (value) => {
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      date.value = value;
+    }
+  },
+);
 
 async function reload() {
   await planner.loadCalendarEvents({

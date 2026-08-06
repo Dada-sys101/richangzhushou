@@ -5,11 +5,13 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 import { ApiClientError } from "../api/client";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
+import { useTripsStore } from "../stores/trips";
 
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
 const finance = useFinanceStore();
+const trips = useTripsStore();
 
 const editingId = typeof route.params.id === "string" ? route.params.id : null;
 const type = ref<"EXPENSE" | "INCOME" | "REFUND">("EXPENSE");
@@ -21,6 +23,7 @@ const merchant = ref("");
 const note = ref("");
 const originalTransactionId = ref("");
 const isUnlinkedRefund = ref(false);
+const tripId = ref("");
 const version = ref(1);
 const errorMessage = ref("");
 const successMessage = ref("");
@@ -53,6 +56,7 @@ onMounted(async () => {
     finance.loadCategories(true),
     finance.loadAccounts(true),
     finance.loadTransactions(),
+    trips.loadTrips(),
   ]);
   if (editingId) {
     try {
@@ -66,6 +70,7 @@ onMounted(async () => {
       note.value = item.note ?? "";
       originalTransactionId.value = item.originalTransactionId ?? "";
       isUnlinkedRefund.value = item.isUnlinkedRefund;
+      tripId.value = item.tripId ?? "";
       version.value = item.version;
     } catch (error) {
       errorMessage.value = messageOf(error);
@@ -87,6 +92,7 @@ async function submit() {
     note: note.value.trim() || null,
     occurredAt: new Date(occurredAt.value).toISOString(),
     originalTransactionId: originalTransactionId.value || null,
+    tripId: tripId.value || null,
     type: type.value,
   };
   try {
@@ -182,6 +188,19 @@ function messageOf(error: unknown): string {
             :value="item.id"
           >
             {{ item.name }}
+          </option>
+        </select>
+      </label>
+      <label>
+        行程（可选）
+        <select v-model="tripId">
+          <option value="">不关联</option>
+          <option
+            v-for="item in trips.trips.filter((trip) => trip.deletedAt === null)"
+            :key="item.id"
+            :value="item.id"
+          >
+            {{ item.title }}（{{ item.startDate }}）
           </option>
         </select>
       </label>

@@ -172,6 +172,7 @@ export const useFinanceStore = defineStore("finance", {
       note?: string | null;
       occurredAt?: string;
       originalTransactionId?: string | null;
+      tripId?: string | null;
       type: "EXPENSE" | "INCOME" | "REFUND";
     }) {
       const result = await api.createTransaction(input);
@@ -189,6 +190,7 @@ export const useFinanceStore = defineStore("finance", {
         note?: string | null;
         occurredAt?: string;
         originalTransactionId?: string | null;
+        tripId?: string | null;
         type?: "EXPENSE" | "INCOME" | "REFUND";
         version: number;
       },

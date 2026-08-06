@@ -19,6 +19,8 @@ import ShortcutsView from "./views/ShortcutsView.vue";
 import TasksView from "./views/TasksView.vue";
 import TransactionFormView from "./views/TransactionFormView.vue";
 import TransactionsView from "./views/TransactionsView.vue";
+import TripDetailView from "./views/TripDetailView.vue";
+import TripsView from "./views/TripsView.vue";
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -110,6 +112,18 @@ export const router = createRouter({
       path: "/reminders",
       name: "reminders",
       component: RemindersView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/trips",
+      name: "trips",
+      component: TripsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/trips/:id",
+      name: "trip-detail",
+      component: TripDetailView,
       meta: { requiresAuth: true },
     },
     {

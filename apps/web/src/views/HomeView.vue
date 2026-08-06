@@ -5,6 +5,7 @@ import { RouterLink } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
 import { usePlannerStore } from "../stores/planner";
+import { useTripsStore } from "../stores/trips";
 import {
   formatDateTime,
   isSameShanghaiDay,
@@ -14,6 +15,7 @@ import {
 const auth = useAuthStore();
 const finance = useFinanceStore();
 const planner = usePlannerStore();
+const trips = useTripsStore();
 const month = ref(currentMonth());
 const todayDate = todayInShanghai();
 
@@ -31,6 +33,7 @@ const overallBudget = computed(() =>
 );
 
 const recentTransactions = computed(() => finance.transactions.slice(0, 5));
+const recentTrips = computed(() => trips.trips.slice(0, 3));
 
 const todayEvents = computed(() => planner.calendarEvents);
 const todayTasks = computed(() =>
@@ -53,6 +56,7 @@ onMounted(async () => {
       planner.loadCalendarEvents({ date: todayDate }),
       planner.loadTasks({ status: "OPEN" }),
       planner.loadReminders({ status: "SCHEDULED" }),
+      trips.loadTrips(),
     ]);
   }
 });
@@ -198,6 +202,7 @@ onMounted(async () => {
       <RouterLink class="secondary-button" to="/calendar">日程</RouterLink>
       <RouterLink class="secondary-button" to="/tasks">待办</RouterLink>
       <RouterLink class="secondary-button" to="/reminders">提醒</RouterLink>
+      <RouterLink class="secondary-button" to="/trips">行程</RouterLink>
       <RouterLink class="primary-button" to="/transactions/new"
         >记一笔</RouterLink
       >
@@ -233,6 +238,24 @@ onMounted(async () => {
             <span class="transaction-amount" :class="amountClass(item.type)">
               {{ signedMoney(item) }}
             </span>
+          </RouterLink>
+        </li>
+      </ul>
+    </section>
+
+    <section class="recent-section" aria-labelledby="recent-trips-title">
+      <h2 id="recent-trips-title">最近行程</h2>
+      <p v-if="recentTrips.length === 0" class="empty-copy">
+        还没有行程，点击“行程”开始规划。
+      </p>
+      <ul v-else class="today-schedule-list">
+        <li v-for="item in recentTrips" :key="item.id">
+          <RouterLink :to="`/trips/${item.id}`" class="transaction-row">
+            <span class="transaction-main">
+              <strong>{{ item.title }}</strong>
+              <small>{{ item.destination }} 路 {{ item.startDate }} – {{ item.endDate }}</small>
+            </span>
+            <span class="schedule-tag">行程</span>
           </RouterLink>
         </li>
       </ul>

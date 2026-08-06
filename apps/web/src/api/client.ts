@@ -68,6 +68,7 @@ export interface TransactionSummary {
   source: string;
   sourceFingerprint: string | null;
   status: string;
+  tripId: string | null;
   type: TransactionType;
   updatedAt: string;
   version: number;
@@ -315,6 +316,72 @@ export interface ReminderSummary {
   version: number;
 }
 
+export type TripItemType = "TRANSPORT" | "STAY" | "ACTIVITY" | "FOOD" | "OTHER";
+
+export interface TripSummary {
+  budgetAmount: string | null;
+  createdAt: string;
+  deletedAt: string | null;
+  destination: string;
+  endDate: string;
+  id: string;
+  startDate: string;
+  title: string;
+  updatedAt: string;
+  version: number;
+}
+
+export interface TripItemSummary {
+  createdAt: string;
+  deletedAt: string | null;
+  endsAt: string;
+  id: string;
+  location: string | null;
+  position: number;
+  startsAt: string;
+  tripId: string;
+  type: TripItemType;
+  updatedAt: string;
+  version: number;
+}
+
+export interface TripItemOutOfRangeWarning {
+  code: "TRIP_ITEM_OUT_OF_RANGE";
+  message: string;
+}
+
+export interface TripItemCreatedResponse {
+  outOfRangeWarning?: TripItemOutOfRangeWarning;
+  tripItem: TripItemSummary;
+}
+
+export interface PackingItemSummary {
+  checked: boolean;
+  createdAt: string;
+  deletedAt: string | null;
+  id: string;
+  position: number;
+  text: string;
+  tripId: string;
+  updatedAt: string;
+  version: number;
+}
+
+export interface TripExpenseSummary {
+  actualExpense: string;
+  budgetAmount: string | null;
+  budgetProgress: string | null;
+}
+
+export interface TripDetailResponse {
+  calendarEvents: CalendarEventSummary[];
+  expense: TripExpenseSummary;
+  items: TripItemSummary[];
+  linkedTransactions: TransactionSummary[];
+  packingItems: PackingItemSummary[];
+  trip: TripSummary;
+}
+
 async function http<T>(
   path: string,
   options: { body?: unknown; method?: string } = {},
@@ -526,6 +593,7 @@ export const api = {
     occurredAt?: string;
     originalTransactionId?: string | null;
     source?: string;
+    tripId?: string | null;
     type: TransactionType;
   }) {
     return http<TransactionCreatedResponse>("/transactions", {
@@ -547,6 +615,15 @@ export const api = {
   },
   deleteTask(id: string) {
     return http<void>(`/tasks/${id}`, { method: "DELETE" });
+  },
+  deleteTrip(id: string) {
+    return http<void>(`/trips/${id}`, { method: "DELETE" });
+  },
+  deleteTripItem(id: string) {
+    return http<void>(`/trip-items/${id}`, { method: "DELETE" });
+  },
+  deletePackingItem(id: string) {
+    return http<void>(`/packing-items/${id}`, { method: "DELETE" });
   },
   discardDraft(id: string) {
     return http<void>(`/drafts/${id}/discard`, { method: "POST" });
@@ -599,6 +676,15 @@ export const api = {
   },
   getTask(id: string) {
     return http<TaskSummary>(`/tasks/${id}`);
+  },
+  getTrip(id: string) {
+    return http<TripDetailResponse>(`/trips/${id}`);
+  },
+  getTripItem(id: string) {
+    return http<TripItemSummary>(`/trip-items/${id}`);
+  },
+  getPackingItem(id: string) {
+    return http<PackingItemSummary>(`/packing-items/${id}`);
   },
   getTransaction(id: string) {
     return http<TransactionSummary>(`/transactions/${id}`);
@@ -721,6 +807,18 @@ export const api = {
       `/transactions${suffix}`,
     );
   },
+  listTrips(params: { includeDeleted?: boolean; limit?: number } = {}) {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) {
+        query.set(key, String(value));
+      }
+    }
+    const suffix = query.size > 0 ? `?${query.toString()}` : "";
+    return http<{ items: TripSummary[]; nextCursor: string | null }>(
+      `/trips${suffix}`,
+    );
+  },
   restoreTransaction(id: string) {
     return http<TransactionSummary>(`/transactions/${id}/restore`, {
       method: "POST",
@@ -738,6 +836,21 @@ export const api = {
   },
   restoreTask(id: string) {
     return http<TaskSummary>(`/tasks/${id}/restore`, {
+      method: "POST",
+    });
+  },
+  restoreTrip(id: string) {
+    return http<TripSummary>(`/trips/${id}/restore`, {
+      method: "POST",
+    });
+  },
+  restoreTripItem(id: string) {
+    return http<TripItemSummary>(`/trip-items/${id}/restore`, {
+      method: "POST",
+    });
+  },
+  restorePackingItem(id: string) {
+    return http<PackingItemSummary>(`/packing-items/${id}/restore`, {
       method: "POST",
     });
   },
@@ -810,6 +923,7 @@ export const api = {
       occurredAt?: string;
       originalTransactionId?: string | null;
       source?: string;
+      tripId?: string | null;
       type?: TransactionType;
       version: number;
     },
@@ -871,6 +985,90 @@ export const api = {
     },
   ) {
     return http<TaskSummary>(`/tasks/${id}`, {
+      body,
+      method: "PATCH",
+    });
+  },
+  createTrip(body: {
+    budgetAmount?: string | null;
+    clientMutationId?: string | null;
+    destination: string;
+    endDate: string;
+    startDate: string;
+    title: string;
+  }) {
+    return http<TripSummary>("/trips", { body, method: "POST" });
+  },
+  updateTrip(
+    id: string,
+    body: {
+      budgetAmount?: string | null;
+      destination?: string;
+      endDate?: string;
+      startDate?: string;
+      title?: string;
+      version: number;
+    },
+  ) {
+    return http<TripSummary>(`/trips/${id}`, { body, method: "PATCH" });
+  },
+  createTripItem(
+    tripId: string,
+    body: {
+      clientMutationId?: string | null;
+      confirmOutOfRange?: boolean;
+      endsAt: string;
+      location?: string | null;
+      position?: number;
+      startsAt: string;
+      type: TripItemType;
+    },
+  ) {
+    return http<TripItemCreatedResponse>(`/trips/${tripId}/items`, {
+      body,
+      method: "POST",
+    });
+  },
+  updateTripItem(
+    id: string,
+    body: {
+      confirmOutOfRange?: boolean;
+      endsAt?: string;
+      location?: string | null;
+      position?: number;
+      startsAt?: string;
+      type?: TripItemType;
+      version: number;
+    },
+  ) {
+    return http<TripItemCreatedResponse>(`/trip-items/${id}`, {
+      body,
+      method: "PATCH",
+    });
+  },
+  createPackingItem(
+    tripId: string,
+    body: {
+      clientMutationId?: string | null;
+      position?: number;
+      text: string;
+    },
+  ) {
+    return http<PackingItemSummary>(`/trips/${tripId}/packing-items`, {
+      body,
+      method: "POST",
+    });
+  },
+  updatePackingItem(
+    id: string,
+    body: {
+      checked?: boolean;
+      position?: number;
+      text?: string;
+      version: number;
+    },
+  ) {
+    return http<PackingItemSummary>(`/packing-items/${id}`, {
       body,
       method: "PATCH",
     });
