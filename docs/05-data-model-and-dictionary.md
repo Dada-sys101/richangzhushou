@@ -47,16 +47,16 @@ erDiagram
 | `InviteRedemption` | inviteId, userId, redeemedAt | userId 唯一；事务内创建 |
 | `Session` | userId, refreshTokenHash, expiresAt, revokedAt | token 哈希唯一 |
 | `DeviceCredential` | userId, name, tokenHash（唯一）, tokenPrefix, scopes（JSON）, lastUsedAt, revokedAt | 快捷指令凭证仅保存 SHA-256 哈希与展示前缀；scopes 为 ShortcutScope JSON 数组；撤销置 revokedAt |
-| `Transaction` | type, status, amount, currency, categoryId, accountId, merchant, occurredAt, note, source, originalTransactionId, isUnlinkedRefund, sourceFingerprint, clientMutationId, version, deletedAt | userId+occurredAt；clientMutationId 唯一；软删除用 deletedAt |
+| `Transaction` | type, status, amount, currency, categoryId, accountId, merchant, occurredAt, note, source, originalTransactionId, isUnlinkedRefund, sourceFingerprint, tripId?, clientMutationId, version, deletedAt | userId+occurredAt；userId+tripId；clientMutationId 唯一；软删除用 deletedAt |
 | `Category` | kind（EXPENSE/INCOME）, name, color, isArchived, version | userId+kind+name 唯一；归档而非物理删除 |
 | `FinancialAccount` | name, kind（CASH/DEBIT_CARD/CREDIT_CARD/DIGITAL_WALLET/OTHER）, isArchived, version | userId+name 唯一；归档而非物理删除 |
 | `Budget` | categoryId?, month（YYYY-MM）, amount, currency, version, deletedAt | userId+month+categoryId 唯一（categoryId 为 NULL 时由服务层校验整体预算唯一） |
 | `CalendarEvent` | title, startsAt, endsAt, allDay, status, clientMutationId?, version, deletedAt | userId+startsAt；userId+status+deletedAt；clientMutationId 唯一 |
 | `Task` | title, status, priority, dueAt?, completedAt, cancelledAt, clientMutationId?, version, deletedAt | userId+status；userId+dueAt；userId+status+deletedAt；clientMutationId 唯一 |
 | `Reminder` | title, note?, targetType, targetId?, scheduleType, startsAt, scheduledAt, recurrenceJson?, status, attemptCount, nextAttemptAt?, sentAt?, suppressedAt?, failureReason?, clientMutationId?, version, deletedAt | userId+status+scheduledAt；userId+deletedAt；status+scheduledAt+nextAttemptAt（调度器）；clientMutationId 唯一 |
-| `Trip` | title, destination, startDate, endDate, budgetAmount | userId+startDate |
-| `TripItem` | tripId, type, startsAt, endsAt, location, position | tripId+position |
-| `PackingItem` | tripId, text, checked, position | tripId+position |
+| `Trip` | title, destination, startDate, endDate, budgetAmount?, clientMutationId?, version, deletedAt | userId+startDate；userId+deletedAt；clientMutationId 唯一；软删除用 deletedAt |
+| `TripItem` | tripId, type（TripItemType）, startsAt, endsAt, location?, position, clientMutationId?, version, deletedAt | tripId+position；tripId+deletedAt；clientMutationId 唯一 |
+| `PackingItem` | tripId, text, checked, position, clientMutationId?, version, deletedAt | tripId+position；tripId+deletedAt；clientMutationId 唯一 |
 | `Attachment` | userId, ownerType, ownerId, objectKey（唯一）, mimeType, size, sha256, scanStatus, uploadTokenHash（唯一）, uploadIntentExpiresAt, contentStoredAt, deletedAt | 上传意图一次性令牌只存哈希；完成确认前不可用于 OCR |
 | `DraftRecord` | userId, source, targetType, payloadJson, confidenceJson, status, clientMutationId（唯一）, attachmentId, failureReason, version, confirmedAt, discardedAt, resultId | 幂等键唯一；确认后 resultId 指向正式记录 |
 | `SyncMutation` | userId, clientMutationId, requestHash, resultRef | userId+clientMutationId 唯一 |
@@ -86,6 +86,7 @@ erDiagram
 | `AttachmentScanStatus` | `PENDING`, `SCANNED`, `FAILED` |
 | `AttachmentOwnerType` | `TRANSACTION_DRAFT` |
 | `DraftTargetType` | `TRANSACTION` |
+| `TripItemType` | `TRANSPORT`, `STAY`, `ACTIVITY`, `FOOD`, `OTHER` |
 
 ## 容量计算
 
@@ -132,3 +133,19 @@ erDiagram
   `DELETION_PENDING` 时标记 `SUPPRESSED` 且不发送。
 - 三个资源均支持软删除/恢复、`version` 乐观并发与 `clientMutationId` 幂等，沿用
   Finance/草稿的同步资源约定（为 WP7 同步落地保持语义一致）。
+
+## WP6 补充说明（2026-08-06）
+
+- 新增 `Trip`、`TripItem`、`PackingItem` 三张表与 `TripItemType`
+  （TRANSPORT/STAY/ACTIVITY/FOOD/OTHER）枚举；`TripItemType` 取值属
+  `[关键假设]`（见 `docs/decisions.md` DEC-121），待产品确认。
+- 行程日期使用 `DATE` 语义（`Asia/Shanghai` 本地日期），结束日期不得早于开始日期；
+  节点 `startsAt`/`endsAt` 为 ISO 8601 时间，原则上应在行程日期范围内，超范围时
+  未确认不保存、确认后保存并返回 `TripItemOutOfRangeWarning`。
+- `transactions.trip_id` 为可空外键（ON DELETE SET NULL），仅允许关联当前用户
+  未删除的行程；行程实际支出只统计 `status=CONFIRMED` 且未删除的 EXPENSE 减 REFUND，
+  由服务端定点计算，前端不自算累计。
+- 行程/节点/行李均支持软删除/恢复、`version` 乐观并发与 `clientMutationId` 幂等，
+  与 WP3–WP5 同步资源约定一致（为 WP7 同步落地保持语义一致）。
+- 未提供批量删除/清空节点或行李端点（`docs/06` 未声明）；如后续新增，须按
+  BR-AI-004 二次确认并写脱敏审计（沿用 WP4 `confirmationToken` 模式）。

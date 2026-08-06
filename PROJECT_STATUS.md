@@ -1,16 +1,16 @@
 # Project Status
 
 版本：1.0<br>
-状态：WP5 本地验收完成（WP1–WP5 均已通过本地验收）<br>
-更新：2026-08-05
+状态：WP6 本地验收完成（WP1–WP6 均已通过本地验收）<br>
+更新：2026-08-06
 
 ## 当前状态
 
 - 项目：Daily Assistant（临时名称）
 - 位置：`D:\daily-assistant`
-- 当前工作包：WP5 已完成本地验收（分支 `codex/wp5-calendar-tasks`，未推送）
-- 代码：WP2 身份/容量/邀请码/管理端已实现；WP3 记账 API 与页面已实现；WP4 设备凭证/快捷指令/草稿中心/附件 OCR 已实现；WP5 日程/待办/提醒 CRUD、调度器与前端页面已实现
-- Git 仓库：独立仓库，当前分支 `codex/wp5-calendar-tasks`（未推送）
+- 当前工作包：WP6 已完成本地验收（分支 `codex/wp6-trips`，未推送）
+- 代码：WP2 身份/容量/邀请码/管理端已实现；WP3 记账已实现；WP4 快捷指令/草稿/OCR 已实现；WP5 日程/待办/提醒已实现；WP6 行程/节点/行李/账单关联/费用汇总已实现
+- Git 仓库：独立仓库，当前分支 `codex/wp6-trips`（未推送）
 - 上下文：`.project/context.md` 与 `docs/` 接管文档已建立（见 `docs/README.md`）
 - 自动恢复机制：`AGENTS.md` 增加 Project State Recovery / Required workflow，`.project/context.md` 已规范化为固定结构
 - 持久化恢复机制 v2：`AGENTS.md` 四章规则、`.project/session.md`、`.project/decisions.md`、`npm run check:context`（并入 quality）与可选 Hook
@@ -35,11 +35,12 @@
 - WP3：Finance 契约、表结构/migration/seed、账单/分类/账户/预算/统计/CSV API、用户端记账页面与验收（见 `docs/16-wp3-acceptance-report.md`）。
 - WP4：Shortcuts/Drafts/Attachments 契约与错误码、DeviceCredential/Attachment/DraftRecord migration、设备凭证生命周期与 Bearer 守卫、快捷指令幂等草稿、草稿中心（解析/OCR/确认/丢弃/批量二次确认）、附件上传意图/完成/删除、本地适配器与假实现、用户端快捷记录/草稿中心/快捷指令配置页（见 `docs/18-wp4-acceptance-report.md`）。
 - WP5：Calendar/Tasks/Reminders 契约与枚举、三张新表与 migration、日程/待办/提醒 CRUD 与状态机、重复展开与调度器（原子领取/防重/重试上限/SUPPRESSED）、通知适配器与前端页面（见 `docs/20-wp5-acceptance-report.md`）。
+- WP6：Trips/TripItems/PackingItems 契约与 `TripItemType` 枚举、三张新表与 `transactions.trip_id`、行程/节点/行李 CRUD、超范围节点确认、服务端费用汇总、行程详情日历入口、关联账单与前端页面（见 `docs/22-wp6-acceptance-report.md`）。
 
 ## 下一步
 
-- 确认 WP1–WP5 远端 CI 结果（需推送授权）。
-- WP6 行程（未开始；可执行规划见 `docs/21-wp6-codex-execution-plan.md`）。
+- 确认 WP1–WP6 远端 CI 结果（需推送授权）。
+- WP7 PWA 与离线同步（未开始）。
 
 ## 阻塞项
 

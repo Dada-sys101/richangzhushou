@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-08-06 — WP6 行程本地验收通过
+
+- 契约：Trips/TripItems/PackingItems OpenAPI、`TripItemType` 枚举、
+  `TripExpenseSummary`、`TripDetailResponse`、`TripItemOutOfRangeWarning` 与
+  `Transaction.tripId`；契约测试 127/127。
+- 数据：`trips`/`trip_items`/`packing_items` 与 `transactions.trip_id`；
+  migration `20260806011520_wp6_trips` 空库部署与 seed 通过。
+- 后端：行程/节点/行李 CRUD、超范围节点确认、服务端费用汇总、日历入口与
+  交易关联；集成测试 55/55（WP2–WP6）。
+- 前端：行程列表/详情/节点/行李/关联账单/日历跳转/记账行程选择/首页入口。
+- 验收：`npm run quality`、浏览器矩阵 10/10 无横向溢出，主流程与控制台仅预期
+  400 校验日志（见 `docs/22-wp6-acceptance-report.md`）。
+- 分支 `codex/wp6-trips`；未推送、未部署、未创建生产资源、未进入 WP7。
+
 ## 2026-08-06 — 输出 WP6 可执行规划（docs/21）
 
 - 新增 `docs/21-wp6-codex-execution-plan.md`：行程、节点、行李清单、账单关联、

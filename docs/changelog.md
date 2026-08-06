@@ -1,8 +1,28 @@
 # 变更日志（Changelog）
 
 文档版本：1.0
-更新：2026-08-05
+更新：2026-08-06
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
+
+## 2026-08-06 — WP6 行程本地验收通过
+
+- 契约：Trips/TripItems/PackingItems OpenAPI 请求/响应/DTO/枚举（`TripItemType`
+  = TRANSPORT/STAY/ACTIVITY/FOOD/OTHER）、`TripExpenseSummary`、
+  `TripDetailResponse`、`TripItemOutOfRangeWarning` 与 `Transaction.tripId`；
+  契约测试 127/127。
+- 数据：新增 `trips`/`trip_items`/`packing_items` 表与 `transactions.trip_id`
+  外键/索引；migration `20260806011520_wp6_trips` 空库部署与 seed 通过。
+- 后端：行程/节点/行李 CRUD（软删除/恢复、幂等、版本并发、position 排序）、
+  超范围节点“未确认不保存、确认后保存并返回提示”、服务端定点费用汇总
+  （只计 CONFIRMED 未删除，退款冲减）、行程详情返回日期范围内日历事件、
+  交易关联行程（跨用户 404）。
+- 前端：行程列表/详情（费用汇总、节点、行李、关联账单、日历跳转）、记账表单
+  行程选择、首页“行程/最近行程”入口；错误与网络失败状态沿用统一展示。
+- 安全：跨用户 404、管理员 403；集成测试 55/55（WP2–WP6）。
+- 验收：`npm run quality`、空库 5 migrations+seed、集成 55/55、浏览器矩阵
+  10/10 无横向溢出（行程列表+详情，375/390/430/768/1440），主流程与控制台
+  仅预期 400 校验日志（报告见 `docs/22-wp6-acceptance-report.md`）。
+- 未推送、未部署、未创建生产资源、未进入 WP7。
 
 ## 2026-08-06 — 输出 WP6 可执行规划（docs/21）
 

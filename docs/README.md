@@ -40,5 +40,6 @@
 20. `19-wp5-codex-execution-plan.md`
 21. `20-wp5-acceptance-report.md`
 22. `21-wp6-codex-execution-plan.md`
+23. `22-wp6-acceptance-report.md`
 
 所有文档以稳定编号引用规则、功能、页面、数据、API 和验收项。未确认信息必须标记为 `[待确认]` 或 `[关键假设]`。

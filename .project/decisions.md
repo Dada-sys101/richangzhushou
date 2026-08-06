@@ -213,3 +213,68 @@
 - Consequences: 集成测试验证并发双跑仅发送一次；文档记录多实例前置条件。
 - Related Files: `apps/api/src/reminders/reminders.scheduler.ts`、`docs/07`
 - Related Commit: WP5 api commit
+
+## ADR-018: WP6 TripItemType 与行程/节点/行李实体
+
+- Date: 2026-08-06
+- Status: Accepted
+- Context: WP6 需要节点类型枚举与三张新表；数据字典未定义具体取值。
+- Decision: `TripItemType`（TRANSPORT/STAY/ACTIVITY/FOOD/OTHER）为 `[关键假设]`；
+  `Trip`/`TripItem`/`PackingItem` 沿用软删除、`version`、`clientMutationId`
+  唯一键与同步资源约定；索引 `userId+startDate`、`tripId+position`。
+- Alternatives Considered: 无类型字段（否决：无法区分节点形态）。
+- Consequences: 契约/数据字典/Prisma/前端映射保持一致；枚举待产品确认。
+- Related Files: `packages/api-contracts`、`apps/api/prisma/schema.prisma`、
+  `docs/05`、`docs/decisions.md` DEC-121
+- Related Commit: WP6 contracts/db commit
+
+## ADR-019: 行程详情聚合与日期范围内日历入口
+
+- Date: 2026-08-06
+- Status: Accepted
+- Context: `docs/12` 要求“行程详情提供日期范围内的日历查看；今日安排跳转入口”，
+  具体形态 `[待确认]`，且不得擅自新增跨实体外键。
+- Decision: `GET /trips/:id` 返回行程 + 节点 + 行李 + 服务端费用汇总 + 关联账单 +
+  行程日期范围内日历事件；前端详情页提供日历跳转链接，首页增加“最近行程”入口。
+- Alternatives Considered: 独立日历查询参数（否决：增加前端往返，且无既有范围查询）。
+- Consequences: 日历关联为只读展示与跳转，不新增 `CalendarEvent.tripId`。
+- Related Files: `apps/api/src/trips/trips.service.ts`、`apps/web/src/views/TripDetailView.vue`
+- Related Commit: WP6 api/web commit
+
+## ADR-020: 超范围节点两段式确认
+
+- Date: 2026-08-06
+- Status: Accepted
+- Context: BR-TRIP-002 要求超范围提示且“未确认不保存；确认后允许保存”。
+- Decision: 创建/更新节点超范围时，未传 `confirmOutOfRange=true` 返回
+  `VALIDATION_ERROR`；确认后保存并返回 `TripItemOutOfRangeWarning`；前端在收到
+  超范围错误时展示确认条，二次提交携带确认标记。
+- Alternatives Considered: 首次调用直接保存并附警告（否决：违反“未确认不保存”）。
+- Consequences: 接口语义清晰；前端交互包含明确确认步骤。
+- Related Files: `apps/api/src/trips/trips.service.ts`、`apps/web/src/views/TripDetailView.vue`
+- Related Commit: WP6 api/web commit
+
+## ADR-021: Transaction.tripId 与费用汇总
+
+- Date: 2026-08-06
+- Status: Accepted
+- Context: BR-TRIP-003 要求账单可关联行程，实际支出=已确认支出−退款。
+- Decision: `transactions.trip_id` 可空外键（ON DELETE SET NULL），创建/更新仅允许
+  关联当前用户未删除行程（跨用户/不存在 404）；行程费用汇总在服务端用
+  `Prisma.Decimal` 计算（只计 CONFIRMED 未删除），前端不自算累计。
+- Alternatives Considered: 统计时按日期归属行程（否决：与“账单关联”契约不一致）。
+- Consequences: QA-TRIP-001 通过；CSV 导出增加 `tripId` 列。
+- Related Files: `apps/api/src/finance/*`、`apps/api/src/trips/trips.service.ts`
+- Related Commit: WP6 db/api commit
+
+## ADR-022: WP6 不新增批量删除/清空端点
+
+- Date: 2026-08-06
+- Status: Accepted
+- Context: `docs/06` 未声明批量端点；BR-AI-004 要求高风险操作二次确认与审计。
+- Decision: WP6 仅实现单资源 CRUD/软删除/恢复；如后续新增批量删除/清空节点或行李，
+  必须按 WP4 `confirmationToken` 模式二次确认并写脱敏审计。
+- Alternatives Considered: 实现批量端点（否决：超出 `docs/06` 契约与当前工作包范围）。
+- Consequences: 当前范围无新增高风险操作；决策记录在 `docs/decisions.md` DEC-125。
+- Related Files: `apps/api/src/trips/*`、`docs/06`
+- Related Commit: WP6 api commit

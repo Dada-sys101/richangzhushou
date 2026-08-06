@@ -47,8 +47,10 @@ Finance 契约要点：
 
 - 金额为两位小数字符串（`Money`），支出/收入/退款金额必须大于 0；退款必须引用原账单或标记为无原单退款。
 - 列表支持 `cursor`/`limit` 游标分页与 `month`、`type`、`categoryId`、`accountId`、`includeDeleted` 过滤；分类/账户列表支持 `includeArchived`。
-- 创建支持可选 `clientMutationId` 幂等重放；修改必须携带当前 `version`，过期返回 `VERSION_CONFLICT`。
-- 疑似重复以 `duplicateWarning`（`POSSIBLE_DUPLICATE`）返回，不自动删除。
+  - 创建支持可选 `clientMutationId` 幂等重放；修改必须携带当前 `version`，过期返回 `VERSION_CONFLICT`。
+  - 疑似重复以 `duplicateWarning`（`POSSIBLE_DUPLICATE`）返回，不自动删除。
+  - 创建/更新支持可选 `tripId`（仅可关联当前用户未删除的行程，跨用户/不存在返回 404）；
+    CSV 导出包含 `tripId` 列。
 - 统计与月预算按 `Asia/Shanghai` 自然月（`YYYY-MM`）计算；CSV 导出仅当前用户已确认未删除账单，UTF-8 带 BOM。
 
 ### 草稿、OCR 和统一录入
@@ -126,10 +128,27 @@ WP5 契约要点：
 
 - `GET/POST /trips`
 - `GET/PATCH/DELETE /trips/:id`
+- `POST /trips/:id/restore`
 - `POST /trips/:id/items`
-- `PATCH/DELETE /trip-items/:id`
+- `GET/PATCH/DELETE /trip-items/:id`
+- `POST /trip-items/:id/restore`
 - `POST /trips/:id/packing-items`
-- `PATCH/DELETE /packing-items/:id`
+- `GET/PATCH/DELETE /packing-items/:id`
+- `POST /packing-items/:id/restore`
+
+WP6 契约要点：
+- 行程 `startDate`/`endDate` 使用 `YYYY-MM-DD`（`Asia/Shanghai` 本地日期语义），
+  结束日期不得早于开始日期；`budgetAmount` 为可选定点金额。
+- `GET /trips/:id` 返回行程详情聚合：行程、节点、行李、服务端费用汇总
+  （`TripExpenseSummary`：实际支出=已确认未删除支出−退款，预算与进度）、关联账单
+  与行程日期范围内重叠的日历事件。
+- 节点 `startsAt`/`endsAt` 为 ISO 8601；超出行程日期范围时，未传
+  `confirmOutOfRange=true` 返回 `VALIDATION_ERROR`（不保存），确认后保存并返回
+  `outOfRangeWarning`（`TRIP_ITEM_OUT_OF_RANGE`）；`position` 管理节点/行李顺序。
+- 三个资源均为用户范围内内容 API（`AccessTokenGuard` + `UserOnlyGuard`），跨用户
+  访问 404、管理员 403；均支持软删除/恢复、`version` 乐观并发与 `clientMutationId`
+  幂等（与 WP3–WP5 一致，为 WP7 同步落地保持语义一致）。
+- 未提供批量删除/清空端点；如后续新增须按 BR-AI-004 二次确认并写脱敏审计。
 
 ### 文件与同步
 

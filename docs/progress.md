@@ -2,7 +2,7 @@
 
 文档版本：1.0
 状态：已与代码、Git 历史交叉核对
-更新：2026-08-05
+更新：2026-08-06
 
 说明：条目尽量附文件、模块或 Git 提交依据。提交：`5d52395` = 初始化项目（WP0 规划）；`6169ac0` = WP1 工程骨架与共享契约。
 
@@ -46,6 +46,10 @@
 | WP5 数据：`calendar_events`/`tasks`/`reminders`、migration、seed 与回滚说明 | 本次提交；`apps/api/prisma`；`docs/05` |
 | WP5 后端：日程/待办/提醒 CRUD、状态机、重复展开、调度器与通知适配器 | 本次提交；`apps/api/src/{calendar,tasks,reminders,integrations}`；`wp5.integration.test.ts` |
 | WP5 前端：今日安排卡片、日程/待办/提醒页与通知权限降级 | 本次提交；`apps/web/src`；`docs/20-wp5-acceptance-report.md` |
+| WP6 契约：Trips/TripItems/PackingItems OpenAPI、`TripItemType` 枚举、`TripExpenseSummary`、`Transaction.tripId` 与契约测试 | `d039efc`；`packages/api-contracts` |
+| WP6 数据：`trips`/`trip_items`/`packing_items` 与 `transactions.trip_id` 外键/索引、migration `20260806011520_wp6_trips`、seed 与回滚说明 | `c767ba5`；`apps/api/prisma` |
+| WP6 后端：行程/节点/行李 CRUD、超范围确认、费用汇总、日历入口、交易关联与集成测试 | `8f70868`；`apps/api/src/trips`、`finance`、`integration/wp6.integration.test.ts` |
+| WP6 前端：行程列表/详情/节点/行李/关联账单/日历跳转/记账行程选择与首页入口 | `abbdeb7`；`apps/web/src` |
 
 ## 部分完成
 
@@ -62,12 +66,11 @@
 
 ## 未开始
 
-- WP6 行程（可执行规划见 `docs/21-wp6-codex-execution-plan.md`）
 - WP7 PWA 与离线同步
 - WP8 全量质量与发布准备
 
-以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP5 已 DONE（WP5 验收见
-`docs/20`），WP6–WP8 为 `NOT_STARTED`。
+以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP6 已 DONE（WP6 验收见
+`docs/22`），WP7–WP8 为 `NOT_STARTED`。
 
 ## 已知问题
 

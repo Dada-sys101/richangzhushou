@@ -2,16 +2,16 @@
 
 ## Last Updated
 
-2026-08-06 +08:00（随 WP6 规划输出更新；提交哈希以 `git log -1` 为准，不虚构）
+2026-08-06 +08:00（WP6 本地验收完成；提交哈希以 `git log -1` 为准，不虚构）
 
 ## Repository State
 
 - Repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
-- Current Branch: `codex/wp5-calendar-tasks`
-- HEAD Commit: 以 `git log -1 --oneline` 为准（WP5 验收提交）
-- Working Tree Status: WP5 提交完成后工作树仅剩本地未跟踪文件（如 `apps/api/.env`，gitignored）
-- Last Verified Commit: 以 `git log -1 --oneline` 为准；quality、空库 migration+seed、
-  集成 48/48、浏览器矩阵 20/20 通过，记录于 `docs/20-wp5-acceptance-report.md`
+- Current Branch: `codex/wp6-trips`
+- HEAD Commit: 以 `git log -1 --oneline` 为准（WP6 验收提交）
+- Working Tree Status: WP6 提交完成后工作树仅剩本地未跟踪文件（如 `apps/api/.env`，gitignored）
+- Last Verified Commit: 以 `git log -1 --oneline` 为准；quality、空库 5 migrations+seed、
+  集成 55/55、浏览器矩阵 10/10 通过，记录于 `docs/22-wp6-acceptance-report.md`
 
 ## Project Summary
 
@@ -21,42 +21,43 @@
   Plus 管理端、NestJS 单体 API、Prisma 7 + MySQL 8；OpenAPI 3.1 共享契约
   （`packages/api-contracts`）。
 - 核心模块：auth/account/capacity/invites/admin/audit（WP2）、finance（WP3）、
-  shortcuts/drafts/attachments/integrations（WP4）、calendar/tasks/reminders（WP5）。
+  shortcuts/drafts/attachments/integrations（WP4）、calendar/tasks/reminders（WP5）、
+  trips（WP6）。
 - 当前部署方式：无任何部署；CI workflow 已配置但远端未运行；origin 已配置未推送
   WP1–WP5 分支。
 
 ## Current Development Stage
 
 - WP0（规划）、WP1（工程骨架）、WP2（身份/容量/邀请码/管理端）、WP3（基础记账）、
-  WP4（快捷指令/OCR/统一录入）、WP5（日程/待办/提醒）均已完成本地验收
-  （`docs/13`、`docs/14`、`docs/16`、`docs/18`、`docs/20`）。
-- WP6–WP8 未开始；无生产部署。
+  WP4（快捷指令/OCR/统一录入）、WP5（日程/待办/提醒）、WP6（行程）均已完成本地验收
+  （`docs/13`、`docs/14`、`docs/16`、`docs/18`、`docs/20`、`docs/22`）。
+- WP7–WP8 未开始；无生产部署。
 
 ## Last Completed Task
 
-- Task: 执行 WP5 日程、待办与提醒（契约、数据、后端、前端、验收与文档）。
-- Completion Date: 2026-08-05
+- Task: 执行 WP6 行程（契约、数据、后端、前端、验收与文档）。
+- Completion Date: 2026-08-06
 - Related Files: `packages/api-contracts`、`apps/api/prisma`、
-  `apps/api/src/{calendar,tasks,reminders,integrations}`、`apps/web/src`、
-  `docs/05/06/07/08/09/12/19/20` 等
-- Verification: `npm run quality`、空库 4 migrations+seed、集成 48/48、
-  浏览器矩阵 20/20 与主流程全部通过
-- Related Commit: 以 `git log` 为准（`codex/wp5-calendar-tasks` 分支）
+  `apps/api/src/{trips,finance,drafts,shortcuts}`、`apps/api/src/integration/wp6.integration.test.ts`、
+  `apps/web/src`、`docs/05/06/08/09/12/21/22` 等
+- Verification: `npm run quality`、空库 5 migrations+seed、集成 55/55、
+  浏览器矩阵 10/10 与主流程全部通过
+- Related Commit: 以 `git log` 为准（`codex/wp6-trips` 分支）
 
 ## Current Task
 
-None（当前没有正在进行的开发任务；等待用户授权推送 WP1–WP5 分支并确认远端 CI，
-或授权启动 WP6）。
+None（WP6 已完成本地验收；等待用户授权推送 WP1–WP6 分支并确认远端 CI，
+或授权启动 WP7）。
 
 ## Next Recommended Task
 
-- Task: 确认 WP1–WP5 分支推送与远端 CI 结果（需用户授权；本机 `gh` 未登录）。
+- Task: 确认 WP1–WP6 分支推送与远端 CI 结果（需用户授权；本机 `gh` 未登录）。
 - Priority: P0（前置动作）
 - Reason: 本地 WP0–WP5 已验收，但远端 CI 从未运行。
 - Dependencies: 用户推送授权；网络代理可用（本机全局代理 7890 不可用，可用 7897 临时覆盖）。
-- Acceptance Criteria: GitHub Actions 在 WP1–WP5 分支首次运行通过（`npm run quality` + 空库 migration）。
+- Acceptance Criteria: GitHub Actions 在 WP1–WP6 分支首次运行通过（`npm run quality` + 空库 migration）。
 
-下一开发任务：WP6 行程（未开始；可执行规划见 `docs/21-wp6-codex-execution-plan.md`）。
+下一开发任务：WP7 PWA 与离线同步（未开始）。
 
 ## Completed Work
 
@@ -73,6 +74,9 @@ None（当前没有正在进行的开发任务；等待用户授权推送 WP1–
 - WP5：Calendar/Tasks/Reminders 契约与枚举、三张新表与 migration、日程/待办/
   提醒 CRUD 与状态机、重复展开与调度器、通知适配器、今日安排卡片与三个新页面
   （`docs/20`）。
+- WP6：Trips/TripItems/PackingItems 契约与 `TripItemType` 枚举、三张新表与
+  `transactions.trip_id`、行程/节点/行李 CRUD、超范围节点确认、服务端费用汇总、
+  行程详情日历入口、关联账单与前端页面（`docs/22`）。
 - 机制 v1：跨任务自动恢复项目状态（`1aab5ec`）。
 - 机制 v2：session/decisions/check:context 脚本与可选 pre-commit Hook。
 
@@ -80,13 +84,13 @@ None（当前没有正在进行的开发任务；等待用户授权推送 WP1–
 
 - In Progress: None。
 - Partially Completed: 远端 CI 验证（未推送）；浏览器 QA 一键脚本化（OPEN-009）。
-- Not Started: WP6 行程、WP7 PWA/离线同步、WP8 全量质量与发布准备。
-- Needs Verification: WP6–WP8 全部功能；远端 CI；真实 OCR/对象存储/通知供应商业效
+- Not Started: WP7 PWA/离线同步、WP8 全量质量与发布准备。
+- Needs Verification: WP7–WP8 全部功能；远端 CI；真实 OCR/对象存储/通知供应商业效
   （OPEN-004/005/006）。
 
 ## Blockers
 
-- 远端 CI 结果未确认（本机 `gh` 未登录；WP1–WP5 分支未推送）。
+- 远端 CI 结果未确认（本机 `gh` 未登录；WP1–WP6 分支未推送）。
 - 便携 MySQL 8.4 位于仓库外，其他机器复跑集成测试需自备 MySQL 8.x。
 - 邮件/通知/OCR/AI/对象存储供应商未确定（OPEN-003/004/005/006），当前使用本地
   适配器与假实现。
@@ -105,13 +109,13 @@ None（当前没有正在进行的开发任务；等待用户授权推送 WP1–
 
 ## Verification Status
 
-- Lint: PASS（WP5 验收时 `npm run quality`）
+- Lint: PASS（WP6 验收时 `npm run quality`）
 - Type Check: PASS
-- Unit Tests: PASS（API 29/29 + 契约 118/118，见 `docs/20`）
-- Integration Tests: PASS（48/48，真实 MySQL 8.4；WP2+WP3+WP4+WP5）
+- Unit Tests: PASS（API 29/29 + 契约 127/127，见 `docs/22`）
+- Integration Tests: PASS（55/55，真实 MySQL 8.4；WP2–WP6）
 - Build: PASS（全部 workspace）
-- Runtime Verification: PASS（浏览器 5 宽度矩阵 20/20、主流程与错误态、通知权限降级）
-- Unverified Areas: 远端 CI（未推送）；WP6–WP8 全部功能；真实 OCR/对象存储/通知供应商业效
+- Runtime Verification: PASS（浏览器 5 宽度矩阵 10/10、主流程与错误态、日历跳转）
+- Unverified Areas: 远端 CI（未推送）；WP7–WP8 全部功能；真实 OCR/对象存储/通知供应商业效
 
 ## Recent Changes
 
@@ -119,7 +123,12 @@ None（当前没有正在进行的开发任务；等待用户授权推送 WP1–
 - `4be9524` feat(db): WP4 device credentials, drafts and attachments schema and migration
 - `4cd75e9` feat(api): WP4 device credentials, shortcut drafts, draft center, and attachment OCR
 - `c1cfc33` fix(api): return ATTACHMENT_TYPE_NOT_ALLOWED from service after DTO validation
-- 本次：WP5 契约/数据/后端/前端/验收提交（`codex/wp5-calendar-tasks` 分支，以 `git log` 为准）
+- `4383adb` docs: WP6 行程执行规划与状态切换（docs/21）
+- `d039efc` feat(contracts): WP6 trips, trip items and packing items OpenAPI contracts
+- `c767ba5` feat(db): WP6 trips, trip items and packing items schema and migration
+- `8f70868` feat(api): WP6 trips CRUD, expense summary, calendar link and transaction tripId
+- `abbdeb7` feat(web): WP6 trips list, detail, itinerary, packing, calendar link and transaction trip select
+- 本次：WP6 验收与文档提交（`codex/wp6-trips` 分支，以 `git log` 为准）
 
 ## Important Constraints
 

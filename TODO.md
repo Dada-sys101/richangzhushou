@@ -46,3 +46,11 @@
 | DA-0506 | 提醒调度器：原子领取、防重、失败重试上限与 FAILED/SUPPRESSED 可诊断状态 | DONE | WP5 |
 | DA-0507 | 通知适配器与用户端：今日安排卡片、日程/待办/提醒页与通知权限降级 | DONE | WP5 |
 | DA-0508 | 集成、并发、安全、前端与浏览器矩阵验收、文档与 WP5 验收报告同步 | DONE | WP5 |
+| DA-0601 | 补全 Trips/TripItems/PackingItems OpenAPI、共享类型、TripItemType 枚举与契约测试 | DONE | WP6 |
+| DA-0602 | WP6 Prisma 实体、约束、索引、migration、seed 与回滚说明 | DONE | WP6 |
+| DA-0603 | 行程 CRUD：日期校验、预算字段、软删除/恢复、幂等与版本并发 | DONE | WP6 |
+| DA-0604 | 节点 CRUD：范围校验与超范围确认、position 排序、软删除/恢复 | DONE | WP6 |
+| DA-0605 | 行李清单 CRUD：文本/勾选/顺序、切换勾选与软删除/恢复 | DONE | WP6 |
+| DA-0606 | 账单关联与费用汇总：Transaction.tripId 校验、服务端定点实际支出/预算进度 | DONE | WP6 |
+| DA-0607 | 日程关联入口与前端：行程列表/详情/节点/行李、关联账单、日历跳转与首页入口 | DONE | WP6 |
+| DA-0608 | 集成、并发、安全、前端与浏览器矩阵验收、文档与 WP6 验收报告同步 | DONE | WP6 |

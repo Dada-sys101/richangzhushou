@@ -37,6 +37,11 @@
 | DEC-118 | 提醒重复规则以 JSON `{ interval?, weekdays?, dayOfMonth?, until? }` 存储，`startsAt` 作为重复锚点，`scheduledAt` 恒为下一次应发送时间 | `[代码] apps/api/src/reminders/recurrence.util.ts`、`prisma/schema.prisma` | `Asia/Shanghai` 边界与调度器需要稳定锚点（BR-REM-001） |
 | DEC-119 | 提醒调度器采用数据库记录 + 单进程周期扫描：`attempt_count`/`next_attempt_at`/`last_attempt_at` 原子领取，失败重试上限 3 次，账号非 `ACTIVE` 标记 `SUPPRESSED` | `[代码] apps/api/src/reminders/reminders.scheduler.ts` | 防重、可诊断状态（QA-REM-001）；多实例部署前需租约（docs/07） |
 | DEC-120 | `NotificationAdapter` 接口 + 本地 `FakeNotificationAdapter`（`FAKE_NOTIFICATION_FAIL=true` 模拟失败）；无推送权限时保留应用内提醒并显示“通知未开启” | `[代码] apps/api/src/integrations/*`、`apps/web/src/views/RemindersView.vue` | OPEN-005 真实通道未定，按适配层降级 |
+| DEC-121 | WP6 新增 `TripItemType`（TRANSPORT/STAY/ACTIVITY/FOOD/OTHER）取值 | `[代码] packages/api-contracts/src/enums.ts`、`apps/api/prisma/schema.prisma` | 数据字典未定义具体取值，属 `[关键假设]`，待产品确认 |
+| DEC-122 | `GET /trips/:id` 返回行程详情聚合：节点、行李、服务端费用汇总、关联账单与行程日期范围内日历事件 | `[代码] apps/api/src/trips/trips.service.ts` | `docs/12` “日程关联入口” 的最小实现形态，不新增跨实体外键 |
+| DEC-123 | 超范围节点：未传 `confirmOutOfRange=true` 返回 `VALIDATION_ERROR`（不保存）；确认后保存并返回 `TripItemOutOfRangeWarning` | `[代码] apps/api/src/trips/trips.service.ts`、`apps/web/src/views/TripDetailView.vue` | BR-TRIP-002“未确认不保存；确认后允许保存” |
+| DEC-124 | `Transaction.tripId` 为可空外键（ON DELETE SET NULL），创建/更新仅允许关联当前用户未删除行程（跨用户 404）；行程实际支出只统计 CONFIRMED 未删除支出减退款，服务端定点计算 | `[代码] apps/api/src/finance/*`、`apps/api/src/trips/trips.service.ts` | BR-TRIP-003 / QA-TRIP-001 |
+| DEC-125 | WP6 未提供批量删除/清空节点或行李端点（`docs/06` 未声明）；如后续新增须按 BR-AI-004 二次确认并写脱敏审计（沿用 WP4 `confirmationToken` 模式） | `[代码] apps/api/src/trips/*`、`docs/06` | 范围控制：不在未声明端点前擅自实现高风险操作 |
 
 ## 尚未确定的决策
 
