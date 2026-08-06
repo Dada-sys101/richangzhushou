@@ -385,6 +385,15 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
       .send(largeBuffer);
     expect(largeUpload.status).toBe(413);
     expect(largeUpload.body.code).toBe("ATTACHMENT_TOO_LARGE");
+
+    const wrongContent = await createIntent(token);
+    const mismatchUpload = await request(app.getHttpServer())
+      .put(`/api/v1/attachments/${wrongContent.body.id}/content`)
+      .query({ uploadToken: wrongContent.body.uploadToken })
+      .set("Content-Type", "application/octet-stream")
+      .send(Buffer.from("not-a-real-image"));
+    expect(mismatchUpload.status).toBe(400);
+    expect(mismatchUpload.body.code).toBe("ATTACHMENT_TYPE_NOT_ALLOWED");
   });
 
   it("reports attachment scan failures with a structured error", async () => {
@@ -711,7 +720,12 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
       .put(`/api/v1/attachments/${id}/content`)
       .query({ uploadToken })
       .set("Content-Type", "application/octet-stream")
-      .send(Buffer.from("fake-image-bytes"))
+      .send(
+        Buffer.concat([
+          Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+          Buffer.from("fake-image-bytes"),
+        ]),
+      )
       .expect(204);
   }
 

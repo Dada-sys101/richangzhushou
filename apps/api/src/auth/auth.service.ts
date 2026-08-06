@@ -6,6 +6,7 @@ import { Prisma, type Session, type User } from "../generated/prisma/client.js";
 import { ApiException } from "../common/api-error.js";
 import { SecurityService } from "../common/security.service.js";
 import { CapacityService } from "../capacity/capacity.service.js";
+import { AuditService } from "../audit/audit.service.js";
 import { MailAdapter, type RecoveryMailKind } from "../mail/mail.adapter.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { normalizeEmail, toUserSummary } from "../users/user.mapper.js";
@@ -39,6 +40,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly securityService: SecurityService,
     private readonly capacityService: CapacityService,
+    private readonly auditService: AuditService,
     private readonly mailAdapter: MailAdapter,
   ) {
     this.refreshTtlMs =
@@ -353,7 +355,10 @@ export class AuthService {
     });
   }
 
-  async reopenAccount(dto: ReopenAccountDto): Promise<AuthSessionResult> {
+  async reopenAccount(
+    dto: ReopenAccountDto,
+    requestId: string,
+  ): Promise<AuthSessionResult> {
     const tokenHash = this.securityService.sha256(dto.recoveryToken);
     const passwordHash = await this.securityService.hashPassword(
       dto.newPassword,
@@ -420,6 +425,16 @@ export class AuthService {
           status: "ACTIVE",
         },
       });
+      await this.auditService.recordInTx(tx, {
+        action: "USER_REOPEN",
+        actorId: user.id,
+        after: { status: user.status },
+        before: { status: "CLOSED" },
+        reason: "Account reopened via recovery credential",
+        requestId,
+        targetId: user.id,
+        targetType: "User",
+      });
       await tx.session.updateMany({
         where: { revokedAt: null, userId: user.id },
         data: { revokedAt: new Date() },
@@ -428,7 +443,11 @@ export class AuthService {
     });
   }
 
-  async closeAccount(userId: string, dto: CloseAccountDto): Promise<void> {
+  async closeAccount(
+    userId: string,
+    dto: CloseAccountDto,
+    requestId: string,
+  ): Promise<void> {
     await this.verifyOwnPassword(userId, dto.password);
     await this.capacityService.withCapacityRetry(async (tx) => {
       const updated = await tx.user.updateMany({
@@ -446,12 +465,23 @@ export class AuthService {
         where: { revokedAt: null, userId },
         data: { revokedAt: new Date() },
       });
+      await this.auditService.recordInTx(tx, {
+        action: "USER_CLOSE",
+        actorId: userId,
+        after: { status: "CLOSED" },
+        before: { status: "ACTIVE" },
+        reason: dto.reason,
+        requestId,
+        targetId: userId,
+        targetType: "User",
+      });
     });
   }
 
   async requestDeletion(
     userId: string,
     dto: RequestDeletionDto,
+    requestId: string,
   ): Promise<void> {
     await this.verifyOwnPassword(userId, dto.password);
     await this.capacityService.withCapacityRetry(async (tx) => {
@@ -472,6 +502,19 @@ export class AuthService {
       await tx.session.updateMany({
         where: { revokedAt: null, userId },
         data: { revokedAt: new Date() },
+      });
+      await this.auditService.recordInTx(tx, {
+        action: "USER_DELETE_REQUEST",
+        actorId: userId,
+        after: {
+          deletionRequestedAt: new Date().toISOString(),
+          status: "DELETION_PENDING",
+        },
+        before: { status: "ACTIVE" },
+        reason: dto.reason,
+        requestId,
+        targetId: userId,
+        targetType: "User",
       });
     });
   }

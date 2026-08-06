@@ -2,16 +2,16 @@
 
 ## Last Updated
 
-2026-08-06 +08:00（WP7 本地验收完成；提交哈希以 `git log -1` 为准，不虚构）
+2026-08-06 +08:00（WP8 本地验收完成；提交哈希以 `git log -1` 为准，不虚构）
 
 ## Repository State
 
 - Repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
-- Current Branch: `codex/wp7-pwa-sync`
-- HEAD Commit: 以 `git log -1 --oneline` 为准（WP7 验收提交）
-- Working Tree Status: WP7 提交完成后工作树仅剩本地未跟踪文件（如 `apps/api/.env`，gitignored）
-- Last Verified Commit: 以 `git log -1 --oneline` 为准；quality、空库 5 migrations+seed、
-  集成 55/55、浏览器矩阵 10/10 通过，记录于 `docs/22-wp6-acceptance-report.md`
+- Current Branch: `codex/wp8-release-prep`
+- HEAD Commit: 以 `git log -1 --oneline` 为准（WP8 本地验收提交）
+- Working Tree Status: WP8 提交完成后工作树仅剩本地未跟踪/忽略文件（如 `apps/api/.env`、`output/playwright/`，gitignored）
+- Last Verified Commit: 以 `git log -1 --oneline` 为准；`npm run quality`、空库 6 migrations+seed、
+  集成 63/63、浏览器矩阵 174/174 通过，记录于 `docs/26-wp8-acceptance-report.md`
 
 ## Project Summary
 
@@ -28,37 +28,35 @@
 
 ## Current Development Stage
 
-- WP0（规划）、WP1（工程骨架）、WP2（身份/容量/邀请码/管理端）、WP3（基础记账）、
-  WP4（快捷指令/OCR/统一录入）、WP5（日程/待办/提醒）、WP6（行程）、WP7（PWA 与
-  离线同步）均已完成本地验收（`docs/13`、`docs/14`、`docs/16`、`docs/18`、
-  `docs/20`、`docs/22`、`docs/24`）。
-- WP8 未开始；无生产部署。
+- WP0（规划）至 WP8（全量质量与发布准备）均已完成本地验收（`docs/13`、`docs/14`、
+  `docs/16`、`docs/18`、`docs/20`、`docs/22`、`docs/24`、`docs/26`）。
+- 无生产部署；未推送。
 
 ## Last Completed Task
 
-- Task: 执行 WP7 PWA 与离线同步（契约、数据、后端、前端、验收与文档）。
+- Task: 执行 WP8 全量质量与发布准备（契约/安全/上传复查、可访问性与响应式、全量回归、
+  备份恢复与账号删除演练、staging 发布清单）。
 - Completion Date: 2026-08-06
-- Related Files: `packages/api-contracts`、`apps/api/prisma`、
-  `apps/api/src/sync`、`apps/web/src/offline`、`apps/web/src/{api,stores,components,views}`、
-  `docs/23/24` 等
-- Verification: `npm run quality`、空库 6 migrations+seed、集成 63/63、
-  浏览器 QA-SYNC-001~004 与 5 宽度矩阵 20/20 全部通过
-- Related Commit: 以 `git log` 为准（`codex/wp7-pwa-sync` 分支）
+- Related Files: `packages/api-contracts/src/enums.ts`、`apps/api/src/{auth,account,common,attachments}`、
+  `apps/api/src/integration/{wp2,wp4}.integration.test.ts`、`docs/05/06/25/26/27` 等
+- Verification: `npm run quality`、空库 6 migrations+seed、集成 63/63、浏览器矩阵 174/174、
+  备份恢复 24/24 表一致、离线排队→恢复→单条落库通过
+- Related Commit: 以 `git log` 为准（`codex/wp8-release-prep` 分支）
 
 ## Current Task
 
-None（WP7 已完成本地验收；等待用户授权推送 WP1–WP7 分支并确认远端 CI，
-或授权启动 WP8）。
+None（WP8 已完成本地验收；未推送、未部署）。
 
 ## Next Recommended Task
 
-- Task: 确认 WP1–WP7 分支推送与远端 CI 结果（需用户授权；本机 `gh` 未登录）。
+- Task: 确认 WP1–WP8 分支推送与远端 CI 结果（需用户授权；本机 `gh` 未登录）。
 - Priority: P0（前置动作）
-- Reason: 本地 WP0–WP5 已验收，但远端 CI 从未运行。
+- Reason: 本地 WP0–WP8 已验收，但远端 CI 从未运行。
 - Dependencies: 用户推送授权；网络代理可用（本机全局代理 7890 不可用，可用 7897 临时覆盖）。
-- Acceptance Criteria: GitHub Actions 在 WP1–WP7 分支首次运行通过（`npm run quality` + 空库 migration）。
+- Acceptance Criteria: GitHub Actions 在 WP1–WP8 分支首次运行通过（`npm run quality` + 空库 migration）。
 
-下一开发任务：WP8 全量质量与发布准备（未开始）。
+下一开发任务：按 `docs/27` 完成 staging 决策（需用户授权）；在账号删除期满清理实现前
+不得宣称“数据已删除”（OPEN-007）。
 
 ## Completed Work
 
@@ -81,24 +79,28 @@ None（WP7 已完成本地验收；等待用户授权推送 WP1–WP7 分支并�
 - WP7：Sync 变更流/幂等 mutations/状态契约与错误码、`sync_mutations` 表与游标索引、
   后端变更流与版本冲突、IndexedDB 离线队列/同步器/SyncBadge/冲突页/离线会话/
   退出清理（`docs/24`）。
+- WP8：契约/安全/上传复查与修复（审计枚举、用户自助审计、确认令牌密钥、上传魔数校验、
+  文档一致性）、可访问性与响应式矩阵、全量回归、备份恢复与账号删除演练、staging 发布清单
+  （`docs/26`、`docs/27`）。
 - 机制 v1：跨任务自动恢复项目状态（`1aab5ec`）。
 - 机制 v2：session/decisions/check:context 脚本与可选 pre-commit Hook。
 
 ## Remaining Work
 
 - In Progress: None。
-- Partially Completed: 远端 CI 验证（未推送）；浏览器 QA 一键脚本化（OPEN-009）。
-- Not Started: WP8 全量质量与发布准备。
-- Needs Verification: 远端 CI；真实 OCR/对象存储/通知供应商业效
-  （OPEN-004/005/006）。
+- Partially Completed: 账号删除期满批量清理（未实现，缺口见 `docs/26` CP7/`docs/27`）；
+  远端 CI 验证（未推送）；浏览器 QA 一键脚本化（OPEN-009）。
+- Not Started: 远端 CI；staging 创建/部署（需授权）。
+- Needs Verification: 远端 CI；真实 OCR/对象存储/通知供应商业效（OPEN-004/005/006）。
 
 ## Blockers
 
-- 远端 CI 结果未确认（本机 `gh` 未登录；WP1–WP6 分支未推送）。
+- 远端 CI 结果未确认（本机 `gh` 未登录；WP1–WP8 分支未推送）。
 - 便携 MySQL 8.4 位于仓库外，其他机器复跑集成测试需自备 MySQL 8.x。
 - 邮件/通知/OCR/AI/对象存储供应商未确定（OPEN-003/004/005/006），当前使用本地
   适配器与假实现。
 - 产品名、部署地域、保留期等未决（OPEN-001~008）。
+- 账号删除期满批量清理未实现（OPEN-007；实现前不得宣称数据已删除）。
 
 ## Known Issues
 
@@ -109,17 +111,19 @@ None（WP7 已完成本地验收；等待用户授权推送 WP1–WP7 分支并�
 | WP3 边界：整体预算 NULL 唯一性服务层校验；原账单软删后退款仍计入统计；统计仅 CNY；CSV 上限 10,000 行 | V1 规模可接受 | finance | `docs/16` |
 | OCR/AI 与对象存储供应商未定；当前使用假实现与本地临时存储 | 真实识别/上传能力未验收 | integrations | OPEN-004/006 |
 | 通知通道未定；当前为应用内 + 假适配器；调度器按单进程周期扫描 | 真实推送未验收；多实例部署前需租约 | reminders/integrations | OPEN-005；`docs/20` |
+| 账号删除期满批量清理未实现；演练后用户内容与附件仍保留 | 隐私/合规未验收 | auth/attachments | OPEN-007；`docs/26` CP7 |
 | 本机 Git 全局代理 7890 不可用、7897 可用 | 远程 Git 操作需临时覆盖 | 本机环境 | 未修改全局配置 |
 
 ## Verification Status
 
-- Lint: PASS（WP7 验收时 `npm run quality`）
+- Lint: PASS（WP8 验收时 `npm run quality`）
 - Type Check: PASS
-- Unit Tests: PASS（API 29/29 + 契约 132/132 + 前端 3/3，见 `docs/24`）
+- Unit Tests: PASS（API 29/29 + 契约 132/132 + 前端 3/3，见 `docs/26`）
 - Integration Tests: PASS（63/63，真实 MySQL 8.4；WP2–WP7）
 - Build: PASS（全部 workspace）
-- Runtime Verification: PASS（QA-SYNC-001~004、5 宽度矩阵 20/20、主流程与错误态）
-- Unverified Areas: 远端 CI（未推送）；WP8 全部功能；真实 OCR/对象存储/通知供应商业效
+- Runtime Verification: PASS（浏览器矩阵 174/174 含 200% 缩放、主流程与错误态、
+  离线排队→恢复→单条落库、备份恢复 24/24 表一致、账号删除演练）
+- Unverified Areas: 远端 CI（未推送）；账号删除期满清理；真实 OCR/对象存储/通知供应商业效
 
 ## Recent Changes
 
@@ -137,7 +141,7 @@ None（WP7 已完成本地验收；等待用户授权推送 WP1–WP7 分支并�
 - `c9fee8c` feat(api): WP7 sync change stream, idempotent mutations and conflict handling
 - `479b0a9` feat(web): WP7 IndexedDB offline queue, sync engine, badge and conflict page
 - `c7a4fa1` fix(web): WP7 reconnect token refresh, tombstone pull and logout cache cleanup
-- 本次：WP7 验收与文档提交（`codex/wp7-pwa-sync` 分支，以 `git log` 为准）
+- 本次：WP8 验收与文档提交（`codex/wp8-release-prep` 分支，以 `git log` 为准）
 
 ## Important Constraints
 

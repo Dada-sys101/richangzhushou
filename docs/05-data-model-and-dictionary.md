@@ -45,6 +45,7 @@ erDiagram
 | `SystemSetting` | registrationEnabled, inviteRequired, maxActiveUsers | 单例或版本化配置 |
 | `InviteCode` | codeHash, status, expiresAt, maxUses, usedCount | codeHash 唯一；状态/过期索引 |
 | `InviteRedemption` | inviteId, userId, redeemedAt | userId 唯一；事务内创建 |
+| `RecoveryCode` | userId, kind（PASSWORD_RESET/REOPEN）, tokenHash（唯一）, expiresAt, usedAt | 找回密码/重开账号的一次性恢复凭证，仅存 SHA-256 哈希 |
 | `Session` | userId, refreshTokenHash, expiresAt, revokedAt | token 哈希唯一 |
 | `DeviceCredential` | userId, name, tokenHash（唯一）, tokenPrefix, scopes（JSON）, lastUsedAt, revokedAt | 快捷指令凭证仅保存 SHA-256 哈希与展示前缀；scopes 为 ShortcutScope JSON 数组；撤销置 revokedAt |
 | `Transaction` | type, status, amount, currency, categoryId, accountId, merchant, occurredAt, note, source, originalTransactionId, isUnlinkedRefund, sourceFingerprint, tripId?, clientMutationId, version, deletedAt | userId+occurredAt；userId+tripId；clientMutationId 唯一；软删除用 deletedAt |

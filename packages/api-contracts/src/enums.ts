@@ -206,5 +206,6 @@ export const ADMIN_AUDIT_ACTIONS = [
   "USER_CLOSE",
   "USER_REOPEN",
   "USER_DELETE_REQUEST",
+  "DRAFT_BATCH_DISCARD",
 ] as const;
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number];

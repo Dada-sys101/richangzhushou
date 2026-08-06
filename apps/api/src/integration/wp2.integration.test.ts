@@ -152,6 +152,16 @@ describeWithDb("WP2 identity, capacity, and admin integration", () => {
     const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
     expect(user.status).toBe("CLOSED");
     expect(await occupiedCount()).toBe(19);
+    const closeAudit = await prisma.adminAudit.findFirst({
+      where: { action: "USER_CLOSE", targetId: userId },
+    });
+    expect(closeAudit).not.toBeNull();
+    expect(closeAudit?.actorId).toBe(userId);
+    expect(closeAudit?.reason).toBe("closing test account");
+    expect(JSON.stringify(closeAudit?.beforeJson)).toContain("ACTIVE");
+    expect(JSON.stringify(closeAudit?.afterJson)).toContain("CLOSED");
+    expect(JSON.stringify(closeAudit)).not.toContain(TEST_PASSWORD);
+    expect(JSON.stringify(closeAudit)).not.toContain(email("cap004"));
   });
 
   it("QA-CAP-005: a closed user cannot reopen when capacity is full", async () => {
@@ -457,6 +467,17 @@ describeWithDb("WP2 identity, capacity, and admin integration", () => {
       .post("/api/v1/auth/refresh")
       .set("Cookie", session.cookie);
     expect(refresh.status).toBe(401);
+    const deletionAudit = await prisma.adminAudit.findFirst({
+      where: { action: "USER_DELETE_REQUEST", targetId },
+    });
+    expect(deletionAudit).not.toBeNull();
+    expect(deletionAudit?.actorId).toBe(targetId);
+    expect(deletionAudit?.reason).toBe("user deletion test");
+    expect(JSON.stringify(deletionAudit?.afterJson)).toContain(
+      "DELETION_PENDING",
+    );
+    expect(JSON.stringify(deletionAudit)).not.toContain(TEST_PASSWORD);
+    expect(JSON.stringify(deletionAudit)).not.toContain(email("deletion"));
   });
 
   it("QA-SEC-001: one user cannot observe or revoke another user's session", async () => {

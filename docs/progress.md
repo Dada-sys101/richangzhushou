@@ -54,6 +54,11 @@
 | WP7 数据：`sync_mutations`、分类/账户/预算 `client_mutation_id` 与游标索引 | `3ddf4e7`；`apps/api/prisma` |
 | WP7 后端：变更流/幂等批量/版本冲突/状态/限流与集成测试 63/63 | `c9fee8c`；`apps/api/src/sync` |
 | WP7 前端：IndexedDB 离线队列/同步器/SyncBadge/冲突页/离线会话/退出清理 | `479b0a9`、`c7a4fa1`；`apps/web/src/offline` 等 |
+| WP8 契约/安全/上传复查与修复：审计枚举补全、用户自助操作审计、确认令牌密钥、上传魔数校验、文档一致性 | 本次提交（分支 `codex/wp8-release-prep`）；`docs/26` |
+| WP8 可访问性与响应式：键盘/焦点/语义/触控 + 375/390/430/768/1440/200% 矩阵（Web 102、公开 30、管理端 42） | 本次提交；`docs/26` |
+| WP8 全量回归：`npm run quality`、空库 6 migrations+seed、集成 63/63、浏览器主流程与离线同步回归 | 本次提交；`docs/26` |
+| WP8 备份恢复演练（mysqldump→隔离库恢复→24 表一致）与账号删除演练（DELETION_PENDING/审计/清理缺口记录） | 本次提交；`docs/26`、`docs/27` |
+| WP8 发布准备：staging 发布清单、监控告警清单、隐私/试用门禁、WP8 验收报告 | 本次提交；`docs/27` |
 
 ## 部分完成
 
@@ -70,10 +75,11 @@
 
 ## 未开始
 
-- WP8 全量质量与发布准备
+- WP8 全量质量与发布准备（可执行规划见 `docs/25-wp8-codex-execution-plan.md`）
+- 无（WP8 已完成本地验收；未推送、未部署；后续发布动作需另行授权，见 `docs/26`、`docs/27`）
 
 以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP7 已 DONE（WP7 验收见
-`docs/24-wp7-acceptance-report.md`），WP8 为 `NOT_STARTED`。
+`docs/24-wp7-acceptance-report.md`），WP8 为 `DONE`（本地验收，`docs/26`）。
 
 ## 已知问题
 
@@ -94,3 +100,5 @@
 - 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 验证首页/日程/待办/提醒（20/20 无横向溢出）；一键脚本化复现待后续（OPEN-009）。
 - `npm run check:context` 与 `npm run quality` 已在本次机制任务中复跑通过。
 - 未实现功能一律不得视为已验证；计划中的功能不得写成已完成。
+- WP8 验收：`npm run quality`、空库 6 migrations+seed、集成 63/63、浏览器矩阵 174/174、备份恢复 24/24 表一致、离线排队→恢复→单条落库均通过（`docs/26`）；账号删除期满清理未实现（缺口已记录）。
+- 远端 CI 仍待推送授权；真实 OCR/AI/对象存储/邮件/通知供应商效果未验证（OPEN-003/004/005/006）。

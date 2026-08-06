@@ -28,6 +28,7 @@
 - `POST /me/close`
 - `POST /me/reopen`
 - `POST /me/request-deletion`
+- `DELETE /me/sessions`
 - `DELETE /me/sessions/:sessionId`
 
 `POST /auth/register` 必须在服务端事务中验证注册开关、邀请码和容量。

@@ -102,7 +102,7 @@ function readRawBody(request: Request): Promise<Buffer> {
             "Attachment exceeds the size limit",
           ),
         );
-        request.pause();
+        request.resume();
         return;
       }
       chunks.push(chunk);

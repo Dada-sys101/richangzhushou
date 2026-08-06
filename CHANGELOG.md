@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-08-06 — 输出 WP8 可执行规划（docs/25）
+
+- 新增 `docs/25-wp8-codex-execution-plan.md`：全量质量与发布准备的可执行规划
+  （安全/上传复审、可访问性、全量验证、备份恢复与删除演练、staging 发布清单）。
+- 同步 `docs/README.md`、`.project/context.md`、`.project/session.md` 与
+  `docs/progress.md`、`docs/changelog.md`。
+- 仅文档改动；未提交（等待授权）；未推送、未部署。
+
+## 2026-08-06 — WP8 全量质量与发布准备本地验收通过（docs/26/27）
+
+- 契约/一致性：审计枚举补全 `DRAFT_BATCH_DISCARD`；数据字典补 `RecoveryCode`；端点清单补 `DELETE /me/sessions`；OpenAPI 72 路径与控制器一致，契约测试 132/132。
+- 安全：生产强制 `CONFIRMATION_TOKEN_SECRET`；用户自助关号/申请删除/恢复码重开补写脱敏审计；`.env.example` 补齐适配器与调度变量。
+- 上传：新增 JPEG/PNG/WEBP 魔数校验；超大上传流改为 resume；wp4 测试适配并新增不匹配用例；扫描门控与悬空清理缺口如实记录。
+- 可访问性/响应式：键盘路径、焦点、语义标签、role=alert、文字+图标状态、触控目标；375/390/430/768/1440 + 200% 缩放矩阵全部无横向溢出。
+- 回归：`npm run quality`、空库 6 migrations+seed、集成 63/63、浏览器主流程与离线排队→恢复→单条落库通过。
+- 演练：备份恢复（mysqldump→隔离库→24 表一致）；账号删除（DELETION_PENDING、会话撤销、容量释放、脱敏审计；期满清理未实现，缺口记录）。
+- 发布准备：staging 发布清单、监控告警清单、隐私/试用门禁（docs/27）；OPEN-001~011 全部记录，未宣称生产可用。
+- 分支 `codex/wp8-release-prep`；本地提交；未推送、未部署、未创建生产资源。
+
 ## 2026-08-06 — WP7 PWA 与离线同步本地验收通过
 
 - 契约：Sync 变更流/幂等 mutations/状态端点、`SyncEntityType`/`SyncAction`

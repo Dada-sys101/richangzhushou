@@ -28,6 +28,22 @@ const MIME_EXTENSIONS: Record<string, string> = {
   "image/png": "png",
   "image/webp": "webp",
 };
+const MAGIC_BYTES: Record<string, (data: Buffer) => boolean> = {
+  "image/jpeg": (data) =>
+    data.length >= 3 &&
+    data[0] === 0xff &&
+    data[1] === 0xd8 &&
+    data[2] === 0xff,
+  "image/png": (data) =>
+    data.length >= 8 &&
+    data
+      .subarray(0, 8)
+      .equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])),
+  "image/webp": (data) =>
+    data.length >= 12 &&
+    data.subarray(0, 4).toString("ascii") === "RIFF" &&
+    data.subarray(8, 12).toString("ascii") === "WEBP",
+};
 
 @Injectable()
 export class AttachmentsService {
@@ -122,6 +138,14 @@ export class AttachmentsService {
         "ATTACHMENT_TOO_LARGE",
         413,
         "Attachment exceeds the size limit",
+      );
+    }
+    const matchesMagic = MAGIC_BYTES[attachment.mimeType];
+    if (!matchesMagic || !matchesMagic(data)) {
+      throw new ApiException(
+        "ATTACHMENT_TYPE_NOT_ALLOWED",
+        400,
+        "Attachment content does not match the declared type",
       );
     }
     this.rateLimiter.consume(`upload:${attachment.userId}`, 60, 60_000);

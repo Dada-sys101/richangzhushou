@@ -1,16 +1,16 @@
 # Project Status
 
 版本：1.0<br>
-状态：WP7 本地验收完成（WP1–WP7 均已通过本地验收）<br>
+状态：WP8 本地验收完成（WP1–WP8 均已通过本地验收）<br>
 更新：2026-08-06
 
 ## 当前状态
 
 - 项目：Daily Assistant（临时名称）
 - 位置：`D:\daily-assistant`
-- 当前工作包：WP7 已完成本地验收（分支 `codex/wp7-pwa-sync`，未推送）
-- 代码：WP2 身份/容量/邀请码/管理端已实现；WP3 记账已实现；WP4 快捷指令/草稿/OCR 已实现；WP5 日程/待办/提醒已实现；WP6 行程/节点/行李/账单关联/费用汇总已实现；WP7 PWA/IndexedDB 离线缓存/同步队列/冲突页已实现
-- Git 仓库：独立仓库，当前分支 `codex/wp7-pwa-sync`（未推送）
+- 当前工作包：WP8 已完成本地验收（分支 `codex/wp8-release-prep`，未推送）
+- 代码：WP2 身份/容量/邀请码/管理端已实现；WP3 记账已实现；WP4 快捷指令/草稿/OCR 已实现；WP5 日程/待办/提醒已实现；WP6 行程/节点/行李/账单关联/费用汇总已实现；WP7 PWA/IndexedDB 离线缓存/同步队列/冲突页已实现；WP8 安全/上传/可访问性/全量回归/发布准备已完成（详见 `docs/26`、`docs/27`）
+- Git 仓库：独立仓库，当前分支 `codex/wp8-release-prep`（未推送）
 - 上下文：`.project/context.md` 与 `docs/` 接管文档已建立（见 `docs/README.md`）
 - 自动恢复机制：`AGENTS.md` 增加 Project State Recovery / Required workflow，`.project/context.md` 已规范化为固定结构
 - 持久化恢复机制 v2：`AGENTS.md` 四章规则、`.project/session.md`、`.project/decisions.md`、`npm run check:context`（并入 quality）与可选 Hook
@@ -41,7 +41,7 @@
 ## 下一步
 
 - 确认 WP1–WP6 远端 CI 结果（需推送授权）。
-- WP8 全量质量与发布准备（未开始）。
+- WP8 全量质量与发布准备（未开始；可执行规划见 `docs/25-wp8-codex-execution-plan.md`）。
 
 ## 阻塞项
 

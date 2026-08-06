@@ -41,6 +41,12 @@ export class SecurityService {
     ) {
       throw new Error("ACCESS_TOKEN_SECRET is required in production");
     }
+    if (
+      process.env.NODE_ENV === "production" &&
+      !process.env.CONFIRMATION_TOKEN_SECRET
+    ) {
+      throw new Error("CONFIRMATION_TOKEN_SECRET is required in production");
+    }
     this.accessTokenSecret = new TextEncoder().encode(secret);
     this.confirmationSecret = new TextEncoder().encode(confirmationSecret);
   }

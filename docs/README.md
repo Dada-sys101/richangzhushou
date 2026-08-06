@@ -1,8 +1,8 @@
 # Documentation Index
 
-版本：0.2
+版本：0.3
 状态：已核对
-更新：2026-08-05
+更新：2026-08-06
 
 ## 接手导航（实时/概要）
 
@@ -43,5 +43,8 @@
 23. `22-wp6-acceptance-report.md`
 24. `23-wp7-codex-execution-plan.md`
 25. `24-wp7-acceptance-report.md`
+26. `25-wp8-codex-execution-plan.md`
+27. `26-wp8-acceptance-report.md`
+28. `27-wp8-staging-release-checklist.md`
 
 所有文档以稳定编号引用规则、功能、页面、数据、API 和验收项。未确认信息必须标记为 `[待确认]` 或 `[关键假设]`。

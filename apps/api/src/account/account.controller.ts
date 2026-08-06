@@ -50,16 +50,24 @@ export class AccountController {
     if (!request.user) {
       return;
     }
-    await this.authService.closeAccount(request.user.userId, dto);
+    await this.authService.closeAccount(
+      request.user.userId,
+      dto,
+      request.requestId ?? "unknown",
+    );
   }
 
   @Post("me/reopen")
   @HttpCode(HttpStatus.OK)
   async reopen(
+    @Req() request: AuthenticatedRequest,
     @Body() dto: ReopenAccountDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const result = await this.authService.reopenAccount(dto);
+    const result = await this.authService.reopenAccount(
+      dto,
+      request.requestId ?? "unknown",
+    );
     this.cookieService.setRefreshCookie(
       response,
       result.refreshToken,
@@ -78,7 +86,11 @@ export class AccountController {
     if (!request.user) {
       return;
     }
-    await this.authService.requestDeletion(request.user.userId, dto);
+    await this.authService.requestDeletion(
+      request.user.userId,
+      dto,
+      request.requestId ?? "unknown",
+    );
   }
 
   @Delete("me/sessions")
