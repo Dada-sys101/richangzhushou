@@ -2,10 +2,18 @@ import { defineStore } from "pinia";
 
 import {
   api,
+  isOfflineError,
   type TripDetailResponse,
   type TripItemType,
   type TripSummary,
 } from "../api/client";
+import {
+  localGet,
+  localList,
+  localTripDetail,
+  mergePending,
+} from "../offline/local";
+import { useAuthStore } from "./auth";
 
 interface TripsState {
   detail: TripDetailResponse | null;
@@ -24,9 +32,22 @@ export const useTripsStore = defineStore("trips", {
       this.errorMessage = null;
       try {
         const result = await api.listTrips(params);
-        this.trips = result.items;
+        const userId = useAuthStore().userId;
+        this.trips = userId
+          ? mergePending(
+              result.items,
+              (await localList(userId, "TRIP")) as unknown as TripSummary[],
+            )
+          : result.items;
       } catch (error) {
-        this.errorMessage = messageOf(error);
+        if (isOfflineError(error)) {
+          const userId = useAuthStore().userId;
+          this.trips = userId
+            ? ((await localList(userId, "TRIP")) as unknown as TripSummary[])
+            : [];
+        } else {
+          this.errorMessage = messageOf(error);
+        }
       }
     },
     async loadTrip(id: string) {
@@ -34,9 +55,36 @@ export const useTripsStore = defineStore("trips", {
       try {
         this.detail = await api.getTrip(id);
       } catch (error) {
+        if (isOfflineError(error)) {
+          const userId = useAuthStore().userId;
+          if (userId) {
+            const detail = await this.localTripDetail(userId, id);
+            if (detail) {
+              this.detail = detail;
+              return;
+            }
+          }
+        }
         this.errorMessage = messageOf(error);
         throw error;
       }
+    },
+    async localTripDetail(userId: string, id: string) {
+      const [trip, items, packingItems, transactions, calendarEvents] =
+        await Promise.all([
+          localGet(userId, "TRIP", id),
+          localList(userId, "TRIP_ITEM"),
+          localList(userId, "PACKING_ITEM"),
+          localList(userId, "TRANSACTION"),
+          localList(userId, "CALENDAR_EVENT"),
+        ]);
+      return localTripDetail(
+        trip,
+        items.filter((item) => item.tripId === id),
+        packingItems.filter((item) => item.tripId === id),
+        transactions,
+        calendarEvents,
+      ) as unknown as TripDetailResponse | null;
     },
     async createTrip(input: {
       budgetAmount?: string | null;

@@ -27,6 +27,7 @@ export default defineConfig({
       registerType: "prompt",
       workbox: {
         navigateFallback: "/index.html",
+        navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [],
       },
     }),

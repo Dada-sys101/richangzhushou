@@ -16,6 +16,7 @@ import RegisterView from "./views/RegisterView.vue";
 import RemindersView from "./views/RemindersView.vue";
 import ResetPasswordView from "./views/ResetPasswordView.vue";
 import ShortcutsView from "./views/ShortcutsView.vue";
+import SyncConflictsView from "./views/SyncConflictsView.vue";
 import TasksView from "./views/TasksView.vue";
 import TransactionFormView from "./views/TransactionFormView.vue";
 import TransactionsView from "./views/TransactionsView.vue";
@@ -115,6 +116,12 @@ export const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/sync/conflicts",
+      name: "sync-conflicts",
+      component: SyncConflictsView,
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/trips",
       name: "trips",
       component: TripsView,
@@ -154,17 +161,21 @@ export const router = createRouter({
 
 router.beforeEach(async (to) => {
   const auth = useAuthStore();
-  if (!auth.accessToken && !to.meta.public) {
+  if (!auth.accessToken && !auth.offlineMode && !to.meta.public) {
     try {
       await auth.refresh();
     } catch {
-      auth.clear();
+      const entered = await auth.enterOfflineMode();
+      if (!entered) {
+        auth.clear();
+        return { name: "login", query: { redirect: to.fullPath } };
+      }
     }
   }
-  if (to.meta.requiresAuth && !auth.accessToken) {
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: "login", query: { redirect: to.fullPath } };
   }
-  if ((to.name === "login" || to.name === "register") && auth.accessToken) {
+  if ((to.name === "login" || to.name === "register") && auth.isAuthenticated) {
     return { name: "account" };
   }
   return true;

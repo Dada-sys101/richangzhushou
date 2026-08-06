@@ -2,12 +2,20 @@ import { defineStore } from "pinia";
 
 import {
   api,
+  isOfflineError,
   type BudgetSummary,
   type CategorySummary,
   type FinanceSummaryResponse,
   type FinancialAccountSummary,
   type TransactionSummary,
 } from "../api/client";
+import {
+  localGet,
+  localList,
+  localSummary,
+  mergePending,
+} from "../offline/local";
+import { useAuthStore } from "./auth";
 
 interface FinanceState {
   budgets: BudgetSummary[];
@@ -52,48 +60,140 @@ export const useFinanceStore = defineStore("finance", {
       this.transactionsLoading = true;
       try {
         const result = await api.listTransactions({ limit: 100, ...params });
-        this.transactions = result.items;
+        this.transactions = mergePending(
+          result.items,
+          await this.localTransactions(),
+        );
       } catch (error) {
-        this.errorMessage = errorMessage(error);
+        if (isOfflineError(error)) {
+          this.transactions = await this.localTransactions();
+        } else {
+          this.errorMessage = errorMessage(error);
+        }
       } finally {
         this.transactionsLoading = false;
       }
     },
     async getTransaction(id: string) {
-      return api.getTransaction(id);
+      try {
+        return await api.getTransaction(id);
+      } catch (error) {
+        if (isOfflineError(error)) {
+          const userId = useAuthStore().userId;
+          if (userId) {
+            const local = await localGet(userId, "TRANSACTION", id);
+            if (local) {
+              return local as unknown as TransactionSummary;
+            }
+          }
+        }
+        throw error;
+      }
     },
     async loadSummary(month: string) {
       this.summaryLoading = true;
       try {
         this.summary = await api.getFinanceSummary(month);
       } catch (error) {
-        this.errorMessage = errorMessage(error);
+        if (isOfflineError(error)) {
+          const userId = useAuthStore().userId;
+          if (userId) {
+            this.summary = localSummary(
+              await localList(userId, "TRANSACTION"),
+              await localList(userId, "BUDGET"),
+              await localList(userId, "CATEGORY"),
+              month,
+            ) as unknown as FinanceSummaryResponse;
+          }
+        } else {
+          this.errorMessage = errorMessage(error);
+        }
       } finally {
         this.summaryLoading = false;
       }
     },
     async loadBudgets(month?: string) {
       try {
-        this.budgets = (await api.listBudgets(month ? { month } : {})).items;
+        const result = await api.listBudgets(month ? { month } : {});
+        const userId = useAuthStore().userId;
+        const locals = userId
+          ? (await localList(userId, "BUDGET")).filter(
+              (budget) => !month || budget.month === month,
+            )
+          : [];
+        this.budgets = mergePending(
+          result.items,
+          locals as unknown as BudgetSummary[],
+        );
       } catch (error) {
-        this.errorMessage = errorMessage(error);
+        if (isOfflineError(error)) {
+          const userId = useAuthStore().userId;
+          this.budgets = userId
+            ? ((await localList(
+                userId,
+                "BUDGET",
+              )) as unknown as BudgetSummary[])
+            : [];
+        } else {
+          this.errorMessage = errorMessage(error);
+        }
       }
     },
     async loadCategories(includeArchived = false) {
       try {
-        this.categories = (await api.listCategories({ includeArchived })).items;
+        const result = await api.listCategories({ includeArchived });
+        const userId = useAuthStore().userId;
+        const locals = userId ? await localList(userId, "CATEGORY") : [];
+        this.categories = mergePending(
+          result.items,
+          locals as unknown as CategorySummary[],
+        );
       } catch (error) {
-        this.errorMessage = errorMessage(error);
+        if (isOfflineError(error)) {
+          const userId = useAuthStore().userId;
+          this.categories = userId
+            ? ((await localList(
+                userId,
+                "CATEGORY",
+              )) as unknown as CategorySummary[])
+            : [];
+        } else {
+          this.errorMessage = errorMessage(error);
+        }
       }
     },
     async loadAccounts(includeArchived = false) {
       try {
-        this.accounts = (
-          await api.listFinancialAccounts({ includeArchived })
-        ).items;
+        const result = await api.listFinancialAccounts({ includeArchived });
+        const userId = useAuthStore().userId;
+        const locals = userId
+          ? await localList(userId, "FINANCIAL_ACCOUNT")
+          : [];
+        this.accounts = mergePending(
+          result.items,
+          locals as unknown as FinancialAccountSummary[],
+        );
       } catch (error) {
-        this.errorMessage = errorMessage(error);
+        if (isOfflineError(error)) {
+          const userId = useAuthStore().userId;
+          this.accounts = userId
+            ? ((await localList(
+                userId,
+                "FINANCIAL_ACCOUNT",
+              )) as unknown as FinancialAccountSummary[])
+            : [];
+        } else {
+          this.errorMessage = errorMessage(error);
+        }
       }
+    },
+    async localTransactions() {
+      const userId = useAuthStore().userId;
+      if (!userId) {
+        return [];
+      }
+      const locals = await localList(userId, "TRANSACTION");
+      return locals as unknown as TransactionSummary[];
     },
     async createCategory(input: {
       color?: string;

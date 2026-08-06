@@ -1076,3 +1076,130 @@ textarea {
   font-weight: 700;
   white-space: nowrap;
 }
+
+.offline-banner {
+  margin: 0;
+  padding: 8px 16px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.sync-area {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+}
+
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sync-badge.status-SYNCED {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.sync-badge.status-PENDING_SYNC {
+  color: #854d0e;
+  background: #fef9c3;
+}
+
+.sync-badge.status-SYNC_FAILED,
+.sync-badge.status-CONFLICT {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sync-count {
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.conflict-link,
+.retry-button,
+.install-button {
+  border: 0;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #1e293b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.conflict-list {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.conflict-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  background: #ffffff;
+}
+
+.conflict-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.conflict-head small {
+  color: #991b1b;
+}
+
+.conflict-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.conflict-pane h2 {
+  margin: 0 0 6px;
+  font-size: 0.875rem;
+}
+
+.conflict-pane pre {
+  margin: 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.conflict-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}

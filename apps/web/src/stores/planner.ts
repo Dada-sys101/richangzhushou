@@ -2,10 +2,13 @@ import { defineStore } from "pinia";
 
 import {
   api,
+  isOfflineError,
   type CalendarEventSummary,
   type ReminderSummary,
   type TaskSummary,
 } from "../api/client";
+import { localList, mergePending } from "../offline/local";
+import { useAuthStore } from "./auth";
 
 interface PlannerState {
   calendarEvents: CalendarEventSummary[];
@@ -38,9 +41,28 @@ export const usePlannerStore = defineStore("planner", {
       this.errorMessage = null;
       try {
         const result = await api.listCalendarEvents(params);
-        this.calendarEvents = result.items;
+        const userId = useAuthStore().userId;
+        this.calendarEvents = userId
+          ? mergePending(
+              result.items,
+              (await localList(
+                userId,
+                "CALENDAR_EVENT",
+              )) as unknown as CalendarEventSummary[],
+            )
+          : result.items;
       } catch (error) {
-        this.errorMessage = messageOf(error);
+        if (isOfflineError(error)) {
+          const userId = useAuthStore().userId;
+          this.calendarEvents = userId
+            ? ((await localList(
+                userId,
+                "CALENDAR_EVENT",
+              )) as unknown as CalendarEventSummary[])
+            : [];
+        } else {
+          this.errorMessage = messageOf(error);
+        }
       }
     },
     async loadTasks(
@@ -52,9 +74,22 @@ export const usePlannerStore = defineStore("planner", {
       this.errorMessage = null;
       try {
         const result = await api.listTasks(params);
-        this.tasks = result.items;
+        const userId = useAuthStore().userId;
+        this.tasks = userId
+          ? mergePending(
+              result.items,
+              (await localList(userId, "TASK")) as unknown as TaskSummary[],
+            )
+          : result.items;
       } catch (error) {
-        this.errorMessage = messageOf(error);
+        if (isOfflineError(error)) {
+          const userId = useAuthStore().userId;
+          this.tasks = userId
+            ? ((await localList(userId, "TASK")) as unknown as TaskSummary[])
+            : [];
+        } else {
+          this.errorMessage = messageOf(error);
+        }
       }
     },
     async loadReminders(
@@ -66,9 +101,28 @@ export const usePlannerStore = defineStore("planner", {
       this.errorMessage = null;
       try {
         const result = await api.listReminders(params);
-        this.reminders = result.items;
+        const userId = useAuthStore().userId;
+        this.reminders = userId
+          ? mergePending(
+              result.items,
+              (await localList(
+                userId,
+                "REMINDER",
+              )) as unknown as ReminderSummary[],
+            )
+          : result.items;
       } catch (error) {
-        this.errorMessage = messageOf(error);
+        if (isOfflineError(error)) {
+          const userId = useAuthStore().userId;
+          this.reminders = userId
+            ? ((await localList(
+                userId,
+                "REMINDER",
+              )) as unknown as ReminderSummary[])
+            : [];
+        } else {
+          this.errorMessage = messageOf(error);
+        }
       }
     },
     async createCalendarEvent(input: {

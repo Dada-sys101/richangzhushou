@@ -1,10 +1,8 @@
-export const API_BASE_URL = "/api/v1";
+import { API_BASE_URL, getAccessToken, setAccessToken } from "./session";
 
-let accessToken: string | null = null;
+export { setAccessToken };
 
-export function setAccessToken(token: string | null): void {
-  accessToken = token;
-}
+import { handleOffline, matchOfflineRoute } from "../offline/handler";
 
 export interface FieldError {
   field: string;
@@ -27,6 +25,22 @@ export class ApiClientError extends Error {
   ) {
     super(message);
   }
+}
+
+export class OfflineNetworkError extends ApiClientError {
+  constructor(
+    readonly method: string,
+    readonly path: string,
+  ) {
+    super(0, "NETWORK_ERROR", "当前离线，操作已保存到本地并将在联网后同步");
+  }
+}
+
+export function isOfflineError(error: unknown): boolean {
+  return (
+    error instanceof OfflineNetworkError ||
+    (error instanceof ApiClientError && error.status === 0)
+  );
 }
 
 export interface UserSummary {
@@ -382,20 +396,110 @@ export interface TripDetailResponse {
   trip: TripSummary;
 }
 
+export type SyncEntityType =
+  | "TRANSACTION"
+  | "CATEGORY"
+  | "FINANCIAL_ACCOUNT"
+  | "BUDGET"
+  | "CALENDAR_EVENT"
+  | "TASK"
+  | "REMINDER"
+  | "TRIP"
+  | "TRIP_ITEM"
+  | "PACKING_ITEM"
+  | "DRAFT_RECORD";
+
+export type SyncAction = "CREATE" | "UPDATE" | "DELETE" | "RESTORE";
+
+export interface SyncChange {
+  changeType: "CREATE" | "UPDATE" | "DELETE";
+  data: Record<string, unknown>;
+  deletedAt: string | null;
+  entityId: string;
+  entityType: SyncEntityType;
+  id: string;
+  updatedAt: string;
+  version: number;
+}
+
+export interface SyncChangesResponse {
+  changes: SyncChange[];
+  nextCursor: string | null;
+}
+
+export interface SyncMutationRequest {
+  action: SyncAction;
+  clientMutationId: string;
+  entityId?: string | null;
+  entityType: SyncEntityType;
+  payload?: Record<string, unknown>;
+  version?: number | null;
+}
+
+export interface SyncMutationResult {
+  clientMutationId: string;
+  error?: {
+    code: string;
+    current?: {
+      data: Record<string, unknown>;
+      entityId: string;
+      entityType: SyncEntityType;
+    };
+    message: string;
+  } | null;
+  result?: Record<string, unknown> | null;
+  status: "OK" | "ERROR";
+}
+
+export interface SyncMutationsResponse {
+  results: SyncMutationResult[];
+}
+
+export interface SyncStatusResponse {
+  appliedCount: number;
+  conflictCount: number;
+  failedCount: number;
+  lastAppliedAt: string | null;
+}
+
 async function http<T>(
   path: string,
   options: { body?: unknown; method?: string } = {},
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
-    credentials: "include",
-    headers: {
-      Accept: "application/json",
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-      "Content-Type": "application/json",
-    },
-    method: options.method ?? "GET",
-  });
+  const method = options.method ?? "GET";
+  if (
+    method !== "GET" &&
+    typeof navigator !== "undefined" &&
+    !navigator.onLine
+  ) {
+    const route = matchOfflineRoute(method, path);
+    if (route) {
+      return handleOffline(route, path, options.body) as T;
+    }
+    throw new OfflineNetworkError(method, path);
+  }
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      body:
+        options.body === undefined ? undefined : JSON.stringify(options.body),
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        ...(getAccessToken()
+          ? { Authorization: `Bearer ${getAccessToken()}` }
+          : {}),
+        "Content-Type": "application/json",
+      },
+      method,
+    });
+  } catch {
+    const route = matchOfflineRoute(method, path);
+    if (route) {
+      return handleOffline(route, path, options.body) as T;
+    }
+    throw new OfflineNetworkError(method, path);
+  }
 
   if (response.status === 204) {
     return undefined as T;
@@ -644,7 +748,9 @@ export const api = {
       credentials: "include",
       headers: {
         Accept: "text/csv",
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        ...(getAccessToken()
+          ? { Authorization: `Bearer ${getAccessToken()}` }
+          : {}),
       },
     }).then(async (response) => {
       if (!response.ok) {
@@ -688,6 +794,22 @@ export const api = {
   },
   getTransaction(id: string) {
     return http<TransactionSummary>(`/transactions/${id}`);
+  },
+  listSyncChanges(cursor?: string, limit = 200) {
+    const query = new URLSearchParams({ limit: String(limit) });
+    if (cursor) {
+      query.set("cursor", cursor);
+    }
+    return http<SyncChangesResponse>(`/sync/changes?${query.toString()}`);
+  },
+  applySyncMutations(mutations: SyncMutationRequest[]) {
+    return http<SyncMutationsResponse>("/sync/mutations", {
+      body: { mutations },
+      method: "POST",
+    });
+  },
+  getSyncStatus() {
+    return http<SyncStatusResponse>("/sync/status");
   },
   listBudgets(params: { categoryId?: string; month?: string } = {}) {
     const query = new URLSearchParams();
