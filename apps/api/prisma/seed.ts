@@ -3,7 +3,7 @@ import "dotenv/config";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { hash } from "argon2";
 
-import { PrismaClient } from "../src/generated/prisma/client.js";
+import { Prisma, PrismaClient } from "../src/generated/prisma/client.js";
 
 const DEFAULT_DATABASE_URL =
   "mysql://daily_assistant:local-validation-only@127.0.0.1:3306/daily_assistant";
@@ -157,6 +157,70 @@ async function seedDemoUser(prisma: PrismaClient): Promise<void> {
       targetType: "STANDALONE",
       title: "演示提醒：每日喝水",
       userId: user.id,
+    },
+    update: {},
+  });
+
+  const demoTrip = await prisma.trip.upsert({
+    where: { id: "demo-trip" },
+    create: {
+      budgetAmount: new Prisma.Decimal("3000.00"),
+      destination: "杭州",
+      endDate: shanghaiTime(7, 0, 0),
+      id: "demo-trip",
+      startDate: shanghaiTime(5, 0, 0),
+      title: "演示行程：杭州三日",
+      userId: user.id,
+    },
+    update: {},
+  });
+
+  await prisma.tripItem.upsert({
+    where: { id: "demo-trip-item-activity" },
+    create: {
+      endsAt: shanghaiTime(5, 12, 0),
+      id: "demo-trip-item-activity",
+      location: "西湖",
+      position: 1,
+      startsAt: shanghaiTime(5, 9, 0),
+      tripId: demoTrip.id,
+      type: "ACTIVITY",
+    },
+    update: {},
+  });
+  await prisma.tripItem.upsert({
+    where: { id: "demo-trip-item-stay" },
+    create: {
+      endsAt: shanghaiTime(5, 18, 0),
+      id: "demo-trip-item-stay",
+      location: "灵隐寺",
+      position: 2,
+      startsAt: shanghaiTime(5, 15, 0),
+      tripId: demoTrip.id,
+      type: "STAY",
+    },
+    update: {},
+  });
+
+  await prisma.packingItem.upsert({
+    where: { id: "demo-packing-id" },
+    create: {
+      checked: true,
+      id: "demo-packing-id",
+      position: 1,
+      text: "身份证",
+      tripId: demoTrip.id,
+    },
+    update: {},
+  });
+  await prisma.packingItem.upsert({
+    where: { id: "demo-packing-charger" },
+    create: {
+      checked: false,
+      id: "demo-packing-charger",
+      position: 2,
+      text: "充电宝",
+      tripId: demoTrip.id,
     },
     update: {},
   });

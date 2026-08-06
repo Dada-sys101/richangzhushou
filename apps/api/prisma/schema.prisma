@@ -133,6 +133,14 @@ enum DraftTargetType {
   TRANSACTION
 }
 
+enum TripItemType {
+  TRANSPORT
+  STAY
+  ACTIVITY
+  FOOD
+  OTHER
+}
+
 model SystemSetting {
   id                  String   @id @default("singleton")
   registrationEnabled Boolean  @default(false) @map("registration_enabled")
@@ -173,6 +181,7 @@ model User {
   calendarEvents      CalendarEvent[]
   tasks               Task[]
   reminders           Reminder[]
+  trips               Trip[]
 
   @@index([status])
   @@index([createdAt])
@@ -315,6 +324,7 @@ model Transaction {
   originalTransactionId String?           @map("original_transaction_id")
   isUnlinkedRefund      Boolean           @default(false) @map("is_unlinked_refund")
   sourceFingerprint     String?           @map("source_fingerprint") @db.VarChar(128)
+  tripId                String?           @map("trip_id")
   clientMutationId      String?           @unique @map("client_mutation_id")
   version               Int               @default(1)
   createdAt             DateTime          @default(now()) @map("created_at")
@@ -325,11 +335,13 @@ model Transaction {
   account               FinancialAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
   originalTransaction   Transaction?      @relation("RefundOriginal", fields: [originalTransactionId], references: [id], onDelete: SetNull)
   refunds               Transaction[]     @relation("RefundOriginal")
+  trip                  Trip?             @relation(fields: [tripId], references: [id], onDelete: SetNull)
 
   @@index([userId, occurredAt])
   @@index([userId, status, deletedAt])
   @@index([userId, categoryId])
   @@index([userId, accountId])
+  @@index([userId, tripId])
   @@map("transactions")
 }
 
@@ -491,4 +503,65 @@ model Reminder {
   @@index([userId, deletedAt])
   @@index([status, scheduledAt, nextAttemptAt])
   @@map("reminders")
+}
+
+model Trip {
+  id               String        @id @default(cuid())
+  userId           String        @map("user_id")
+  title            String        @db.VarChar(200)
+  destination      String        @db.VarChar(200)
+  startDate        DateTime      @map("start_date") @db.Date
+  endDate          DateTime      @map("end_date") @db.Date
+  budgetAmount     Decimal?      @map("budget_amount") @db.Decimal(18, 2)
+  clientMutationId String?       @unique @map("client_mutation_id")
+  version          Int           @default(1)
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  deletedAt        DateTime?     @map("deleted_at")
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items            TripItem[]
+  packingItems     PackingItem[]
+  transactions     Transaction[]
+
+  @@index([userId, startDate])
+  @@index([userId, deletedAt])
+  @@map("trips")
+}
+
+model TripItem {
+  id               String        @id @default(cuid())
+  tripId           String        @map("trip_id")
+  type             TripItemType
+  startsAt         DateTime      @map("starts_at")
+  endsAt           DateTime      @map("ends_at")
+  location         String?       @db.VarChar(200)
+  position         Int
+  clientMutationId String?       @unique @map("client_mutation_id")
+  version          Int           @default(1)
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  deletedAt        DateTime?     @map("deleted_at")
+  trip             Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, position])
+  @@index([tripId, deletedAt])
+  @@map("trip_items")
+}
+
+model PackingItem {
+  id               String        @id @default(cuid())
+  tripId           String        @map("trip_id")
+  text             String        @db.VarChar(200)
+  checked          Boolean       @default(false)
+  position         Int
+  clientMutationId String?       @unique @map("client_mutation_id")
+  version          Int           @default(1)
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  deletedAt        DateTime?     @map("deleted_at")
+  trip             Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, position])
+  @@index([tripId, deletedAt])
+  @@map("packing_items")
 }

@@ -61,3 +61,18 @@ No production or shared database URL belongs in this repository.
   后删除该 migration 目录，再 `prisma migrate deploy` 到上一个版本；或对非生产库执行
   `DROP TABLE reminders, tasks, calendar_events`（注意外键顺序）。
 - 演示数据：`SEED_DEMO_USER=true` 会额外创建日程、待办与提醒的本地演示记录。
+
+## WP6 Trips migration（20260806011520_wp6_trips）
+
+- 新增枚举：`TripItemType`（TRANSPORT/STAY/ACTIVITY/FOOD/OTHER）；新增表：
+  `trips`、`trip_items`、`packing_items`；同时给 `transactions` 增加可空
+  `trip_id` 外键（ON DELETE SET NULL）和 `(user_id, trip_id)` 索引。
+- 行程/节点/行李均支持软删除、`version` 与 `client_mutation_id`
+  唯一键，沿用 WP3–WP5 的同步资源约定；`trips.user_id + start_date` 与
+  `trip_items/packing_items.trip_id + position` 索引。
+- 回滚：`prisma migrate resolve --rolled-back 20260806011520_wp6_trips`
+  后删除该 migration 目录，再 `prisma migrate deploy` 到上一个版本；或对非生产库执行
+  `DROP TABLE packing_items, trip_items, trips` 并
+  `ALTER TABLE transactions DROP FOREIGN KEY transactions_trip_id_fkey, DROP COLUMN trip_id`
+  （注意先删子表再删行程，外键顺序）。
+- 演示数据：`SEED_DEMO_USER=true` 会创建本地演示行程、节点与行李清单。
