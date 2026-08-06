@@ -7,8 +7,8 @@ info:
     WP2 implements authentication, account lifecycle, capacity, invites, and admin
     operations. WP3 implements finance. WP4 implements drafts, shortcuts, and
     attachments. WP5 implements calendar events, tasks, and reminders. Trips and
-    sync remain contract-only for later work packages. IDs are strings,
-    timestamps are ISO 8601, and money is a fixed-point decimal string.
+    sync are implemented by WP6 and WP7. IDs are strings, timestamps are ISO 8601,
+    and money is a fixed-point decimal string.
 servers:
   - url: /api/v1
     description: Versioned API base path
@@ -1569,16 +1569,38 @@ paths:
       tags: [Sync]
       parameters:
         - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
       responses:
-        "200": { description: Ordered changes and next cursor }
+        "200":
+          description: Ordered changes and next cursor
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SyncChangesResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
   /sync/mutations:
     post:
       operationId: applySyncMutations
       summary: Idempotently apply an ordered batch of current-user mutations
       tags: [Sync]
-      x-error-codes: [IDEMPOTENCY_CONFLICT, VERSION_CONFLICT]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SyncMutationBatchRequest" }
+      x-error-codes:
+        [
+          IDEMPOTENCY_CONFLICT,
+          VERSION_CONFLICT,
+          MUTATION_BATCH_TOO_LARGE,
+          MUTATION_UNSUPPORTED,
+        ]
       responses:
-        "200": { description: Per-mutation results }
+        "200":
+          description: Per-mutation results
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SyncMutationsResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "409": { $ref: "#/components/responses/ApiError" }
   /sync/status:
     get:
@@ -1586,7 +1608,11 @@ paths:
       summary: Get current-user sync status without exposing other users
       tags: [Sync]
       responses:
-        "200": { description: Sync status }
+        "200":
+          description: Sync status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SyncStatusResponse" }
   /admin/dashboard:
     get:
       operationId: getAdminDashboard
@@ -1969,6 +1995,9 @@ components:
         - UPLOAD_TOKEN_INVALID
         - CONFIRMATION_TOKEN_INVALID
         - CONFIRMATION_TOKEN_EXPIRED
+        - CURSOR_INVALID
+        - MUTATION_BATCH_TOO_LARGE
+        - MUTATION_UNSUPPORTED
         - RESOURCE_NOT_FOUND
         - INTERNAL_ERROR
     Month:
@@ -2017,6 +2046,10 @@ components:
       properties:
         kind: { $ref: "#/components/schemas/CategoryKind" }
         name: { type: string, minLength: 1, maxLength: 40 }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
         color:
           anyOf:
             - {
@@ -2076,6 +2109,10 @@ components:
       properties:
         name: { type: string, minLength: 1, maxLength: 40 }
         kind: { $ref: "#/components/schemas/FinancialAccountKind" }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
     FinancialAccountUpdateRequest:
       type: object
       additionalProperties: false
@@ -2325,6 +2362,10 @@ components:
             - { type: "null" }
         month: { $ref: "#/components/schemas/Month" }
         amount: { $ref: "#/components/schemas/Money" }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
         currency:
           anyOf:
             - { type: string, minLength: 3, maxLength: 3, default: CNY }
@@ -2925,6 +2966,136 @@ components:
       required: [discardedCount]
       properties:
         discardedCount: { type: integer, minimum: 0 }
+    SyncEntityType:
+      type: string
+      enum:
+        - TRANSACTION
+        - CATEGORY
+        - FINANCIAL_ACCOUNT
+        - BUDGET
+        - CALENDAR_EVENT
+        - TASK
+        - REMINDER
+        - TRIP
+        - TRIP_ITEM
+        - PACKING_ITEM
+        - DRAFT_RECORD
+    SyncChangeType:
+      type: string
+      enum: [CREATE, UPDATE, DELETE]
+    SyncAction:
+      type: string
+      enum: [CREATE, UPDATE, DELETE, RESTORE]
+    SyncChange:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          entityType,
+          entityId,
+          changeType,
+          version,
+          updatedAt,
+          deletedAt,
+          data,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        entityType: { $ref: "#/components/schemas/SyncEntityType" }
+        entityId: { $ref: "#/components/schemas/Identifier" }
+        changeType: { $ref: "#/components/schemas/SyncChangeType" }
+        version: { type: integer, minimum: 1 }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        data: { type: object, additionalProperties: true }
+    SyncChangesResponse:
+      type: object
+      additionalProperties: false
+      required: [changes, nextCursor]
+      properties:
+        changes:
+          type: array
+          items: { $ref: "#/components/schemas/SyncChange" }
+        nextCursor:
+          anyOf:
+            - { type: string, minLength: 1 }
+            - { type: "null" }
+    SyncMutationRequest:
+      type: object
+      additionalProperties: false
+      required: [clientMutationId, entityType, action]
+      properties:
+        clientMutationId: { type: string, minLength: 16, maxLength: 128 }
+        entityType: { $ref: "#/components/schemas/SyncEntityType" }
+        action: { $ref: "#/components/schemas/SyncAction" }
+        entityId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        version:
+          anyOf:
+            - { type: integer, minimum: 1 }
+            - { type: "null" }
+        payload: { type: object, additionalProperties: true }
+    SyncMutationBatchRequest:
+      type: object
+      additionalProperties: false
+      required: [mutations]
+      properties:
+        mutations:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items: { $ref: "#/components/schemas/SyncMutationRequest" }
+    SyncCurrentEntity:
+      type: object
+      additionalProperties: false
+      required: [entityType, entityId, data]
+      properties:
+        entityType: { $ref: "#/components/schemas/SyncEntityType" }
+        entityId: { $ref: "#/components/schemas/Identifier" }
+        data: { type: object, additionalProperties: true }
+    SyncMutationError:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code: { $ref: "#/components/schemas/ApiErrorCode" }
+        message: { type: string, minLength: 1 }
+        current: { $ref: "#/components/schemas/SyncCurrentEntity" }
+    SyncMutationResult:
+      type: object
+      additionalProperties: false
+      required: [clientMutationId, status]
+      properties:
+        clientMutationId: { type: string, minLength: 16, maxLength: 128 }
+        status: { type: string, enum: [OK, ERROR] }
+        result: { type: object, additionalProperties: true }
+        error: { $ref: "#/components/schemas/SyncMutationError" }
+    SyncMutationsResponse:
+      type: object
+      additionalProperties: false
+      required: [results]
+      properties:
+        results:
+          type: array
+          items: { $ref: "#/components/schemas/SyncMutationResult" }
+    SyncStatusResponse:
+      type: object
+      additionalProperties: false
+      required: [appliedCount, failedCount, conflictCount, lastAppliedAt]
+      properties:
+        appliedCount: { type: integer, minimum: 0 }
+        failedCount: { type: integer, minimum: 0 }
+        conflictCount: { type: integer, minimum: 0 }
+        lastAppliedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
     CalendarOverlapWarning:
       type: object
       additionalProperties: false

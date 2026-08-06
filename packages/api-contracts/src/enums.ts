@@ -87,6 +87,31 @@ export const SYNC_STATES = [
 ] as const;
 export type SyncState = (typeof SYNC_STATES)[number];
 
+export const SYNC_ENTITY_TYPES = [
+  "TRANSACTION",
+  "CATEGORY",
+  "FINANCIAL_ACCOUNT",
+  "BUDGET",
+  "CALENDAR_EVENT",
+  "TASK",
+  "REMINDER",
+  "TRIP",
+  "TRIP_ITEM",
+  "PACKING_ITEM",
+  "DRAFT_RECORD",
+] as const;
+export type SyncEntityType = (typeof SYNC_ENTITY_TYPES)[number];
+
+export const SYNC_CHANGE_TYPES = ["CREATE", "UPDATE", "DELETE"] as const;
+export type SyncChangeType = (typeof SYNC_CHANGE_TYPES)[number];
+
+export const SYNC_ACTIONS = ["CREATE", "UPDATE", "DELETE", "RESTORE"] as const;
+export type SyncAction = (typeof SYNC_ACTIONS)[number];
+
+export const SYNC_MUTATION_RESULT_STATUSES = ["OK", "ERROR"] as const;
+export type SyncMutationResultStatus =
+  (typeof SYNC_MUTATION_RESULT_STATUSES)[number];
+
 export const DRAFT_STATUSES = [
   "PENDING",
   "CONFIRMED",
@@ -162,6 +187,9 @@ export const API_ERROR_CODES = [
   "UPLOAD_TOKEN_INVALID",
   "CONFIRMATION_TOKEN_INVALID",
   "CONFIRMATION_TOKEN_EXPIRED",
+  "CURSOR_INVALID",
+  "MUTATION_BATCH_TOO_LARGE",
+  "MUTATION_UNSUPPORTED",
   "RESOURCE_NOT_FOUND",
   "INTERNAL_ERROR",
 ] as const;

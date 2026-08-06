@@ -18,6 +18,9 @@ import {
   REMINDER_STATUSES,
   REMINDER_TARGET_TYPES,
   SHORTCUT_SCOPES,
+  SYNC_ACTIONS,
+  SYNC_CHANGE_TYPES,
+  SYNC_ENTITY_TYPES,
   SYNC_STATES,
   TASK_STATUSES,
   TRANSACTION_TYPES,
@@ -170,6 +173,9 @@ describe("OpenAPI baseline", () => {
     ["ReminderScheduleType", REMINDER_SCHEDULE_TYPES],
     ["ReminderTargetType", REMINDER_TARGET_TYPES],
     ["SyncState", SYNC_STATES],
+    ["SyncEntityType", SYNC_ENTITY_TYPES],
+    ["SyncChangeType", SYNC_CHANGE_TYPES],
+    ["SyncAction", SYNC_ACTIONS],
     ["DraftStatus", DRAFT_STATUSES],
     ["ShortcutScope", SHORTCUT_SCOPES],
     ["AttachmentScanStatus", ATTACHMENT_SCAN_STATUSES],
@@ -477,6 +483,79 @@ describe("OpenAPI baseline", () => {
     expect(schemas.TransactionSummary?.properties?.tripId).toBeDefined();
     expect(schemas.TransactionCreateRequest?.properties?.tripId).toBeDefined();
     expect(schemas.TransactionUpdateRequest?.properties?.tripId).toBeDefined();
+  });
+
+  it("defines the WP7 sync, cursor, mutation, and conflict contracts", () => {
+    const schemas = document.components.schemas;
+    for (const name of [
+      "SyncChange",
+      "SyncChangesResponse",
+      "SyncMutationRequest",
+      "SyncMutationBatchRequest",
+      "SyncMutationResult",
+      "SyncMutationsResponse",
+      "SyncCurrentEntity",
+      "SyncMutationError",
+      "SyncStatusResponse",
+    ]) {
+      expect(schemas[name]).toBeDefined();
+    }
+    expect(
+      schemas.SyncMutationBatchRequest?.properties?.mutations,
+    ).toMatchObject({ maxItems: 50 });
+    expect(schemas.SyncMutationResult?.properties?.status).toEqual({
+      type: "string",
+      enum: ["OK", "ERROR"],
+    });
+    expect(schemas.SyncChangesResponse?.required).toEqual([
+      "changes",
+      "nextCursor",
+    ]);
+    expect(schemas.SyncStatusResponse?.required).toEqual([
+      "appliedCount",
+      "failedCount",
+      "conflictCount",
+      "lastAppliedAt",
+    ]);
+    expect(schemas.SyncChange?.required).toEqual(
+      expect.arrayContaining([
+        "entityType",
+        "entityId",
+        "changeType",
+        "version",
+        "updatedAt",
+        "deletedAt",
+        "data",
+      ]),
+    );
+    for (const code of [
+      "CURSOR_INVALID",
+      "MUTATION_BATCH_TOO_LARGE",
+      "MUTATION_UNSUPPORTED",
+    ]) {
+      expect(API_ERROR_CODES).toContain(code);
+      expect(schemas.ApiErrorCode?.enum).toContain(code);
+    }
+    expect(
+      schemas.CategoryCreateRequest?.properties?.clientMutationId,
+    ).toBeDefined();
+    expect(
+      schemas.FinancialAccountCreateRequest?.properties?.clientMutationId,
+    ).toBeDefined();
+    expect(
+      schemas.BudgetCreateRequest?.properties?.clientMutationId,
+    ).toBeDefined();
+  });
+
+  it("keeps sync operations on the access token", () => {
+    const syncPaths = ["/sync/changes", "/sync/mutations", "/sync/status"];
+    for (const path of syncPaths) {
+      for (const operation of Object.values(document.paths[path])) {
+        expect(operation.security ?? document.security).toEqual([
+          { accessToken: [] },
+        ]);
+      }
+    }
   });
 
   it("keeps trip operations on the access token", () => {

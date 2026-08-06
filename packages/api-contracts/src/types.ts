@@ -13,6 +13,9 @@ import type {
   ReminderStatus,
   ReminderTargetType,
   ShortcutScope,
+  SyncAction,
+  SyncChangeType,
+  SyncEntityType,
   TaskStatus,
   TransactionType,
   TripItemType,
@@ -192,6 +195,7 @@ export interface CategoryCreateRequest {
   kind: CategoryKind;
   name: string;
   color?: string;
+  clientMutationId?: string | null;
 }
 
 export interface CategoryUpdateRequest {
@@ -215,6 +219,7 @@ export interface FinancialAccountSummary extends VersionedResource {
 export interface FinancialAccountCreateRequest {
   name: string;
   kind: FinancialAccountKind;
+  clientMutationId?: string | null;
 }
 
 export interface FinancialAccountUpdateRequest {
@@ -307,6 +312,7 @@ export interface BudgetCreateRequest {
   month: string;
   amount: Money;
   currency?: string;
+  clientMutationId?: string | null;
 }
 
 export interface BudgetUpdateRequest {
@@ -650,6 +656,65 @@ export interface DraftBatchDiscardConfirmRequest {
 
 export interface DraftBatchDiscardResult {
   discardedCount: number;
+}
+
+export interface SyncChange {
+  id: Identifier;
+  entityType: SyncEntityType;
+  entityId: Identifier;
+  changeType: SyncChangeType;
+  version: number;
+  updatedAt: IsoDateTime;
+  deletedAt: IsoDateTime | null;
+  data: Record<string, unknown>;
+}
+
+export interface SyncChangesResponse {
+  changes: SyncChange[];
+  nextCursor: string | null;
+}
+
+export interface SyncMutationRequest {
+  clientMutationId: string;
+  entityType: SyncEntityType;
+  action: SyncAction;
+  entityId?: Identifier | null;
+  payload?: Record<string, unknown>;
+  version?: number | null;
+}
+
+export interface SyncMutationBatchRequest {
+  mutations: SyncMutationRequest[];
+}
+
+export interface SyncCurrentEntity {
+  entityType: SyncEntityType;
+  entityId: Identifier;
+  data: Record<string, unknown>;
+}
+
+export interface SyncMutationError {
+  code: ApiErrorCode;
+  message: string;
+  current?: SyncCurrentEntity;
+}
+
+export interface SyncMutationResult {
+  clientMutationId: string;
+  status: "OK" | "ERROR";
+  result?: Record<string, unknown> | null;
+  error?: SyncMutationError | null;
+}
+
+export interface SyncMutationsResponse {
+  results: SyncMutationResult[];
+}
+
+export interface SyncStatusResponse {
+  appliedCount: number;
+  failedCount: number;
+  conflictCount: number;
+  lastAppliedAt: IsoDateTime | null;
 }
 
 export interface ShortcutCredentialSummary {
