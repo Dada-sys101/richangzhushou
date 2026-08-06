@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-06 — 输出 WP6 可执行规划（docs/21）
+
+- 新增 `docs/21-wp6-codex-execution-plan.md`：行程、节点、行李清单、账单关联、
+  预算与实际支出、日程关联入口的可执行规划。
+- 同步 `docs/README.md`、`.project/context.md`、`.project/session.md` 与
+  `docs/progress.md`、`docs/changelog.md`。
+- 仅文档改动；未提交（等待授权）；未推送、未部署。
+
 ## 2026-08-05 — WP5 日程、待办与提醒本地验收通过
 
 - 契约：Calendar/Tasks/Reminders OpenAPI、共享类型与枚举；契约测试 118/118。

@@ -39,7 +39,7 @@
 ## 下一步
 
 - 确认 WP1–WP5 远端 CI 结果（需推送授权）。
-- WP6 行程（未开始）。
+- WP6 行程（未开始；可执行规划见 `docs/21-wp6-codex-execution-plan.md`）。
 
 ## 阻塞项
 

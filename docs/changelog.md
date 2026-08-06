@@ -4,6 +4,15 @@
 更新：2026-08-05
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-06 — 输出 WP6 可执行规划（docs/21）
+
+- 新增 `docs/21-wp6-codex-execution-plan.md`：行程/节点/行李/账单关联/预算与实际
+  支出/日程关联入口的可执行规划（前置与授权、只读检查、设计约束、8 个 checkpoint、
+  强制测试与停止条件、风险与未决）。
+- 同步 `docs/README.md` 索引、`.project/context.md` 下一步与 `.project/session.md`
+  恢复指引；`docs/progress.md` 未开始项补充规划引用。
+- 仅文档改动；未提交（等待授权）；未推送、未部署。
+
 ## 2026-08-05 — WP5 日程、待办与提醒本地验收通过
 
 - 契约：Calendar/Tasks/Reminders OpenAPI 请求/响应/DTO/枚举（`CalendarEventStatus`、

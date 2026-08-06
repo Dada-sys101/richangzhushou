@@ -62,7 +62,7 @@
 
 ## 未开始
 
-- WP6 行程
+- WP6 行程（可执行规划见 `docs/21-wp6-codex-execution-plan.md`）
 - WP7 PWA 与离线同步
 - WP8 全量质量与发布准备
 

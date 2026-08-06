@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-08-05 +08:00（随 WP5 提交更新；提交哈希以 `git log -1` 为准，不虚构）
+2026-08-06 +08:00（随 WP6 规划输出更新；提交哈希以 `git log -1` 为准，不虚构）
 
 ## Repository State
 
@@ -56,7 +56,7 @@ None（当前没有正在进行的开发任务；等待用户授权推送 WP1–
 - Dependencies: 用户推送授权；网络代理可用（本机全局代理 7890 不可用，可用 7897 临时覆盖）。
 - Acceptance Criteria: GitHub Actions 在 WP1–WP5 分支首次运行通过（`npm run quality` + 空库 migration）。
 
-下一开发任务：WP6 行程（未开始；规划见 `docs/12`）。
+下一开发任务：WP6 行程（未开始；可执行规划见 `docs/21-wp6-codex-execution-plan.md`）。
 
 ## Completed Work
 
