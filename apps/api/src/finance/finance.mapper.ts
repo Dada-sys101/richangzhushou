@@ -35,6 +35,7 @@ export function toTransactionSummary(
     source: row.source,
     sourceFingerprint: row.sourceFingerprint,
     status: row.status,
+    tripId: row.tripId,
     type: row.type,
     updatedAt: row.updatedAt.toISOString(),
     version: row.version,

@@ -70,4 +70,8 @@ export class ShortcutTransactionDraftDto {
   @IsOptional()
   @IsBoolean()
   isUnlinkedRefund?: boolean;
+
+  @IsOptional()
+  @IsString()
+  tripId?: string | null;
 }

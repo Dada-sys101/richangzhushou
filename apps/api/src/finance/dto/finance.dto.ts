@@ -76,6 +76,10 @@ export class CreateTransactionDto {
 
   @IsOptional()
   @IsString()
+  tripId?: string | null;
+
+  @IsOptional()
+  @IsString()
   @Length(16, 128)
   clientMutationId?: string | null;
 }
@@ -131,6 +135,10 @@ export class UpdateTransactionDto {
   @IsString()
   @Length(8, 128)
   sourceFingerprint?: string | null;
+
+  @IsOptional()
+  @IsString()
+  tripId?: string | null;
 
   @IsInt()
   @Min(1)

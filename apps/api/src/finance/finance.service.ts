@@ -120,6 +120,7 @@ export class FinanceService {
     await this.validateRefundRules(userId, input, db);
     await this.resolveCategory(userId, input.categoryId, input.type, db);
     await this.resolveAccount(userId, input.accountId, db);
+    await this.resolveTrip(userId, input.tripId, db);
     const duplicate = await this.findPossibleDuplicate(userId, input, db);
 
     try {
@@ -138,6 +139,7 @@ export class FinanceService {
           source: input.source,
           sourceFingerprint: input.sourceFingerprint,
           status: "CONFIRMED",
+          tripId: input.tripId,
           type: input.type,
           userId,
           version: 1,
@@ -226,6 +228,7 @@ export class FinanceService {
         dto.sourceFingerprint === undefined
           ? current.sourceFingerprint
           : dto.sourceFingerprint,
+      tripId: dto.tripId === undefined ? current.tripId : dto.tripId,
       type: dto.type ?? current.type,
       userId,
     } satisfies NormalizedTransactionInput;
@@ -238,6 +241,7 @@ export class FinanceService {
       this.prisma,
     );
     await this.resolveAccount(userId, input.accountId, this.prisma);
+    await this.resolveTrip(userId, input.tripId, this.prisma);
     const duplicate = await this.findPossibleDuplicate(
       userId,
       input,
@@ -258,6 +262,7 @@ export class FinanceService {
         originalTransactionId: input.originalTransactionId,
         source: input.source,
         sourceFingerprint: input.sourceFingerprint,
+        tripId: input.tripId,
         type: input.type,
         version: { increment: 1 },
       },
@@ -807,6 +812,7 @@ export class FinanceService {
       "source",
       "originalTransactionId",
       "isUnlinkedRefund",
+      "tripId",
       "createdAt",
       "updatedAt",
       "version",
@@ -828,6 +834,7 @@ export class FinanceService {
         row.source,
         row.originalTransactionId ?? "",
         row.isUnlinkedRefund ? "true" : "false",
+        row.tripId ?? "",
         row.createdAt.toISOString(),
         row.updatedAt.toISOString(),
         String(row.version),
@@ -923,6 +930,7 @@ export class FinanceService {
       originalTransactionId: dto.originalTransactionId ?? null,
       source: dto.source ?? "MANUAL",
       sourceFingerprint: dto.sourceFingerprint ?? null,
+      tripId: dto.tripId ?? null,
       type: dto.type,
       userId,
     };
@@ -1043,6 +1051,22 @@ export class FinanceService {
     }
   }
 
+  private async resolveTrip(
+    userId: string,
+    tripId: string | null,
+    db: Prisma.TransactionClient | PrismaClient,
+  ): Promise<void> {
+    if (!tripId) {
+      return;
+    }
+    const trip = await db.trip.findFirst({
+      where: { deletedAt: null, id: tripId, userId },
+    });
+    if (!trip) {
+      throw new ApiException("RESOURCE_NOT_FOUND", 404, "Trip not found");
+    }
+  }
+
   private async findPossibleDuplicate(
     userId: string,
     input: {
@@ -1111,7 +1135,8 @@ export class FinanceService {
         (input.originalTransactionId ?? null) &&
       existing.isUnlinkedRefund === input.isUnlinkedRefund &&
       (existing.sourceFingerprint ?? null) ===
-        (input.sourceFingerprint ?? null);
+        (input.sourceFingerprint ?? null) &&
+      (existing.tripId ?? null) === (input.tripId ?? null);
     if (!same) {
       throw new ApiException(
         "IDEMPOTENCY_CONFLICT",
@@ -1173,6 +1198,7 @@ interface NormalizedTransactionInput {
   originalTransactionId: string | null;
   source: RecordSourceValue;
   sourceFingerprint: string | null;
+  tripId: string | null;
   type: TransactionTypeValue;
   userId: string;
 }

@@ -592,6 +592,9 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
   });
 
   async function resetDatabase(): Promise<void> {
+    await prisma.packingItem.deleteMany();
+    await prisma.tripItem.deleteMany();
+    await prisma.trip.deleteMany();
     await prisma.draftRecord.deleteMany();
     await prisma.attachment.deleteMany();
     await prisma.deviceCredential.deleteMany();

@@ -246,7 +246,7 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
 
   it("reminders support schedule types, target validation, idempotency, and cancel/reactivate", async () => {
     const token = await loginNewUser();
-    const futureStarts = "2026-08-06T01:00:00.000Z";
+    const futureStarts = futureIso(1);
 
     const once = await createReminder(token, {
       scheduleType: "ONCE",
@@ -369,7 +369,7 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
 
     const once = await createReminder(token, {
       scheduleType: "ONCE",
-      startsAt: "2026-08-06T01:00:00.000Z",
+      startsAt: futureIso(1),
       title: "待发送",
     });
     const onceId = once.body.id as string;
@@ -398,7 +398,7 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
     const daily = await createReminder(token, {
       recurrence: { interval: 1 },
       scheduleType: "DAILY",
-      startsAt: "2026-08-06T01:00:00.000Z",
+      startsAt: futureIso(1),
       title: "每日提醒",
     });
     const dailyId = daily.body.id as string;
@@ -416,7 +416,7 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
 
     const failing = await createReminder(token, {
       scheduleType: "ONCE",
-      startsAt: "2026-08-07T01:00:00.000Z",
+      startsAt: futureIso(2),
       title: "失败重试",
     });
     const failingId = failing.body.id as string;
@@ -448,7 +448,7 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
 
     const exhaust = await createReminder(token, {
       scheduleType: "ONCE",
-      startsAt: "2026-08-08T01:00:00.000Z",
+      startsAt: futureIso(3),
       title: "达到上限",
     });
     const exhaustId = exhaust.body.id as string;
@@ -476,7 +476,7 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
 
     const suspendedReminder = await createReminder(token, {
       scheduleType: "ONCE",
-      startsAt: "2026-08-09T01:00:00.000Z",
+      startsAt: futureIso(4),
       title: "暂停用户提醒",
     });
     const suspendedId = suspendedReminder.body.id as string;
@@ -502,7 +502,7 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
     const token = await loginNewUser();
     const reminder = await createReminder(token, {
       scheduleType: "ONCE",
-      startsAt: "2026-08-06T01:00:00.000Z",
+      startsAt: futureIso(1),
       title: "并发提醒",
     });
     const reminderId = reminder.body.id as string;
@@ -583,6 +583,9 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
   });
 
   async function resetDatabase(): Promise<void> {
+    await prisma.packingItem.deleteMany();
+    await prisma.tripItem.deleteMany();
+    await prisma.trip.deleteMany();
     await prisma.reminder.deleteMany();
     await prisma.task.deleteMany();
     await prisma.calendarEvent.deleteMany();
@@ -712,6 +715,12 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
       : (setCookie ?? "");
     const match = /^da_refresh=([^;]+)/.exec(cookie);
     return match?.[1] ? `da_refresh=${match[1]}` : "";
+  }
+
+  function futureIso(daysFromNow: number): string {
+    return new Date(
+      Date.now() + daysFromNow * 24 * 60 * 60 * 1000,
+    ).toISOString();
   }
 
   function configureApp(app: INestApplication): void {

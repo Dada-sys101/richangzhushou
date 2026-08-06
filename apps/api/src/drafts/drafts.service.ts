@@ -138,6 +138,7 @@ export class DraftsService {
         note: dto.note ?? null,
         occurredAt: dto.occurredAt,
         originalTransactionId: dto.originalTransactionId ?? null,
+        tripId: dto.tripId ?? null,
         type: dto.type,
       },
       source: "SHORTCUT",
@@ -278,6 +279,7 @@ export class DraftsService {
       occurredAt: payload.occurredAt,
       originalTransactionId: payload.originalTransactionId ?? null,
       source: draft.source,
+      tripId: payload.tripId ?? null,
       type: payload.type,
     };
 
@@ -465,7 +467,8 @@ export class DraftsService {
       (stored.originalTransactionId ?? null) ===
         (payload.originalTransactionId ?? null) &&
       (stored.isUnlinkedRefund ?? false) ===
-        (payload.isUnlinkedRefund ?? false);
+        (payload.isUnlinkedRefund ?? false) &&
+      (stored.tripId ?? null) === (payload.tripId ?? null);
     if (!same) {
       throw new ApiException(
         "IDEMPOTENCY_CONFLICT",

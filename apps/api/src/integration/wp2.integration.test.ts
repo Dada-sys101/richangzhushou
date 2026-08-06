@@ -486,7 +486,8 @@ describeWithDb("WP2 identity, capacity, and admin integration", () => {
       // WP5 implements calendar and task endpoints; admin is rejected by UserOnlyGuard.
       { path: "/api/v1/calendar-events", status: 403 },
       { path: "/api/v1/tasks", status: 403 },
-      { path: "/api/v1/trips", status: 404 },
+      // WP6 implements trips; admin is rejected by UserOnlyGuard.
+      { path: "/api/v1/trips", status: 403 },
     ];
     for (const { path, status } of paths) {
       const response = await request(app1.getHttpServer())
@@ -535,6 +536,9 @@ describeWithDb("WP2 identity, capacity, and admin integration", () => {
   });
 
   async function resetDatabase(): Promise<void> {
+    await prisma.packingItem.deleteMany();
+    await prisma.tripItem.deleteMany();
+    await prisma.trip.deleteMany();
     await prisma.inviteRedemption.deleteMany();
     await prisma.recoveryCode.deleteMany();
     await prisma.session.deleteMany();

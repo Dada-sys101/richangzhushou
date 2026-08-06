@@ -18,6 +18,7 @@ import { PrismaModule } from "./prisma/prisma.module.js";
 import { RemindersModule } from "./reminders/reminders.module.js";
 import { ShortcutsModule } from "./shortcuts/shortcuts.module.js";
 import { TasksModule } from "./tasks/tasks.module.js";
+import { TripsModule } from "./trips/trips.module.js";
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { TasksModule } from "./tasks/tasks.module.js";
     SecurityModule,
     ShortcutsModule,
     TasksModule,
+    TripsModule,
   ],
   controllers: [HealthController],
 })

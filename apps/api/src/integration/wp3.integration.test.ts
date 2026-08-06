@@ -489,6 +489,9 @@ describeWithDb("WP3 finance integration", () => {
   });
 
   async function resetDatabase(): Promise<void> {
+    await prisma.packingItem.deleteMany();
+    await prisma.tripItem.deleteMany();
+    await prisma.trip.deleteMany();
     await prisma.transaction.deleteMany();
     await prisma.budget.deleteMany();
     await prisma.financialAccount.deleteMany();

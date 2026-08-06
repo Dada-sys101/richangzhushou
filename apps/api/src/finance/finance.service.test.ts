@@ -27,6 +27,7 @@ function transactionRow(overrides: Partial<Transaction> = {}): Transaction {
     source: "MANUAL",
     sourceFingerprint: null,
     status: "CONFIRMED",
+    tripId: null,
     type: "EXPENSE",
     updatedAt: new Date("2026-08-05T01:00:00.000Z"),
     userId: "user_1",
