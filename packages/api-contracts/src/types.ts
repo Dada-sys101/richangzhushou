@@ -15,6 +15,7 @@ import type {
   ShortcutScope,
   TaskStatus,
   TransactionType,
+  TripItemType,
 } from "./enums.js";
 
 /** API boundary IDs are strings even if storage choices change. */
@@ -241,6 +242,7 @@ export interface TransactionSummary extends VersionedResource {
   originalTransactionId: Identifier | null;
   isUnlinkedRefund: boolean;
   sourceFingerprint: string | null;
+  tripId: Identifier | null;
 }
 
 export interface TransactionCreateRequest {
@@ -256,6 +258,7 @@ export interface TransactionCreateRequest {
   originalTransactionId?: Identifier | null;
   isUnlinkedRefund?: boolean;
   sourceFingerprint?: string | null;
+  tripId?: Identifier | null;
   clientMutationId?: string | null;
 }
 
@@ -272,6 +275,7 @@ export interface TransactionUpdateRequest {
   originalTransactionId?: Identifier | null;
   isUnlinkedRefund?: boolean;
   sourceFingerprint?: string | null;
+  tripId?: Identifier | null;
   version: number;
 }
 
@@ -464,6 +468,111 @@ export interface ReminderListResponse {
   nextCursor: Identifier | null;
 }
 
+export interface TripSummary extends VersionedResource {
+  title: string;
+  destination: string;
+  startDate: string;
+  endDate: string;
+  budgetAmount: Money | null;
+}
+
+export interface TripCreateRequest {
+  title: string;
+  destination: string;
+  startDate: string;
+  endDate: string;
+  budgetAmount?: Money | null;
+  clientMutationId?: string | null;
+}
+
+export interface TripUpdateRequest {
+  title?: string;
+  destination?: string;
+  startDate?: string;
+  endDate?: string;
+  budgetAmount?: Money | null;
+  version: number;
+}
+
+export interface TripListResponse {
+  items: TripSummary[];
+  nextCursor: Identifier | null;
+}
+
+export interface TripItemSummary extends VersionedResource {
+  tripId: Identifier;
+  type: TripItemType;
+  startsAt: IsoDateTime;
+  endsAt: IsoDateTime;
+  location: string | null;
+  position: number;
+}
+
+export interface TripItemCreateRequest {
+  type: TripItemType;
+  startsAt: IsoDateTime;
+  endsAt: IsoDateTime;
+  location?: string | null;
+  position?: number;
+  confirmOutOfRange?: boolean;
+  clientMutationId?: string | null;
+}
+
+export interface TripItemUpdateRequest {
+  type?: TripItemType;
+  startsAt?: IsoDateTime;
+  endsAt?: IsoDateTime;
+  location?: string | null;
+  position?: number;
+  confirmOutOfRange?: boolean;
+  version: number;
+}
+
+export interface TripItemOutOfRangeWarning {
+  code: "TRIP_ITEM_OUT_OF_RANGE";
+  message: string;
+}
+
+export interface TripItemCreatedResponse {
+  tripItem: TripItemSummary;
+  outOfRangeWarning?: TripItemOutOfRangeWarning;
+}
+
+export interface PackingItemSummary extends VersionedResource {
+  tripId: Identifier;
+  text: string;
+  checked: boolean;
+  position: number;
+}
+
+export interface PackingItemCreateRequest {
+  text: string;
+  position?: number;
+  clientMutationId?: string | null;
+}
+
+export interface PackingItemUpdateRequest {
+  text?: string;
+  checked?: boolean;
+  position?: number;
+  version: number;
+}
+
+export interface TripExpenseSummary {
+  actualExpense: Money;
+  budgetAmount: Money | null;
+  budgetProgress: string | null;
+}
+
+export interface TripDetailResponse {
+  trip: TripSummary;
+  items: TripItemSummary[];
+  packingItems: PackingItemSummary[];
+  expense: TripExpenseSummary;
+  linkedTransactions: TransactionSummary[];
+  calendarEvents: CalendarEventSummary[];
+}
+
 export interface TransactionDraftPayload {
   type: TransactionType;
   amount: Money;
@@ -475,6 +584,7 @@ export interface TransactionDraftPayload {
   note?: string | null;
   originalTransactionId?: Identifier | null;
   isUnlinkedRefund?: boolean;
+  tripId?: Identifier | null;
 }
 
 export interface DraftSummary {
@@ -577,6 +687,7 @@ export interface ShortcutTransactionDraftRequest {
   note?: string | null;
   originalTransactionId?: Identifier | null;
   isUnlinkedRefund?: boolean;
+  tripId?: Identifier | null;
 }
 
 export interface ShortcutTodaySpendResponse {

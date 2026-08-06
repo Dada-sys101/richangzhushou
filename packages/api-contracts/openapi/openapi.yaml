@@ -1212,38 +1212,107 @@ paths:
       operationId: listTrips
       summary: List trips in the current user scope
       tags: [Trips]
+      description: >-
+        Lists user-scoped trips with cursor pagination ordered by start date.
+        Optional includeDeleted shows soft-deleted trips.
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/IncludeDeleted"
       responses:
-        "200": { description: Trips }
+        "200":
+          description: Trips
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TripListResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
     post:
       operationId: createTrip
       summary: Create a trip in the current user scope
       tags: [Trips]
+      description: >-
+        Creates a user-scoped trip. endDate must not precede startDate. Local
+        dates use Asia/Shanghai day semantics. clientMutationId enables
+        idempotent retries.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TripCreateRequest" }
+      x-error-codes: [VALIDATION_ERROR, IDEMPOTENCY_CONFLICT]
       responses:
-        "201": { description: Trip created }
+        "201":
+          description: Trip created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TripSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /trips/{id}:
     get:
       operationId: getTrip
-      summary: Get a trip in the current user scope
+      summary: Get a trip detail in the current user scope
       tags: [Trips]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: >-
+        Returns the trip with its itinerary items, packing items, server-side
+        expense summary, linked transactions, and calendar events that overlap
+        the trip date range.
       responses:
-        "200": { description: Trip }
+        "200":
+          description: Trip detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TripDetailResponse" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
     patch:
       operationId: updateTrip
       summary: Update a trip in the current user scope
       tags: [Trips]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: >-
+        Updates trip fields with optimistic concurrency. The request must carry
+        the current version; a stale version returns VERSION_CONFLICT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TripUpdateRequest" }
+      x-error-codes: [VALIDATION_ERROR, VERSION_CONFLICT]
       responses:
-        "200": { description: Trip updated }
+        "200":
+          description: Trip updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TripSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
     delete:
       operationId: deleteTrip
       summary: Delete a trip in the current user scope
       tags: [Trips]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: Soft-deletes the trip; linked transactions keep tripId set to null.
       responses:
         "204": { description: Trip deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /trips/{id}/restore:
+    post:
+      operationId: restoreTrip
+      summary: Restore a soft-deleted trip in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200":
+          description: Trip restored
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TripSummary" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
   /trips/{id}/items:
     post:
@@ -1251,18 +1320,62 @@ paths:
       summary: Create an item in a trip owned by the current user
       tags: [Trips]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: >-
+        Creates a trip itinerary item. When startsAt or endsAt falls outside
+        the trip date range the request is rejected unless confirmOutOfRange is
+        true; confirmed out-of-range saves return a TripItemOutOfRangeWarning.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TripItemCreateRequest" }
+      x-error-codes:
+        [VALIDATION_ERROR, RESOURCE_NOT_FOUND, IDEMPOTENCY_CONFLICT]
       responses:
-        "201": { description: Trip item created }
+        "201":
+          description: Trip item created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TripItemCreatedResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /trip-items/{id}:
+    get:
+      operationId: getTripItem
+      summary: Get a trip item in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200":
+          description: Trip item
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TripItemSummary" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
     patch:
       operationId: updateTripItem
       summary: Update a trip item in the current user scope
       tags: [Trips]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      description: >-
+        Updates a trip item with optimistic concurrency. Out-of-range times are
+        rejected unless confirmOutOfRange is true.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TripItemUpdateRequest" }
+      x-error-codes: [VALIDATION_ERROR, VERSION_CONFLICT]
       responses:
-        "200": { description: Trip item updated }
+        "200":
+          description: Trip item updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TripItemCreatedResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
     delete:
       operationId: deleteTripItem
       summary: Delete a trip item in the current user scope
@@ -1271,24 +1384,73 @@ paths:
       responses:
         "204": { description: Trip item deleted }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /trip-items/{id}/restore:
+    post:
+      operationId: restoreTripItem
+      summary: Restore a soft-deleted trip item in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200":
+          description: Trip item restored
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TripItemSummary" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
   /trips/{id}/packing-items:
     post:
       operationId: createPackingItem
       summary: Create a packing item in a trip owned by the current user
       tags: [Trips]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PackingItemCreateRequest" }
+      x-error-codes: [VALIDATION_ERROR, RESOURCE_NOT_FOUND, IDEMPOTENCY_CONFLICT]
       responses:
-        "201": { description: Packing item created }
+        "201":
+          description: Packing item created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PackingItemSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /packing-items/{id}:
+    get:
+      operationId: getPackingItem
+      summary: Get a packing item in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200":
+          description: Packing item
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PackingItemSummary" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
     patch:
       operationId: updatePackingItem
       summary: Update a packing item in the current user scope
       tags: [Trips]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PackingItemUpdateRequest" }
+      x-error-codes: [VALIDATION_ERROR, VERSION_CONFLICT]
       responses:
-        "200": { description: Packing item updated }
+        "200":
+          description: Packing item updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PackingItemSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
     delete:
       operationId: deletePackingItem
       summary: Delete a packing item in the current user scope
@@ -1296,6 +1458,19 @@ paths:
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
       responses:
         "204": { description: Packing item deleted }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /packing-items/{id}/restore:
+    post:
+      operationId: restorePackingItem
+      summary: Restore a soft-deleted packing item in the current user scope
+      tags: [Trips]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      responses:
+        "200":
+          description: Packing item restored
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PackingItemSummary" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
   /attachments/upload-intents:
     post:
@@ -1974,6 +2149,10 @@ components:
           anyOf:
             - { type: string, minLength: 8, maxLength: 128 }
             - { type: "null" }
+        tripId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
         version: { type: integer, minimum: 1 }
         createdAt: { $ref: "#/components/schemas/IsoDateTime" }
         updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
@@ -2022,6 +2201,10 @@ components:
           anyOf:
             - { type: string, minLength: 8, maxLength: 128 }
             - { type: "null" }
+        tripId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
         clientMutationId:
           anyOf:
             - { type: string, minLength: 16, maxLength: 128 }
@@ -2066,6 +2249,10 @@ components:
         sourceFingerprint:
           anyOf:
             - { type: string, minLength: 8, maxLength: 128 }
+            - { type: "null" }
+        tripId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
             - { type: "null" }
         version: { type: integer, minimum: 1 }
     DuplicateWarning:
@@ -2594,6 +2781,10 @@ components:
             - { $ref: "#/components/schemas/Identifier" }
             - { type: "null" }
         isUnlinkedRefund: { type: boolean }
+        tripId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
     DraftSummary:
       type: object
       additionalProperties: false
@@ -3133,6 +3324,10 @@ components:
             - { $ref: "#/components/schemas/Identifier" }
             - { type: "null" }
         isUnlinkedRefund: { type: boolean }
+        tripId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
     ShortcutTodaySpendResponse:
       type: object
       additionalProperties: false
@@ -3199,3 +3394,250 @@ components:
       required: [attachment]
       properties:
         attachment: { $ref: "#/components/schemas/AttachmentSummary" }
+    TripItemType:
+      type: string
+      enum: [TRANSPORT, STAY, ACTIVITY, FOOD, OTHER]
+    TripDate:
+      type: string
+      pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+    TripSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          title,
+          destination,
+          startDate,
+          endDate,
+          budgetAmount,
+          version,
+          createdAt,
+          updatedAt,
+          deletedAt,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        title: { type: string, minLength: 1, maxLength: 200 }
+        destination: { type: string, minLength: 1, maxLength: 200 }
+        startDate: { $ref: "#/components/schemas/TripDate" }
+        endDate: { $ref: "#/components/schemas/TripDate" }
+        budgetAmount:
+          anyOf:
+            - { $ref: "#/components/schemas/Money" }
+            - { type: "null" }
+        version: { type: integer, minimum: 1 }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+    TripCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [title, destination, startDate, endDate]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        destination: { type: string, minLength: 1, maxLength: 200 }
+        startDate: { $ref: "#/components/schemas/TripDate" }
+        endDate: { $ref: "#/components/schemas/TripDate" }
+        budgetAmount:
+          anyOf:
+            - { $ref: "#/components/schemas/Money" }
+            - { type: "null" }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
+    TripUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        destination: { type: string, minLength: 1, maxLength: 200 }
+        startDate: { $ref: "#/components/schemas/TripDate" }
+        endDate: { $ref: "#/components/schemas/TripDate" }
+        budgetAmount:
+          anyOf:
+            - { $ref: "#/components/schemas/Money" }
+            - { type: "null" }
+        version: { type: integer, minimum: 1 }
+    TripListResponse:
+      type: object
+      additionalProperties: false
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/TripSummary" }
+        nextCursor:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+    TripItemSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          tripId,
+          type,
+          startsAt,
+          endsAt,
+          location,
+          position,
+          version,
+          createdAt,
+          updatedAt,
+          deletedAt,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        tripId: { $ref: "#/components/schemas/Identifier" }
+        type: { $ref: "#/components/schemas/TripItemType" }
+        startsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        endsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        location:
+          anyOf:
+            - { type: string, maxLength: 200 }
+            - { type: "null" }
+        position: { type: integer, minimum: 0 }
+        version: { type: integer, minimum: 1 }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+    TripItemCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [type, startsAt, endsAt]
+      properties:
+        type: { $ref: "#/components/schemas/TripItemType" }
+        startsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        endsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        location:
+          anyOf:
+            - { type: string, maxLength: 200 }
+            - { type: "null" }
+        position: { type: integer, minimum: 0 }
+        confirmOutOfRange: { type: boolean, default: false }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
+    TripItemUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        type: { $ref: "#/components/schemas/TripItemType" }
+        startsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        endsAt: { $ref: "#/components/schemas/IsoDateTime" }
+        location:
+          anyOf:
+            - { type: string, maxLength: 200 }
+            - { type: "null" }
+        position: { type: integer, minimum: 0 }
+        confirmOutOfRange: { type: boolean, default: false }
+        version: { type: integer, minimum: 1 }
+    TripItemOutOfRangeWarning:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code: { type: string, const: TRIP_ITEM_OUT_OF_RANGE }
+        message: { type: string }
+    TripItemCreatedResponse:
+      type: object
+      additionalProperties: false
+      required: [tripItem]
+      properties:
+        tripItem: { $ref: "#/components/schemas/TripItemSummary" }
+        outOfRangeWarning:
+          { $ref: "#/components/schemas/TripItemOutOfRangeWarning" }
+    PackingItemSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          tripId,
+          text,
+          checked,
+          position,
+          version,
+          createdAt,
+          updatedAt,
+          deletedAt,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        tripId: { $ref: "#/components/schemas/Identifier" }
+        text: { type: string, minLength: 1, maxLength: 200 }
+        checked: { type: boolean }
+        position: { type: integer, minimum: 0 }
+        version: { type: integer, minimum: 1 }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        deletedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+    PackingItemCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [text]
+      properties:
+        text: { type: string, minLength: 1, maxLength: 200 }
+        position: { type: integer, minimum: 0 }
+        clientMutationId:
+          anyOf:
+            - { type: string, minLength: 16, maxLength: 128 }
+            - { type: "null" }
+    PackingItemUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        text: { type: string, minLength: 1, maxLength: 200 }
+        checked: { type: boolean }
+        position: { type: integer, minimum: 0 }
+        version: { type: integer, minimum: 1 }
+    TripExpenseSummary:
+      type: object
+      additionalProperties: false
+      required: [actualExpense, budgetAmount, budgetProgress]
+      properties:
+        actualExpense: { $ref: "#/components/schemas/Money" }
+        budgetAmount:
+          anyOf:
+            - { $ref: "#/components/schemas/Money" }
+            - { type: "null" }
+        budgetProgress:
+          anyOf:
+            - { type: string, pattern: "^\\d+\\.\\d{2}$" }
+            - { type: "null" }
+    TripDetailResponse:
+      type: object
+      additionalProperties: false
+      required:
+        [trip, items, packingItems, expense, linkedTransactions, calendarEvents]
+      properties:
+        trip: { $ref: "#/components/schemas/TripSummary" }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/TripItemSummary" }
+        packingItems:
+          type: array
+          items: { $ref: "#/components/schemas/PackingItemSummary" }
+        expense: { $ref: "#/components/schemas/TripExpenseSummary" }
+        linkedTransactions:
+          type: array
+          items: { $ref: "#/components/schemas/TransactionSummary" }
+        calendarEvents:
+          type: array
+          items: { $ref: "#/components/schemas/CalendarEventSummary" }

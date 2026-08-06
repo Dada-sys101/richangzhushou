@@ -114,6 +114,15 @@ export type AttachmentOwnerType = (typeof ATTACHMENT_OWNER_TYPES)[number];
 export const DRAFT_TARGET_TYPES = ["TRANSACTION"] as const;
 export type DraftTargetType = (typeof DRAFT_TARGET_TYPES)[number];
 
+export const TRIP_ITEM_TYPES = [
+  "TRANSPORT",
+  "STAY",
+  "ACTIVITY",
+  "FOOD",
+  "OTHER",
+] as const;
+export type TripItemType = (typeof TRIP_ITEM_TYPES)[number];
+
 export const API_ERROR_CODES = [
   "VALIDATION_ERROR",
   "UNAUTHORIZED",

@@ -7,6 +7,7 @@ import {
   REMINDER_SCHEDULE_TYPES,
   REMINDER_TARGET_TYPES,
   SHORTCUT_SCOPES,
+  TRIP_ITEM_TYPES,
   USER_STATUSES,
 } from "./enums.js";
 
@@ -48,6 +49,16 @@ describe("shared enums", () => {
       "CALENDAR_EVENT",
       "TASK",
       "STANDALONE",
+    ]);
+  });
+
+  it("keeps the WP6 trip item type enum stable", () => {
+    expect(TRIP_ITEM_TYPES).toEqual([
+      "TRANSPORT",
+      "STAY",
+      "ACTIVITY",
+      "FOOD",
+      "OTHER",
     ]);
   });
 });

@@ -21,6 +21,7 @@ import {
   SYNC_STATES,
   TASK_STATUSES,
   TRANSACTION_TYPES,
+  TRIP_ITEM_TYPES,
   USER_ROLES,
   USER_STATUSES,
 } from "../src/enums.js";
@@ -103,12 +104,17 @@ const requiredOperations = [
   "GET /trips/{id}",
   "PATCH /trips/{id}",
   "DELETE /trips/{id}",
+  "POST /trips/{id}/restore",
   "POST /trips/{id}/items",
+  "GET /trip-items/{id}",
   "PATCH /trip-items/{id}",
   "DELETE /trip-items/{id}",
+  "POST /trip-items/{id}/restore",
   "POST /trips/{id}/packing-items",
+  "GET /packing-items/{id}",
   "PATCH /packing-items/{id}",
   "DELETE /packing-items/{id}",
+  "POST /packing-items/{id}/restore",
   "POST /attachments/upload-intents",
   "POST /attachments/{id}/complete",
   "DELETE /attachments/{id}",
@@ -167,6 +173,7 @@ describe("OpenAPI baseline", () => {
     ["DraftStatus", DRAFT_STATUSES],
     ["ShortcutScope", SHORTCUT_SCOPES],
     ["AttachmentScanStatus", ATTACHMENT_SCAN_STATUSES],
+    ["TripItemType", TRIP_ITEM_TYPES],
   ] as const)(
     "keeps %s aligned with shared TypeScript",
     (schemaName, values) => {
@@ -403,6 +410,88 @@ describe("OpenAPI baseline", () => {
       "/reminders/{id}/restore",
     ];
     for (const path of wp5Paths) {
+      for (const [method, operation] of Object.entries(document.paths[path])) {
+        expect(operation.security ?? document.security).toEqual([
+          { accessToken: [] },
+        ]);
+        void method;
+      }
+    }
+  });
+
+  it("defines the WP6 trip, trip item, and packing item contracts", () => {
+    const schemas = document.components.schemas;
+    for (const name of [
+      "TripSummary",
+      "TripCreateRequest",
+      "TripUpdateRequest",
+      "TripListResponse",
+      "TripItemSummary",
+      "TripItemCreateRequest",
+      "TripItemUpdateRequest",
+      "TripItemOutOfRangeWarning",
+      "TripItemCreatedResponse",
+      "PackingItemSummary",
+      "PackingItemCreateRequest",
+      "PackingItemUpdateRequest",
+      "TripExpenseSummary",
+      "TripDetailResponse",
+    ]) {
+      expect(schemas[name]).toBeDefined();
+    }
+    expect(schemas.TripItemType?.enum).toEqual([...TRIP_ITEM_TYPES]);
+    expect(schemas.TripCreateRequest?.required).toEqual([
+      "title",
+      "destination",
+      "startDate",
+      "endDate",
+    ]);
+    expect(schemas.TripUpdateRequest?.required).toEqual(["version"]);
+    expect(schemas.TripItemCreateRequest?.required).toEqual([
+      "type",
+      "startsAt",
+      "endsAt",
+    ]);
+    expect(schemas.TripItemUpdateRequest?.required).toEqual(["version"]);
+    expect(schemas.PackingItemCreateRequest?.required).toEqual(["text"]);
+    expect(schemas.PackingItemUpdateRequest?.required).toEqual(["version"]);
+    expect(schemas.TripItemOutOfRangeWarning?.properties?.code).toEqual({
+      type: "string",
+      const: "TRIP_ITEM_OUT_OF_RANGE",
+    });
+    expect(schemas.TripDetailResponse?.required).toEqual(
+      expect.arrayContaining([
+        "trip",
+        "items",
+        "packingItems",
+        "expense",
+        "linkedTransactions",
+        "calendarEvents",
+      ]),
+    );
+    expect(schemas.TripExpenseSummary?.required).toEqual([
+      "actualExpense",
+      "budgetAmount",
+      "budgetProgress",
+    ]);
+    expect(schemas.TransactionSummary?.properties?.tripId).toBeDefined();
+    expect(schemas.TransactionCreateRequest?.properties?.tripId).toBeDefined();
+    expect(schemas.TransactionUpdateRequest?.properties?.tripId).toBeDefined();
+  });
+
+  it("keeps trip operations on the access token", () => {
+    const tripPaths = [
+      "/trips",
+      "/trips/{id}",
+      "/trips/{id}/restore",
+      "/trips/{id}/items",
+      "/trip-items/{id}",
+      "/trip-items/{id}/restore",
+      "/trips/{id}/packing-items",
+      "/packing-items/{id}",
+      "/packing-items/{id}/restore",
+    ];
+    for (const path of tripPaths) {
       for (const [method, operation] of Object.entries(document.paths[path])) {
         expect(operation.security ?? document.security).toEqual([
           { accessToken: [] },
