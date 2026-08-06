@@ -74,3 +74,5 @@
 | DA-1003 | 发布准备第二阶段：建立并推送正式 `main` 分支（wp8 完整包含 wp1，main CI 通过） | DONE | RELEASE |
 | DA-1004 | 发布准备第三阶段：staging 创建/部署（需用户授权） | NOT_STARTED | RELEASE |
 | DA-1005 | GitHub 默认分支切换为 `main`（用户网页操作完成） | DONE | RELEASE |
+| DA-1101 | OPEN-007 账户期满删除清理（保留期/调度/附件删除/取消/重试上限/匿名墓碑） | DONE | RELEASE |
+| DA-1102 | 修正 staging 发布清单过期内容（docs/27 + 状态文档同步） | DONE | RELEASE |

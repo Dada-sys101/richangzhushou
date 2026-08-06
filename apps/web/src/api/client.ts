@@ -58,7 +58,13 @@ export interface UserSummary {
   displayName: string;
   id: string;
   role: "ADMIN" | "USER";
-  status: "ACTIVE" | "CLOSED" | "DELETED" | "DELETION_PENDING" | "SUSPENDED";
+  status:
+    | "ACTIVE"
+    | "CLOSED"
+    | "DELETED"
+    | "DELETION_PENDING"
+    | "DELETION_PROCESSING"
+    | "SUSPENDED";
   updatedAt: string;
   username: string;
 }

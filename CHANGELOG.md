@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-08-06 — OPEN-007 账户期满删除清理实现完成
+- 数据模型：`UserStatus` 新增 `DELETION_PROCESSING`；`users` 新增删除调度/开始/完成/
+  尝试次数/失败原因/租约过期六列；migration `20260806092920_open007_account_deletion_cleanup`。
+- 申请删除写入计划删除时间（默认 30 天可配置）；后台任务原子领取并清理全部业务行与
+  附件文件，成功后写匿名墓碑（随机用户名、空显示名、随机密码散列、`DELETED`）。
+- 失败不标记 `DELETED`，租约过期后可重试，达到最大尝试次数后保留可诊断状态；
+  `AccountDeletionScheduler` 由 `ACCOUNT_DELETION_SCHEDULER_ENABLED` 控制，
+  手工执行 `npm run account-deletion:run`。
+- 管理员可取消 `DELETION_PENDING` 删除申请（容量复查 + `USER_DELETE_CANCEL` 审计）；
+  契约/OpenAPI/管理端同步。
+- 测试：API 111/111、空库 8 migrations、CLI 演练通过；`docs/27` 发布清单过期内容已修正。
+
 ## 2026-08-06 — 正式 main 分支建立与推送完成
 - 确认 `codex/wp8-release-prep` 完整包含 `codex/wp1-foundation`（`rev-list --left-right --count` = `0 42`）。
 - 从 `codex/wp8-release-prep` @ `42bcef0` 建立并推送正式 `main`；main = origin/main = origin/codex/wp8-release-prep = `42bcef0`。

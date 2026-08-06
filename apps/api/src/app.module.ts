@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 
+import { AccountDeletionModule } from "./account-deletion/account-deletion.module.js";
 import { AccountModule } from "./account/account.module.js";
 import { AdminModule } from "./admin/admin.module.js";
 import { AttachmentsModule } from "./attachments/attachments.module.js";
@@ -22,6 +23,7 @@ import { TripsModule } from "./trips/trips.module.js";
 
 @Module({
   imports: [
+    AccountDeletionModule,
     AccountModule,
     AdminModule,
     AttachmentsModule,

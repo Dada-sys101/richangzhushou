@@ -110,6 +110,21 @@ export class AdminController {
     );
   }
 
+  @Post("users/:id/cancel-deletion")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async cancelUserDeletion(
+    @Req() request: AuthenticatedRequest,
+    @Param("id") id: string,
+    @Body() dto: AdminReasonDto,
+  ): Promise<void> {
+    await this.adminService.cancelUserDeletion(
+      request.user!.userId,
+      id,
+      dto,
+      request.requestId ?? "unknown",
+    );
+  }
+
   @Get("settings")
   getSettings() {
     return this.adminService.getSettings();

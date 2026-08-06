@@ -125,6 +125,7 @@ const requiredOperations = [
   "POST /admin/users/{id}/suspend",
   "POST /admin/users/{id}/close",
   "POST /admin/users/{id}/reopen",
+  "POST /admin/users/{id}/cancel-deletion",
   "GET /admin/settings",
   "PATCH /admin/settings",
   "GET /admin/audits",

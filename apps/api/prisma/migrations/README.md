@@ -113,3 +113,22 @@ No production or shared database URL belongs in this repository.
   `invite_redemptions`、`scan_status`、注册/邀请开关列），并按原 schema 回填。
 - 演示数据：`SEED_DEMO_USER=true` 创建 `username=demo` 的本地演示账号
   （`must_change_password=false`）；管理员账号用 `bootstrap:admin --username=...` 创建。
+
+## OPEN-007 Account deletion cleanup（20260806092920_open007_account_deletion_cleanup）
+
+- 变更：`users.status` 枚举新增 `DELETION_PROCESSING`；`users` 新增
+  `deletion_scheduled_at`/`deletion_started_at`/`deletion_completed_at`/
+  `deletion_attempt_count`/`deletion_last_error`/`deletion_lease_expires_at`
+  六列，支撑计划删除、原子领取、租约重试与匿名墓碑时间。
+- 语义：`DELETION_PENDING` 为保留期内等待；`DELETION_PROCESSING` 为已领取清理中
+  （含失败等待租约过期重试）；`DELETED` 为清理完成后的匿名墓碑。清理任务由
+  `apps/api/src/account-deletion/*` 实现，配置项见 `.env.example`
+  （`ACCOUNT_DELETION_*`），手工执行 `npm run account-deletion:run`。
+- 回滚（破坏性，先备份）：`prisma migrate resolve --rolled-back
+  20260806092920_open007_account_deletion_cleanup` 后删除该 migration 目录，再
+  `prisma migrate deploy` 到上一个版本；或对非生产库执行
+  `ALTER TABLE users DROP COLUMN deletion_lease_expires_at, DROP COLUMN
+  deletion_last_error, DROP COLUMN deletion_attempt_count, DROP COLUMN
+  deletion_completed_at, DROP COLUMN deletion_started_at, DROP COLUMN
+  deletion_scheduled_at` 并将 `status` 恢复为不含 `DELETION_PROCESSING` 的
+  ENUM（注意先把 `DELETION_PROCESSING` 行重置为 `DELETION_PENDING`）。

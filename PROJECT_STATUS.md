@@ -1,7 +1,7 @@
 # Project Status
 
 版本：1.0<br>
-状态：正式 `main` 已建立并推送（= `codex/wp8-release-prep` @ `42bcef0`），main 远端 GitHub Actions 验证通过（未部署、未创建 PR）<br>
+状态：正式 `main` 已建立并推送；OPEN-007 账户期满删除清理已实现并通过本地测试（未部署、未创建 PR）<br>
 更新：2026-08-06
 
 ## 当前状态
@@ -9,6 +9,8 @@
 - 项目：Daily Assistant（临时名称）
 - 位置：`D:\daily-assistant`
 - 当前工作包：WP8 已完成本地验收；正式 `main` 已建立并推送（= `codex/wp8-release-prep` @ `42bcef0`，远端 CI 通过）
+- OPEN-007：账户期满删除清理已实现（保留期 30 天可配置、后台清理、附件删除、取消删除、匿名墓碑），
+  见 `docs/27` 与 OPEN-007 变更记录
 - 首页界面优化：已完成本地验收（今日概览/友好认证状态/精简导航/移动端底部导航/
   本月财务/空状态/同步状态；仅前端，`docs/29`；已提交 `68f3987` 并随 wp8/main 推送，未部署）
 - 代码：WP2 身份/容量/邀请码/管理端已实现；WP3 记账已实现；WP4 快捷指令/草稿/OCR 已实现；WP5 日程/待办/提醒已实现；WP6 行程/节点/行李/账单关联/费用汇总已实现；WP7 PWA/IndexedDB 离线缓存/同步队列/冲突页已实现；WP8 安全/上传/可访问性/全量回归/发布准备已完成（详见 `docs/26`、`docs/27`）
@@ -24,6 +26,9 @@
 
 ## 已完成
 
+- OPEN-007：`DELETION_PROCESSING` 状态与删除调度/租约字段；原子领取与失败重试；
+  全部业务数据与附件真实清理；匿名墓碑；管理员取消删除；契约/OpenAPI/管理端/文档同步；
+  API 测试 111/111、空库 8 migrations、CLI 演练通过。
 - 发布准备第二阶段：确认 wp8 完整包含 wp1（`rev-list --left-right --count` = `0 42`）后，从 `codex/wp8-release-prep` @ `42bcef0` 建立并推送正式 `main`；main CI run `31086031458` PASS；无 force push、无额外 merge commit、旧分支未改动。
 - GitHub 默认分支切换为 `main`（用户网页操作完成，2026-08-06）；`codex/wp1-foundation`、`codex/wp8-release-prep` 暂时保留。
 - 首页界面优化：用户端首页现代重构（见 `docs/29`），`npm run quality` 全绿、

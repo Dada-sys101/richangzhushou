@@ -2,9 +2,22 @@
 
 ## Session Status
 
-Completed（正式 `main` 已建立并推送、GitHub 默认分支已切换为 main，main 远端 CI 通过；状态文档收尾完成）
+进行中（OPEN-007 账户期满删除清理已完成本地实现与验证，待提交推送；正式 main 已建立并推送且默认分支已切换为 main）
 
 ## Task
+
+## 最近完成：OPEN-007 账户期满删除清理实现（2026-08-06）
+
+- 任务：在 `codex/open-007-deletion-cleanup` 分支实现账户期满删除清理（保留期、后台调度、
+  附件真实删除、失败重试、取消删除、匿名墓碑），并同步修正 staging 发布清单与状态文档。
+- 结果：`UserStatus` 新增 `DELETION_PROCESSING`；`users` 新增删除调度/开始/完成/尝试次数/
+  失败原因/租约字段（migration `20260806092920_open007_account_deletion_cleanup`）；
+  申请删除写入计划时间（默认 30 天可配置）；`AccountDeletionService` 原子领取批量清理，
+  `AccountDeletionScheduler` 受开关控制，手工入口 `npm run account-deletion:run`；
+  管理员 `POST /admin/users/:id/cancel-deletion` 可取消保留期内删除申请。
+- 验证：API 测试 111/111（新增 8 单元 + 11 OPEN-007 集成）；空库 8 migrations
+  `prisma migrate deploy` 通过；CLI 演练 `claimed=1 completed=1`；`docs/27` 过期内容已修正。
+- 提交推送：以 `git log` / `git log origin/codex/open-007-deletion-cleanup` 为准。
 
 ## 最近完成：正式 main 分支建立与推送（2026-08-06）
 
@@ -130,7 +143,8 @@ None（本任务）；项目级阻塞见 `.project/context.md` Blockers。
 
 1. 正式 `main` 已建立并推送（`42bcef0`，main CI run `31086031458` 通过）；提交哈希与分支以 `git log` 为准。
 2. 下次任务开始前按 AGENTS.md 恢复顺序读取状态文件与 Git 历史。
-3. 若用户继续：按 `docs/27` 进行 staging 创建/部署决策（需授权）；账号删除期满清理实现前不得宣称“数据已删除”（OPEN-007）。
+3. 若用户继续：按 `docs/27` 进行 staging 创建/部署决策（需授权）；OPEN-007 已实现，
+   开启删除调度器并单实例验证前不得宣称生产环境“数据已删除”。
 
 ## Completion Criteria
 

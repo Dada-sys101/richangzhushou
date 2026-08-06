@@ -9,6 +9,7 @@ import { CapacityService } from "../capacity/capacity.service.js";
 import { AuditService } from "../audit/audit.service.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { normalizeUsername, toUserSummary } from "../users/user.mapper.js";
+import { deletionScheduledAt } from "../account-deletion/account-deletion.config.js";
 import type {
   ChangePasswordDto,
   CloseAccountDto,
@@ -219,10 +220,13 @@ export class AuthService {
   ): Promise<void> {
     await this.verifyOwnPassword(userId, dto.password);
     await this.capacityService.withCapacityRetry(async (tx) => {
+      const requestedAt = new Date();
+      const scheduledAt = deletionScheduledAt(requestedAt);
       const updated = await tx.user.updateMany({
         where: { id: userId, status: "ACTIVE" },
         data: {
-          deletionRequestedAt: new Date(),
+          deletionRequestedAt: requestedAt,
+          deletionScheduledAt: scheduledAt,
           status: "DELETION_PENDING",
         },
       });
@@ -241,7 +245,8 @@ export class AuthService {
         action: "USER_DELETE_REQUEST",
         actorId: userId,
         after: {
-          deletionRequestedAt: new Date().toISOString(),
+          deletionRequestedAt: requestedAt.toISOString(),
+          deletionScheduledAt: scheduledAt.toISOString(),
           status: "DELETION_PENDING",
         },
         before: { status: "ACTIVE" },

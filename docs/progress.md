@@ -8,6 +8,17 @@
 
 ## 已完成
 
+### OPEN-007 账户期满删除清理（2026-08-06）
+- `UserStatus` 新增 `DELETION_PROCESSING`；`users` 新增
+  `deletion_scheduled_at`/`deletion_started_at`/`deletion_completed_at`/
+  `deletion_attempt_count`/`deletion_last_error`/`deletion_lease_expires_at`
+  （migration `20260806092920_open007_account_deletion_cleanup`）。
+- 申请删除写入计划时间（默认 30 天，`ACCOUNT_DELETION_RETENTION_DAYS` 可配置）；
+  后台任务原子领取（状态+租约+尝试上限）批量清理，失败可诊断可重试，成功后写匿名墓碑；
+  附件经存储适配器真实删除（缺失幂等）；管理员可取消保留期内删除申请。
+- 验证：API 测试 111/111（新增 8 单元 + 11 OPEN-007 集成）、空库 8 migrations
+  `prisma migrate deploy`、CLI 演练（`claimed=1 completed=1`）均通过；`docs/27` 已修正。
+
 ### 发布准备第二阶段（2026-08-06）
 - 确认分支祖先关系：`merge-base` = `981aafc8`；`rev-list --left-right --count origin/codex/wp1-foundation...origin/codex/wp8-release-prep` = `0 42`（`codex/wp8-release-prep` 完整包含 `codex/wp1-foundation`）。
 - 建立并推送正式 `main`：本地旧 `main`（`5d52395`，已被 wp8 包含）删除后，从 `codex/wp8-release-prep` @ `42bcef0` 重建并 `git push -u origin main`；main = origin/main = origin/codex/wp8-release-prep = `42bcef0`。

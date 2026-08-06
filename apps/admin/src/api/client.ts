@@ -147,7 +147,7 @@ export const adminApi = {
   },
   userAction(
     userId: string,
-    action: "close" | "reopen" | "suspend",
+    action: "cancel-deletion" | "close" | "reopen" | "suspend",
     reason: string,
   ) {
     return http<void>(`/admin/users/${userId}/${action}`, {

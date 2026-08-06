@@ -265,6 +265,65 @@ export class AdminService {
     });
   }
 
+  async cancelUserDeletion(
+    actorId: string,
+    userId: string,
+    dto: AdminReasonDto,
+    requestId: string,
+  ): Promise<void> {
+    await this.capacityService.withCapacityRetry(async (tx) => {
+      const before = await tx.user.findUnique({ where: { id: userId } });
+      if (!before) {
+        throw new ApiException("RESOURCE_NOT_FOUND", 404, "User not found");
+      }
+      if (before.status !== "DELETION_PENDING") {
+        throw new ApiException(
+          "INVALID_STATE",
+          409,
+          "Only a pending account deletion can be cancelled",
+        );
+      }
+      const settings = await tx.systemSetting.findUniqueOrThrow({
+        where: { id: "singleton" },
+      });
+      const occupied = await this.capacityService.countOccupied(tx);
+      if (occupied >= settings.maxActiveUsers) {
+        throw new ApiException(
+          "CAPACITY_REACHED",
+          409,
+          "The experience is currently full",
+        );
+      }
+      const after = await tx.user.update({
+        data: {
+          deletionAttemptCount: 0,
+          deletionCompletedAt: null,
+          deletionLastError: null,
+          deletionLeaseExpiresAt: null,
+          deletionRequestedAt: null,
+          deletionScheduledAt: null,
+          deletionStartedAt: null,
+          status: "ACTIVE",
+        },
+        where: { id: userId },
+      });
+      await this.auditService.recordInTx(tx, {
+        action: "USER_DELETE_CANCEL",
+        actorId,
+        after: { status: after.status },
+        before: {
+          deletionRequestedAt:
+            before.deletionRequestedAt?.toISOString() ?? null,
+          status: before.status,
+        },
+        reason: dto.reason,
+        requestId,
+        targetId: userId,
+        targetType: "User",
+      });
+    });
+  }
+
   async listAudits() {
     return this.auditService.list();
   }
