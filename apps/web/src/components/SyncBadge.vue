@@ -25,12 +25,18 @@ const label = computed(() => {
 onMounted(() => {
   window.addEventListener("beforeinstallprompt", handleInstallPrompt);
   window.addEventListener("appinstalled", handleInstalled);
+  window.addEventListener("daily-sync-changed", handleSyncChanged);
 });
 
 onUnmounted(() => {
   window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
   window.removeEventListener("appinstalled", handleInstalled);
+  window.removeEventListener("daily-sync-changed", handleSyncChanged);
 });
+
+function handleSyncChanged() {
+  void sync.refresh();
+}
 
 function handleInstallPrompt(event: Event) {
   event.preventDefault();

@@ -260,8 +260,7 @@ export async function deletePending(id: string): Promise<void> {
 
 export async function clearUserData(userId: string): Promise<void> {
   await withStore("entities", "readwrite", async (store) => {
-    const index = store.index("userEntityType");
-    const cursorRequest = index.openCursor(IDBKeyRange.only([userId]));
+    const cursorRequest = store.openCursor();
     await new Promise<void>((resolve, reject) => {
       cursorRequest.onsuccess = () => {
         const cursor = cursorRequest.result;
@@ -269,7 +268,10 @@ export async function clearUserData(userId: string): Promise<void> {
           resolve();
           return;
         }
-        cursor.delete();
+        const value = cursor.value as StoredEntity;
+        if (value.userId === userId) {
+          cursor.delete();
+        }
         cursor.continue();
       };
       cursorRequest.onerror = () => reject(cursorRequest.error);

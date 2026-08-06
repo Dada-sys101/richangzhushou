@@ -40,9 +40,7 @@ describe("localSummary", () => {
         month: "2026-08",
       },
     ];
-    const categories = [
-      { id: "cat-1", name: "餐饮" },
-    ];
+    const categories = [{ id: "cat-1", name: "餐饮" }];
     const summary = localSummary(transactions, budgets, categories, "2026-08");
     expect(summary.totalExpense).toBe("100.00");
     expect(summary.totalRefund).toBe("20.00");

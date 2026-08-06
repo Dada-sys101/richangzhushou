@@ -42,4 +42,14 @@ export default defineConfig({
     },
     strictPort: true,
   },
+  preview: {
+    port: 4173,
+    proxy: {
+      "/api": {
+        changeOrigin: true,
+        target: "http://127.0.0.1:3000",
+      },
+    },
+    strictPort: true,
+  },
 });

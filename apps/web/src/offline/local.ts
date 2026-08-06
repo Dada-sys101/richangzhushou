@@ -26,6 +26,10 @@ export function mergePending<T extends object>(
     items.map((item) => [String((item as Record<string, unknown>).id), item]),
   );
   for (const item of localItems) {
+    const record = item as Record<string, unknown>;
+    if (record.deletedAt) {
+      continue;
+    }
     const id = String((item as Record<string, unknown>).id);
     if (!byId.has(id)) {
       byId.set(id, item);

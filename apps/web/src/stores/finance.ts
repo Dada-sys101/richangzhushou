@@ -15,6 +15,7 @@ import {
   localSummary,
   mergePending,
 } from "../offline/local";
+import { pullChanges } from "../offline/sync";
 import { useAuthStore } from "./auth";
 
 interface FinanceState {
@@ -59,6 +60,10 @@ export const useFinanceStore = defineStore("finance", {
     ) {
       this.transactionsLoading = true;
       try {
+        const syncUserId = useAuthStore().userId;
+        if (syncUserId) {
+          await pullChanges(syncUserId);
+        }
         const result = await api.listTransactions({ limit: 100, ...params });
         this.transactions = mergePending(
           result.items,

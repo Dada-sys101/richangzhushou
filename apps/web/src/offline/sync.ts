@@ -1,4 +1,4 @@
-import { API_BASE_URL, getAccessToken } from "../api/session";
+import { API_BASE_URL, getAccessToken, setAccessToken } from "../api/session";
 import {
   clearUserData,
   cursorKey,
@@ -157,7 +157,8 @@ export async function flushPending(userId: string): Promise<void> {
   try {
     const pending = await listPending(userId, ["PENDING", "FAILED"]);
     if (pending.length === 0) {
-      await setState(userId, "SYNCED");
+      const conflicts = await listPending(userId, ["CONFLICT"]);
+      await setState(userId, conflicts.length > 0 ? "CONFLICT" : "SYNCED");
       return;
     }
     const batch = await buildBatch(userId, pending);
@@ -229,6 +230,7 @@ export async function flushPending(userId: string): Promise<void> {
     scheduleFlush(userId);
   } finally {
     flushing = false;
+    notifyChanged();
   }
 }
 
@@ -255,6 +257,7 @@ export async function enqueueCreate(
   };
   await putPending(mutation);
   await setState(userId, "PENDING_SYNC");
+  notifyChanged();
   scheduleFlush(userId);
 }
 
@@ -283,6 +286,7 @@ export async function enqueueChange(
   };
   await putPending(mutation);
   await setState(userId, "PENDING_SYNC");
+  notifyChanged();
   scheduleFlush(userId);
 }
 
@@ -505,7 +509,25 @@ async function syncRequest<T>(
   path: string,
   options: { body?: unknown; method?: string } = {},
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  let response = await doSyncFetch(path, options);
+  if (response.status === 401 && (await refreshAccessToken())) {
+    response = await doSyncFetch(path, options);
+  }
+  const text = await response.text();
+  const data = text ? (JSON.parse(text) as unknown) : null;
+  if (!response.ok) {
+    throw new Error(
+      (data as { message?: string } | null)?.message ?? "Sync request failed",
+    );
+  }
+  return data as T;
+}
+
+async function doSyncFetch(
+  path: string,
+  options: { body?: unknown; method?: string },
+): Promise<Response> {
+  return fetch(`${API_BASE_URL}${path}`, {
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
     credentials: "include",
     headers: {
@@ -517,14 +539,19 @@ async function syncRequest<T>(
     },
     method: options.method ?? "GET",
   });
-  const text = await response.text();
-  const data = text ? (JSON.parse(text) as unknown) : null;
+}
+
+async function refreshAccessToken(): Promise<boolean> {
+  const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    credentials: "include",
+    method: "POST",
+  });
   if (!response.ok) {
-    throw new Error(
-      (data as { message?: string } | null)?.message ?? "Sync request failed",
-    );
+    return false;
   }
-  return data as T;
+  const data = (await response.json()) as { accessToken: string };
+  setAccessToken(data.accessToken);
+  return true;
 }
 
 export function newMutationId(): string {
@@ -533,4 +560,8 @@ export function newMutationId(): string {
 
 export function newLocalEntityId(): string {
   return `local-${crypto.randomUUID().replace(/-/g, "")}`;
+}
+
+function notifyChanged(): void {
+  window.dispatchEvent(new Event("daily-sync-changed"));
 }

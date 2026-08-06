@@ -32,8 +32,12 @@ const overallBudget = computed(() =>
   finance.summary?.budgets.find((budget) => budget.categoryId === null),
 );
 
-const recentTransactions = computed(() => finance.transactions.slice(0, 5));
-const recentTrips = computed(() => trips.trips.slice(0, 3));
+const recentTransactions = computed(() =>
+  finance.transactions.filter((item) => !item.deletedAt).slice(0, 5),
+);
+const recentTrips = computed(() =>
+  trips.trips.filter((item) => !item.deletedAt).slice(0, 3),
+);
 
 const todayEvents = computed(() => planner.calendarEvents);
 const todayTasks = computed(() =>

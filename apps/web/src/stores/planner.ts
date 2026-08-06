@@ -8,6 +8,7 @@ import {
   type TaskSummary,
 } from "../api/client";
 import { localList, mergePending } from "../offline/local";
+import { pullChanges } from "../offline/sync";
 import { useAuthStore } from "./auth";
 
 interface PlannerState {
@@ -40,6 +41,10 @@ export const usePlannerStore = defineStore("planner", {
     ) {
       this.errorMessage = null;
       try {
+        const syncUserId = useAuthStore().userId;
+        if (syncUserId) {
+          await pullChanges(syncUserId);
+        }
         const result = await api.listCalendarEvents(params);
         const userId = useAuthStore().userId;
         this.calendarEvents = userId
@@ -73,6 +78,10 @@ export const usePlannerStore = defineStore("planner", {
     ) {
       this.errorMessage = null;
       try {
+        const syncUserId = useAuthStore().userId;
+        if (syncUserId) {
+          await pullChanges(syncUserId);
+        }
         const result = await api.listTasks(params);
         const userId = useAuthStore().userId;
         this.tasks = userId
@@ -100,6 +109,10 @@ export const usePlannerStore = defineStore("planner", {
     ) {
       this.errorMessage = null;
       try {
+        const syncUserId = useAuthStore().userId;
+        if (syncUserId) {
+          await pullChanges(syncUserId);
+        }
         const result = await api.listReminders(params);
         const userId = useAuthStore().userId;
         this.reminders = userId

@@ -13,6 +13,7 @@ import {
   localTripDetail,
   mergePending,
 } from "../offline/local";
+import { pullChanges } from "../offline/sync";
 import { useAuthStore } from "./auth";
 
 interface TripsState {
@@ -31,6 +32,10 @@ export const useTripsStore = defineStore("trips", {
     async loadTrips(params: { includeDeleted?: boolean } = {}) {
       this.errorMessage = null;
       try {
+        const syncUserId = useAuthStore().userId;
+        if (syncUserId) {
+          await pullChanges(syncUserId);
+        }
         const result = await api.listTrips(params);
         const userId = useAuthStore().userId;
         this.trips = userId
@@ -53,6 +58,10 @@ export const useTripsStore = defineStore("trips", {
     async loadTrip(id: string) {
       this.errorMessage = null;
       try {
+        const syncUserId = useAuthStore().userId;
+        if (syncUserId) {
+          await pullChanges(syncUserId);
+        }
         this.detail = await api.getTrip(id);
       } catch (error) {
         if (isOfflineError(error)) {
