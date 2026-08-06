@@ -39,7 +39,7 @@ describe("LocalStorageAdapter", () => {
     await expect(
       adapter.put("../escape.txt", Buffer.from("x")),
     ).rejects.toThrow("Unsafe object key");
-    await expect(adapter.delete("C:\\windows\\system32\\x")).rejects.toThrow(
+    await expect(adapter.delete("sub/../../escape.txt")).rejects.toThrow(
       "Unsafe object key",
     );
   });
