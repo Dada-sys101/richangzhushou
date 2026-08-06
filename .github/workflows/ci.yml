@@ -44,7 +44,13 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Run WP1 quality gates
+      - name: Generate Prisma client
+        run: npm run prisma:generate --workspace @daily-assistant/api
+
+      - name: Build shared API contracts
+        run: npm run build --workspace @daily-assistant/api-contracts
+
+      - name: Run quality gates
         run: npm run quality
 
       - name: Apply migrations to an empty MySQL database
