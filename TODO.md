@@ -71,4 +71,6 @@
 | DA-0902 | WP9 身份与录入简化（账号密码登录、管理员建号/重置、首登强制改密、邮箱/邀请码/截图 OCR 下线） | DONE | WP9 |
 | DA-1001 | 首页界面优化（今日概览/友好认证状态/精简导航/移动端底部导航/本月财务/空状态/同步状态；仅前端） | DONE | UI |
 | DA-1002 | 发布准备第一阶段：推送 `codex/wp8-release-prep` 并完成远端 CI 验证（含 CI 纯净环境修复） | DONE | RELEASE |
-| DA-1003 | 发布准备第二阶段：staging 创建/部署与合并主分支策略（origin 无 `main`） | NOT_STARTED | RELEASE |
+| DA-1003 | 发布准备第二阶段：建立并推送正式 `main` 分支（wp8 完整包含 wp1，main CI 通过） | DONE | RELEASE |
+| DA-1004 | 发布准备第三阶段：staging 创建/部署（需用户授权） | NOT_STARTED | RELEASE |
+| DA-1005 | GitHub 默认分支切换为 `main`（用户网页操作完成） | DONE | RELEASE |

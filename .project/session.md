@@ -2,9 +2,17 @@
 
 ## Session Status
 
-Completed（发布准备第一阶段已完成：`codex/wp8-release-prep` 已推送，远端 CI 通过）
+Completed（正式 `main` 已建立并推送、GitHub 默认分支已切换为 main，main 远端 CI 通过；状态文档收尾完成）
 
 ## Task
+
+## 最近完成：正式 main 分支建立与推送（2026-08-06）
+
+- 任务：确认 `codex/wp8-release-prep` 完整包含 `codex/wp1-foundation` 后，建立并推送正式 `main` 分支；禁止强推、禁止改写历史、禁止删除/修改旧远程分支、暂不部署。
+- 结果：`merge-base` = `981aafc8`，`rev-list --left-right --count origin/codex/wp1-foundation...origin/codex/wp8-release-prep` = `0 42`（wp8 完整包含 wp1）；本地原 `main`（`5d52395`，已被 wp8 包含）安全删除后，从 `codex/wp8-release-prep` 重建 main 并 `git push -u origin main`；main = origin/main = origin/codex/wp8-release-prep = `42bcef0`。
+- 验证：main 推送触发 GitHub Actions run `31086031458` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）；工作树干净；无 force push、无额外 merge commit、旧远程分支未改动；GitHub 默认分支已切换为 main（用户网页操作）。
+- 提交：`42bcef0`（main 与 wp8 一致；本次仅新增远端分支，无新提交）。
+- 收尾：本次任务统一 9 个状态文档并提交推送（`docs: sync project status after main branch setup`）。
 
 ## 最近完成：发布准备第一阶段（2026-08-06）
 
@@ -22,7 +30,7 @@ Completed（发布准备第一阶段已完成：`codex/wp8-release-prep` 已推�
   同步状态支持已同步/同步中/同步失败并保留重试；浅灰蓝背景 + 白色卡片 + 1280px 容器。
 - 验证：`npm run quality` PASS；用户端测试 15/15；浏览器验证未登录/登录态、更多菜单、
   底部导航、375/390/430/768/1440 无横向溢出；另修复本地缓存日程未按日期过滤的既有缺陷。
-- 未提交（待用户授权）；未推送、未部署。
+- 已提交 `68f3987` 并随 `codex/wp8-release-prep`/`main` 推送；未部署。
 
 ## 最近完成：WP9 身份与录入简化（2026-08-06）
 
@@ -31,7 +39,7 @@ Completed（发布准备第一阶段已完成：`codex/wp8-release-prep` 已推�
 - 结果：`npm run quality` 全量通过；空库 7 migrations + seed；API 测试 92/92、
   契约 125/125；浏览器验证账号登录、强制改密、管理端建号与控制台 0 错误；
   API 重启后数据持久化通过；本地库 `daily_assistant_wp9`。
-- 未提交（待用户授权）；未推送、未部署、未开始 OPEN-007。
+- 已提交 `71b9f74` 并随 `codex/wp8-release-prep`/`main` 推送；未部署、未开始 OPEN-007。
 
 ## 最近完成：本机启动与访问验证（2026-08-06）
 
@@ -47,7 +55,7 @@ Completed（发布准备第一阶段已完成：`codex/wp8-release-prep` 已推�
 
 完成 `docs/09` 质量门；安全/上传/可访问性复查无未决高危项；备份恢复与账号删除演练真实执行并
 如实记录缺口；产出 `docs/26-wp8-acceptance-report.md` 与 `docs/27-wp8-staging-release-checklist.md`；
-未推送、未部署、未创建生产资源。
+本地验收完成；已随 `codex/wp8-release-prep`/`main` 推送；未部署、未创建生产资源。
 
 ## Current Progress
 
@@ -120,9 +128,9 @@ None（本任务）；项目级阻塞见 `.project/context.md` Blockers。
 
 ## Resume Instructions
 
-1. 发布准备第一阶段已完成；提交哈希与分支以 `git log` 为准（分支 `codex/wp8-release-prep`，已推送 `3e88808`，远端 CI 通过）。
+1. 正式 `main` 已建立并推送（`42bcef0`，main CI run `31086031458` 通过）；提交哈希与分支以 `git log` 为准。
 2. 下次任务开始前按 AGENTS.md 恢复顺序读取状态文件与 Git 历史。
-3. 若用户继续：按 `docs/27` 进行 staging 创建/部署决策（需授权）；确认合并目标（origin 无 `main`，默认分支为 `codex/wp1-foundation`）；账号删除期满清理实现前不得宣称“数据已删除”（OPEN-007）。
+3. 若用户继续：按 `docs/27` 进行 staging 创建/部署决策（需授权）；账号删除期满清理实现前不得宣称“数据已删除”（OPEN-007）。
 
 ## Completion Criteria
 

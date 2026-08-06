@@ -1,11 +1,17 @@
 # Changelog
 
+## 2026-08-06 — 正式 main 分支建立与推送完成
+- 确认 `codex/wp8-release-prep` 完整包含 `codex/wp1-foundation`（`rev-list --left-right --count` = `0 42`）。
+- 从 `codex/wp8-release-prep` @ `42bcef0` 建立并推送正式 `main`；main = origin/main = origin/codex/wp8-release-prep = `42bcef0`。
+- main CI run `31086031458` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）。
+- 无 force push、无额外 merge commit、旧分支未改动；GitHub 默认分支随后已由用户切换为 main（`codex/wp1-foundation`、`codex/wp8-release-prep` 暂时保留）；暂不执行 staging/生产部署。
+
 ## 2026-08-06 — 发布准备第一阶段完成（推送 + 远端 CI 验证）
 - 推送 `codex/wp8-release-prep`（首推 `71b9f74`）；首轮 CI run `31084434078` 失败：纯净环境缺 Prisma
   生成客户端与 api-contracts dist（typecheck TS2307/TS2339）。
 - 修复 `.github/workflows/ci.yml`（quality 前 `prisma:generate` + contracts `build`），提交 `3e88808`
   并推送；run `31084755305` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）。
-- 未创建 PR、未部署、未修改远端默认分支；origin 无 `main`，默认分支为 `codex/wp1-foundation`。
+- 未创建 PR、未部署；当时 origin 无 `main`、默认分支为 `codex/wp1-foundation`（后续已建立 main 并切换默认分支）。
 
 ## 2026-08-06 — 首页界面优化完成（docs/29）
 - 首页改为“今日概览”（日期副标题）；未登录/登录失效/请求失败友好状态与按钮，
@@ -15,12 +21,12 @@
 - 同步状态支持已同步/同步中/同步失败并可重试；浅灰蓝背景 + 白色卡片 + 1280px 容器。
 - 修复本地缓存日程未按日期过滤的既有缺陷（planner store 前端过滤）。
 - 仅改前端；`npm run quality` PASS；用户端测试 15/15；浏览器 375–1440 无横向溢出；
-  未提交、未推送、未部署。
+  已提交 `68f3987` 并随 wp8/main 推送；未部署。
 
 ## 2026-08-06 — WP9 身份与录入简化本地验收通过（docs/28）
 - 账号密码登录（管理员创建、首登强制改密、管理员重置密码），邮箱/邀请码/截图 OCR 下线；
   `npm run quality`、空库 7 migrations+seed、API 92/92、契约 125/125、浏览器验证与
-  重启持久化全部通过；未提交、未推送、未部署。
+  重启持久化全部通过；已提交 `71b9f74` 并随 wp8/main 推送；未部署。
 
 ## 2026-08-06 — 本机启动与访问验证完成（本地运行）
 - API/Web/Admin 在本机运行并验证：健康检查 200、浏览器登录、待办/记账读写、API 重启后数据持久化均通过；本地库 `daily_assistant_local`；`.env` 已备份；未提交、未推送、未部署。

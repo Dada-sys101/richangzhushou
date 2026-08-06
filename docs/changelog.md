@@ -4,6 +4,13 @@
 更新：2026-08-06
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-06 — 正式 main 分支建立与推送完成
+
+- 确认 `codex/wp8-release-prep` 完整包含 `codex/wp1-foundation`（`rev-list --left-right --count` = `0 42`，`merge-base` = `981aafc8`）。
+- 从 `codex/wp8-release-prep` @ `42bcef0` 创建并推送正式 `main`（`git push -u origin main`）；main = origin/main = origin/codex/wp8-release-prep = `42bcef0`。
+- main 推送触发 GitHub Actions run `31086031458` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）。
+- 无 force push、无额外 merge commit、旧远程分支未改动；GitHub 默认分支随后已由用户切换为 main（`codex/wp1-foundation`、`codex/wp8-release-prep` 暂时保留）；暂不执行 staging/生产部署。
+
 ## 2026-08-06 — 发布准备第一阶段完成（推送 + 远端 CI 验证）
 
 - 推送 `codex/wp8-release-prep` 到 `https://github.com/Dada-sys101/richangzhushou.git`（首推 `71b9f74`）。
@@ -11,7 +18,7 @@
   `packages/api-contracts` dist，typecheck 大量 TS2307/TS2339；本地因已有生成产物而通过。
 - 最小修复 `.github/workflows/ci.yml`：quality 前执行 `prisma:generate` 与 contracts `build`；
   提交 `3e88808` 并推送；run `31084755305` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）。
-- 未创建 PR、未部署、未修改远端默认分支；origin 无 `main`，默认分支为 `codex/wp1-foundation`。
+- 未创建 PR、未部署；当时 origin 无 `main`、默认分支为 `codex/wp1-foundation`（后续已建立 main 并切换默认分支）。
 
 ## 2026-08-06 — 首页界面优化完成（docs/29）
 - 首页改为“今日概览”（日期副标题）；未登录/登录失效/请求失败友好状态与按钮，
@@ -21,7 +28,7 @@
 - 同步状态支持已同步/同步中/同步失败并可重试；浅灰蓝背景 + 白色卡片 + 1280px 容器。
 - 修复本地缓存日程未按日期过滤的既有缺陷（planner store 前端过滤）。
 - 仅改前端；`npm run quality` PASS；用户端测试 15/15；浏览器 375–1440 无横向溢出；
-  未提交、未推送、未部署。
+  已提交 `68f3987` 并随 wp8/main 推送；未部署。
 
 ## 2026-08-06 — WP9 身份与录入简化本地验收通过（docs/28）
 - 账号模型：`username`/`normalized_username`/`must_change_password`，邮箱列删除；
@@ -37,7 +44,7 @@
   管理端新增创建账号/重置密码，删除邀请码页。
 - 验证：`npm run quality`、空库 7 migrations+seed、API 92/92、契约 125/125、
   浏览器登录/强制改密/管理端建号与控制台 0 错误、重启持久化全部通过。
-- 未提交、未推送、未部署、未开始 OPEN-007。
+- 已提交 `71b9f74` 并随 wp8/main 推送；未部署、未开始 OPEN-007。
 
 ## 2026-08-06 — 本机启动与访问验证完成（本地运行）
 - API/Web/Admin 在本机运行（3000/5173/5174），本地 MySQL 8.4.9（3307）新建本地库 `daily_assistant_local`（6 migrations + seed）；演示账号 `demo@example.com` 登录、待办/记账读写与 API 重启持久化验证通过；`.env` 已备份，状态文档已更新，未提交、未推送、未部署。

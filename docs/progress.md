@@ -8,12 +8,18 @@
 
 ## 已完成
 
+### 发布准备第二阶段（2026-08-06）
+- 确认分支祖先关系：`merge-base` = `981aafc8`；`rev-list --left-right --count origin/codex/wp1-foundation...origin/codex/wp8-release-prep` = `0 42`（`codex/wp8-release-prep` 完整包含 `codex/wp1-foundation`）。
+- 建立并推送正式 `main`：本地旧 `main`（`5d52395`，已被 wp8 包含）删除后，从 `codex/wp8-release-prep` @ `42bcef0` 重建并 `git push -u origin main`；main = origin/main = origin/codex/wp8-release-prep = `42bcef0`。
+- main 推送触发 GitHub Actions run `31086031458` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）；无 force push、无额外 merge commit、旧远程分支未改动。
+- GitHub 默认分支已切换为 `main`（用户网页操作，2026-08-06）；`codex/wp1-foundation`、`codex/wp8-release-prep` 暂时保留。
+
 ### 发布准备第一阶段（2026-08-06）
 - 推送 `codex/wp8-release-prep` 到 origin：首推 `71b9f74`；首轮远端 CI run `31084434078` 失败
   （纯净环境缺 Prisma 生成客户端与 `packages/api-contracts` dist，typecheck 报 TS2307/TS2339）。
 - 最小修复 `.github/workflows/ci.yml`：在 quality 前执行 `prisma:generate` 与 contracts `build`；
   提交 `3e88808` 并推送；run `31084755305` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）。
-- 未创建 PR、未部署、未修改远端默认分支；origin 无 `main`，默认分支为 `codex/wp1-foundation`。
+- 未创建 PR、未部署；当时 origin 无 `main`、默认分支为 `codex/wp1-foundation`（后续已建立 main 并切换默认分支）。
 
 ### 首页界面优化（2026-08-06）
 
@@ -26,7 +32,7 @@
 - 同步状态支持已同步/同步中/同步失败，失败可重试；浅灰蓝背景、白色卡片、统一圆角/
   边框/阴影、1280px 容器、375–1440 响应式。
 - 仅改前端；未修改 API/OpenAPI/数据库；`npm run quality` PASS；用户端测试 15/15；
-  浏览器验证通过（详见 `docs/29`）；未提交、未推送、未部署。
+  浏览器验证通过（详见 `docs/29`）；已提交 `68f3987` 并随 wp8/main 推送；未部署。
 
 ### WP9 身份与录入简化（2026-08-06）
 - 账号模型：`username`/`normalized_username`/`must_change_password`，邮箱列删除；
@@ -101,7 +107,7 @@
 | --- | --- | --- |
 | 共享契约接入应用代码 | `apps/api` 已引用 `@daily-assistant/api-contracts`；前端使用本地 client 类型 | `apps/api/package.json` |
 | PWA 离线能力 | 应用外壳 + IndexedDB 业务缓存、离线写入队列、同步器与冲突页（WP7 已完成本地验收） | `apps/web/src/offline`、`vite.config.ts` |
-| CI 验证 | `codex/wp8-release-prep` 已推送且 GitHub Actions 通过（run `31084755305`）；WP2–WP7 分支尚未推送 | `.github/workflows/ci.yml`；`docs/14` |
+| CI 验证 | `main` 与 `codex/wp8-release-prep` 均已推送且 GitHub Actions 通过（main run `31086031458`、wp8 run `31085287317`）；WP2–WP7 分支尚未推送 | `.github/workflows/ci.yml`；`docs/14` |
 | 浏览器矩阵验证 | 已用 `playwright-cli` 完成 5 宽度并保存产物；尚未固化为仓库内一键脚本 | `output/playwright/wp2`（gitignored 部分） |
 
 ## 进行中
@@ -110,8 +116,7 @@
 
 ## 未开始
 
-- WP8 全量质量与发布准备（可执行规划见 `docs/25-wp8-codex-execution-plan.md`）
-- 无（WP8 已完成本地验收并推送 `codex/wp8-release-prep`，远端 CI 通过；staging 创建/部署与合并策略需另行授权，见 `docs/26`、`docs/27`）
+- 无（WP8 已完成本地验收并推送；正式 `main` 已建立并推送、默认分支已切换为 main 且 CI 通过；staging 创建/部署需另行授权，见 `docs/26`、`docs/27`）
 
 以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP7 已 DONE（WP7 验收见
 `docs/24-wp7-acceptance-report.md`），WP8 为 `DONE`（本地验收，`docs/26`）。
@@ -131,7 +136,7 @@
 
 - 当前机器 `npm run quality` 已复跑通过（WP5 分支，2026-08-05）。
 - 便携 MySQL 8.4 空库 `prisma migrate deploy`（4 migrations）与 seed 已真实执行通过；WP2+WP3+WP4+WP5 集成测试 48/48 通过。
-- GitHub Actions 远端执行：`codex/wp8-release-prep` 已通过（run `31084755305`）；WP2–WP7 分支未推送待授权。
+- GitHub Actions 远端执行：`main` @ `42bcef0` 已通过（run `31086031458`）、`codex/wp8-release-prep` @ `42bcef0` 已通过（run `31085287317`）；WP2–WP7 分支未推送待授权。
 - 浏览器矩阵（375/390/430/768/1440）已用 `playwright-cli` 验证首页/日程/待办/提醒（20/20 无横向溢出）；一键脚本化复现待后续（OPEN-009）。
 - `npm run check:context` 与 `npm run quality` 已在本次机制任务中复跑通过。
 - 未实现功能一律不得视为已验证；计划中的功能不得写成已完成。
