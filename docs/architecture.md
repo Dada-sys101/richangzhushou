@@ -14,8 +14,11 @@
 - 已实现业务页面：首页今日财务、账单/分类/账户/预算、交易表单、快捷记录
   （文本/截图 OCR）、草稿中心（DraftReviewCard + 批量丢弃二次确认）、快捷指令
   配置页、注册/登录/找回密码/账号页与 404。
-- PWA：manifest、`registerType: "prompt"`、Workbox `navigateFallback`；
-  `runtimeCaching: []`，离线业务缓存属 WP7。
+- PWA：manifest、`registerType: "prompt"`、Workbox `navigateFallback`（denylist
+  `/api`）；WP7 起以 IndexedDB 实现业务离线缓存、离线会话、待发送队列与
+  Service Worker 应用外壳缓存（不缓存 API 响应）。
+- 离线层：`apps/web/src/offline/{db,sync,handler,local,money}.ts` + `stores/sync.ts`；
+  API 客户端在断网时自动将写操作转入离线队列并返回本地占位实体。
 - API 客户端：`apps/web/src/api/client.ts`（fetch + Bearer 注入 + 结构化错误）；
   Vite 开发代理 `/api` → `http://127.0.0.1:3000`。
 
@@ -49,7 +52,7 @@
     （WP4）。
   - `integrations`：`StorageAdapter`/`OcrAdapter`/`ScanAdapter` 接口与本地
     假实现（WP4）。
-- 未实现模块：calendar、tasks、reminders、trips、sync（WP5+）。
+- 未实现模块：无（WP1–WP7 业务模块均已实现）。
 
 ## 3. 数据库与数据存储
 
@@ -74,7 +77,7 @@
   shortcut-credentials、shortcuts/transaction-drafts、shortcuts/today-spend、
   attachments/upload-intents、attachments/:id/content、
   attachments/:id/complete、attachments/:id（WP4）。
-- 未实现端点：calendar、tasks、reminders、trips、sync（契约已有，实现待 WP5+）。
+- 未实现端点：无（WP2–WP7 端点均已实现；批次删除等未声明端点不实现）。
 
 ## 5. 模块依赖关系
 
@@ -110,16 +113,18 @@ apps/api ──► Prisma（MySQL）、StorageAdapter（本地）、OcrAdapter�
 图片 ──► 上传意图/一次性令牌 ──► 本地存储 ──► 扫描门控 ──► OCR 适配器 ──► 草稿
 ```
 
-规划数据流（文档设计，未实现）：
+规划数据流（已实现，见 `docs/24`）：
 
 - 邀请码注册：验证注册开关 → 验证邀请码 → 事务内锁容量配置并计数 → 创建用户并消耗邀请码（`docs/02`、`docs/03`）。
 - 快捷指令记账：幂等键提交 → 服务端草稿（已实现） → 用户确认 → 正式入账（已实现，`docs/18`）。
-- 离线同步：本地 IndexedDB 待发送队列 → 幂等提交 → 版本冲突确认（`docs/02`、`docs/07`）。
+- 离线同步：本地 IndexedDB 待发送队列 → `POST /sync/mutations` 幂等提交 →
+  版本冲突进入 `/sync/conflicts` 由用户确认（`docs/02`、`docs/07`、`docs/24`）。
 
 ## 8. 当前架构风险
 
 - OCR/AI 与对象存储供应商未定：当前使用本地假实现/临时存储，真实效果验收待供应商决策（OPEN-004/006）。
 - 浏览器 QA 未固化为仓库内一键脚本：仍依赖 `playwright-cli` 与本机服务（OPEN-009）。
-- 离线同步、多设备冲突与 PWA 业务缓存未实现：属 WP7。
+- 离线同步、多设备冲突与 PWA 业务缓存已实现（WP7，本地验收见 `docs/24`）；
+  浏览器 QA 一键脚本化与真实供应商通道仍待后续。
 - 部署与运维全部未定：供应商、域名、备份、监控、合规均 `[待确认]`。
 - 部署与运维全部未定：供应商、域名、备份、监控、合规均 `[待确认]`。

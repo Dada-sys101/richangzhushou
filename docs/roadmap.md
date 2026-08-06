@@ -46,7 +46,7 @@
 | R-P1-2 WP4 快捷指令、OCR 与统一录入 | 设备凭证、快捷指令 API、草稿中心、图片上传、OCR 适配、确认/丢弃 | `apps/api`（drafts/shortcuts/integrations/attachments）、`apps/web` | WP3 | 幂等、凭证撤销、OCR 失败降级、未确认草稿不计统计 | 第三方不可用、凭证泄露 |
 | R-P1-3 WP5 日程、待办与提醒 | 日历/日程/待办/简单重复提醒/今日安排/通知适配 | `apps/api`（calendar/tasks/reminders）、`apps/web` | WP2；可与 WP4 部分并行 | 时间边界、冲突提示、状态转换、关闭/暂停抑制提醒 | 通知渠道不稳定 | 已完成后本地验收（`docs/20`） |
 | R-P1-4 WP6 行程 | 行程/节点/行李清单/账单关联/实际支出 | `apps/api`（trips/finance）、`apps/web` | WP3、WP5 | 费用汇总正确、超范围节点提示 | 与记账/日程边界重复；已完成本地验收（`docs/22-wp6-acceptance-report.md`） |
-| R-P1-5 WP7 PWA 与离线同步 | 安装、IndexedDB 缓存、离线写入队列、同步游标、幂等批处理、冲突页 | `apps/web`、`apps/api`（sync） | WP3–WP6 稳定契约 | `QA-SYNC-001~004`；断网不丢、恢复不重复、冲突不静默覆盖 | 离线同步复杂度 |
+| R-P1-5 WP7 PWA 与离线同步 | 安装、IndexedDB 缓存、离线写入队列、同步游标、幂等批处理、冲突页 | `apps/web`、`apps/api`（sync） | WP3–WP6 稳定契约 | `QA-SYNC-001~004`；断网不丢、恢复不重复、冲突不静默覆盖 | 已完成本地验收（`docs/24-wp7-acceptance-report.md`） |
 
 ## P2 后续增强
 

@@ -59,7 +59,7 @@ erDiagram
 | `PackingItem` | tripId, text, checked, position, clientMutationId?, version, deletedAt | tripId+position；tripId+deletedAt；clientMutationId 唯一 |
 | `Attachment` | userId, ownerType, ownerId, objectKey（唯一）, mimeType, size, sha256, scanStatus, uploadTokenHash（唯一）, uploadIntentExpiresAt, contentStoredAt, deletedAt | 上传意图一次性令牌只存哈希；完成确认前不可用于 OCR |
 | `DraftRecord` | userId, source, targetType, payloadJson, confidenceJson, status, clientMutationId（唯一）, attachmentId, failureReason, version, confirmedAt, discardedAt, resultId | 幂等键唯一；确认后 resultId 指向正式记录 |
-| `SyncMutation` | userId, clientMutationId, requestHash, resultRef | userId+clientMutationId 唯一 |
+| `SyncMutation` | userId, clientMutationId, entityType, entityId?, action, requestHash, resultRef, status, errorCode?, errorMessage? | userId+clientMutationId 唯一；requestHash 保存幂等请求摘要 |
 | `AdminAudit` | actorId, action, targetType, targetId, beforeJson, afterJson, reason | createdAt；不可从产品 API 删除 |
 
 ## 枚举
@@ -87,6 +87,9 @@ erDiagram
 | `AttachmentOwnerType` | `TRANSACTION_DRAFT` |
 | `DraftTargetType` | `TRANSACTION` |
 | `TripItemType` | `TRANSPORT`, `STAY`, `ACTIVITY`, `FOOD`, `OTHER` |
+| `SyncEntityType` | `TRANSACTION`, `CATEGORY`, `FINANCIAL_ACCOUNT`, `BUDGET`, `CALENDAR_EVENT`, `TASK`, `REMINDER`, `TRIP`, `TRIP_ITEM`, `PACKING_ITEM`, `DRAFT_RECORD` |
+| `SyncAction` | `CREATE`, `UPDATE`, `DELETE`, `RESTORE` |
+| `SyncMutationStatus` | `APPLIED`, `CONFLICTED`, `FAILED` |
 
 ## 容量计算
 
@@ -149,3 +152,18 @@ erDiagram
   与 WP3–WP5 同步资源约定一致（为 WP7 同步落地保持语义一致）。
 - 未提供批量删除/清空节点或行李端点（`docs/06` 未声明）；如后续新增，须按
   BR-AI-004 二次确认并写脱敏审计（沿用 WP4 `confirmationToken` 模式）。
+
+## WP7 补充说明（2026-08-06）
+- 新增 `sync_mutations` 表：`user_id + client_mutation_id` 唯一；`request_hash`
+  为规范化请求摘要（SHA-256），同键同内容重放返回原 `result_ref`，同键不同
+  内容返回 `IDEMPOTENCY_CONFLICT`；`status` 区分 `APPLIED/CONFLICTED/FAILED`。
+- `categories`/`financial_accounts`/`budgets` 增加 `client_mutation_id` 唯一列，
+  与其余同步实体一致，支持离线创建幂等。
+- 同步游标采用「服务端单调键集游标」：以 `(updated_at, id)` 升序聚合 11 类
+  同步实体（软删除记录以 `deleted_at` 墓碑下发），游标为不透明字符串；
+  不引入消息队列或事件总线（ADR 见 `.project/decisions.md`）。
+- 变更流包含：Transaction/Category/FinancialAccount/Budget/CalendarEvent/
+  Task/Reminder/Trip/TripItem/PackingItem/DraftRecord；DraftRecord 无
+  `deleted_at`，以 `status=DISCARDED` 作为墓碑语义。
+- 附件二进制不进入离线同步队列：V1 仅同步元数据/引用，上传仍走在线接口
+  （`[待确认]`，见 `docs/23`）。

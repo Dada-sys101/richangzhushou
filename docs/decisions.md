@@ -42,6 +42,10 @@
 | DEC-123 | 超范围节点：未传 `confirmOutOfRange=true` 返回 `VALIDATION_ERROR`（不保存）；确认后保存并返回 `TripItemOutOfRangeWarning` | `[代码] apps/api/src/trips/trips.service.ts`、`apps/web/src/views/TripDetailView.vue` | BR-TRIP-002“未确认不保存；确认后允许保存” |
 | DEC-124 | `Transaction.tripId` 为可空外键（ON DELETE SET NULL），创建/更新仅允许关联当前用户未删除行程（跨用户 404）；行程实际支出只统计 CONFIRMED 未删除支出减退款，服务端定点计算 | `[代码] apps/api/src/finance/*`、`apps/api/src/trips/trips.service.ts` | BR-TRIP-003 / QA-TRIP-001 |
 | DEC-125 | WP6 未提供批量删除/清空节点或行李端点（`docs/06` 未声明）；如后续新增须按 BR-AI-004 二次确认并写脱敏审计（沿用 WP4 `confirmationToken` 模式） | `[代码] apps/api/src/trips/*`、`docs/06` | 范围控制：不在未声明端点前擅自实现高风险操作 |
+| DEC-126 | WP7 同步游标采用服务端单调键集游标：`(updated_at, id)` 升序聚合 11 类同步实体，软删除以墓碑下发；游标为不透明字符串 | `[代码] apps/api/src/sync/*`、`docs/23` | 不引入消息队列/事件总线；键集分页单调、不丢不重（并发更新按至少一次语义幂等重放） |
+| DEC-127 | WP7 幂等由 `sync_mutations` 统一承载：`request_hash` 摘要 + `result_ref` 重放；同键同内容返原结果、同键不同内容 `IDEMPOTENCY_CONFLICT` | `[代码] apps/api/src/sync/sync.service.ts`、`apps/api/prisma/schema.prisma` | 与各业务 `clientMutationId` 双重幂等，保证断网重连只落一条记录 |
+| DEC-128 | 客户端离线写入走统一拦截：断网时业务写操作自动进入 IndexedDB 队列并返回本地占位实体；本地 ID 在同步成功后映射为服务端 ID | `[代码] apps/web/src/{api/client.ts,offline/*}` | 现有视图无需逐页改造即可离线；QA-SYNC-001/002 通过 |
+| DEC-129 | 断网刷新进入「离线会话」模式（不持 access token、读本地缓存）；恢复联网先刷新令牌，同步请求 401 自动刷新重试；退出/关闭账号清空 IndexedDB | `[代码] apps/web/src/{stores/auth.ts,offline/sync.ts,offline/db.ts}` | 离线刷新不丢队列；QA-SYNC-004 通过；不在本地持久化令牌 |
 
 ## 尚未确定的决策
 

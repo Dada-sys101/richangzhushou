@@ -2,14 +2,14 @@
 
 ## Last Updated
 
-2026-08-06 +08:00（WP6 本地验收完成；提交哈希以 `git log -1` 为准，不虚构）
+2026-08-06 +08:00（WP7 本地验收完成；提交哈希以 `git log -1` 为准，不虚构）
 
 ## Repository State
 
 - Repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
-- Current Branch: `codex/wp6-trips`
-- HEAD Commit: 以 `git log -1 --oneline` 为准（WP6 验收提交）
-- Working Tree Status: WP6 提交完成后工作树仅剩本地未跟踪文件（如 `apps/api/.env`，gitignored）
+- Current Branch: `codex/wp7-pwa-sync`
+- HEAD Commit: 以 `git log -1 --oneline` 为准（WP7 验收提交）
+- Working Tree Status: WP7 提交完成后工作树仅剩本地未跟踪文件（如 `apps/api/.env`，gitignored）
 - Last Verified Commit: 以 `git log -1 --oneline` 为准；quality、空库 5 migrations+seed、
   集成 55/55、浏览器矩阵 10/10 通过，记录于 `docs/22-wp6-acceptance-report.md`
 
@@ -29,35 +29,36 @@
 ## Current Development Stage
 
 - WP0（规划）、WP1（工程骨架）、WP2（身份/容量/邀请码/管理端）、WP3（基础记账）、
-  WP4（快捷指令/OCR/统一录入）、WP5（日程/待办/提醒）、WP6（行程）均已完成本地验收
-  （`docs/13`、`docs/14`、`docs/16`、`docs/18`、`docs/20`、`docs/22`）。
-- WP7–WP8 未开始；无生产部署。
+  WP4（快捷指令/OCR/统一录入）、WP5（日程/待办/提醒）、WP6（行程）、WP7（PWA 与
+  离线同步）均已完成本地验收（`docs/13`、`docs/14`、`docs/16`、`docs/18`、
+  `docs/20`、`docs/22`、`docs/24`）。
+- WP8 未开始；无生产部署。
 
 ## Last Completed Task
 
-- Task: 执行 WP6 行程（契约、数据、后端、前端、验收与文档）。
+- Task: 执行 WP7 PWA 与离线同步（契约、数据、后端、前端、验收与文档）。
 - Completion Date: 2026-08-06
 - Related Files: `packages/api-contracts`、`apps/api/prisma`、
-  `apps/api/src/{trips,finance,drafts,shortcuts}`、`apps/api/src/integration/wp6.integration.test.ts`、
-  `apps/web/src`、`docs/05/06/08/09/12/21/22` 等
-- Verification: `npm run quality`、空库 5 migrations+seed、集成 55/55、
-  浏览器矩阵 10/10 与主流程全部通过
-- Related Commit: 以 `git log` 为准（`codex/wp6-trips` 分支）
+  `apps/api/src/sync`、`apps/web/src/offline`、`apps/web/src/{api,stores,components,views}`、
+  `docs/23/24` 等
+- Verification: `npm run quality`、空库 6 migrations+seed、集成 63/63、
+  浏览器 QA-SYNC-001~004 与 5 宽度矩阵 20/20 全部通过
+- Related Commit: 以 `git log` 为准（`codex/wp7-pwa-sync` 分支）
 
 ## Current Task
 
-None（WP6 已完成本地验收；等待用户授权推送 WP1–WP6 分支并确认远端 CI，
-或授权启动 WP7）。
+None（WP7 已完成本地验收；等待用户授权推送 WP1–WP7 分支并确认远端 CI，
+或授权启动 WP8）。
 
 ## Next Recommended Task
 
-- Task: 确认 WP1–WP6 分支推送与远端 CI 结果（需用户授权；本机 `gh` 未登录）。
+- Task: 确认 WP1–WP7 分支推送与远端 CI 结果（需用户授权；本机 `gh` 未登录）。
 - Priority: P0（前置动作）
 - Reason: 本地 WP0–WP5 已验收，但远端 CI 从未运行。
 - Dependencies: 用户推送授权；网络代理可用（本机全局代理 7890 不可用，可用 7897 临时覆盖）。
-- Acceptance Criteria: GitHub Actions 在 WP1–WP6 分支首次运行通过（`npm run quality` + 空库 migration）。
+- Acceptance Criteria: GitHub Actions 在 WP1–WP7 分支首次运行通过（`npm run quality` + 空库 migration）。
 
-下一开发任务：WP7 PWA 与离线同步（未开始）。
+下一开发任务：WP8 全量质量与发布准备（未开始）。
 
 ## Completed Work
 
@@ -77,6 +78,9 @@ None（WP6 已完成本地验收；等待用户授权推送 WP1–WP6 分支并�
 - WP6：Trips/TripItems/PackingItems 契约与 `TripItemType` 枚举、三张新表与
   `transactions.trip_id`、行程/节点/行李 CRUD、超范围节点确认、服务端费用汇总、
   行程详情日历入口、关联账单与前端页面（`docs/22`）。
+- WP7：Sync 变更流/幂等 mutations/状态契约与错误码、`sync_mutations` 表与游标索引、
+  后端变更流与版本冲突、IndexedDB 离线队列/同步器/SyncBadge/冲突页/离线会话/
+  退出清理（`docs/24`）。
 - 机制 v1：跨任务自动恢复项目状态（`1aab5ec`）。
 - 机制 v2：session/decisions/check:context 脚本与可选 pre-commit Hook。
 
@@ -84,8 +88,8 @@ None（WP6 已完成本地验收；等待用户授权推送 WP1–WP6 分支并�
 
 - In Progress: None。
 - Partially Completed: 远端 CI 验证（未推送）；浏览器 QA 一键脚本化（OPEN-009）。
-- Not Started: WP7 PWA/离线同步、WP8 全量质量与发布准备。
-- Needs Verification: WP7–WP8 全部功能；远端 CI；真实 OCR/对象存储/通知供应商业效
+- Not Started: WP8 全量质量与发布准备。
+- Needs Verification: 远端 CI；真实 OCR/对象存储/通知供应商业效
   （OPEN-004/005/006）。
 
 ## Blockers
@@ -109,13 +113,13 @@ None（WP6 已完成本地验收；等待用户授权推送 WP1–WP6 分支并�
 
 ## Verification Status
 
-- Lint: PASS（WP6 验收时 `npm run quality`）
+- Lint: PASS（WP7 验收时 `npm run quality`）
 - Type Check: PASS
-- Unit Tests: PASS（API 29/29 + 契约 127/127，见 `docs/22`）
-- Integration Tests: PASS（55/55，真实 MySQL 8.4；WP2–WP6）
+- Unit Tests: PASS（API 29/29 + 契约 132/132 + 前端 3/3，见 `docs/24`）
+- Integration Tests: PASS（63/63，真实 MySQL 8.4；WP2–WP7）
 - Build: PASS（全部 workspace）
-- Runtime Verification: PASS（浏览器 5 宽度矩阵 10/10、主流程与错误态、日历跳转）
-- Unverified Areas: 远端 CI（未推送）；WP7–WP8 全部功能；真实 OCR/对象存储/通知供应商业效
+- Runtime Verification: PASS（QA-SYNC-001~004、5 宽度矩阵 20/20、主流程与错误态）
+- Unverified Areas: 远端 CI（未推送）；WP8 全部功能；真实 OCR/对象存储/通知供应商业效
 
 ## Recent Changes
 
@@ -128,7 +132,12 @@ None（WP6 已完成本地验收；等待用户授权推送 WP1–WP6 分支并�
 - `c767ba5` feat(db): WP6 trips, trip items and packing items schema and migration
 - `8f70868` feat(api): WP6 trips CRUD, expense summary, calendar link and transaction tripId
 - `abbdeb7` feat(web): WP6 trips list, detail, itinerary, packing, calendar link and transaction trip select
-- 本次：WP6 验收与文档提交（`codex/wp6-trips` 分支，以 `git log` 为准）
+- `6ed79da` feat(contracts): WP7 sync cursor, mutations and conflict contracts
+- `3ddf4e7` feat(db): WP7 sync mutations table, idempotency keys and cursor indexes
+- `c9fee8c` feat(api): WP7 sync change stream, idempotent mutations and conflict handling
+- `479b0a9` feat(web): WP7 IndexedDB offline queue, sync engine, badge and conflict page
+- `c7a4fa1` fix(web): WP7 reconnect token refresh, tombstone pull and logout cache cleanup
+- 本次：WP7 验收与文档提交（`codex/wp7-pwa-sync` 分支，以 `git log` 为准）
 
 ## Important Constraints
 

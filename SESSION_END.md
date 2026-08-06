@@ -1,7 +1,7 @@
 # Session End
 
 日期：2026-08-06<br>
-状态：WP0–WP6 本地验收完成；持久化状态恢复机制已建立；未推送、未部署
+状态：WP0–WP7 本地验收完成；持久化状态恢复机制已建立；未推送、未部署
 
 ## 当前断点
 
@@ -10,6 +10,10 @@
 - WP4 验收通过：`npm run quality`、空库 `prisma migrate deploy`（3 migrations）与 seed、WP2+WP3+WP4 集成测试 41/41、浏览器 5 宽度矩阵 25/25 与主流程（登录/文本解析/草稿确认/快捷指令创建撤销/OCR 失败降级）全部通过；控制台仅 OCR 失败场景的预期 503 日志（详见 `docs/18-wp4-acceptance-report.md`）。
 - WP5 验收通过：`npm run quality`、空库 `prisma migrate deploy`（4 migrations）与 seed、WP2–WP5 集成测试 48/48、浏览器 5 宽度矩阵 20/20 与主流程（今日安排/建日程/校验错误/建待办并完成/建提醒/通知权限提示）全部通过；控制台仅预期 400 校验请求日志（详见 `docs/20-wp5-acceptance-report.md`）。
 - WP6 验收通过：`npm run quality`、空库 `prisma migrate deploy`（5 migrations）与 seed、WP2–WP6 集成测试 55/55、浏览器 5 宽度矩阵 10/10 无横向溢出与主流程（行程列表/校验失败/新建/详情/超范围确认/行李勾选/日历跳转/关联账单）全部通过；控制台仅预期 400 校验请求日志（详见 `docs/22-wp6-acceptance-report.md`）。
+- WP7 验收通过：`npm run quality`、空库 `prisma migrate deploy`（6 migrations）与 seed、WP2–WP7 集成测试 63/63、浏览器 QA-SYNC-001~004（断网新增/刷新保留/恢复单条落库/双设备冲突/退出清理/墓碑传播）与 5 宽度矩阵 20/20 无横向溢出全部通过；控制台 0 warning，仅离线场景预期网络错误与断连后 401 刷新日志（详见 `docs/24-wp7-acceptance-report.md`）。
+- 本次会话执行 WP7：契约（`6ed79da`）、数据（`3ddf4e7`）、后端（`c9fee8c`）、前端（`479b0a9`、`c7a4fa1`）与文档提交（分支 `codex/wp7-pwa-sync`），均未推送。
+- WP7 验收中修复：同步批次错误码由服务层返回、离线重连 401 自动刷新令牌、墓碑拉取时机与合并过滤、退出账号 IndexedDB 复合索引清理、冲突徽标状态覆盖。
+- 下一步：等待用户决定是否推送 WP1–WP7 分支与确认远端 CI；WP8 未开始。
 - 本次会话执行 WP6：契约（`d039efc`）、数据（`c767ba5`）、后端（`8f70868`）、前端（`abbdeb7`）与文档提交（分支 `codex/wp6-trips`），均未推送。
 - 验收中修复：wp2 行程路由管理员断言随 WP6 实现更新为 403；wp5 提醒测试固定日期改为相对未来时间；trip-item/packing-item 幂等查询改为经 `trip.userId` 关系过滤。
 - 验收中修复：附件 DTO 编译元数据丢失（`import type` → 运行时导入）、批量丢弃确认令牌长度上限、/drafts 轻微横向溢出（`min-width: 0`）与附件类型错误码改由服务层返回（`c1cfc33`）。

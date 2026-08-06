@@ -162,6 +162,25 @@ WP6 契约要点：
 - `POST /sync/mutations`
 - `GET /sync/status`
 
+同步契约要点（WP7）：
+- 变更流：`GET /sync/changes?cursor=&limit=` 返回当前用户范围内按
+  `(updatedAt, id)` 升序的增量（创建/更新/删除墓碑），`nextCursor` 单调不透明；
+  游标非法返回 `CURSOR_INVALID`；默认 limit 100、上限 500。
+- 幂等批量：`POST /sync/mutations` 每次最多 50 条；每条必须携带
+  `clientMutationId`（16–128 字符）；同键同内容重放返回原结果，同键不同内容
+  返回 `IDEMPOTENCY_CONFLICT`；批次超限返回 `MUTATION_BATCH_TOO_LARGE`；
+  不支持的实体/动作组合返回 `MUTATION_UNSUPPORTED`。
+- 版本冲突：UPDATE/DELETE/RESTORE 必须携带 `version`，基于旧版本执行；过期
+  返回 `VERSION_CONFLICT` 并携带服务端当前实体（`current`），不静默覆盖
+  金额、时间、状态或删除（BR-SYNC-003/004）。
+- 状态：`GET /sync/status` 返回用户范围 `appliedCount/failedCount/
+  conflictCount/lastAppliedAt`，不暴露其他用户内容。
+- 安全：三个端点均要求 `AccessTokenGuard + UserOnlyGuard`，管理员 403、
+  跨用户 404；changes/status 限流 120/min、mutations 限流 30/min；
+  日志不含正文与令牌。
+- 客户端离线层：IndexedDB 按用户隔离保存实体、游标与待发送队列；Service
+  Worker 仅缓存应用外壳，不缓存认证响应或跨用户敏感 API 响应。
+
 上传采用“短期上传意图 + 一次性上传令牌 + 完成确认”流程；完成前扫描状态门控，
 扫描失败返回 `ATTACHMENT_SCAN_FAILED` 且附件不可用于 OCR；失败不会产生悬空正式附件。
 

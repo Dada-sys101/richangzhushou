@@ -278,3 +278,54 @@
 - Consequences: 当前范围无新增高风险操作；决策记录在 `docs/decisions.md` DEC-125。
 - Related Files: `apps/api/src/trips/*`、`docs/06`
 - Related Commit: WP6 api commit
+
+## ADR-023: WP7 同步游标为服务端键集游标
+
+- Date: 2026-08-06
+- Status: Accepted
+- Context: 需要用户范围的增量变更流（创建/更新/删除墓碑），且架构不变量禁止
+  引入消息队列或事件总线；规划文档 `docs/23` 将游标方案列为实现期决策。
+- Decision: `GET /sync/changes` 按 `(updated_at, id)` 升序聚合 11 类同步实体，
+  游标为不透明字符串（`{t, id}` 的 base64url）；软删除记录以墓碑
+  `DELETE` 变更下发；并发更新按至少一次语义幂等重放，不丢失不重复。
+- Alternatives Considered: 同步变更 outbox 表（否决：需在所有业务写入路径埋点，
+  且规划明确“由数据库记录直接查询聚合”）；消息队列（否决：架构不变量）。
+- Consequences: 契约/数据字典/Prisma/前端映射保持一致；新增同步实体时需扩展
+  聚合查询与索引。
+- Related Files: `apps/api/src/sync/sync.service.ts`、`apps/api/prisma/schema.prisma`
+- Related Commit: `c9fee8c`、`3ddf4e7`
+
+## ADR-024: WP7 幂等批量由 sync_mutations 统一承载
+
+- Date: 2026-08-06
+- Status: Accepted
+- Context: BR-SYNC-001/002 要求所有离线写入携带用户范围内唯一 `clientMutationId`，
+  同键同内容返原结果、同键不同内容返回 `IDEMPOTENCY_CONFLICT`。
+- Decision: 新增 `sync_mutations` 表，`user_id + client_mutation_id` 唯一；
+  服务端以规范化请求摘要（SHA-256）作为 `request_hash`，成功/失败结果存入
+  `result_ref` 支持重放；同时把 `clientMutationId` 传入业务创建服务，与各实体
+  唯一键形成双重幂等；分类/账户/预算补齐 `client_mutation_id` 列。
+- Alternatives Considered: 仅依赖各业务 `clientMutationId`（否决：UPDATE/DELETE
+  重放与错误结果无法统一返回原响应）。
+- Consequences: QA-SYNC-002 与集成幂等用例通过；批次上限 50，超限返回
+  `MUTATION_BATCH_TOO_LARGE`。
+- Related Files: `apps/api/src/sync/*`、`apps/api/prisma/schema.prisma`、
+  `apps/api/src/finance/*`
+- Related Commit: `3ddf4e7`、`c9fee8c`
+
+## ADR-025: 客户端离线会话与本地 ID 映射
+
+- Date: 2026-08-06
+- Status: Accepted
+- Context: QA-SYNC-001/004 要求断网新增刷新后不丢、退出/关闭账号清理本地数据；
+  现有视图直接调用 `api.*`，逐页改造不可行。
+- Decision: API 客户端在断网时对业务写操作统一拦截入 IndexedDB 队列并返回本地
+  占位实体；本地 ID 以 `local-*` 前缀存储，同步成功后映射为服务端 ID 并重写
+  后续引用；断网刷新进入离线会话（不持 access token），恢复联网先刷新令牌，
+  同步请求 401 自动刷新重试；退出/关闭/申请删除账号清空 IndexedDB。
+- Alternatives Considered: 逐视图改造离线逻辑（否决：改动面大且易漏）；在
+  localStorage 持久化 access token（否决：安全规则禁止）。
+- Consequences: 浏览器 QA-SYNC-001~004 通过；离线编辑未同步实体时合并进原创建
+  mutation；冲突进入 `/sync/conflicts` 由用户选择。
+- Related Files: `apps/web/src/{api/client.ts,offline/*,stores/auth.ts}`
+- Related Commit: `479b0a9`、`c7a4fa1`

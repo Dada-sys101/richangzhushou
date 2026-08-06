@@ -4,6 +4,33 @@
 更新：2026-08-06
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-06 — WP7 PWA 与离线同步本地验收通过
+
+- 契约：Sync 变更流/幂等 mutations/状态端点、`SyncEntityType`/`SyncAction`
+  枚举、`CURSOR_INVALID`/`MUTATION_BATCH_TOO_LARGE`/`MUTATION_UNSUPPORTED`
+  错误码，分类/账户/预算创建增加 `clientMutationId`；契约测试 132/132。
+- 数据：`sync_mutations` 表（`user_id + client_mutation_id` 唯一、
+  `request_hash`/`result_ref`/`status`）与同步实体游标索引；空库 6 migrations
+  部署与 seed 通过。
+- 后端：`(updatedAt, id)` 键集游标变更流（含墓碑）、幂等批量
+  `POST /sync/mutations`、版本冲突返回服务端当前实体、`GET /sync/status`、
+  跨用户 404/管理员 403/限流；集成测试 63/63（WP2–WP7）。
+- 前端：IndexedDB 用户隔离缓存、离线写入队列、同步器（指数退避/手动重试/
+  401 自动刷新）、SyncBadge、离线横幅、`/sync/conflicts` 冲突页、离线会话
+  与退出/关闭账号清理；Service Worker 仅缓存应用外壳。
+- 验收：`npm run quality`、空库 migration+seed、集成 63/63、浏览器
+  QA-SYNC-001~004 与 375/390/430/768/1440 矩阵 20/20 全部通过
+  （报告见 `docs/24-wp7-acceptance-report.md`）。
+- 分支 `codex/wp7-pwa-sync`；未推送、未部署、未创建生产资源、未进入 WP8。
+
+## 2026-08-06 — 输出 WP7 可执行规划（docs/23）
+
+- 新增 `docs/23-wp7-codex-execution-plan.md`：应用安装、IndexedDB 本地缓存、离线
+  写入队列、同步游标、幂等批处理、冲突页面与账号退出清理的可执行规划。
+- 同步 `docs/README.md` 索引、`.project/context.md` 下一步、`.project/session.md`
+  恢复指引与 `docs/progress.md` 未开始项。
+- 仅文档改动；未提交（等待授权）；未推送、未部署。
+
 ## 2026-08-06 — WP6 行程本地验收通过
 
 - 契约：Trips/TripItems/PackingItems OpenAPI 请求/响应/DTO/枚举（`TripItemType`

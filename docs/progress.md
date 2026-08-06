@@ -50,13 +50,17 @@
 | WP6 数据：`trips`/`trip_items`/`packing_items` 与 `transactions.trip_id` 外键/索引、migration `20260806011520_wp6_trips`、seed 与回滚说明 | `c767ba5`；`apps/api/prisma` |
 | WP6 后端：行程/节点/行李 CRUD、超范围确认、费用汇总、日历入口、交易关联与集成测试 | `8f70868`；`apps/api/src/trips`、`finance`、`integration/wp6.integration.test.ts` |
 | WP6 前端：行程列表/详情/节点/行李/关联账单/日历跳转/记账行程选择与首页入口 | `abbdeb7`；`apps/web/src` |
+| WP7 契约：Sync 变更流/幂等 mutations/状态端点、错误码与共享类型 | `6ed79da`；`packages/api-contracts` |
+| WP7 数据：`sync_mutations`、分类/账户/预算 `client_mutation_id` 与游标索引 | `3ddf4e7`；`apps/api/prisma` |
+| WP7 后端：变更流/幂等批量/版本冲突/状态/限流与集成测试 63/63 | `c9fee8c`；`apps/api/src/sync` |
+| WP7 前端：IndexedDB 离线队列/同步器/SyncBadge/冲突页/离线会话/退出清理 | `479b0a9`、`c7a4fa1`；`apps/web/src/offline` 等 |
 
 ## 部分完成
 
 | 条目 | 现状 | 依据 |
 | --- | --- | --- |
 | 共享契约接入应用代码 | `apps/api` 已引用 `@daily-assistant/api-contracts`；前端使用本地 client 类型 | `apps/api/package.json` |
-| PWA 离线能力 | 仅应用外壳 + manifest；无业务缓存、离线写入、同步队列 | `apps/web/vite.config.ts` |
+| PWA 离线能力 | 应用外壳 + IndexedDB 业务缓存、离线写入队列、同步器与冲突页（WP7 已完成本地验收） | `apps/web/src/offline`、`vite.config.ts` |
 | CI 验证 | 配置存在并加入 WP2 集成测试，但当前分支未推送，GitHub Actions 未执行 | `.github/workflows/ci.yml`；`docs/14` |
 | 浏览器矩阵验证 | 已用 `playwright-cli` 完成 5 宽度并保存产物；尚未固化为仓库内一键脚本 | `output/playwright/wp2`（gitignored 部分） |
 
@@ -66,11 +70,10 @@
 
 ## 未开始
 
-- WP7 PWA 与离线同步
 - WP8 全量质量与发布准备
 
-以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP6 已 DONE（WP6 验收见
-`docs/22`），WP7–WP8 为 `NOT_STARTED`。
+以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP7 已 DONE（WP7 验收见
+`docs/24-wp7-acceptance-report.md`），WP8 为 `NOT_STARTED`。
 
 ## 已知问题
 

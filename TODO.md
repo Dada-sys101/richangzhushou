@@ -54,3 +54,11 @@
 | DA-0606 | 账单关联与费用汇总：Transaction.tripId 校验、服务端定点实际支出/预算进度 | DONE | WP6 |
 | DA-0607 | 日程关联入口与前端：行程列表/详情/节点/行李、关联账单、日历跳转与首页入口 | DONE | WP6 |
 | DA-0608 | 集成、并发、安全、前端与浏览器矩阵验收、文档与 WP6 验收报告同步 | DONE | WP6 |
+| DA-0701 | 补齐 Sync OpenAPI、共享类型、SyncEntityType/SyncAction 枚举与新错误码 | DONE | WP7 |
+| DA-0702 | WP7 Prisma 实体（sync_mutations）、clientMutationId 扩展、游标索引与 migration | DONE | WP7 |
+| DA-0703 | 后端变更流：键集游标、墓碑、分页、用户隔离与 sync/status | DONE | WP7 |
+| DA-0704 | 幂等批量与冲突：requestHash/resultRef、VERSION_CONFLICT、批次上限与限流 | DONE | WP7 |
+| DA-0705 | 分类/账户/预算创建幂等与 DraftRecord 同步（变更流+更新/丢弃） | DONE | WP7 |
+| DA-0706 | 客户端 IndexedDB 层：用户隔离缓存、游标、待发送队列、本地 ID 映射与离线会话 | DONE | WP7 |
+| DA-0707 | 同步器与 UI：拉取/推送/指数退避/401 刷新、SyncBadge、离线横幅与冲突页 | DONE | WP7 |
+| DA-0708 | 退出/关闭清理、集成 63/63、浏览器 QA-SYNC-001~004、矩阵与 WP7 验收报告 | DONE | WP7 |
