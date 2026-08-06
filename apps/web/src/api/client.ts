@@ -43,6 +43,14 @@ export function isOfflineError(error: unknown): boolean {
   );
 }
 
+export type ApiErrorKind = "AUTH_EXPIRED" | "REQUEST_FAILED";
+
+export function apiErrorKind(error: unknown): ApiErrorKind {
+  return error instanceof ApiClientError && error.status === 401
+    ? "AUTH_EXPIRED"
+    : "REQUEST_FAILED";
+}
+
 export interface UserSummary {
   closedAt: string | null;
   createdAt: string;

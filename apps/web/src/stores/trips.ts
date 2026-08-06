@@ -2,7 +2,9 @@ import { defineStore } from "pinia";
 
 import {
   api,
+  apiErrorKind,
   isOfflineError,
+  type ApiErrorKind,
   type TripDetailResponse,
   type TripItemType,
   type TripSummary,
@@ -18,6 +20,7 @@ import { useAuthStore } from "./auth";
 
 interface TripsState {
   detail: TripDetailResponse | null;
+  errorKind: ApiErrorKind | null;
   errorMessage: string | null;
   trips: TripSummary[];
 }
@@ -25,12 +28,14 @@ interface TripsState {
 export const useTripsStore = defineStore("trips", {
   state: (): TripsState => ({
     detail: null,
+    errorKind: null,
     errorMessage: null,
     trips: [],
   }),
   actions: {
     async loadTrips(params: { includeDeleted?: boolean } = {}) {
       this.errorMessage = null;
+      this.errorKind = null;
       try {
         const syncUserId = useAuthStore().userId;
         if (syncUserId) {
@@ -51,12 +56,14 @@ export const useTripsStore = defineStore("trips", {
             ? ((await localList(userId, "TRIP")) as unknown as TripSummary[])
             : [];
         } else {
+          this.errorKind = apiErrorKind(error);
           this.errorMessage = messageOf(error);
         }
       }
     },
     async loadTrip(id: string) {
       this.errorMessage = null;
+      this.errorKind = null;
       try {
         const syncUserId = useAuthStore().userId;
         if (syncUserId) {
@@ -74,6 +81,7 @@ export const useTripsStore = defineStore("trips", {
             }
           }
         }
+        this.errorKind = apiErrorKind(error);
         this.errorMessage = messageOf(error);
         throw error;
       }
@@ -277,6 +285,7 @@ export const useTripsStore = defineStore("trips", {
       }
     },
     clearError() {
+      this.errorKind = null;
       this.errorMessage = null;
     },
   },

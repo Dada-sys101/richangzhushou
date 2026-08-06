@@ -2,7 +2,8 @@
 import { onMounted, onUnmounted, watch } from "vue";
 import { RouterView } from "vue-router";
 
-import SyncBadge from "./components/SyncBadge.vue";
+import BottomNav from "./components/BottomNav.vue";
+import SiteHeader from "./components/SiteHeader.vue";
 import { useAuthStore } from "./stores/auth";
 import { useSyncStore } from "./stores/sync";
 
@@ -58,21 +59,7 @@ function handleOffline() {
 
 <template>
   <div class="app-shell">
-    <header class="site-header">
-      <span class="wordmark">Daily Assistant</span>
-      <nav class="site-nav">
-        <RouterLink to="/">首页</RouterLink>
-        <RouterLink to="/capture">快捷记录</RouterLink>
-        <RouterLink to="/drafts">草稿</RouterLink>
-        <RouterLink to="/shortcuts">快捷指令</RouterLink>
-        <RouterLink to="/transactions">记账</RouterLink>
-        <RouterLink to="/finance/budgets">预算</RouterLink>
-        <RouterLink to="/finance/categories">分类</RouterLink>
-        <RouterLink to="/finance/accounts">账户</RouterLink>
-        <RouterLink to="/account">账号</RouterLink>
-        <SyncBadge />
-      </nav>
-    </header>
+    <SiteHeader />
     <p
       v-if="sync.offline && auth.isAuthenticated"
       class="offline-banner"
@@ -80,8 +67,9 @@ function handleOffline() {
     >
       当前离线，新记录将保存在本地并在联网后同步。
     </p>
-    <main>
+    <main class="app-main">
       <RouterView />
     </main>
+    <BottomNav v-if="auth.isAuthenticated" />
   </div>
 </template>

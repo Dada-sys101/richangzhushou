@@ -66,7 +66,7 @@ function messageOf(error: unknown): string {
     <header class="page-head">
       <div>
         <p class="eyebrow">设置</p>
-        <h1 id="accounts-title">账户</h1>
+        <h1 id="accounts-title">资金账户</h1>
       </div>
     </header>
 

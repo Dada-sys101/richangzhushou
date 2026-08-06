@@ -10,9 +10,12 @@ const sync = useSyncStore();
 const installPrompt = ref<{ prompt: () => Promise<void> } | null>(null);
 
 const label = computed(() => {
+  if (sync.syncing) {
+    return "同步中";
+  }
   switch (sync.status) {
     case "PENDING_SYNC":
-      return "待同步";
+      return "同步中";
     case "SYNC_FAILED":
       return "同步失败";
     case "CONFLICT":

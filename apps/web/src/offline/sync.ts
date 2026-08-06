@@ -74,11 +74,16 @@ const LAST_USER_KEY = "lastUser";
 
 let currentUserId: string | null = null;
 let flushing = false;
+let syncing = false;
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 let backoffMs = 2_000;
 
 export function currentUser(): string | null {
   return currentUserId;
+}
+
+export function isSyncing(): boolean {
+  return syncing;
 }
 
 export async function initSync(userId: string): Promise<void> {
@@ -154,6 +159,8 @@ export async function flushPending(userId: string): Promise<void> {
     return;
   }
   flushing = true;
+  syncing = true;
+  notifyChanged();
   try {
     const pending = await listPending(userId, ["PENDING", "FAILED"]);
     if (pending.length === 0) {
@@ -230,6 +237,7 @@ export async function flushPending(userId: string): Promise<void> {
     scheduleFlush(userId);
   } finally {
     flushing = false;
+    syncing = false;
     notifyChanged();
   }
 }

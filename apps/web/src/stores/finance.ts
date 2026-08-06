@@ -2,7 +2,9 @@ import { defineStore } from "pinia";
 
 import {
   api,
+  apiErrorKind,
   isOfflineError,
+  type ApiErrorKind,
   type BudgetSummary,
   type CategorySummary,
   type FinanceSummaryResponse,
@@ -22,6 +24,7 @@ interface FinanceState {
   budgets: BudgetSummary[];
   categories: CategorySummary[];
   accounts: FinancialAccountSummary[];
+  errorKind: ApiErrorKind | null;
   summary: FinanceSummaryResponse | null;
   transactions: TransactionSummary[];
   transactionsLoading: boolean;
@@ -34,6 +37,7 @@ export const useFinanceStore = defineStore("finance", {
     accounts: [],
     budgets: [],
     categories: [],
+    errorKind: null,
     errorMessage: null,
     summary: null,
     summaryLoading: false,
@@ -43,8 +47,9 @@ export const useFinanceStore = defineStore("finance", {
   actions: {
     async loadFinanceData(month: string) {
       this.errorMessage = null;
+      this.errorKind = null;
       await Promise.all([
-        this.loadTransactions({ month }),
+        this.loadTransactions({}),
         this.loadSummary(month),
         this.loadBudgets(month),
         this.loadCategories(true),
@@ -73,6 +78,7 @@ export const useFinanceStore = defineStore("finance", {
         if (isOfflineError(error)) {
           this.transactions = await this.localTransactions();
         } else {
+          this.errorKind = apiErrorKind(error);
           this.errorMessage = errorMessage(error);
         }
       } finally {
@@ -111,6 +117,7 @@ export const useFinanceStore = defineStore("finance", {
             ) as unknown as FinanceSummaryResponse;
           }
         } else {
+          this.errorKind = apiErrorKind(error);
           this.errorMessage = errorMessage(error);
         }
       } finally {
@@ -140,6 +147,7 @@ export const useFinanceStore = defineStore("finance", {
               )) as unknown as BudgetSummary[])
             : [];
         } else {
+          this.errorKind = apiErrorKind(error);
           this.errorMessage = errorMessage(error);
         }
       }
@@ -163,6 +171,7 @@ export const useFinanceStore = defineStore("finance", {
               )) as unknown as CategorySummary[])
             : [];
         } else {
+          this.errorKind = apiErrorKind(error);
           this.errorMessage = errorMessage(error);
         }
       }
@@ -188,6 +197,7 @@ export const useFinanceStore = defineStore("finance", {
               )) as unknown as FinancialAccountSummary[])
             : [];
         } else {
+          this.errorKind = apiErrorKind(error);
           this.errorMessage = errorMessage(error);
         }
       }
@@ -330,6 +340,7 @@ export const useFinanceStore = defineStore("finance", {
       URL.revokeObjectURL(url);
     },
     clearError() {
+      this.errorKind = null;
       this.errorMessage = null;
     },
   },

@@ -43,8 +43,8 @@ async function submit() {
 
 <template>
   <section class="account-page" aria-labelledby="account-title">
-    <p class="eyebrow">我的账号</p>
-    <h1 id="account-title">账号与安全</h1>
+    <p class="eyebrow">个人设置</p>
+    <h1 id="account-title">个人设置</h1>
 
     <dl v-if="auth.user" class="account-summary">
       <div>

@@ -2,6 +2,8 @@
 import { computed, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
 
+import AppIcon from "../components/AppIcon.vue";
+import EmptyState from "../components/EmptyState.vue";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
 import { usePlannerStore } from "../stores/planner";
@@ -12,12 +14,16 @@ import {
   todayInShanghai,
 } from "../utils/time";
 
+type HomeStatus =
+  "loading" | "ready" | "auth-required" | "auth-expired" | "request-failed";
+
 const auth = useAuthStore();
 const finance = useFinanceStore();
 const planner = usePlannerStore();
 const trips = useTripsStore();
 const month = ref(currentMonth());
 const todayDate = todayInShanghai();
+const status = ref<HomeStatus>("loading");
 
 const today = computed(() =>
   new Intl.DateTimeFormat("zh-CN", {
@@ -28,8 +34,10 @@ const today = computed(() =>
   }).format(new Date()),
 );
 
-const overallBudget = computed(() =>
-  finance.summary?.budgets.find((budget) => budget.categoryId === null),
+const overallBudget = computed(
+  () =>
+    finance.summary?.budgets.find((budget) => budget.categoryId === null) ??
+    null,
 );
 
 const recentTransactions = computed(() =>
@@ -52,221 +60,368 @@ const todayReminders = computed(() =>
     isSameShanghaiDay(reminder.scheduledAt, todayDate),
   ),
 );
+const todayTotal = computed(
+  () =>
+    todayEvents.value.length +
+    todayTasks.value.length +
+    todayReminders.value.length,
+);
 
-onMounted(async () => {
+onMounted(() => {
   if (auth.isAuthenticated) {
-    await finance.loadFinanceData(month.value);
-    await Promise.all([
-      planner.loadCalendarEvents({ date: todayDate }),
-      planner.loadTasks({ status: "OPEN" }),
-      planner.loadReminders({ status: "SCHEDULED" }),
-      trips.loadTrips(),
-    ]);
+    void loadHome();
+  } else {
+    status.value = "auth-required";
   }
 });
+
+async function loadHome() {
+  status.value = "loading";
+  finance.clearError();
+  planner.clearError();
+  trips.clearError();
+  await finance.loadFinanceData(month.value);
+  await Promise.all([
+    planner.loadCalendarEvents({ date: todayDate }),
+    planner.loadTasks({ status: "OPEN" }),
+    planner.loadReminders({ status: "SCHEDULED" }),
+    trips.loadTrips(),
+  ]);
+  const kind = finance.errorKind ?? planner.errorKind ?? trips.errorKind;
+  status.value =
+    kind === "AUTH_EXPIRED"
+      ? "auth-expired"
+      : kind === "REQUEST_FAILED"
+        ? "request-failed"
+        : "ready";
+}
+
+async function changeMonth() {
+  finance.clearError();
+  await finance.loadFinanceData(month.value);
+  status.value =
+    finance.errorKind === "AUTH_EXPIRED"
+      ? "auth-expired"
+      : finance.errorKind === "REQUEST_FAILED"
+        ? "request-failed"
+        : "ready";
+}
 </script>
 
 <template>
-  <section
-    v-if="!auth.isAuthenticated"
-    class="hero"
-    aria-labelledby="page-title"
-  >
-    <p class="eyebrow">Daily Assistant</p>
-    <h1 id="page-title">把每天的事情，放在一个清晰的地方。</h1>
-    <p class="lede">身份认证、记账、日程、待办与提醒已经可以开始使用。</p>
-    <p class="home-links">
-      <RouterLink class="home-link" to="/register">注册</RouterLink>
-      <RouterLink class="home-link" to="/login">登录</RouterLink>
-      <RouterLink class="home-link" to="/account">我的账号</RouterLink>
-    </p>
-  </section>
-
-  <section v-else class="today-page" aria-labelledby="today-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">{{ today }}</p>
-        <h1 id="today-title">今日财务</h1>
-      </div>
-      <label class="month-field">
-        月份
-        <input v-model="month" type="month" />
-      </label>
-    </header>
-
-    <p v-if="finance.errorMessage" class="form-error" role="alert">
-      {{ finance.errorMessage }}
-    </p>
-
-    <div v-if="finance.summary" class="today-card">
-      <div class="today-stat">
-        <span class="stat-label">今日支出</span>
-        <strong class="stat-value">{{
-          money(finance.summary.todaySpend)
-        }}</strong>
-      </div>
-      <div class="today-stat">
-        <span class="stat-label">本月支出</span>
-        <strong class="stat-value">{{
-          money(finance.summary.netExpense)
-        }}</strong>
-      </div>
-      <div class="today-stat">
-        <span class="stat-label">本月收入</span>
-        <strong class="stat-value">{{
-          money(finance.summary.totalIncome)
-        }}</strong>
-      </div>
-      <div v-if="overallBudget" class="budget-progress">
-        <div class="budget-row">
-          <span>本月预算</span>
-          <strong>{{ percent(overallBudget.progress) }}</strong>
-        </div>
-        <div class="progress-track" aria-hidden="true">
-          <div
-            class="progress-fill"
-            :style="{ width: progressWidth(overallBudget.progress) }"
-          ></div>
-        </div>
-        <p class="budget-copy">
-          已用 {{ money(overallBudget.spent) }}，剩余
-          {{ money(overallBudget.remaining) }}
+  <section class="home-page" aria-labelledby="home-title">
+    <template v-if="status === 'auth-required'">
+      <div class="auth-state-card">
+        <span class="auth-state-icon">
+          <AppIcon name="user" :size="28" />
+        </span>
+        <p class="eyebrow">Daily Assistant</p>
+        <h1 id="home-title">今日概览</h1>
+        <p class="auth-state-message">请登录后查看今日数据</p>
+        <p class="auth-state-copy">
+          登录后即可查看今日安排、本月财务与最近记录。
         </p>
-      </div>
-    </div>
-
-    <section class="recent-section" aria-labelledby="today-schedule-title">
-      <h2 id="today-schedule-title">今日安排</h2>
-      <div class="today-schedule-grid">
-        <RouterLink class="schedule-card" to="/calendar">
-          <strong>{{ todayEvents.length }}</strong>
-          <span>日程</span>
-        </RouterLink>
-        <RouterLink class="schedule-card" to="/tasks">
-          <strong>{{ todayTasks.length }}</strong>
-          <span>待办</span>
-        </RouterLink>
-        <RouterLink class="schedule-card" to="/reminders">
-          <strong>{{ todayReminders.length }}</strong>
-          <span>提醒</span>
+        <RouterLink
+          class="primary-button"
+          :to="{ name: 'login', query: { redirect: '/' } }"
+        >
+          登录
         </RouterLink>
       </div>
-      <p
-        v-if="
-          todayEvents.length === 0 &&
-          todayTasks.length === 0 &&
-          todayReminders.length === 0
-        "
-        class="empty-copy"
-      >
-        今天暂无日程、待办或提醒。
-      </p>
-      <ul v-else class="today-schedule-list">
-        <li v-for="event in todayEvents.slice(0, 3)" :key="event.id">
-          <RouterLink to="/calendar" class="transaction-row">
-            <span class="transaction-main">
-              <strong>{{ event.title }}</strong>
-              <small>{{
-                event.allDay ? "全天" : formatDateTime(event.startsAt)
-              }}</small>
-            </span>
-            <span class="schedule-tag">日程</span>
-          </RouterLink>
-        </li>
-        <li v-for="task in todayTasks.slice(0, 3)" :key="task.id">
-          <RouterLink to="/tasks" class="transaction-row">
-            <span class="transaction-main">
-              <strong :class="{ 'overdue-mark': task.overdue }">{{
-                task.title
-              }}</strong>
-              <small v-if="task.dueAt">
-                {{ task.overdue ? "已过期" : formatDateTime(task.dueAt) }}
-              </small>
-              <small v-else>无截止时间</small>
-            </span>
-            <span class="schedule-tag">待办</span>
-          </RouterLink>
-        </li>
-        <li v-for="reminder in todayReminders.slice(0, 3)" :key="reminder.id">
-          <RouterLink to="/reminders" class="transaction-row">
-            <span class="transaction-main">
-              <strong>{{ reminder.title }}</strong>
-              <small>{{ formatDateTime(reminder.scheduledAt) }}</small>
-            </span>
-            <span class="schedule-tag">提醒</span>
-          </RouterLink>
-        </li>
-      </ul>
-    </section>
+    </template>
 
-    <div class="quick-actions">
-      <RouterLink class="primary-button" to="/capture">快捷记录</RouterLink>
-      <RouterLink class="secondary-button" to="/drafts">草稿中心</RouterLink>
-      <RouterLink class="secondary-button" to="/shortcuts">快捷指令</RouterLink>
-      <RouterLink class="secondary-button" to="/calendar">日程</RouterLink>
-      <RouterLink class="secondary-button" to="/tasks">待办</RouterLink>
-      <RouterLink class="secondary-button" to="/reminders">提醒</RouterLink>
-      <RouterLink class="secondary-button" to="/trips">行程</RouterLink>
-      <RouterLink class="primary-button" to="/transactions/new"
-        >记一笔</RouterLink
-      >
-      <RouterLink class="secondary-button" to="/transactions"
-        >全部账单</RouterLink
-      >
-      <RouterLink class="secondary-button" to="/finance/budgets"
-        >预算</RouterLink
-      >
-      <RouterLink class="secondary-button" to="/finance/categories"
-        >分类</RouterLink
-      >
-      <RouterLink class="secondary-button" to="/finance/accounts"
-        >账户</RouterLink
-      >
-    </div>
+    <template v-else-if="status === 'auth-expired'">
+      <div class="auth-state-card">
+        <span class="auth-state-icon">
+          <AppIcon name="lock" :size="28" />
+        </span>
+        <p class="eyebrow">Daily Assistant</p>
+        <h1 id="home-title">今日概览</h1>
+        <p class="auth-state-message">登录状态已过期，请重新登录</p>
+        <p class="auth-state-copy">
+          登录已失效，重新登录后可继续查看今日数据。
+        </p>
+        <RouterLink
+          class="primary-button"
+          :to="{ name: 'login', query: { redirect: '/' } }"
+        >
+          重新登录
+        </RouterLink>
+      </div>
+    </template>
 
-    <section class="recent-section" aria-labelledby="recent-title">
-      <h2 id="recent-title">最近账单</h2>
-      <p v-if="recentTransactions.length === 0" class="empty-copy">
-        还没有账单，点击“记一笔”开始记录。
-      </p>
-      <ul v-else class="transaction-list">
-        <li v-for="item in recentTransactions" :key="item.id">
-          <RouterLink
-            :to="`/transactions/${item.id}/edit`"
-            class="transaction-row"
-          >
-            <span class="transaction-main">
-              <strong>{{ item.merchant || typeLabel(item.type) }}</strong>
-              <small>{{ formatTime(item.occurredAt) }}</small>
+    <template v-else-if="status === 'request-failed'">
+      <div class="auth-state-card">
+        <span class="auth-state-icon">
+          <AppIcon name="alert" :size="28" />
+        </span>
+        <p class="eyebrow">Daily Assistant</p>
+        <h1 id="home-title">今日概览</h1>
+        <p class="auth-state-message">数据加载失败，请稍后重试</p>
+        <p class="auth-state-copy">暂时无法获取今日数据，请检查网络后重试。</p>
+        <button class="primary-button" type="button" @click="loadHome">
+          重试
+        </button>
+      </div>
+    </template>
+
+    <template v-else-if="status === 'loading'">
+      <div class="auth-state-card loading-card" aria-busy="true">
+        <span class="spinner" aria-hidden="true"></span>
+        <p class="auth-state-message">正在加载今日数据…</p>
+      </div>
+    </template>
+
+    <template v-else>
+      <header class="page-head home-head">
+        <div>
+          <p class="eyebrow">{{ today }}</p>
+          <h1 id="home-title">今日概览</h1>
+        </div>
+      </header>
+
+      <section class="quick-section" aria-labelledby="quick-actions-title">
+        <h2 id="quick-actions-title" class="visually-hidden">快捷操作</h2>
+        <div class="quick-actions-grid">
+          <RouterLink class="quick-action" to="/transactions/new">
+            <span class="quick-action-icon">
+              <AppIcon name="receipt" :size="22" />
             </span>
-            <span class="transaction-amount" :class="amountClass(item.type)">
-              {{ signedMoney(item) }}
-            </span>
+            <strong>记一笔</strong>
+            <small>快速记录收支</small>
           </RouterLink>
-        </li>
-      </ul>
-    </section>
+          <RouterLink class="quick-action" to="/tasks">
+            <span class="quick-action-icon">
+              <AppIcon name="tasks" :size="22" />
+            </span>
+            <strong>新建待办</strong>
+            <small>添加今日事项</small>
+          </RouterLink>
+          <RouterLink class="quick-action" to="/calendar">
+            <span class="quick-action-icon">
+              <AppIcon name="calendar" :size="22" />
+            </span>
+            <strong>新建日程</strong>
+            <small>安排时间计划</small>
+          </RouterLink>
+          <RouterLink class="quick-action" to="/reminders">
+            <span class="quick-action-icon">
+              <AppIcon name="bell" :size="22" />
+            </span>
+            <strong>添加提醒</strong>
+            <small>不错过重要事项</small>
+          </RouterLink>
+        </div>
+      </section>
 
-    <section class="recent-section" aria-labelledby="recent-trips-title">
-      <h2 id="recent-trips-title">最近行程</h2>
-      <p v-if="recentTrips.length === 0" class="empty-copy">
-        还没有行程，点击“行程”开始规划。
-      </p>
-      <ul v-else class="today-schedule-list">
-        <li v-for="item in recentTrips" :key="item.id">
-          <RouterLink :to="`/trips/${item.id}`" class="transaction-row">
-            <span class="transaction-main">
-              <strong>{{ item.title }}</strong>
-              <small
-                >{{ item.destination }} 路 {{ item.startDate }} –
-                {{ item.endDate }}</small
+      <section class="card-section" aria-labelledby="monthly-finance-title">
+        <div class="section-head">
+          <div>
+            <h2 id="monthly-finance-title">本月财务</h2>
+            <p class="section-copy">本月收入、支出与预算使用情况。</p>
+          </div>
+          <label class="month-field">
+            月份
+            <input v-model="month" type="month" @change="changeMonth" />
+          </label>
+        </div>
+        <div v-if="finance.summary" class="finance-summary-card">
+          <div class="finance-stat">
+            <span class="stat-label">收入</span>
+            <strong class="stat-value amount-income">{{
+              money(finance.summary.totalIncome)
+            }}</strong>
+          </div>
+          <div class="finance-stat">
+            <span class="stat-label">支出</span>
+            <strong class="stat-value amount-expense">{{
+              money(finance.summary.totalExpense)
+            }}</strong>
+          </div>
+          <div class="finance-stat">
+            <span class="stat-label">预算剩余</span>
+            <strong v-if="overallBudget" class="stat-value">{{
+              money(overallBudget.remaining)
+            }}</strong>
+            <span v-else class="stat-sub">
+              <span class="stat-muted">未设置</span>
+              <RouterLink class="text-link" to="/finance/budgets"
+                >去设置</RouterLink
               >
             </span>
-            <span class="schedule-tag">行程</span>
+          </div>
+          <div v-if="overallBudget" class="budget-progress">
+            <div class="budget-row">
+              <span>本月预算</span>
+              <strong>{{ percent(overallBudget.progress) }}</strong>
+            </div>
+            <div class="progress-track" aria-hidden="true">
+              <div
+                class="progress-fill"
+                :style="{ width: progressWidth(overallBudget.progress) }"
+              ></div>
+            </div>
+            <p class="budget-copy">
+              已用 {{ money(overallBudget.spent) }}，剩余
+              {{ money(overallBudget.remaining) }}
+            </p>
+          </div>
+        </div>
+        <p v-else class="empty-copy">暂无本月财务数据。</p>
+      </section>
+
+      <section class="card-section" aria-labelledby="today-schedule-title">
+        <div class="section-head">
+          <div>
+            <h2 id="today-schedule-title">今日安排</h2>
+            <p class="section-copy">
+              今天共有 {{ todayTotal }} 项安排，点击卡片查看详情。
+            </p>
+          </div>
+        </div>
+        <div class="today-schedule-grid">
+          <RouterLink class="schedule-card" to="/calendar">
+            <span class="schedule-card-icon">
+              <AppIcon name="calendar" :size="20" />
+            </span>
+            <strong>{{ todayEvents.length }}</strong>
+            <span class="schedule-label">日程</span>
+            <small class="schedule-copy">查看今日日程安排</small>
+            <span class="schedule-more">
+              查看全部
+              <AppIcon name="chevron-right" :size="14" />
+            </span>
           </RouterLink>
-        </li>
-      </ul>
-    </section>
+          <RouterLink class="schedule-card" to="/tasks">
+            <span class="schedule-card-icon">
+              <AppIcon name="tasks" :size="20" />
+            </span>
+            <strong>{{ todayTasks.length }}</strong>
+            <span class="schedule-label">待办</span>
+            <small class="schedule-copy">处理今日待办事项</small>
+            <span class="schedule-more">
+              查看全部
+              <AppIcon name="chevron-right" :size="14" />
+            </span>
+          </RouterLink>
+          <RouterLink class="schedule-card" to="/reminders">
+            <span class="schedule-card-icon">
+              <AppIcon name="bell" :size="20" />
+            </span>
+            <strong>{{ todayReminders.length }}</strong>
+            <span class="schedule-label">提醒</span>
+            <small class="schedule-copy">查看今日提醒</small>
+            <span class="schedule-more">
+              查看全部
+              <AppIcon name="chevron-right" :size="14" />
+            </span>
+          </RouterLink>
+        </div>
+        <p v-if="todayTotal === 0" class="empty-copy">
+          今天暂无日程、待办或提醒。
+        </p>
+        <ul v-else class="today-schedule-list">
+          <li v-for="event in todayEvents.slice(0, 3)" :key="event.id">
+            <RouterLink to="/calendar" class="transaction-row">
+              <span class="transaction-main">
+                <strong>{{ event.title }}</strong>
+                <small>{{
+                  event.allDay ? "全天" : formatDateTime(event.startsAt)
+                }}</small>
+              </span>
+              <span class="schedule-tag">日程</span>
+            </RouterLink>
+          </li>
+          <li v-for="task in todayTasks.slice(0, 3)" :key="task.id">
+            <RouterLink to="/tasks" class="transaction-row">
+              <span class="transaction-main">
+                <strong :class="{ 'overdue-mark': task.overdue }">{{
+                  task.title
+                }}</strong>
+                <small v-if="task.dueAt">
+                  {{ task.overdue ? "已过期" : formatDateTime(task.dueAt) }}
+                </small>
+                <small v-else>无截止时间</small>
+              </span>
+              <span class="schedule-tag">待办</span>
+            </RouterLink>
+          </li>
+          <li v-for="reminder in todayReminders.slice(0, 3)" :key="reminder.id">
+            <RouterLink to="/reminders" class="transaction-row">
+              <span class="transaction-main">
+                <strong>{{ reminder.title }}</strong>
+                <small>{{ formatDateTime(reminder.scheduledAt) }}</small>
+              </span>
+              <span class="schedule-tag">提醒</span>
+            </RouterLink>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card-section" aria-labelledby="recent-title">
+        <div class="section-head">
+          <div>
+            <h2 id="recent-title">最近账单</h2>
+            <p class="section-copy">最近记录的一笔笔收支。</p>
+          </div>
+          <RouterLink class="text-link" to="/transactions">查看全部</RouterLink>
+        </div>
+        <EmptyState
+          v-if="recentTransactions.length === 0"
+          icon="receipt"
+          title="还没有账单"
+          description="点击“记一笔”开始记录第一笔收支。"
+          :action="{ label: '记一笔', to: '/transactions/new' }"
+        />
+        <ul v-else class="transaction-list">
+          <li v-for="item in recentTransactions" :key="item.id">
+            <RouterLink
+              :to="`/transactions/${item.id}/edit`"
+              class="transaction-row"
+            >
+              <span class="transaction-main">
+                <strong>{{ item.merchant || typeLabel(item.type) }}</strong>
+                <small>{{ formatTime(item.occurredAt) }}</small>
+              </span>
+              <span class="transaction-amount" :class="amountClass(item.type)">
+                {{ signedMoney(item) }}
+              </span>
+            </RouterLink>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card-section" aria-labelledby="recent-trips-title">
+        <div class="section-head">
+          <div>
+            <h2 id="recent-trips-title">最近行程</h2>
+            <p class="section-copy">把出行安排和预算放在一起管理。</p>
+          </div>
+          <RouterLink class="text-link" to="/trips">查看全部</RouterLink>
+        </div>
+        <EmptyState
+          v-if="recentTrips.length === 0"
+          icon="trip"
+          title="还没有行程"
+          description="规划一次出行，把行程安排和预算放在一起管理。"
+          :action="{ label: '去规划行程', to: '/trips' }"
+        />
+        <ul v-else class="today-schedule-list">
+          <li v-for="item in recentTrips" :key="item.id">
+            <RouterLink :to="`/trips/${item.id}`" class="transaction-row">
+              <span class="transaction-main">
+                <strong>{{ item.title }}</strong>
+                <small
+                  >{{ item.destination }} ・ {{ item.startDate }} ―
+                  {{ item.endDate }}</small
+                >
+              </span>
+              <span class="schedule-tag">行程</span>
+            </RouterLink>
+          </li>
+        </ul>
+      </section>
+    </template>
   </section>
 </template>
 

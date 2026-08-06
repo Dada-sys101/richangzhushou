@@ -2,7 +2,9 @@ import { defineStore } from "pinia";
 
 import {
   api,
+  apiErrorKind,
   isOfflineError,
+  type ApiErrorKind,
   type CalendarEventSummary,
   type ReminderSummary,
   type TaskSummary,
@@ -13,6 +15,7 @@ import { useAuthStore } from "./auth";
 
 interface PlannerState {
   calendarEvents: CalendarEventSummary[];
+  errorKind: ApiErrorKind | null;
   errorMessage: string | null;
   reminders: ReminderSummary[];
   tasks: TaskSummary[];
@@ -21,6 +24,7 @@ interface PlannerState {
 export const usePlannerStore = defineStore("planner", {
   state: (): PlannerState => ({
     calendarEvents: [],
+    errorKind: null,
     errorMessage: null,
     reminders: [],
     tasks: [],
@@ -40,6 +44,7 @@ export const usePlannerStore = defineStore("planner", {
       } = {},
     ) {
       this.errorMessage = null;
+      this.errorKind = null;
       try {
         const syncUserId = useAuthStore().userId;
         if (syncUserId) {
@@ -50,22 +55,29 @@ export const usePlannerStore = defineStore("planner", {
         this.calendarEvents = userId
           ? mergePending(
               result.items,
-              (await localList(
-                userId,
-                "CALENDAR_EVENT",
-              )) as unknown as CalendarEventSummary[],
+              filterCalendarLocals(
+                (await localList(
+                  userId,
+                  "CALENDAR_EVENT",
+                )) as unknown as CalendarEventSummary[],
+                params.date,
+              ),
             )
           : result.items;
       } catch (error) {
         if (isOfflineError(error)) {
           const userId = useAuthStore().userId;
           this.calendarEvents = userId
-            ? ((await localList(
-                userId,
-                "CALENDAR_EVENT",
-              )) as unknown as CalendarEventSummary[])
+            ? filterCalendarLocals(
+                (await localList(
+                  userId,
+                  "CALENDAR_EVENT",
+                )) as unknown as CalendarEventSummary[],
+                params.date,
+              )
             : [];
         } else {
+          this.errorKind = apiErrorKind(error);
           this.errorMessage = messageOf(error);
         }
       }
@@ -77,6 +89,7 @@ export const usePlannerStore = defineStore("planner", {
       } = {},
     ) {
       this.errorMessage = null;
+      this.errorKind = null;
       try {
         const syncUserId = useAuthStore().userId;
         if (syncUserId) {
@@ -97,6 +110,7 @@ export const usePlannerStore = defineStore("planner", {
             ? ((await localList(userId, "TASK")) as unknown as TaskSummary[])
             : [];
         } else {
+          this.errorKind = apiErrorKind(error);
           this.errorMessage = messageOf(error);
         }
       }
@@ -108,6 +122,7 @@ export const usePlannerStore = defineStore("planner", {
       } = {},
     ) {
       this.errorMessage = null;
+      this.errorKind = null;
       try {
         const syncUserId = useAuthStore().userId;
         if (syncUserId) {
@@ -134,6 +149,7 @@ export const usePlannerStore = defineStore("planner", {
               )) as unknown as ReminderSummary[])
             : [];
         } else {
+          this.errorKind = apiErrorKind(error);
           this.errorMessage = messageOf(error);
         }
       }
@@ -331,6 +347,7 @@ export const usePlannerStore = defineStore("planner", {
       }
     },
     clearError() {
+      this.errorKind = null;
       this.errorMessage = null;
     },
   },
@@ -341,4 +358,29 @@ type ReminderStatus =
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : "操作失败，请稍后重试";
+}
+
+function filterCalendarLocals(
+  items: CalendarEventSummary[],
+  date?: string,
+): CalendarEventSummary[] {
+  if (!date) {
+    return items;
+  }
+  const bounds = calendarDayBounds(date);
+  return items.filter(
+    (item) => item.startsAt < bounds.end && item.endsAt > bounds.start,
+  );
+}
+
+function calendarDayBounds(date: string): { start: string; end: string } {
+  const parts = date.split("-");
+  const year = Number(parts[0]);
+  const month = Number(parts[1]);
+  const day = Number(parts[2]);
+  const start = new Date(Date.UTC(year, month - 1, day) - 8 * 60 * 60 * 1000);
+  return {
+    end: new Date(start.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+    start: start.toISOString(),
+  };
 }

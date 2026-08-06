@@ -5,6 +5,7 @@ import {
   getPendingCounts,
   getSyncStatusForUser,
   initSync,
+  isSyncing,
   listPendingForUser,
   resolveConflict,
   stopSync,
@@ -19,6 +20,7 @@ interface SyncState {
   lastUserId: string | null;
   offline: boolean;
   pendingCount: number;
+  syncing: boolean;
   status: SyncStatus;
 }
 
@@ -30,6 +32,7 @@ export const useSyncStore = defineStore("sync", {
     lastUserId: null,
     offline: !navigator.onLine,
     pendingCount: 0,
+    syncing: false,
     status: "SYNCED",
   }),
   actions: {
@@ -45,6 +48,7 @@ export const useSyncStore = defineStore("sync", {
         return;
       }
       this.offline = !navigator.onLine;
+      this.syncing = isSyncing();
       this.status = await getSyncStatusForUser(id);
       const counts = await getPendingCounts(id);
       this.pendingCount = counts.pending;
