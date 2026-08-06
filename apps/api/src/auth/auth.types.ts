@@ -2,11 +2,12 @@ import type { Session, User } from "../generated/prisma/client.js";
 import type { RequestWithId } from "../common/request-id.middleware.js";
 
 export interface AuthUser {
+  mustChangePassword: boolean;
   userId: string;
   sessionId: string;
   role: "ADMIN" | "USER";
   status: User["status"];
-  email: string;
+  username: string;
 }
 
 export interface AuthenticatedRequest extends RequestWithId {

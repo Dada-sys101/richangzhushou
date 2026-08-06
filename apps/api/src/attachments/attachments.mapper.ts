@@ -13,7 +13,6 @@ export function toAttachmentSummary(row: Attachment): AttachmentSummary {
     mimeType: row.mimeType,
     ownerId: row.ownerId,
     ownerType: row.ownerType as AttachmentOwnerType,
-    scanStatus: row.scanStatus,
     size: row.size,
     updatedAt: row.updatedAt.toISOString(),
   };

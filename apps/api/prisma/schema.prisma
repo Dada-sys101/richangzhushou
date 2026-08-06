@@ -21,18 +21,6 @@ enum UserStatus {
   DELETED
 }
 
-enum InviteStatus {
-  ACTIVE
-  EXHAUSTED
-  EXPIRED
-  REVOKED
-}
-
-enum RecoveryCodeKind {
-  PASSWORD_RESET
-  REOPEN
-}
-
 enum TransactionType {
   EXPENSE
   INCOME
@@ -48,7 +36,6 @@ enum RecordStatus {
 enum RecordSource {
   MANUAL
   SHORTCUT
-  OCR
   TEXT
   VOICE
   IMPORT
@@ -146,12 +133,6 @@ enum DraftStatus {
   FAILED
 }
 
-enum AttachmentScanStatus {
-  PENDING
-  SCANNED
-  FAILED
-}
-
 enum AttachmentOwnerType {
   TRANSACTION_DRAFT
 }
@@ -170,8 +151,6 @@ enum TripItemType {
 
 model SystemSetting {
   id                  String   @id @default("singleton")
-  registrationEnabled Boolean  @default(false) @map("registration_enabled")
-  inviteRequired      Boolean  @default(true) @map("invite_required")
   maxActiveUsers      Int      @default(20) @map("max_active_users")
   updatedAt           DateTime @updatedAt @map("updated_at")
   updatedBy           String?  @map("updated_by")
@@ -181,10 +160,11 @@ model SystemSetting {
 
 model User {
   id                  String             @id @default(cuid())
-  email               String             @unique
-  normalizedEmail     String             @unique @map("normalized_email")
+  username            String             @unique
+  normalizedUsername  String             @unique @map("normalized_username")
   displayName         String             @map("display_name")
   passwordHash        String             @map("password_hash")
+  mustChangePassword  Boolean            @default(false) @map("must_change_password")
   role                UserRole           @default(USER)
   status              UserStatus         @default(ACTIVE)
   createdAt           DateTime           @default(now()) @map("created_at")
@@ -193,11 +173,7 @@ model User {
   deletionRequestedAt DateTime?          @map("deletion_requested_at")
   lastLoginAt         DateTime?          @map("last_login_at")
   sessions            Session[]
-  recoveryCodes       RecoveryCode[]
-  invitedBy           InviteRedemption?
   adminAudits         AdminAudit[]
-  inviteCodesCreated  InviteCode[]       @relation("InviteCreator")
-  inviteCodesRevoked  InviteCode[]       @relation("InviteRevoker")
   categories          Category[]
   financialAccounts   FinancialAccount[]
   transactions        Transaction[]
@@ -229,55 +205,6 @@ model Session {
   @@index([userId, revokedAt])
   @@index([expiresAt])
   @@map("sessions")
-}
-
-model RecoveryCode {
-  id        String           @id @default(cuid())
-  userId    String           @map("user_id")
-  kind      RecoveryCodeKind
-  tokenHash String           @unique @map("token_hash")
-  expiresAt DateTime         @map("expires_at")
-  usedAt    DateTime?        @map("used_at")
-  createdAt DateTime         @default(now()) @map("created_at")
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, kind, usedAt])
-  @@index([expiresAt])
-  @@map("recovery_codes")
-}
-
-model InviteCode {
-  id          String             @id @default(cuid())
-  codeHash    String             @unique @map("code_hash")
-  codePrefix  String             @map("code_prefix")
-  status      InviteStatus       @default(ACTIVE)
-  maxUses     Int                @default(1) @map("max_uses")
-  usedCount   Int                @default(0) @map("used_count")
-  expiresAt   DateTime?          @map("expires_at")
-  revokedAt   DateTime?          @map("revoked_at")
-  createdById String?            @map("created_by_id")
-  revokedById String?            @map("revoked_by_id")
-  createdAt   DateTime           @default(now()) @map("created_at")
-  updatedAt   DateTime           @updatedAt @map("updated_at")
-  createdBy   User?              @relation("InviteCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  revokedBy   User?              @relation("InviteRevoker", fields: [revokedById], references: [id], onDelete: SetNull)
-  redemptions InviteRedemption[]
-
-  @@index([status, expiresAt])
-  @@index([createdById])
-  @@map("invite_codes")
-}
-
-model InviteRedemption {
-  id         String     @id @default(cuid())
-  inviteId   String     @map("invite_id")
-  userId     String     @unique @map("user_id")
-  redeemedAt DateTime   @default(now()) @map("redeemed_at")
-  invite     InviteCode @relation(fields: [inviteId], references: [id], onDelete: Cascade)
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([inviteId, userId])
-  @@map("invite_redemptions")
 }
 
 model AdminAudit {
@@ -426,7 +353,6 @@ model Attachment {
   mimeType             String              @map("mime_type") @db.VarChar(100)
   size                 Int                 @map("size")
   sha256               String?             @map("sha256") @db.VarChar(64)
-  scanStatus           AttachmentScanStatus @default(PENDING) @map("scan_status")
   uploadTokenHash      String?             @unique @map("upload_token_hash") @db.VarChar(64)
   uploadIntentExpiresAt DateTime?          @map("upload_intent_expires_at")
   contentStoredAt      DateTime?           @map("content_stored_at")

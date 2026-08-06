@@ -58,11 +58,12 @@ export class RefreshTokenGuard implements CanActivate {
 
     request.refreshSession = session;
     request.user = {
-      email: session.user.email,
+      mustChangePassword: session.user.mustChangePassword,
       role: session.user.role,
       sessionId: session.id,
       status: session.user.status,
       userId: session.user.id,
+      username: session.user.username,
     };
     return true;
   }

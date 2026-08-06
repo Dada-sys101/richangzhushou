@@ -96,3 +96,20 @@ No production or shared database URL belongs in this repository.
   `DROP TABLE sync_mutations` 并
   `ALTER TABLE categories/financial_accounts/budgets DROP COLUMN client_mutation_id`
   及删除相关索引（注意外键顺序）。
+
+## WP9 Identity & entry simplification（20260806140000_wp9_identity_entry_simplification）
+
+- 变更：`users` 增加 `username`/`normalized_username`（唯一）与
+  `must_change_password`，删除 `email`/`normalized_email`；删除
+  `recovery_codes`/`invite_codes`/`invite_redemptions` 表；
+  `system_settings` 删除 `registration_enabled`/`invite_required`；
+  `attachments` 删除 `scan_status`；`RecordSource` 移除 `OCR`。
+- 存量数据：`username` 由邮箱本地部分清洗回填（小写、仅 `[a-z0-9_]`、截断 20），
+  冲突时按行号追加 `_N`；`normalized_username` 与 `username` 一致。
+- 回滚（破坏性，先备份）：`prisma migrate resolve --rolled-back
+  20260806140000_wp9_identity_entry_simplification` 后删除该 migration 目录，
+  再 `prisma migrate deploy` 到上一个版本；或对非生产库手工重建被删表/列
+  （`email`/`normalized_email`、`recovery_codes`、`invite_codes`、
+  `invite_redemptions`、`scan_status`、注册/邀请开关列），并按原 schema 回填。
+- 演示数据：`SEED_DEMO_USER=true` 创建 `username=demo` 的本地演示账号
+  （`must_change_password=false`）；管理员账号用 `bootstrap:admin --username=...` 创建。

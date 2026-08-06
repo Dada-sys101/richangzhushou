@@ -52,8 +52,8 @@ async function submit() {
         <dd>{{ auth.user.displayName }}</dd>
       </div>
       <div>
-        <dt>邮箱</dt>
-        <dd>{{ auth.user.email }}</dd>
+        <dt>账号</dt>
+        <dd>{{ auth.user.username }}</dd>
       </div>
       <div>
         <dt>状态</dt>
@@ -62,6 +62,9 @@ async function submit() {
     </dl>
 
     <button class="secondary-button" @click="logout">退出登录</button>
+    <RouterLink class="secondary-button" to="/change-password"
+      >修改密码</RouterLink
+    >
 
     <form class="auth-form risk-form" @submit.prevent="submit">
       <h2>关闭账号或申请删除</h2>

@@ -10,14 +10,6 @@ export const USER_STATUSES = [
 ] as const;
 export type UserStatus = (typeof USER_STATUSES)[number];
 
-export const INVITE_STATUSES = [
-  "ACTIVE",
-  "EXHAUSTED",
-  "EXPIRED",
-  "REVOKED",
-] as const;
-export type InviteStatus = (typeof INVITE_STATUSES)[number];
-
 export const TRANSACTION_TYPES = ["EXPENSE", "INCOME", "REFUND"] as const;
 export type TransactionType = (typeof TRANSACTION_TYPES)[number];
 
@@ -27,7 +19,6 @@ export type RecordStatus = (typeof RECORD_STATUSES)[number];
 export const RECORD_SOURCES = [
   "MANUAL",
   "SHORTCUT",
-  "OCR",
   "TEXT",
   "VOICE",
   "IMPORT",
@@ -126,13 +117,6 @@ export const SHORTCUT_SCOPES = [
 ] as const;
 export type ShortcutScope = (typeof SHORTCUT_SCOPES)[number];
 
-export const ATTACHMENT_SCAN_STATUSES = [
-  "PENDING",
-  "SCANNED",
-  "FAILED",
-] as const;
-export type AttachmentScanStatus = (typeof ATTACHMENT_SCAN_STATUSES)[number];
-
 export const ATTACHMENT_OWNER_TYPES = ["TRANSACTION_DRAFT"] as const;
 export type AttachmentOwnerType = (typeof ATTACHMENT_OWNER_TYPES)[number];
 
@@ -153,21 +137,13 @@ export const API_ERROR_CODES = [
   "UNAUTHORIZED",
   "FORBIDDEN",
   "RATE_LIMITED",
-  "REGISTRATION_DISABLED",
   "CAPACITY_REACHED",
-  "INVITE_INVALID",
-  "INVITE_EXPIRED",
-  "INVITE_EXHAUSTED",
-  "EMAIL_ALREADY_REGISTERED",
   "INVALID_CREDENTIALS",
+  "INVALID_CURRENT_PASSWORD",
+  "PASSWORD_CHANGE_REQUIRED",
   "ACCOUNT_NOT_ACTIVE",
   "REFRESH_TOKEN_REQUIRED",
   "REFRESH_TOKEN_INVALID",
-  "RECOVERY_TOKEN_INVALID",
-  "RECOVERY_TOKEN_EXPIRED",
-  "RECOVERY_TOKEN_USED",
-  "REOPEN_CAPACITY_REACHED",
-  "REOPEN_NOT_ALLOWED",
   "INVALID_STATE",
   "SETTING_LOWER_THAN_USAGE",
   "ADMIN_ACTION_REQUIRES_REASON",
@@ -177,11 +153,8 @@ export const API_ERROR_CODES = [
   "DRAFT_CONFIRMATION_REQUIRED",
   "CREDENTIAL_INVALID",
   "CREDENTIAL_REVOKED",
-  "OCR_UNAVAILABLE",
   "ATTACHMENT_TYPE_NOT_ALLOWED",
   "ATTACHMENT_TOO_LARGE",
-  "ATTACHMENT_SCAN_FAILED",
-  "ATTACHMENT_NOT_READY",
   "DRAFT_NOT_EDITABLE",
   "UPLOAD_INTENT_EXPIRED",
   "UPLOAD_TOKEN_INVALID",
@@ -195,13 +168,10 @@ export const API_ERROR_CODES = [
 ] as const;
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
 
-export const RECOVERY_CODE_KINDS = ["PASSWORD_RESET", "REOPEN"] as const;
-export type RecoveryCodeKind = (typeof RECOVERY_CODE_KINDS)[number];
-
 export const ADMIN_AUDIT_ACTIONS = [
   "SETTINGS_UPDATE",
-  "INVITE_CREATE",
-  "INVITE_REVOKE",
+  "USER_CREATE",
+  "USER_PASSWORD_RESET",
   "USER_SUSPEND",
   "USER_CLOSE",
   "USER_REOPEN",

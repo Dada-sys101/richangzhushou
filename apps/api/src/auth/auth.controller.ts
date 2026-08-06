@@ -13,12 +13,7 @@ import type { Response } from "express";
 import { ApiException } from "../common/api-error.js";
 import { RateLimiterService } from "../common/rate-limiter.service.js";
 import { CookieService } from "./cookie.service.js";
-import {
-  ForgotPasswordDto,
-  LoginDto,
-  RegisterDto,
-  ResetPasswordDto,
-} from "./dto/auth.dto.js";
+import { LoginDto } from "./dto/auth.dto.js";
 import { RefreshTokenGuard } from "./refresh-token.guard.js";
 import type { AuthenticatedRequest } from "./auth.types.js";
 import { AuthService, type AuthSessionResult } from "./auth.service.js";
@@ -34,23 +29,6 @@ export class AuthController {
     private readonly rateLimiter: RateLimiterService,
   ) {}
 
-  @Post("register")
-  @HttpCode(HttpStatus.CREATED)
-  async register(
-    @Body() dto: RegisterDto,
-    @Req() request: AuthenticatedRequest,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    this.rateLimiter.consume(
-      `register:${request.ip ?? "unknown"}`,
-      10,
-      60 * 60 * 1000,
-    );
-    const result = await this.authService.register(dto);
-    this.writeSession(response, result);
-    return toAuthResponse(result);
-  }
-
   @Post("login")
   @HttpCode(HttpStatus.OK)
   async login(
@@ -59,7 +37,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     this.rateLimiter.consume(
-      `login:${request.ip ?? "unknown"}:${dto.email.toLowerCase()}`,
+      `login:${request.ip ?? "unknown"}:${dto.username.toLowerCase()}`,
       10,
       15 * 60 * 1000,
     );
@@ -101,34 +79,6 @@ export class AuthController {
       await this.authService.logout(token);
     }
     this.cookieService.clearRefreshCookie(response);
-  }
-
-  @Post("forgot-password")
-  @HttpCode(HttpStatus.ACCEPTED)
-  async forgotPassword(
-    @Body() dto: ForgotPasswordDto,
-    @Req() request: AuthenticatedRequest,
-  ): Promise<void> {
-    this.rateLimiter.consume(
-      `forgot:${request.ip ?? "unknown"}:${dto.email.toLowerCase()}`,
-      5,
-      60 * 60 * 1000,
-    );
-    await this.authService.forgotPassword(dto);
-  }
-
-  @Post("reset-password")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async resetPassword(
-    @Body() dto: ResetPasswordDto,
-    @Req() request: AuthenticatedRequest,
-  ): Promise<void> {
-    this.rateLimiter.consume(
-      `reset:${request.ip ?? "unknown"}`,
-      10,
-      15 * 60 * 1000,
-    );
-    await this.authService.resetPassword(dto);
   }
 
   private writeSession(response: Response, result: AuthSessionResult): void {

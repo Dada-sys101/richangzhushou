@@ -11,7 +11,7 @@ import "element-plus/es/components/result/style/css";
     <el-result
       icon="success"
       title="Vue 3 + TypeScript + Element Plus 已就绪"
-      sub-title="WP2 已提供概览、邀请码、用户、设置与审计管理页面。"
+      sub-title="WP9 已提供概览、用户、设置与审计管理页面；账号由管理员在此创建。"
     />
   </el-card>
 </template>

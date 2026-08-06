@@ -6,11 +6,12 @@ import { SecurityService } from "../common/security.service.js";
 import { AuditService } from "../audit/audit.service.js";
 import { CapacityService } from "../capacity/capacity.service.js";
 import { PrismaService } from "../prisma/prisma.service.js";
-import { maskEmail } from "../users/user.mapper.js";
+import { normalizeUsername } from "../users/user.mapper.js";
 import type {
+  AdminCreateUserDto,
   AdminReasonDto,
-  InviteCreateDto,
-  UpdateRegistrationSettingsDto,
+  AdminResetPasswordDto,
+  UpdateSystemSettingsDto,
 } from "../auth/dto/auth.dto.js";
 
 @Injectable()
@@ -32,16 +33,12 @@ export class AdminService {
 
   async updateSettings(
     actorId: string,
-    dto: UpdateRegistrationSettingsDto,
+    dto: UpdateSystemSettingsDto,
     requestId: string,
   ) {
     return this.capacityService.updateSettings(
       actorId,
-      {
-        inviteRequired: dto.inviteRequired,
-        maxActiveUsers: dto.maxActiveUsers,
-        registrationEnabled: dto.registrationEnabled,
-      },
+      { maxActiveUsers: dto.maxActiveUsers },
       dto.reason,
       requestId,
     );
@@ -54,10 +51,12 @@ export class AdminService {
         closedAt: true,
         createdAt: true,
         deletionRequestedAt: true,
-        email: true,
+        displayName: true,
         id: true,
+        mustChangePassword: true,
         role: true,
         status: true,
+        username: true,
       },
       take: 500,
     });
@@ -65,103 +64,120 @@ export class AdminService {
       closedAt: user.closedAt?.toISOString() ?? null,
       createdAt: user.createdAt.toISOString(),
       deletionRequestedAt: user.deletionRequestedAt?.toISOString() ?? null,
+      displayName: user.displayName,
       id: user.id,
-      maskedEmail: maskEmail(user.email),
+      mustChangePassword: user.mustChangePassword,
       role: user.role,
       status: user.status,
+      username: user.username,
     }));
   }
 
-  async listInvites() {
-    const invites = await this.prisma.inviteCode.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 500,
-    });
-    return invites.map((invite) => ({
-      codePrefix: invite.codePrefix,
-      createdAt: invite.createdAt.toISOString(),
-      expiresAt: invite.expiresAt?.toISOString() ?? null,
-      id: invite.id,
-      maxUses: invite.maxUses,
-      revokedAt: invite.revokedAt?.toISOString() ?? null,
-      status: invite.status,
-      usedCount: invite.usedCount,
-    }));
-  }
-
-  async createInvite(actorId: string, dto: InviteCreateDto, requestId: string) {
-    const plaintextCode = this.securityService.generateInviteCode();
-    const expiresAt = dto.expiresAt ? new Date(dto.expiresAt) : null;
-    const invite = await this.prisma.$transaction(async (tx) => {
-      const created = await tx.inviteCode.create({
+  async createUser(
+    actorId: string,
+    dto: AdminCreateUserDto,
+    requestId: string,
+  ) {
+    const normalizedUsername = normalizeUsername(dto.username);
+    const passwordHash = await this.securityService.hashPassword(
+      dto.initialPassword,
+    );
+    return this.capacityService.withCapacityRetry(async (tx) => {
+      const settings = await tx.systemSetting.findUniqueOrThrow({
+        where: { id: "singleton" },
+      });
+      const occupied = await this.capacityService.countOccupied(tx);
+      if (occupied >= settings.maxActiveUsers) {
+        throw new ApiException(
+          "CAPACITY_REACHED",
+          409,
+          "The experience is currently full",
+        );
+      }
+      const existing = await tx.user.findUnique({
+        where: { normalizedUsername },
+      });
+      if (existing) {
+        throw new ApiException(
+          "DUPLICATE_RESOURCE",
+          409,
+          "An account with this username already exists",
+        );
+      }
+      const user = await tx.user.create({
         data: {
-          codeHash: this.securityService.sha256(plaintextCode),
-          codePrefix: plaintextCode.slice(0, 4),
-          createdById: actorId,
-          expiresAt,
-          maxUses: dto.maxUses,
+          displayName: dto.displayName.trim(),
+          mustChangePassword: true,
+          normalizedUsername,
+          passwordHash,
+          role: "USER",
+          status: "ACTIVE",
+          username: normalizedUsername,
         },
       });
       await this.auditService.recordInTx(tx, {
-        action: "INVITE_CREATE",
+        action: "USER_CREATE",
         actorId,
         after: {
-          codePrefix: created.codePrefix,
-          expiresAt: created.expiresAt?.toISOString() ?? null,
-          maxUses: created.maxUses,
+          displayName: user.displayName,
+          mustChangePassword: user.mustChangePassword,
+          role: user.role,
+          status: user.status,
+          username: user.username,
         },
         reason: dto.reason,
         requestId,
-        targetId: created.id,
-        targetType: "InviteCode",
+        targetId: user.id,
+        targetType: "User",
       });
-      return created;
+      return {
+        closedAt: null,
+        createdAt: user.createdAt.toISOString(),
+        deletionRequestedAt: null,
+        displayName: user.displayName,
+        id: user.id,
+        mustChangePassword: user.mustChangePassword,
+        role: user.role,
+        status: user.status,
+        username: user.username,
+      };
     });
-    return {
-      invite: {
-        codePrefix: invite.codePrefix,
-        createdAt: invite.createdAt.toISOString(),
-        expiresAt: invite.expiresAt?.toISOString() ?? null,
-        id: invite.id,
-        maxUses: invite.maxUses,
-        revokedAt: null,
-        status: invite.status,
-        usedCount: invite.usedCount,
-      },
-      plaintextCode,
-    };
   }
 
-  async revokeInvite(
+  async resetUserPassword(
     actorId: string,
-    inviteId: string,
-    dto: AdminReasonDto,
+    userId: string,
+    dto: AdminResetPasswordDto,
     requestId: string,
   ): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
-      const before = await tx.inviteCode.findUnique({
-        where: { id: inviteId },
-      });
+    const passwordHash = await this.securityService.hashPassword(
+      dto.newPassword,
+    );
+    await this.capacityService.withCapacityRetry(async (tx) => {
+      const before = await tx.user.findUnique({ where: { id: userId } });
       if (!before) {
-        throw new ApiException("RESOURCE_NOT_FOUND", 404, "Invite not found");
+        throw new ApiException("RESOURCE_NOT_FOUND", 404, "User not found");
       }
-      const after = await tx.inviteCode.update({
-        where: { id: inviteId },
+      const after = await tx.user.update({
         data: {
-          revokedAt: new Date(),
-          revokedById: actorId,
-          status: "REVOKED",
+          mustChangePassword: true,
+          passwordHash,
         },
+        where: { id: userId },
+      });
+      await tx.session.updateMany({
+        data: { revokedAt: new Date() },
+        where: { revokedAt: null, userId },
       });
       await this.auditService.recordInTx(tx, {
-        action: "INVITE_REVOKE",
+        action: "USER_PASSWORD_RESET",
         actorId,
-        after: { status: after.status },
-        before: { status: before.status },
+        after: { mustChangePassword: after.mustChangePassword },
+        before: { mustChangePassword: before.mustChangePassword },
         reason: dto.reason,
         requestId,
-        targetId: after.id,
-        targetType: "InviteCode",
+        targetId: userId,
+        targetType: "User",
       });
     });
   }
@@ -227,7 +243,7 @@ export class AdminService {
       const occupied = await this.capacityService.countOccupied(tx);
       if (occupied >= settings.maxActiveUsers) {
         throw new ApiException(
-          "REOPEN_CAPACITY_REACHED",
+          "CAPACITY_REACHED",
           409,
           "The experience is currently full",
         );

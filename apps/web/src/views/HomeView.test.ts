@@ -45,7 +45,7 @@ function user(): UserSummary {
     role: "USER",
     status: "ACTIVE",
     updatedAt: "2026-08-06T00:00:00.000Z",
-    email: "demo@example.com",
+    username: "demo",
   };
 }
 

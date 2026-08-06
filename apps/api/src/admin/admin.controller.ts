@@ -15,9 +15,10 @@ import { AccessTokenGuard } from "../auth/access-token.guard.js";
 import { AdminGuard } from "../auth/admin.guard.js";
 import type { AuthenticatedRequest } from "../auth/auth.types.js";
 import {
+  AdminCreateUserDto,
   AdminReasonDto,
-  InviteCreateDto,
-  UpdateRegistrationSettingsDto,
+  AdminResetPasswordDto,
+  UpdateSystemSettingsDto,
 } from "../auth/dto/auth.dto.js";
 import { AdminService } from "./admin.service.js";
 
@@ -31,42 +32,37 @@ export class AdminController {
     return this.adminService.getDashboard();
   }
 
-  @Get("invites")
-  async listInvites() {
-    return { items: await this.adminService.listInvites() };
+  @Get("users")
+  async listUsers() {
+    return { items: await this.adminService.listUsers() };
   }
 
-  @Post("invites")
+  @Post("users")
   @HttpCode(HttpStatus.CREATED)
-  createInvite(
+  createUser(
     @Req() request: AuthenticatedRequest,
-    @Body() dto: InviteCreateDto,
+    @Body() dto: AdminCreateUserDto,
   ) {
-    return this.adminService.createInvite(
+    return this.adminService.createUser(
       request.user!.userId,
       dto,
       request.requestId ?? "unknown",
     );
   }
 
-  @Post("invites/:id/revoke")
+  @Post("users/:id/reset-password")
   @HttpCode(HttpStatus.NO_CONTENT)
-  async revokeInvite(
+  async resetUserPassword(
     @Req() request: AuthenticatedRequest,
     @Param("id") id: string,
-    @Body() dto: AdminReasonDto,
+    @Body() dto: AdminResetPasswordDto,
   ): Promise<void> {
-    await this.adminService.revokeInvite(
+    await this.adminService.resetUserPassword(
       request.user!.userId,
       id,
       dto,
       request.requestId ?? "unknown",
     );
-  }
-
-  @Get("users")
-  async listUsers() {
-    return { items: await this.adminService.listUsers() };
   }
 
   @Post("users/:id/suspend")
@@ -114,15 +110,15 @@ export class AdminController {
     );
   }
 
-  @Get("settings/registration")
+  @Get("settings")
   getSettings() {
     return this.adminService.getSettings();
   }
 
-  @Patch("settings/registration")
+  @Patch("settings")
   updateSettings(
     @Req() request: AuthenticatedRequest,
-    @Body() dto: UpdateRegistrationSettingsDto,
+    @Body() dto: UpdateSystemSettingsDto,
   ) {
     return this.adminService.updateSettings(
       request.user!.userId,

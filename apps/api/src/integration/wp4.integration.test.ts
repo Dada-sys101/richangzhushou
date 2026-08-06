@@ -12,7 +12,6 @@ import { AllExceptionsFilter } from "../common/all-exceptions.filter.js";
 import { RateLimiterService } from "../common/rate-limiter.service.js";
 import { requestIdMiddleware } from "../common/request-id.middleware.js";
 import { PrismaClient } from "../generated/prisma/client.js";
-import { MemoryMailAdapter } from "../mail/memory-mail.adapter.js";
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL;
 const TEST_PASSWORD = "UserPassword123!";
@@ -31,8 +30,6 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
       return;
     }
     process.env.DATABASE_URL = testDatabaseUrl;
-    delete process.env.FAKE_OCR_TEXT;
-    delete process.env.FAKE_SCAN_FAIL;
     prisma = new PrismaClient({
       adapter: new PrismaMariaDb(testDatabaseUrl),
     });
@@ -53,12 +50,9 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
     await resetDatabase();
     await seedAdmin();
     app.get(RateLimiterService).reset();
-    app.get(MemoryMailAdapter).reset();
   });
 
   afterAll(async () => {
-    delete process.env.FAKE_OCR_TEXT;
-    delete process.env.FAKE_SCAN_FAIL;
     await app?.close();
     await prisma?.$disconnect();
   });
@@ -288,17 +282,15 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
     expect(discardAgain.status).toBe(409);
   });
 
-  it("QA-DRAFT-001: OCR failure keeps manual entry available; OCR success creates a draft", async () => {
+  it("QA-DRAFT-001: attachments complete without OCR and manual entry remains available", async () => {
     const token = await loginNewUser();
-    delete process.env.FAKE_OCR_TEXT;
 
     const { attachmentId, uploadToken } = await uploadFlow(token);
-    const ocrUnavailable = await request(app.getHttpServer())
+    const ocrRemoved = await request(app.getHttpServer())
       .post("/api/v1/drafts/ocr")
       .set("Authorization", `Bearer ${token}`)
       .send({ attachmentId });
-    expect(ocrUnavailable.status).toBe(503);
-    expect(ocrUnavailable.body.code).toBe("OCR_UNAVAILABLE");
+    expect(ocrRemoved.status).toBe(404);
 
     const manual = await request(app.getHttpServer())
       .post("/api/v1/transactions")
@@ -306,25 +298,16 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
       .send({ amount: "9.90", type: "EXPENSE" });
     expect(manual.status).toBe(201);
 
-    process.env.FAKE_OCR_TEXT = "肯德基 25.50";
-    const ocrDraft = await request(app.getHttpServer())
-      .post("/api/v1/drafts/ocr")
+    const completed = await request(app.getHttpServer())
+      .post(`/api/v1/attachments/${attachmentId}/complete`)
       .set("Authorization", `Bearer ${token}`)
-      .send({ attachmentId, clientMutationId: "key-ocr-draft-000001" });
-    expect(ocrDraft.status).toBe(201);
-    expect(ocrDraft.body.draft.source).toBe("OCR");
-    expect(ocrDraft.body.draft.attachmentId).toBe(attachmentId);
-    expect(ocrDraft.body.draft.payload).toMatchObject({
-      amount: "25.50",
-      merchant: "肯德基",
-      type: "EXPENSE",
-    });
+      .expect(200);
+    expect(completed.body.attachment.id).toBe(attachmentId);
 
-    delete process.env.FAKE_OCR_TEXT;
     void uploadToken;
   });
 
-  it("validates attachment types, size, intent expiry, and scan gating", async () => {
+  it("validates attachment types, size, intent expiry, and completion gating", async () => {
     const token = await loginNewUser();
 
     const badType = await request(app.getHttpServer())
@@ -341,7 +324,7 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
       .post(`/api/v1/attachments/${attachmentId}/complete`)
       .set("Authorization", `Bearer ${token}`);
     expect(completeBeforeUpload.status).toBe(409);
-    expect(completeBeforeUpload.body.code).toBe("ATTACHMENT_NOT_READY");
+    expect(completeBeforeUpload.body.code).toBe("INVALID_STATE");
 
     const wrongToken = await request(app.getHttpServer())
       .put(`/api/v1/attachments/${attachmentId}/content`)
@@ -356,7 +339,7 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
       .post(`/api/v1/attachments/${attachmentId}/complete`)
       .set("Authorization", `Bearer ${token}`);
     expect(completed.status).toBe(200);
-    expect(completed.body.attachment.scanStatus).toBe("SCANNED");
+    expect(completed.body.attachment.id).toBe(attachmentId);
 
     const replayComplete = await request(app.getHttpServer())
       .post(`/api/v1/attachments/${attachmentId}/complete`)
@@ -396,25 +379,6 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
     expect(mismatchUpload.body.code).toBe("ATTACHMENT_TYPE_NOT_ALLOWED");
   });
 
-  it("reports attachment scan failures with a structured error", async () => {
-    const token = await loginNewUser();
-    process.env.FAKE_SCAN_FAIL = "true";
-    const intent = await createIntent(token);
-    const attachmentId = intent.body.id as string;
-    await uploadContent(attachmentId, intent.body.uploadToken);
-    const completed = await request(app.getHttpServer())
-      .post(`/api/v1/attachments/${attachmentId}/complete`)
-      .set("Authorization", `Bearer ${token}`);
-    expect(completed.status).toBe(422);
-    expect(completed.body.code).toBe("ATTACHMENT_SCAN_FAILED");
-
-    const row = await prisma.attachment.findUniqueOrThrow({
-      where: { id: attachmentId },
-    });
-    expect(row.scanStatus).toBe("FAILED");
-    process.env.FAKE_SCAN_FAIL = "false";
-  });
-
   it("QA-SEC-001 extension: users cannot access each other's drafts, credentials, or attachments", async () => {
     const aToken = await loginNewUser();
     const bToken = await loginNewUser();
@@ -450,11 +414,10 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
   });
 
   it("QA-SEC-002 extension: admins cannot call user content APIs", async () => {
-    const admin = await login("admin@example.com", ADMIN_PASSWORD);
+    const admin = await login("admin", ADMIN_PASSWORD);
     const checks = [
       ["GET", "/api/v1/drafts"],
       ["POST", "/api/v1/drafts/parse-text"],
-      ["POST", "/api/v1/drafts/ocr"],
       ["GET", "/api/v1/shortcut-credentials"],
       ["POST", "/api/v1/shortcut-credentials"],
       ["POST", "/api/v1/attachments/upload-intents"],
@@ -611,24 +574,17 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
     await prisma.budget.deleteMany();
     await prisma.financialAccount.deleteMany();
     await prisma.category.deleteMany();
-    await prisma.inviteRedemption.deleteMany();
-    await prisma.recoveryCode.deleteMany();
     await prisma.session.deleteMany();
     await prisma.adminAudit.deleteMany();
-    await prisma.inviteCode.deleteMany();
     await prisma.user.deleteMany();
     await prisma.systemSetting.upsert({
       where: { id: "singleton" },
       create: {
         id: "singleton",
-        inviteRequired: true,
         maxActiveUsers: 20,
-        registrationEnabled: true,
       },
       update: {
-        inviteRequired: true,
         maxActiveUsers: 20,
-        registrationEnabled: true,
       },
     });
   }
@@ -638,31 +594,31 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
     await prisma.user.create({
       data: {
         displayName: "Admin",
-        email: "admin@example.com",
-        normalizedEmail: "admin@example.com",
+        normalizedUsername: "admin",
         passwordHash,
         role: "ADMIN",
         status: "ACTIVE",
+        username: "admin",
       },
     });
   }
 
   async function loginNewUser(): Promise<string> {
-    const email = `wp4-${userSequence}-${Math.random()
+    const username = `wp4_${userSequence}_${Math.random()
       .toString(36)
-      .slice(2, 8)}@example.com`;
+      .slice(2, 8)}`;
     const passwordHash = await hash(TEST_PASSWORD, { type: 2 });
     await prisma.user.create({
       data: {
         displayName: "Draft User",
-        email,
-        normalizedEmail: email,
+        normalizedUsername: username,
         passwordHash,
         role: "USER",
         status: "ACTIVE",
+        username,
       },
     });
-    return login(email, TEST_PASSWORD).then((result) => result.accessToken);
+    return login(username, TEST_PASSWORD).then((result) => result.accessToken);
   }
 
   async function userIdOf(accessToken: string): Promise<string> {
@@ -672,10 +628,10 @@ describeWithDb("WP4 shortcuts, drafts, and attachments integration", () => {
     return response.body.id as string;
   }
 
-  async function login(email: string, password: string) {
+  async function login(username: string, password: string) {
     const response = await request(app.getHttpServer())
       .post("/api/v1/auth/login")
-      .send({ email, password });
+      .send({ password, username });
     expect(response.status).toBe(200);
     return {
       accessToken: response.body.accessToken as string,

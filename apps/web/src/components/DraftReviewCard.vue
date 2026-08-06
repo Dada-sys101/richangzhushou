@@ -54,7 +54,6 @@ const sourceLabel = computed(() => {
   const labels: Record<string, string> = {
     IMPORT: "导入",
     MANUAL: "手动",
-    OCR: "OCR 识别",
     SHORTCUT: "快捷指令",
     TEXT: "文本解析",
     VOICE: "语音",

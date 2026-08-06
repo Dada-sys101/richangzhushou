@@ -8,28 +8,21 @@ import {
   Param,
   Post,
   Req,
-  Res,
   UseGuards,
 } from "@nestjs/common";
-import type { Response } from "express";
 
-import { CookieService } from "../auth/cookie.service.js";
 import { AccessTokenGuard } from "../auth/access-token.guard.js";
 import type { AuthenticatedRequest } from "../auth/auth.types.js";
 import { AuthService } from "../auth/auth.service.js";
-import { toAuthResponse } from "../auth/session-response.js";
 import {
+  ChangePasswordDto,
   CloseAccountDto,
-  ReopenAccountDto,
   RequestDeletionDto,
 } from "../auth/dto/auth.dto.js";
 
 @Controller()
 export class AccountController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly cookieService: CookieService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Get("me")
   @UseGuards(AccessTokenGuard)
@@ -57,23 +50,17 @@ export class AccountController {
     );
   }
 
-  @Post("me/reopen")
-  @HttpCode(HttpStatus.OK)
-  async reopen(
+  @Post("me/change-password")
+  @UseGuards(AccessTokenGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async changePassword(
     @Req() request: AuthenticatedRequest,
-    @Body() dto: ReopenAccountDto,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const result = await this.authService.reopenAccount(
-      dto,
-      request.requestId ?? "unknown",
-    );
-    this.cookieService.setRefreshCookie(
-      response,
-      result.refreshToken,
-      result.refreshExpiresAt,
-    );
-    return toAuthResponse(result);
+    @Body() dto: ChangePasswordDto,
+  ): Promise<void> {
+    if (!request.user) {
+      return;
+    }
+    await this.authService.changePassword(request.user.userId, dto);
   }
 
   @Post("me/request-deletion")

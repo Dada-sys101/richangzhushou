@@ -46,5 +46,7 @@
 26. `25-wp8-codex-execution-plan.md`
 27. `26-wp8-acceptance-report.md`
 28. `27-wp8-staging-release-checklist.md`
+29. `28-wp9-identity-entry-simplification.md`
+30. `29-home-ui-optimization.md`
 
 所有文档以稳定编号引用规则、功能、页面、数据、API 和验收项。未确认信息必须标记为 `[待确认]` 或 `[关键假设]`。

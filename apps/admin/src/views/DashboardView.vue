@@ -49,13 +49,9 @@ onMounted(async () => {
       </el-col>
       <el-col :span="24" :md="8">
         <el-card>
-          <template #header>注册</template>
-          <div class="stat">
-            {{ dashboard.registrationEnabled ? "开放" : "关闭" }}
-          </div>
-          <div class="stat-label">
-            强制邀请码：{{ dashboard.inviteRequired ? "是" : "否" }}
-          </div>
+          <template #header>账号创建</template>
+          <div class="stat">管理员创建</div>
+          <div class="stat-label">账号密码登录，首次登录需改密</div>
         </el-card>
       </el-col>
     </el-row>

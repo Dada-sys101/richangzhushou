@@ -35,8 +35,8 @@ export const useAuthStore = defineStore("auth", {
       this.expiresAt = 0;
       this.user = null;
     },
-    async login(email: string, password: string) {
-      this.applySession(await adminApi.login(email, password));
+    async login(username: string, password: string) {
+      this.applySession(await adminApi.login(username, password));
     },
     async refresh() {
       this.applySession(await adminApi.refresh());

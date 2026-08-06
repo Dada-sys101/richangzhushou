@@ -1,10 +1,16 @@
 # Session End
 
 日期：2026-08-06<br>
-状态：WP0–WP8 本地验收完成；持久化状态恢复机制已建立；未推送、未部署
+状态：WP0–WP8、WP9 与首页界面优化本地验收完成；未推送、未部署
 
 ## 当前断点
 
+- 首页界面优化（2026-08-06）：今日概览/友好认证状态/精简导航/移动端底部导航/
+  本月财务/空状态/同步状态；`npm run quality` 通过；用户端测试 15/15；
+  浏览器验证通过；`docs/29`；未提交、未推送、未部署。
+- WP9（2026-08-06）：身份与录入简化本地验收完成；本地库 `daily_assistant_wp9`；
+  未提交、未推送、未部署。
+- 本机运行验证（2026-08-06）：API/Web/Admin 已启动并通过浏览器验证；本地库 `daily_assistant_local`；状态文档已更新，未提交。
 - WP8 验收通过：`npm run quality`、空库 6 migrations+seed、集成 63/63、浏览器矩阵（Web 102/公开 30/管理端 42，含 200% 缩放）无横向溢出、主流程（注册/登录/记账/日程/行程）与离线排队→恢复→单条落库均通过；备份恢复 24/24 表一致；账号删除演练（DELETION_PENDING/会话撤销/容量释放/脱敏审计）通过，期满清理未实现（缺口已记录，详见 `docs/26-wp8-acceptance-report.md`）。
 - WP8 修复：审计枚举补全 `DRAFT_BATCH_DISCARD`；用户自助关号/申请删除/恢复码重开补写脱敏审计；生产强制 `CONFIRMATION_TOKEN_SECRET`；上传魔数校验；超大上传流 resume；文档一致性（`docs/05` RecoveryCode、`docs/06` DELETE /me/sessions）。
 - 发布准备：`docs/27-wp8-staging-release-checklist.md`（staging 清单、监控告警、隐私/试用门禁、OPEN-001~011）。

@@ -41,11 +41,8 @@ erDiagram
 
 | 实体 | 关键字段 | 关键约束/索引 |
 | --- | --- | --- |
-| `User` | email, passwordHash, role, status, closedAt | email 唯一；status 索引 |
-| `SystemSetting` | registrationEnabled, inviteRequired, maxActiveUsers | 单例或版本化配置 |
-| `InviteCode` | codeHash, status, expiresAt, maxUses, usedCount | codeHash 唯一；状态/过期索引 |
-| `InviteRedemption` | inviteId, userId, redeemedAt | userId 唯一；事务内创建 |
-| `RecoveryCode` | userId, kind（PASSWORD_RESET/REOPEN）, tokenHash（唯一）, expiresAt, usedAt | 找回密码/重开账号的一次性恢复凭证，仅存 SHA-256 哈希 |
+| `User` | username, normalizedUsername, passwordHash, role, status, closedAt, mustChangePassword | username/normalizedUsername 唯一；status 索引 |
+| `SystemSetting` | maxActiveUsers | 单例或版本化配置 |
 | `Session` | userId, refreshTokenHash, expiresAt, revokedAt | token 哈希唯一 |
 | `DeviceCredential` | userId, name, tokenHash（唯一）, tokenPrefix, scopes（JSON）, lastUsedAt, revokedAt | 快捷指令凭证仅保存 SHA-256 哈希与展示前缀；scopes 为 ShortcutScope JSON 数组；撤销置 revokedAt |
 | `Transaction` | type, status, amount, currency, categoryId, accountId, merchant, occurredAt, note, source, originalTransactionId, isUnlinkedRefund, sourceFingerprint, tripId?, clientMutationId, version, deletedAt | userId+occurredAt；userId+tripId；clientMutationId 唯一；软删除用 deletedAt |
@@ -58,7 +55,7 @@ erDiagram
 | `Trip` | title, destination, startDate, endDate, budgetAmount?, clientMutationId?, version, deletedAt | userId+startDate；userId+deletedAt；clientMutationId 唯一；软删除用 deletedAt |
 | `TripItem` | tripId, type（TripItemType）, startsAt, endsAt, location?, position, clientMutationId?, version, deletedAt | tripId+position；tripId+deletedAt；clientMutationId 唯一 |
 | `PackingItem` | tripId, text, checked, position, clientMutationId?, version, deletedAt | tripId+position；tripId+deletedAt；clientMutationId 唯一 |
-| `Attachment` | userId, ownerType, ownerId, objectKey（唯一）, mimeType, size, sha256, scanStatus, uploadTokenHash（唯一）, uploadIntentExpiresAt, contentStoredAt, deletedAt | 上传意图一次性令牌只存哈希；完成确认前不可用于 OCR |
+| `Attachment` | userId, ownerType, ownerId, objectKey（唯一）, mimeType, size, sha256, uploadTokenHash（唯一）, uploadIntentExpiresAt, contentStoredAt, deletedAt | 上传意图一次性令牌只存哈希；完成确认后附件可用 |
 | `DraftRecord` | userId, source, targetType, payloadJson, confidenceJson, status, clientMutationId（唯一）, attachmentId, failureReason, version, confirmedAt, discardedAt, resultId | 幂等键唯一；确认后 resultId 指向正式记录 |
 | `SyncMutation` | userId, clientMutationId, entityType, entityId?, action, requestHash, resultRef, status, errorCode?, errorMessage? | userId+clientMutationId 唯一；requestHash 保存幂等请求摘要 |
 | `AdminAudit` | actorId, action, targetType, targetId, beforeJson, afterJson, reason | createdAt；不可从产品 API 删除 |
@@ -69,10 +66,9 @@ erDiagram
 | --- | --- |
 | `UserRole` | `USER`, `ADMIN` |
 | `UserStatus` | `ACTIVE`, `SUSPENDED`, `CLOSED`, `DELETION_PENDING`, `DELETED` |
-| `InviteStatus` | `ACTIVE`, `EXHAUSTED`, `EXPIRED`, `REVOKED` |
 | `TransactionType` | `EXPENSE`, `INCOME`, `REFUND` |
 | `RecordStatus` | `DRAFT`, `CONFIRMED`, `DELETED` |
-| `RecordSource` | `MANUAL`, `SHORTCUT`, `OCR`, `TEXT`, `VOICE`, `IMPORT` |
+| `RecordSource` | `MANUAL`, `SHORTCUT`, `TEXT`, `VOICE`, `IMPORT` |
 | `CategoryKind` | `EXPENSE`, `INCOME` |
 | `FinancialAccountKind` | `CASH`, `DEBIT_CARD`, `CREDIT_CARD`, `DIGITAL_WALLET`, `OTHER` |
 | `TaskStatus` | `OPEN`, `COMPLETED`, `CANCELLED` |
@@ -84,7 +80,6 @@ erDiagram
 | `SyncState` | `SYNCED`, `PENDING_SYNC`, `SYNC_FAILED`, `CONFLICT` |
 | `DraftStatus` | `PENDING`, `CONFIRMED`, `DISCARDED`, `FAILED` |
 | `ShortcutScope` | `transaction:draft:create`, `finance:summary:read` |
-| `AttachmentScanStatus` | `PENDING`, `SCANNED`, `FAILED` |
 | `AttachmentOwnerType` | `TRANSACTION_DRAFT` |
 | `DraftTargetType` | `TRANSACTION` |
 | `TripItemType` | `TRANSPORT`, `STAY`, `ACTIVITY`, `FOOD`, `OTHER` |
@@ -94,7 +89,7 @@ erDiagram
 
 ## 容量计算
 
-数据库事务内执行带锁的系统配置读取，并计算 `User.status IN (ACTIVE, SUSPENDED)`。不得用前端展示数字或最终一致缓存决定是否允许注册。
+数据库事务内执行带锁的系统配置读取，并计算 `User.status IN (ACTIVE, SUSPENDED)`。不得用前端展示数字或最终一致缓存决定管理员是否可创建账号。
 
 ## 删除与保留
 
@@ -116,10 +111,18 @@ erDiagram
 - 草稿确认在单个数据库事务内将 `DraftRecord` 标记为 `CONFIRMED` 并创建
   `CONFIRMED` 交易，保留 `source` 与 `clientMutationId`；未确认草稿不计入任何统计。
 - 附件采用“短期上传意图 + 一次性 uploadToken（只存哈希）+ 完成确认”流程；
-  扫描未通过或内容未存储时不可用于 OCR；本地临时存储写入
-  `apps/api/.local-storage`（gitignored）。
+  内容未存储时不可完成确认；本地临时存储写入 `apps/api/.local-storage`（gitignored）。
 - 批量丢弃/清空草稿为高风险操作：先获取短期确认令牌，二次确认后执行并写
   `AdminAudit`（action=`DRAFT_BATCH_DISCARD`）。
+
+## WP9 补充说明（2026-08-06）
+
+- 账号改为 `username`（唯一、小写规范化）+ 密码登录；邮箱彻底移除，不再收集或存储。
+- 账号全部由管理员创建/重置密码；首次登录或重置后必须修改密码
+  （`mustChangePassword`，服务端对除改密外的数据端点返回 `PASSWORD_CHANGE_REQUIRED`）。
+- 邀请码、恢复码与邮件链路下线：`InviteCode`/`InviteRedemption`/`RecoveryCode`
+  表和邮件适配器已删除；`SystemSetting` 仅保留 `maxActiveUsers`。
+- 截图 OCR 下线：`RecordSource` 不再含 `OCR`，附件只保留上传/完成/删除（不做识别）。
 
 ## WP5 补充说明（2026-08-05）
 

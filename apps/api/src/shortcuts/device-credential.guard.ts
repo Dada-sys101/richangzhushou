@@ -92,11 +92,12 @@ export class DeviceCredentialGuard implements CanActivate {
       userId: credential.userId,
     };
     request.user = {
-      email: credential.user.email,
+      mustChangePassword: credential.user.mustChangePassword,
       role: "USER",
       sessionId: "",
       status: "ACTIVE",
       userId: credential.userId,
+      username: credential.user.username,
     };
     return true;
   }

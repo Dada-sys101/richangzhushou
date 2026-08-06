@@ -17,7 +17,7 @@ onMounted(async () => {
     <el-table :data="items" row-key="id">
       <el-table-column label="时间" prop="createdAt" width="220" />
       <el-table-column label="操作" prop="action" width="170" />
-      <el-table-column label="操作者" prop="actorEmail" width="150" />
+      <el-table-column label="操作者" prop="actorUsername" width="150" />
       <el-table-column label="目标" prop="targetType" width="150" />
       <el-table-column label="原因" prop="reason" />
       <el-table-column label="请求 ID" prop="requestId" width="200" />

@@ -1,8 +1,5 @@
 import {
-  IsBoolean,
-  IsEmail,
   IsInt,
-  IsISO8601,
   IsOptional,
   IsString,
   Length,
@@ -11,68 +8,59 @@ import {
   MaxLength,
   Min,
   MinLength,
-  ValidateIf,
 } from "class-validator";
 
-export class RegisterDto {
+export class LoginDto {
+  @Matches(/^[a-z0-9_]{3,32}$/)
+  username!: string;
+
+  @IsString()
+  @MinLength(12)
+  @MaxLength(128)
+  password!: string;
+}
+
+export class ChangePasswordDto {
+  @IsString()
+  @MinLength(12)
+  @MaxLength(128)
+  currentPassword!: string;
+
+  @IsString()
+  @MinLength(12)
+  @MaxLength(128)
+  newPassword!: string;
+}
+
+export class AdminCreateUserDto {
   @IsString()
   @Length(1, 60)
   displayName!: string;
 
-  @IsEmail()
-  @MaxLength(254)
-  email!: string;
+  @Matches(/^[a-z0-9_]{3,32}$/)
+  username!: string;
 
   @IsString()
   @MinLength(12)
   @MaxLength(128)
-  password!: string;
-
-  @IsOptional()
-  @IsString()
-  @Matches(/^[A-Z0-9]{12,64}$/)
-  inviteCode?: string;
-}
-
-export class LoginDto {
-  @IsEmail()
-  @MaxLength(254)
-  email!: string;
+  initialPassword!: string;
 
   @IsString()
-  @MinLength(12)
-  @MaxLength(128)
-  password!: string;
+  @MinLength(3)
+  @MaxLength(500)
+  reason!: string;
 }
 
-export class ForgotPasswordDto {
-  @IsEmail()
-  @MaxLength(254)
-  email!: string;
-}
-
-export class ResetPasswordDto {
-  @IsString()
-  @MinLength(32)
-  @MaxLength(160)
-  recoveryToken!: string;
-
+export class AdminResetPasswordDto {
   @IsString()
   @MinLength(12)
   @MaxLength(128)
   newPassword!: string;
-}
-
-export class ReopenAccountDto {
-  @IsString()
-  @MinLength(32)
-  @MaxLength(160)
-  recoveryToken!: string;
 
   @IsString()
-  @MinLength(12)
-  @MaxLength(128)
-  newPassword!: string;
+  @MinLength(3)
+  @MaxLength(500)
+  reason!: string;
 }
 
 export class CloseAccountDto {
@@ -106,35 +94,11 @@ export class AdminReasonDto {
   reason!: string;
 }
 
-export class InviteCreateDto {
-  @IsInt()
-  @Min(1)
-  @Max(100)
-  maxUses!: number;
-
+export class UpdateSystemSettingsDto {
   @IsString()
   @MinLength(3)
   @MaxLength(500)
   reason!: string;
-
-  @ValidateIf((_object, value) => value !== null && value !== undefined)
-  @IsISO8601({ strict: true })
-  expiresAt?: string | null;
-}
-
-export class UpdateRegistrationSettingsDto {
-  @IsString()
-  @MinLength(3)
-  @MaxLength(500)
-  reason!: string;
-
-  @IsOptional()
-  @IsBoolean()
-  registrationEnabled?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  inviteRequired?: boolean;
 
   @IsOptional()
   @IsInt()

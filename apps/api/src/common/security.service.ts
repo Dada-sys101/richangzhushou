@@ -2,7 +2,6 @@ import {
   createHash,
   createHmac,
   randomBytes,
-  randomInt,
   timingSafeEqual,
 } from "node:crypto";
 
@@ -13,7 +12,6 @@ import { jwtVerify, SignJWT } from "jose";
 import { ApiException } from "./api-error.js";
 
 const ACCESS_TOKEN_ALGORITHM = "HS256";
-const INVITE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const CONFIRMATION_TOKEN_PREFIX = "da_confirm_";
 const CONFIRMATION_TOKEN_TTL_MS = 5 * 60 * 1000;
 
@@ -71,10 +69,6 @@ export class SecurityService {
   }
 
   generateRefreshToken(): string {
-    return randomBytes(32).toString("base64url");
-  }
-
-  generateRecoveryToken(): string {
     return randomBytes(32).toString("base64url");
   }
 
@@ -203,14 +197,6 @@ export class SecurityService {
       reason,
       userId,
     };
-  }
-
-  generateInviteCode(): string {
-    let code = "";
-    for (let index = 0; index < 16; index += 1) {
-      code += INVITE_ALPHABET[randomInt(INVITE_ALPHABET.length)];
-    }
-    return code;
   }
 
   async signAccessToken(

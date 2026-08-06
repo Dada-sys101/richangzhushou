@@ -123,7 +123,7 @@ export class SyncTransactionDraftPayloadDto {
 
 export class CreateDraftSyncPayloadDto {
   @IsIn(RECORD_SOURCES)
-  source!: "MANUAL" | "SHORTCUT" | "OCR" | "TEXT" | "VOICE" | "IMPORT";
+  source!: "MANUAL" | "SHORTCUT" | "TEXT" | "VOICE" | "IMPORT";
 
   @IsIn(DRAFT_TARGET_TYPES)
   targetType!: "TRANSACTION";

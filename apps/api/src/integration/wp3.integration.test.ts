@@ -12,7 +12,6 @@ import { AllExceptionsFilter } from "../common/all-exceptions.filter.js";
 import { RateLimiterService } from "../common/rate-limiter.service.js";
 import { requestIdMiddleware } from "../common/request-id.middleware.js";
 import { PrismaClient } from "../generated/prisma/client.js";
-import { MemoryMailAdapter } from "../mail/memory-mail.adapter.js";
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL;
 const TEST_PASSWORD = "UserPassword123!";
@@ -51,7 +50,6 @@ describeWithDb("WP3 finance integration", () => {
     await resetDatabase();
     await seedAdmin();
     app.get(RateLimiterService).reset();
-    app.get(MemoryMailAdapter).reset();
   });
 
   afterAll(async () => {
@@ -467,7 +465,7 @@ describeWithDb("WP3 finance integration", () => {
     const summary = await getSummary(token, AUGUST);
     expect(summary.body.budgets).toHaveLength(0);
 
-    const admin = await login("admin@example.com", ADMIN_PASSWORD);
+    const admin = await login("admin", ADMIN_PASSWORD);
     for (const path of [
       "/api/v1/transactions",
       "/api/v1/categories",
@@ -496,24 +494,17 @@ describeWithDb("WP3 finance integration", () => {
     await prisma.budget.deleteMany();
     await prisma.financialAccount.deleteMany();
     await prisma.category.deleteMany();
-    await prisma.inviteRedemption.deleteMany();
-    await prisma.recoveryCode.deleteMany();
     await prisma.session.deleteMany();
     await prisma.adminAudit.deleteMany();
-    await prisma.inviteCode.deleteMany();
     await prisma.user.deleteMany();
     await prisma.systemSetting.upsert({
       where: { id: "singleton" },
       create: {
         id: "singleton",
-        inviteRequired: true,
         maxActiveUsers: 20,
-        registrationEnabled: true,
       },
       update: {
-        inviteRequired: true,
         maxActiveUsers: 20,
-        registrationEnabled: true,
       },
     });
   }
@@ -523,37 +514,37 @@ describeWithDb("WP3 finance integration", () => {
     await prisma.user.create({
       data: {
         displayName: "Admin",
-        email: "admin@example.com",
-        normalizedEmail: "admin@example.com",
+        normalizedUsername: "admin",
         passwordHash,
         role: "ADMIN",
         status: "ACTIVE",
+        username: "admin",
       },
     });
   }
 
   async function loginNewUser(): Promise<string> {
-    const email = `wp3-${userSequence}-${Math.random()
+    const username = `wp3_${userSequence}_${Math.random()
       .toString(36)
-      .slice(2, 8)}@example.com`;
+      .slice(2, 8)}`;
     const passwordHash = await hash(TEST_PASSWORD, { type: 2 });
     await prisma.user.create({
       data: {
         displayName: "Finance User",
-        email,
-        normalizedEmail: email,
+        normalizedUsername: username,
         passwordHash,
         role: "USER",
         status: "ACTIVE",
+        username,
       },
     });
-    return login(email, TEST_PASSWORD).then((result) => result.accessToken);
+    return login(username, TEST_PASSWORD).then((result) => result.accessToken);
   }
 
-  async function login(email: string, password: string) {
+  async function login(username: string, password: string) {
     const response = await request(app.getHttpServer())
       .post("/api/v1/auth/login")
-      .send({ email, password });
+      .send({ password, username });
     expect(response.status).toBe(200);
     return {
       accessToken: response.body.accessToken as string,

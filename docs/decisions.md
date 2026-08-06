@@ -46,6 +46,9 @@
 | DEC-127 | WP7 幂等由 `sync_mutations` 统一承载：`request_hash` 摘要 + `result_ref` 重放；同键同内容返原结果、同键不同内容 `IDEMPOTENCY_CONFLICT` | `[代码] apps/api/src/sync/sync.service.ts`、`apps/api/prisma/schema.prisma` | 与各业务 `clientMutationId` 双重幂等，保证断网重连只落一条记录 |
 | DEC-128 | 客户端离线写入走统一拦截：断网时业务写操作自动进入 IndexedDB 队列并返回本地占位实体；本地 ID 在同步成功后映射为服务端 ID | `[代码] apps/web/src/{api/client.ts,offline/*}` | 现有视图无需逐页改造即可离线；QA-SYNC-001/002 通过 |
 | DEC-129 | 断网刷新进入「离线会话」模式（不持 access token、读本地缓存）；恢复联网先刷新令牌，同步请求 401 自动刷新重试；退出/关闭账号清空 IndexedDB | `[代码] apps/web/src/{stores/auth.ts,offline/sync.ts,offline/db.ts}` | 离线刷新不丢队列；QA-SYNC-004 通过；不在本地持久化令牌 |
+| DEC-130 | WP9 账号模型：唯一 `username`（小写规范化）+ 密码登录；邮箱彻底移除；账号仅由管理员创建/重置密码，首次登录或重置后必须改密（`mustChangePassword`，未改密时数据端点 403） | `[代码] apps/api/prisma/schema.prisma`、`apps/api/src/{auth,admin}`、`packages/api-contracts` | 用户已确认的范围调整（docs/28） |
+| DEC-131 | WP9 下线邀请码与邮件恢复：`InviteCode`/`InviteRedemption`/`RecoveryCode` 表和邮件适配器删除；`SystemSetting` 仅保留 `maxActiveUsers`；容量在管理员建号/重开时强制校验 | `[代码] apps/api/prisma/migrations/20260806140000_wp9_identity_entry_simplification`、`apps/api/src/capacity` | 用户已确认的“邀请码下线/邮箱彻底移除” |
+| DEC-132 | WP9 下线截图 OCR：`/drafts/ocr`、OCR/Scan 适配器与 `AttachmentScanStatus` 删除；附件保留上传/完成/删除与本地存储，不做识别 | `[代码] apps/api/src/{drafts,attachments,integrations}`、`packages/api-contracts` | 用户已确认的“去掉 OCR 识别” |
 
 ## 尚未确定的决策
 
@@ -53,12 +56,12 @@
 | --- | --- | --- | --- |
 | OPEN-001 | 正式产品名称 | 使用 Daily Assistant 临时名 | 品牌/域名 |
 | OPEN-002 | 正式仓库与远端 | origin 已配置为 `richangzhushou.git`，未推送 | 提交/协作 |
-| OPEN-003 | 邮件供应商 | 适配器 + 开发假服务 | 注册验证/找回密码 |
-| OPEN-004 | OCR/AI 供应商 | 适配器 + `FAKE_OCR_TEXT` 假实现 + 手动降级（WP4 已实现接口与假实现） | 真实识别效果验收 |
+| OPEN-003 | 邮件供应商 | 已关闭：WP9 下线邮箱，账号仅管理员创建 | 不适用 |
+| OPEN-004 | OCR/AI 供应商 | 已关闭：WP9 下线截图 OCR，保留手动/文本/快捷指令 | 不适用 |
 | OPEN-005 | 通知渠道 | 应用内 + 支持时 Web Push | 提醒最终验收 |
 | OPEN-006 | 部署地域与备案 | 不创建生产资源 | 生产上线 |
 | OPEN-007 | 关闭/删除保留期 | 暂按 30 天 | 隐私与恢复 |
-| OPEN-008 | 邮箱验证是否首发必需 | 建议必需 | WP2 注册体验 |
+| OPEN-008 | 邮箱验证是否首发必需 | 已关闭：WP9 下线邮箱，不适用 | 不适用 |
 | OPEN-009 | 浏览器 QA 工具与脚本化 | `docs/07` 规划 Playwright，但仓库无依赖/脚本 | QA 可复现性 |
 | OPEN-010 | 共享契约包接入方式 | 待确认（直接引用 TS 类型或生成客户端） | WP2 实现 |
 | OPEN-011 | origin 仓库名与产品名关系 | 待确认 | 品牌/推送 |

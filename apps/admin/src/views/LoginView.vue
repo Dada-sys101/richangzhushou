@@ -7,7 +7,7 @@ import { useAuthStore } from "../stores/auth";
 
 const auth = useAuthStore();
 const router = useRouter();
-const email = ref("");
+const username = ref("");
 const password = ref("");
 const errorMessage = ref("");
 const submitting = ref(false);
@@ -16,7 +16,7 @@ async function submit() {
   errorMessage.value = "";
   submitting.value = true;
   try {
-    await auth.login(email.value, password.value);
+    await auth.login(username.value, password.value);
     await router.replace("/dashboard");
   } catch (error) {
     errorMessage.value =
@@ -31,8 +31,12 @@ async function submit() {
   <el-card class="admin-login-card">
     <template #header>管理员登录</template>
     <el-form label-position="top" @submit.prevent="submit">
-      <el-form-item label="邮箱">
-        <el-input v-model.trim="email" data-test="admin-email" type="email" />
+      <el-form-item label="账号">
+        <el-input
+          v-model.trim="username"
+          data-test="admin-username"
+          type="text"
+        />
       </el-form-item>
       <el-form-item label="密码">
         <el-input

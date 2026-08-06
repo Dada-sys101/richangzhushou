@@ -1,7 +1,6 @@
 import type {
   ApiErrorCode,
   AttachmentOwnerType,
-  AttachmentScanStatus,
   CalendarEventStatus,
   CategoryKind,
   DraftTargetType,
@@ -57,7 +56,7 @@ export interface VersionedResource {
 export interface UserSummary {
   id: Identifier;
   displayName: string;
-  email: string;
+  username: string;
   role: "USER" | "ADMIN";
   status: "ACTIVE" | "SUSPENDED" | "CLOSED" | "DELETION_PENDING" | "DELETED";
   createdAt: IsoDateTime;
@@ -77,33 +76,30 @@ export interface SessionSummary {
 export interface AuthSessionResponse {
   accessToken: string;
   expiresIn: number;
+  mustChangePassword: boolean;
   user: UserSummary;
 }
 
-export interface RegisterRequest {
-  displayName: string;
-  email: string;
-  password: string;
-  inviteCode?: string;
-}
-
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 
-export interface ForgotPasswordRequest {
-  email: string;
-}
-
-export interface ResetPasswordRequest {
-  recoveryToken: string;
+export interface ChangePasswordRequest {
+  currentPassword: string;
   newPassword: string;
 }
 
-export interface ReopenAccountRequest {
-  recoveryToken: string;
+export interface AdminCreateUserRequest {
+  displayName: string;
+  username: string;
+  initialPassword?: string;
+  reason: string;
+}
+
+export interface AdminResetPasswordRequest {
   newPassword: string;
+  reason: string;
 }
 
 export interface CloseAccountRequest {
@@ -120,42 +116,16 @@ export interface AdminReasonRequest {
   reason: string;
 }
 
-export interface InviteSummary {
-  id: Identifier;
-  codePrefix: string;
-  status: "ACTIVE" | "EXHAUSTED" | "EXPIRED" | "REVOKED";
-  expiresAt: IsoDateTime | null;
-  maxUses: number;
-  usedCount: number;
-  createdAt: IsoDateTime;
-  revokedAt: IsoDateTime | null;
-}
-
-export interface InviteCreateRequest {
-  expiresAt?: IsoDateTime | null;
-  maxUses: number;
-  reason: string;
-}
-
-export interface InviteCreatedResponse {
-  invite: InviteSummary;
-  plaintextCode: string;
-}
-
-export interface RegistrationSettings {
-  registrationEnabled: boolean;
-  inviteRequired: boolean;
+export interface SystemSettings {
   maxActiveUsers: number;
 }
 
-export interface UpdateRegistrationSettingsRequest {
-  registrationEnabled?: boolean;
-  inviteRequired?: boolean;
+export interface UpdateSystemSettingsRequest {
   maxActiveUsers?: number;
   reason: string;
 }
 
-export interface AdminDashboardResponse extends RegistrationSettings {
+export interface AdminDashboardResponse extends SystemSettings {
   activeUsers: number;
   suspendedUsers: number;
   occupiedSlots: number;
@@ -164,7 +134,9 @@ export interface AdminDashboardResponse extends RegistrationSettings {
 
 export interface AdminUserSummary {
   id: Identifier;
-  maskedEmail: string;
+  username: string;
+  displayName: string;
+  mustChangePassword: boolean;
   role: "USER" | "ADMIN";
   status: "ACTIVE" | "SUSPENDED" | "CLOSED" | "DELETION_PENDING" | "DELETED";
   createdAt: IsoDateTime;
@@ -178,7 +150,7 @@ export interface AdminAuditEntry {
   targetType: string;
   targetId: Identifier | null;
   reason: string;
-  actorEmail: string | null;
+  actorUsername: string | null;
   requestId: string;
   createdAt: IsoDateTime;
   changes: Record<string, unknown>;
@@ -624,11 +596,6 @@ export interface DraftCreatedResponse {
   draft: DraftSummary;
 }
 
-export interface OcrDraftRequest {
-  attachmentId: Identifier;
-  clientMutationId?: string | null;
-}
-
 export interface DraftUpdateRequest {
   payload: TransactionDraftPayload;
   version: number;
@@ -781,7 +748,6 @@ export interface AttachmentSummary {
   ownerId: Identifier | null;
   mimeType: string;
   size: number;
-  scanStatus: AttachmentScanStatus;
   createdAt: IsoDateTime;
   updatedAt: IsoDateTime;
   deletedAt: IsoDateTime | null;

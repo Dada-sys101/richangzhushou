@@ -21,6 +21,10 @@ export class AccessTokenGuard implements CanActivate {
 
   private async validate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const passwordChangeAllowlist = new Set([
+      "/api/v1/me/change-password",
+      "/api/v1/me",
+    ]);
     const authorization = request.headers.authorization;
     if (!authorization?.startsWith("Bearer ")) {
       throw new ApiException("UNAUTHORIZED", 401, "Access token is required");
@@ -56,12 +60,20 @@ export class AccessTokenGuard implements CanActivate {
     }
 
     const user: AuthUser = {
-      email: session.user.email,
+      mustChangePassword: session.user.mustChangePassword,
       role: session.user.role,
       sessionId: session.id,
       status: session.user.status,
       userId: session.user.id,
+      username: session.user.username,
     };
+    if (user.mustChangePassword && !passwordChangeAllowlist.has(request.path)) {
+      throw new ApiException(
+        "PASSWORD_CHANGE_REQUIRED",
+        403,
+        "Password change is required before using the account",
+      );
+    }
     request.user = user;
     return true;
   }

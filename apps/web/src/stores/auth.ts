@@ -12,6 +12,7 @@ import { getLastUserId, hasAnyLocalData, resetUserData } from "../offline/sync";
 interface AuthState {
   accessToken: string | null;
   expiresAt: number;
+  mustChangePassword: boolean;
   offlineMode: boolean;
   offlineUserId: string | null;
   user: UserSummary | null;
@@ -21,6 +22,7 @@ export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
     accessToken: null,
     expiresAt: 0,
+    mustChangePassword: false,
     offlineMode: false,
     offlineUserId: null,
     user: null,
@@ -34,6 +36,7 @@ export const useAuthStore = defineStore("auth", {
       setAccessToken(session.accessToken);
       this.accessToken = session.accessToken;
       this.expiresAt = Date.now() + session.expiresIn * 1000;
+      this.mustChangePassword = session.mustChangePassword;
       this.offlineMode = false;
       this.offlineUserId = null;
       this.user = session.user;
@@ -42,6 +45,7 @@ export const useAuthStore = defineStore("auth", {
       setAccessToken(null);
       this.accessToken = null;
       this.expiresAt = 0;
+      this.mustChangePassword = false;
       this.offlineMode = false;
       this.offlineUserId = null;
       if (this.user) {
@@ -65,16 +69,12 @@ export const useAuthStore = defineStore("auth", {
       this.offlineMode = false;
       this.offlineUserId = null;
     },
-    async login(email: string, password: string) {
-      this.applySession(await api.login({ email, password }));
+    async login(username: string, password: string) {
+      this.applySession(await api.login({ password, username }));
     },
-    async register(input: {
-      displayName: string;
-      email: string;
-      inviteCode?: string;
-      password: string;
-    }) {
-      this.applySession(await api.register(input));
+    async changePassword(currentPassword: string, newPassword: string) {
+      await api.changePassword({ currentPassword, newPassword });
+      this.mustChangePassword = false;
     },
     async refresh() {
       try {

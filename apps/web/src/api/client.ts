@@ -56,16 +56,17 @@ export interface UserSummary {
   createdAt: string;
   deletionRequestedAt: string | null;
   displayName: string;
-  email: string;
   id: string;
   role: "ADMIN" | "USER";
   status: "ACTIVE" | "CLOSED" | "DELETED" | "DELETION_PENDING" | "SUSPENDED";
   updatedAt: string;
+  username: string;
 }
 
 export interface AuthSessionResponse {
   accessToken: string;
   expiresIn: number;
+  mustChangePassword: boolean;
   user: UserSummary;
 }
 
@@ -164,7 +165,6 @@ export interface TransactionCreatedResponse {
 
 export type DraftStatus = "PENDING" | "CONFIRMED" | "DISCARDED" | "FAILED";
 export type ShortcutScope = "transaction:draft:create" | "finance:summary:read";
-export type AttachmentScanStatus = "PENDING" | "SCANNED" | "FAILED";
 
 export interface TransactionDraftPayload {
   accountId?: string | null;
@@ -251,7 +251,6 @@ export interface AttachmentSummary {
   mimeType: string;
   ownerId: string | null;
   ownerType: "TRANSACTION_DRAFT";
-  scanStatus: AttachmentScanStatus;
   size: number;
   updatedAt: string;
 }
@@ -573,16 +572,16 @@ export const api = {
       method: "POST",
     });
   },
-  forgotPassword(email: string) {
-    return http<void>("/auth/forgot-password", {
-      body: { email },
-      method: "POST",
-    });
-  },
   getMe() {
     return http<UserSummary>("/me");
   },
-  login(body: { email: string; password: string }) {
+  changePassword(body: { currentPassword: string; newPassword: string }) {
+    return http<void>("/me/change-password", {
+      body,
+      method: "POST",
+    });
+  },
+  login(body: { password: string; username: string }) {
     return http<AuthSessionResponse>("/auth/login", {
       body,
       method: "POST",
@@ -594,31 +593,8 @@ export const api = {
   refresh() {
     return http<AuthSessionResponse>("/auth/refresh", { method: "POST" });
   },
-  register(body: {
-    displayName: string;
-    email: string;
-    inviteCode?: string;
-    password: string;
-  }) {
-    return http<AuthSessionResponse>("/auth/register", {
-      body,
-      method: "POST",
-    });
-  },
-  reopenAccount(body: { newPassword: string; recoveryToken: string }) {
-    return http<AuthSessionResponse>("/me/reopen", {
-      body,
-      method: "POST",
-    });
-  },
   requestDeletion(body: { password: string; reason: string }) {
     return http<void>("/me/request-deletion", {
-      body,
-      method: "POST",
-    });
-  },
-  resetPassword(body: { newPassword: string; recoveryToken: string }) {
-    return http<void>("/auth/reset-password", {
       body,
       method: "POST",
     });
@@ -986,12 +962,6 @@ export const api = {
   },
   revokeShortcutCredential(id: string) {
     return http<void>(`/shortcut-credentials/${id}`, { method: "DELETE" });
-  },
-  ocrDraft(body: { attachmentId: string; clientMutationId?: string | null }) {
-    return http<DraftCreatedResponse>("/drafts/ocr", {
-      body,
-      method: "POST",
-    });
   },
   parseTextDraft(text: string) {
     return http<DraftCreatedResponse>("/drafts/parse-text", {

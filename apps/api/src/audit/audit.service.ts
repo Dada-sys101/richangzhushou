@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
 import { Prisma } from "../generated/prisma/client.js";
-import { maskEmail } from "../users/user.mapper.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 
 export interface AuditChange {
@@ -42,7 +41,7 @@ export class AuditService {
     });
     return items.map((item) => ({
       action: item.action,
-      actorEmail: item.actor ? maskEmail(item.actor.email) : null,
+      actorUsername: item.actor ? item.actor.username : null,
       changes: (item.afterJson ?? item.beforeJson ?? {}) as Record<
         string,
         unknown

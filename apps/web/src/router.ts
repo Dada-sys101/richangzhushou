@@ -6,15 +6,13 @@ import AccountsView from "./views/AccountsView.vue";
 import BudgetsView from "./views/BudgetsView.vue";
 import CalendarView from "./views/CalendarView.vue";
 import CategoriesView from "./views/CategoriesView.vue";
+import ChangePasswordView from "./views/ChangePasswordView.vue";
 import DraftsView from "./views/DraftsView.vue";
-import ForgotPasswordView from "./views/ForgotPasswordView.vue";
 import HomeView from "./views/HomeView.vue";
 import LoginView from "./views/LoginView.vue";
 import NotFoundView from "./views/NotFoundView.vue";
 import QuickCaptureView from "./views/QuickCaptureView.vue";
-import RegisterView from "./views/RegisterView.vue";
 import RemindersView from "./views/RemindersView.vue";
-import ResetPasswordView from "./views/ResetPasswordView.vue";
 import ShortcutsView from "./views/ShortcutsView.vue";
 import SyncConflictsView from "./views/SyncConflictsView.vue";
 import TasksView from "./views/TasksView.vue";
@@ -38,27 +36,15 @@ export const router = createRouter({
       meta: { public: true },
     },
     {
-      path: "/register",
-      name: "register",
-      component: RegisterView,
-      meta: { public: true },
-    },
-    {
-      path: "/forgot-password",
-      name: "forgot-password",
-      component: ForgotPasswordView,
-      meta: { public: true },
-    },
-    {
-      path: "/reset-password",
-      name: "reset-password",
-      component: ResetPasswordView,
-      meta: { public: true },
-    },
-    {
       path: "/account",
       name: "account",
       component: AccountView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/change-password",
+      name: "change-password",
+      component: ChangePasswordView,
       meta: { requiresAuth: true },
     },
     {
@@ -177,7 +163,10 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: "login", query: { redirect: to.fullPath } };
   }
-  if ((to.name === "login" || to.name === "register") && auth.isAuthenticated) {
+  if (auth.mustChangePassword && to.name !== "change-password") {
+    return { name: "change-password" };
+  }
+  if (to.name === "login" && auth.isAuthenticated) {
     return { name: "account" };
   }
   return true;

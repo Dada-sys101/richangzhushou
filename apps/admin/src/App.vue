@@ -13,7 +13,6 @@ import { RouterView } from "vue-router";
       <strong>Daily Assistant Admin</strong>
       <nav class="admin-nav">
         <RouterLink to="/dashboard">概览</RouterLink>
-        <RouterLink to="/invites">邀请码</RouterLink>
         <RouterLink to="/users">用户</RouterLink>
         <RouterLink to="/settings">设置</RouterLink>
         <RouterLink to="/audits">审计</RouterLink>

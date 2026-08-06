@@ -6,6 +6,7 @@ export function toAuthResponse(result: AuthSessionResult): AuthSessionResponse {
   return {
     accessToken: result.accessToken,
     expiresIn: result.expiresIn,
+    mustChangePassword: result.mustChangePassword,
     user: result.user,
   };
 }

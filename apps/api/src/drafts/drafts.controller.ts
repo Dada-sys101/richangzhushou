@@ -20,7 +20,6 @@ import {
   BatchDiscardConfirmDto,
   BatchDiscardDto,
   ListDraftsQueryDto,
-  OcrDraftDto,
   ParseTextDto,
   UpdateDraftDto,
 } from "./dto/drafts.dto.js";
@@ -34,15 +33,6 @@ export class DraftsController {
   @HttpCode(HttpStatus.CREATED)
   parseText(@Req() request: AuthenticatedRequest, @Body() dto: ParseTextDto) {
     return this.draftsService.createTextDraft(this.userId(request), dto);
-  }
-
-  @Post("drafts/ocr")
-  @HttpCode(HttpStatus.CREATED)
-  createOcrDraft(
-    @Req() request: AuthenticatedRequest,
-    @Body() dto: OcrDraftDto,
-  ) {
-    return this.draftsService.createOcrDraft(this.userId(request), dto);
   }
 
   @Get("drafts")

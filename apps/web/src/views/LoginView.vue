@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { RouterLink, useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import { ApiClientError } from "../api/client";
 import { useAuthStore } from "../stores/auth";
@@ -8,7 +8,7 @@ import { useAuthStore } from "../stores/auth";
 const auth = useAuthStore();
 const router = useRouter();
 const route = useRoute();
-const email = ref("");
+const username = ref("");
 const password = ref("");
 const errorMessage = ref("");
 const submitting = ref(false);
@@ -17,11 +17,13 @@ async function submit() {
   errorMessage.value = "";
   submitting.value = true;
   try {
-    await auth.login(email.value, password.value);
+    await auth.login(username.value, password.value);
     await router.replace(
-      typeof route.query.redirect === "string"
-        ? route.query.redirect
-        : "/account",
+      auth.mustChangePassword
+        ? "/change-password"
+        : typeof route.query.redirect === "string"
+          ? route.query.redirect
+          : "/account",
     );
   } catch (error) {
     errorMessage.value =
@@ -38,12 +40,14 @@ async function submit() {
     <h1 id="login-title">登录 Daily Assistant</h1>
     <form class="auth-form" @submit.prevent="submit">
       <label>
-        邮箱
+        账号
         <input
-          v-model.trim="email"
-          autocomplete="email"
+          v-model.trim="username"
+          autocomplete="username"
+          minlength="3"
+          pattern="[a-z0-9_]{3,32}"
           required
-          type="email"
+          type="text"
         />
       </label>
       <label>
@@ -63,9 +67,6 @@ async function submit() {
         {{ submitting ? "登录中…" : "登录" }}
       </button>
     </form>
-    <p class="auth-links">
-      <RouterLink to="/forgot-password">忘记密码？</RouterLink>
-      <RouterLink to="/register">还没有账号？申请注册</RouterLink>
-    </p>
+    <p class="auth-links">账号由管理员创建；忘记密码请联系管理员重置。</p>
   </section>
 </template>

@@ -2,14 +2,12 @@
 import { ref } from "vue";
 import { RouterLink } from "vue-router";
 
-import { ApiClientError, api } from "../api/client";
+import { ApiClientError } from "../api/client";
 import { useDraftsStore } from "../stores/drafts";
 
 const drafts = useDraftsStore();
 const text = ref("");
-const fileInput = ref<HTMLInputElement | null>(null);
 const parsing = ref(false);
-const uploading = ref(false);
 const message = ref("");
 const errorMessage = ref("");
 const createdDraftId = ref("");
@@ -32,60 +30,6 @@ async function parseText() {
     errorMessage.value = messageOf(error);
   } finally {
     parsing.value = false;
-  }
-}
-
-async function onFileChange(event: Event) {
-  errorMessage.value = "";
-  message.value = "";
-  createdDraftId.value = "";
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) {
-    return;
-  }
-  const allowed = ["image/jpeg", "image/png", "image/webp"];
-  if (!allowed.includes(file.type)) {
-    errorMessage.value = "仅支持 JPG、PNG、WebP 图片";
-    input.value = "";
-    return;
-  }
-  if (file.size > 10 * 1024 * 1024) {
-    errorMessage.value = "图片不能超过 10MB";
-    input.value = "";
-    return;
-  }
-
-  uploading.value = true;
-  try {
-    const intent = await api.createUploadIntent({
-      mimeType: file.type,
-      ownerType: "TRANSACTION_DRAFT",
-    });
-    await api.uploadAttachmentContent(intent.id, intent.uploadToken, file);
-    await api.completeAttachment(intent.id);
-    const result = await api.ocrDraft({
-      attachmentId: intent.id,
-      clientMutationId: null,
-    });
-    createdDraftId.value = result.draft.id;
-    message.value = "图片识别完成，已生成待确认草稿。";
-  } catch (error) {
-    if (error instanceof ApiClientError && error.code === "OCR_UNAVAILABLE") {
-      errorMessage.value = "暂时无法识别图片，可以继续手动填写账单。";
-    } else if (
-      error instanceof ApiClientError &&
-      error.code === "ATTACHMENT_SCAN_FAILED"
-    ) {
-      errorMessage.value = "图片扫描未通过，请换一张图片重试或手动填写。";
-    } else {
-      errorMessage.value = messageOf(error);
-    }
-  } finally {
-    uploading.value = false;
-    if (fileInput.value) {
-      fileInput.value.value = "";
-    }
   }
 }
 
@@ -127,20 +71,10 @@ function messageOf(error: unknown): string {
       </form>
 
       <div class="capture-panel">
-        <h2>图片识别（OCR）</h2>
-        <p class="panel-copy">
-          上传账单或小票截图，识别结果只生成草稿，不会直接入账。
-        </p>
-        <input
-          ref="fileInput"
-          accept="image/jpeg,image/png,image/webp"
-          :disabled="uploading"
-          type="file"
-          @change="onFileChange"
-        />
-        <p v-if="uploading" class="panel-copy">上传并识别中…</p>
-        <RouterLink class="text-button" to="/transactions/new"
-          >识别失败时手动填写</RouterLink
+        <h2>手动记账</h2>
+        <p class="panel-copy">也可以直接在记账页面手动填写账单明细。</p>
+        <RouterLink class="secondary-button" to="/transactions/new"
+          >前往手动记账</RouterLink
         >
       </div>
     </div>

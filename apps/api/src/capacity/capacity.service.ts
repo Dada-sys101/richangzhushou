@@ -16,13 +16,6 @@ export class CapacityService {
     await tx.$queryRaw`SELECT id FROM \`system_settings\` WHERE \`id\` = ${SYSTEM_SETTING_ID} FOR UPDATE`;
   }
 
-  async lockInviteCode(
-    tx: Prisma.TransactionClient,
-    codeHash: string,
-  ): Promise<void> {
-    await tx.$queryRaw`SELECT id FROM \`invite_codes\` WHERE \`code_hash\` = ${codeHash} FOR UPDATE`;
-  }
-
   async countOccupied(tx: Prisma.TransactionClient): Promise<number> {
     return tx.user.count({
       where: { status: { in: ["ACTIVE", "SUSPENDED"] } },
@@ -66,10 +59,8 @@ export class CapacityService {
       const suspended = occupied - active;
       return {
         activeUsers: active,
-        inviteRequired: settings.inviteRequired,
         maxActiveUsers: settings.maxActiveUsers,
         occupiedSlots: occupied,
-        registrationEnabled: settings.registrationEnabled,
         remainingSlots: Math.max(settings.maxActiveUsers - occupied, 0),
         suspendedUsers: suspended,
       };
@@ -78,11 +69,7 @@ export class CapacityService {
 
   async updateSettings(
     actorId: string,
-    patch: {
-      inviteRequired?: boolean;
-      maxActiveUsers?: number;
-      registrationEnabled?: boolean;
-    },
+    patch: { maxActiveUsers?: number },
     reason: string,
     requestId: string,
   ) {
@@ -102,10 +89,7 @@ export class CapacityService {
       const after = await tx.systemSetting.update({
         where: { id: SYSTEM_SETTING_ID },
         data: {
-          inviteRequired: patch.inviteRequired ?? before.inviteRequired,
           maxActiveUsers: nextMaxActiveUsers,
-          registrationEnabled:
-            patch.registrationEnabled ?? before.registrationEnabled,
           updatedBy: actorId,
         },
       });
@@ -114,14 +98,10 @@ export class CapacityService {
           action: "SETTINGS_UPDATE",
           actorId,
           afterJson: {
-            inviteRequired: after.inviteRequired,
             maxActiveUsers: after.maxActiveUsers,
-            registrationEnabled: after.registrationEnabled,
           },
           beforeJson: {
-            inviteRequired: before.inviteRequired,
             maxActiveUsers: before.maxActiveUsers,
-            registrationEnabled: before.registrationEnabled,
           },
           reason,
           requestId,

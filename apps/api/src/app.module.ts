@@ -13,7 +13,6 @@ import { DraftsModule } from "./drafts/drafts.module.js";
 import { FinanceModule } from "./finance/finance.module.js";
 import { HealthController } from "./health/health.controller.js";
 import { IntegrationsModule } from "./integrations/integrations.module.js";
-import { MailModule } from "./mail/mail.module.js";
 import { PrismaModule } from "./prisma/prisma.module.js";
 import { RemindersModule } from "./reminders/reminders.module.js";
 import { ShortcutsModule } from "./shortcuts/shortcuts.module.js";
@@ -33,7 +32,6 @@ import { TripsModule } from "./trips/trips.module.js";
     DraftsModule,
     FinanceModule,
     IntegrationsModule,
-    MailModule,
     PrismaModule,
     RateLimiterModule,
     RemindersModule,

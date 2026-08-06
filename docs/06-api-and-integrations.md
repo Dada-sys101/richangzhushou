@@ -18,20 +18,19 @@
 
 ### 身份与账号
 
-- `POST /auth/register`
 - `POST /auth/login`
 - `POST /auth/refresh`
 - `POST /auth/logout`
-- `POST /auth/forgot-password`
-- `POST /auth/reset-password`
 - `GET /me`
 - `POST /me/close`
-- `POST /me/reopen`
+- `POST /me/change-password`
 - `POST /me/request-deletion`
 - `DELETE /me/sessions`
 - `DELETE /me/sessions/:sessionId`
 
-`POST /auth/register` 必须在服务端事务中验证注册开关、邀请码和容量。
+账号由管理员创建（`POST /admin/users`），登录使用 `username + password`；
+首次登录或管理员重置密码后，`mustChangePassword=true`，除改密与个人资料外
+的数据端点返回 `PASSWORD_CHANGE_REQUIRED`（403），改密后恢复访问。
 
 ### 记账（WP3）
 
@@ -54,13 +53,10 @@ Finance 契约要点：
     CSV 导出包含 `tripId` 列。
 - 统计与月预算按 `Asia/Shanghai` 自然月（`YYYY-MM`）计算；CSV 导出仅当前用户已确认未删除账单，UTF-8 带 BOM。
 
-### 草稿、OCR 和统一录入
+### 草稿与统一录入
 
 - `POST /drafts/parse-text`：规则解析文本，生成 `source=TEXT` 的 `PENDING` 草稿；
   无法识别金额时返回 `VALIDATION_ERROR`。
-- `POST /drafts/ocr`：对已上传且 `scanStatus=SCANNED` 的附件调用 OCR 适配器，
-  生成 `source=OCR` 的 `PENDING` 草稿；OCR 不可用时返回 `OCR_UNAVAILABLE`（503），
-  手动录入路径不受影响（QA-DRAFT-001）。
 - `GET /drafts`：当前用户草稿列表，支持 `status`/`cursor`/`limit`。
 - `GET/PATCH /drafts/:id`：查看与编辑；只有 `PENDING` 可编辑，否则返回
   `DRAFT_NOT_EDITABLE`（409）；编辑携带 `version`，过期返回 `VERSION_CONFLICT`。
@@ -72,8 +68,6 @@ Finance 契约要点：
   `confirmationToken` 与受影响草稿 ID；`ids` 省略表示清空全部待确认。
 - `POST /drafts/batch-discard/confirm`：二次确认后执行丢弃并写脱敏审计
   （action=`DRAFT_BATCH_DISCARD`）（QA-DRAFT-003）。
-
-OCR/AI 只填充草稿，不直接创建 `CONFIRMED` 业务记录。
 
 ### 快捷指令
 
@@ -182,19 +176,19 @@ WP6 契约要点：
 - 客户端离线层：IndexedDB 按用户隔离保存实体、游标与待发送队列；Service
   Worker 仅缓存应用外壳，不缓存认证响应或跨用户敏感 API 响应。
 
-上传采用“短期上传意图 + 一次性上传令牌 + 完成确认”流程；完成前扫描状态门控，
-扫描失败返回 `ATTACHMENT_SCAN_FAILED` 且附件不可用于 OCR；失败不会产生悬空正式附件。
+上传采用“短期上传意图 + 一次性上传令牌 + 完成确认”流程；内容未存储时不可完成确认；
+失败不会产生悬空正式附件。截图 OCR 已下线，附件仅用于留存，不做识别。
 
 ### 管理端
 
 - `GET /admin/dashboard`
-- `GET/POST /admin/invites`
-- `POST /admin/invites/:id/revoke`
 - `GET /admin/users`
+- `POST /admin/users`（创建账号，校验容量，首次登录强制改密）
+- `POST /admin/users/:id/reset-password`（重置密码并强制下次登录改密）
 - `POST /admin/users/:id/suspend`
 - `POST /admin/users/:id/close`
 - `POST /admin/users/:id/reopen`
-- `GET/PATCH /admin/settings/registration`
+- `GET/PATCH /admin/settings`
 - `GET /admin/audits`
 - `GET /admin/health`
 
@@ -202,13 +196,10 @@ WP6 契约要点：
 
 | 错误码 | HTTP | 含义 |
 | --- | --- | --- |
-| `REGISTRATION_DISABLED` | 403 | 注册已关闭 |
 | `CAPACITY_REACHED` | 409 | 有效用户达到上限 |
-| `INVITE_INVALID` | 400 | 邀请码不存在或格式错误 |
-| `INVITE_EXPIRED` | 410 | 邀请码过期 |
-| `INVITE_EXHAUSTED` | 409 | 邀请码次数用尽 |
 | `ACCOUNT_NOT_ACTIVE` | 403 | 账号不可登录或写入 |
-| `REOPEN_CAPACITY_REACHED` | 409 | 恢复时已满员 |
+| `PASSWORD_CHANGE_REQUIRED` | 403 | 首次登录/重置后必须先修改密码 |
+| `INVALID_CURRENT_PASSWORD` | 401 | 修改密码时当前密码错误 |
 | `IDEMPOTENCY_CONFLICT` | 409 | 同一幂等键内容不同 |
 | `VERSION_CONFLICT` | 409 | 同步版本冲突 |
 | `DUPLICATE_RESOURCE` | 409 | 分类/账户/预算唯一约束冲突 |
@@ -217,9 +208,7 @@ WP6 契约要点：
 
 ## 外部集成与降级
 
-- 邮件：注册验证、找回密码；失败时不创建无法验证的外部状态。
-- OCR：失败时保留图片和手动表单入口。
-- AI：超时或不可用时回退到规则解析或手动录入。
+- 邮件与 OCR/AI：WP9 已下线（不再收集邮箱、不提供截图识别）。
 - 对象存储：上传采用短期签名和服务端完成确认；失败不创建悬空正式附件。
 - 通知：无推送权限时保留应用内提醒并显示通知未开启。
 

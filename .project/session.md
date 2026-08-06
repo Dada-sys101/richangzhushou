@@ -2,12 +2,39 @@
 
 ## Session Status
 
-Completed
+Completed（首页界面优化已验收；WP9 与首页改动均未提交）
 
 ## Task
 
+## 最近完成：首页界面优化（2026-08-06）
+
+- 任务：将首页优化为现代个人助手首页；不改后端接口与 API 契约。
+- 结果：标题改为“今日概览”并显示日期；未登录/登录失效/请求失败三类友好状态与按钮；
+  顶部导航精简为首页/日程/待办/财务/行程/更多；移动端底部导航（首页/日程/记一笔/待办/我的）；
+  快捷操作 4 项带统一图标；新增本月财务摘要、今日安排说明与入口、空状态卡片；
+  同步状态支持已同步/同步中/同步失败并保留重试；浅灰蓝背景 + 白色卡片 + 1280px 容器。
+- 验证：`npm run quality` PASS；用户端测试 15/15；浏览器验证未登录/登录态、更多菜单、
+  底部导航、375/390/430/768/1440 无横向溢出；另修复本地缓存日程未按日期过滤的既有缺陷。
+- 未提交（待用户授权）；未推送、未部署。
+
+## 最近完成：WP9 身份与录入简化（2026-08-06）
+
+- 任务：账号密码登录（管理员创建、首登强制改密、管理员重置密码）、邮箱彻底移除、
+  邀请码下线、截图 OCR 下线，一次性完成契约/数据库/后端/前端/测试/文档与状态同步。
+- 结果：`npm run quality` 全量通过；空库 7 migrations + seed；API 测试 92/92、
+  契约 125/125；浏览器验证账号登录、强制改密、管理端建号与控制台 0 错误；
+  API 重启后数据持久化通过；本地库 `daily_assistant_wp9`。
+- 未提交（待用户授权）；未推送、未部署、未开始 OPEN-007。
+
+## 最近完成：本机启动与访问验证（2026-08-06）
+
+- 任务：本机 Windows 启动 Daily Assistant V1.0 并通过浏览器验证（不推送、不部署、不涉及 OPEN-007）。
+- 结果：API `http://127.0.0.1:3000/api/v1/health`、Web `http://localhost:5173`、Admin `http://localhost:5174` 均可访问；演示账号 `demo@example.com` 登录通过；创建并读取待办与记账记录；API 重启后数据仍存在；控制台无阻塞错误。
+- 环境：Node 24 / npm 11；本机便携 MySQL 8.4.9（127.0.0.1:3307）；本地库 `daily_assistant_local`（6 migrations + seed）；`apps/api/.env` 已备份为 `.env.bak-20260806` 并指向本地库。
+- 未提交（待用户授权）。
+
 按 `docs/25-wp8-codex-execution-plan.md` 执行 WP8：全量质量与发布准备（契约/安全/上传复查、
-可访问性与响应式矩阵、全量回归、备份恢复与账号删除演练、staging 发布清单）。
+  可访问性与响应式矩阵、全量回归、备份恢复与账号删除演练、staging 发布清单）。
 
 ## Objective
 
@@ -40,6 +67,9 @@ Completed
 
 ## Files Involved
 
+- `apps/web/src`（HomeView、App、router、api/client、stores/finance|planner|trips|sync、
+  offline/sync、SyncBadge、styles；新增 AppIcon/SiteHeader/BottomNav/EmptyState 与 4 个测试文件）
+- `docs/29-home-ui-optimization.md`、`docs/README.md`
 - `packages/api-contracts/src/enums.ts`
 - `apps/api/src/auth/auth.service.ts`、`account/account.controller.ts`、
   `common/security.service.ts`、`attachments/{attachments.service,attachments.controller}.ts`
@@ -51,12 +81,15 @@ Completed
 
 ## Changes Made
 
+- 首页界面优化（见 Task 与 `docs/29`）。
 - 契约/安全/上传修复（见 Task 与 CP1–CP3）。
 - 新增 `docs/26-wp8-acceptance-report.md`、`docs/27-wp8-staging-release-checklist.md`。
 - 浏览器 QA 产物在 `output/playwright/wp8/`（gitignored）。
 
 ## Validation Performed
 
+- 首页界面优化：`npm run quality` PASS；用户端 7 文件 15/15；浏览器 375–1440 无横向溢出，
+  未登录/登录态、更多菜单、底部导航验证通过；控制台仅预期 401。
 - `npm run quality`：PASS（格式/Lint/类型/单测/构建/Prisma/OpenAPI/migration diff/依赖审计 0 漏洞）。
 - 空库 `prisma migrate deploy`：6 migrations + seed：PASS（MySQL 8.4.9）。
 - 集成测试：PASS（63/63，真实 MySQL，`daily_assistant_wp8`）。
@@ -68,6 +101,7 @@ Completed
 
 ## Pending Validation
 
+- 同步失败/冲突徽章与空状态的浏览器端真实触发（单元测试覆盖，未人工演练）。
 - 远端 CI（未推送，待授权）。
 - 账号删除期满批量清理（未实现，OPEN-007）。
 - 真实 OCR/AI/对象存储/邮件/通知供应商效果（OPEN-003/004/005/006）。
@@ -79,10 +113,10 @@ None（本任务）；项目级阻塞见 `.project/context.md` Blockers。
 
 ## Resume Instructions
 
-1. 本任务已完成；提交哈希与分支以 `git log` 为准（分支 `codex/wp8-release-prep`，未推送）。
+1. 首页界面优化已完成；提交哈希与分支以 `git log` 为准（分支 `codex/wp8-release-prep`，未推送）。
 2. 下次任务开始前按 AGENTS.md 恢复顺序读取状态文件与 Git 历史。
 3. 若用户继续开发：首选确认 WP1–WP8 推送与远端 CI（需授权）；账号删除期满清理实现前
-   不得宣称“数据已删除”（OPEN-007）。
+   不得宣称“数据已删除”（OPEN-007）；首页改动与 WP9 改动待授权后分别提交。
 
 ## Completion Criteria
 

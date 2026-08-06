@@ -55,38 +55,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthResponse"
-  /auth/register:
-    post:
-      operationId: register
-      summary: Register with an invitation subject to global capacity
-      tags: [Authentication]
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/RegisterRequest" }
-      x-error-codes:
-        [
-          REGISTRATION_DISABLED,
-          CAPACITY_REACHED,
-          INVITE_INVALID,
-          INVITE_EXPIRED,
-          INVITE_EXHAUSTED,
-          EMAIL_ALREADY_REGISTERED,
-          RATE_LIMITED,
-        ]
-      responses:
-        "201":
-          description: Account created and session issued
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/AuthSessionResponse" }
-        "400": { $ref: "#/components/responses/ApiError" }
-        "403": { $ref: "#/components/responses/ApiError" }
-        "409": { $ref: "#/components/responses/ApiError" }
-        "410": { $ref: "#/components/responses/ApiError" }
-        "429": { $ref: "#/components/responses/ApiError" }
   /auth/login:
     post:
       operationId: login
@@ -145,42 +113,6 @@ paths:
             Set-Cookie:
               schema: { type: string }
         default: { $ref: "#/components/responses/ApiError" }
-  /auth/forgot-password:
-    post:
-      operationId: requestPasswordReset
-      summary: Request a non-enumerating password reset
-      tags: [Authentication]
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/ForgotPasswordRequest" }
-      x-error-codes: [RATE_LIMITED]
-      responses:
-        "202":
-          description: Accepted regardless of account existence to avoid enumeration
-        "429": { $ref: "#/components/responses/ApiError" }
-        default: { $ref: "#/components/responses/ApiError" }
-  /auth/reset-password:
-    post:
-      operationId: resetPassword
-      summary: Reset a password using a single-use secret
-      tags: [Authentication]
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/ResetPasswordRequest" }
-      x-error-codes:
-        [RECOVERY_TOKEN_INVALID, RECOVERY_TOKEN_EXPIRED, RECOVERY_TOKEN_USED]
-      responses:
-        "204": { description: Password reset }
-        "400": { $ref: "#/components/responses/ApiError" }
-        "409": { $ref: "#/components/responses/ApiError" }
-        "410": { $ref: "#/components/responses/ApiError" }
-        default: { $ref: "#/components/responses/ApiError" }
   /me:
     get:
       operationId: getCurrentUser
@@ -208,41 +140,6 @@ paths:
         "204": { description: Account closed }
         "400": { $ref: "#/components/responses/ApiError" }
         "401": { $ref: "#/components/responses/ApiError" }
-        default: { $ref: "#/components/responses/ApiError" }
-  /me/reopen:
-    post:
-      operationId: reopenCurrentAccount
-      summary: Reopen the current account after rechecking capacity
-      tags: [Account]
-      description: >-
-        Public, single-use recovery path for a CLOSED account. The account must
-        first obtain a short-lived recovery credential (for example via the
-        password recovery mail flow) and remains closed until capacity is
-        rechecked atomically.
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/ReopenAccountRequest" }
-      x-error-codes:
-        [
-          RECOVERY_TOKEN_INVALID,
-          RECOVERY_TOKEN_EXPIRED,
-          RECOVERY_TOKEN_USED,
-          REOPEN_CAPACITY_REACHED,
-          REOPEN_NOT_ALLOWED,
-        ]
-      responses:
-        "200":
-          description: Account reopened and a new session issued
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/AuthSessionResponse" }
-        "400": { $ref: "#/components/responses/ApiError" }
-        "401": { $ref: "#/components/responses/ApiError" }
-        "409": { $ref: "#/components/responses/ApiError" }
-        "410": { $ref: "#/components/responses/ApiError" }
         default: { $ref: "#/components/responses/ApiError" }
   /me/request-deletion:
     post:
@@ -278,6 +175,23 @@ paths:
       responses:
         "204": { description: Session revoked }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /me/change-password:
+    post:
+      operationId: changeCurrentPassword
+      summary: Change the current password and clear the forced-change flag
+      tags: [Account]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ChangePasswordRequest" }
+      x-error-codes: [INVALID_CURRENT_PASSWORD, PASSWORD_CHANGE_REQUIRED]
+      responses:
+        "204": { description: Password changed and forced-change flag cleared }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        default: { $ref: "#/components/responses/ApiError" }
   /transactions:
     get:
       operationId: listTransactions
@@ -625,31 +539,6 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/DraftCreatedResponse" }
         "400": { $ref: "#/components/responses/ApiError" }
-  /drafts/ocr:
-    post:
-      operationId: createOcrDraft
-      summary: Generate a draft suggestion from OCR without confirming it
-      tags: [Drafts]
-      description: >-
-        Recognizes text from a completed, scanned attachment and creates a
-        PENDING draft. OCR failures return OCR_UNAVAILABLE and never block the
-        manual transaction form.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/OcrDraftRequest" }
-      x-error-codes: [OCR_UNAVAILABLE, ATTACHMENT_NOT_READY, RESOURCE_NOT_FOUND]
-      responses:
-        "201":
-          description: PENDING draft created from OCR text
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/DraftCreatedResponse" }
-        "400": { $ref: "#/components/responses/ApiError" }
-        "404": { $ref: "#/components/responses/ResourceNotFound" }
-        "409": { $ref: "#/components/responses/ApiError" }
-        "503": { $ref: "#/components/responses/ApiError" }
   /drafts:
     get:
       operationId: listDrafts
@@ -1519,12 +1408,7 @@ paths:
           application/octet-stream:
             schema: { type: string, format: binary }
       x-error-codes:
-        [
-          UPLOAD_TOKEN_INVALID,
-          UPLOAD_INTENT_EXPIRED,
-          ATTACHMENT_TOO_LARGE,
-          ATTACHMENT_NOT_READY,
-        ]
+        [UPLOAD_TOKEN_INVALID, UPLOAD_INTENT_EXPIRED, ATTACHMENT_TOO_LARGE]
       responses:
         "204": { description: Attachment content stored and verified }
         "400": { $ref: "#/components/responses/ApiError" }
@@ -1538,20 +1422,17 @@ paths:
       tags: [Attachments]
       parameters: [{ $ref: "#/components/parameters/ResourceId" }]
       description: >-
-        Marks the uploaded attachment as scanned and usable. Completion is
-        required before OCR may read the attachment.
-      x-error-codes:
-        [ATTACHMENT_NOT_READY, ATTACHMENT_SCAN_FAILED, RESOURCE_NOT_FOUND]
+        Marks the uploaded attachment as stored and usable.
+      x-error-codes: [RESOURCE_NOT_FOUND]
       responses:
         "200":
-          description: Upload completed and scan status finalized
+          description: Upload completed and attachment marked usable
           content:
             application/json:
               schema:
                 { $ref: "#/components/schemas/AttachmentCompleteResponse" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
-        "409": { $ref: "#/components/responses/ApiError" }
-        "422": { $ref: "#/components/responses/ApiError" }
+        default: { $ref: "#/components/responses/ApiError" }
   /attachments/{id}:
     delete:
       operationId: deleteAttachment
@@ -1624,56 +1505,6 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/AdminDashboardResponse" }
-  /admin/invites:
-    get:
-      operationId: listAdminInvites
-      summary: List invitation metadata as an administrator
-      tags: [Admin]
-      responses:
-        "200":
-          description: Invitation metadata without plaintext codes
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: false
-                required: [items]
-                properties:
-                  items:
-                    type: array
-                    items: { $ref: "#/components/schemas/InviteSummary" }
-    post:
-      operationId: createAdminInvite
-      summary: Create an invitation as an administrator
-      tags: [Admin]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/InviteCreateRequest" }
-      x-error-codes: [ADMIN_ACTION_REQUIRES_REASON]
-      responses:
-        "201":
-          description: Invitation created; plaintext shown exactly once
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/InviteCreatedResponse" }
-        "400": { $ref: "#/components/responses/ApiError" }
-  /admin/invites/{id}/revoke:
-    post:
-      operationId: revokeAdminInvite
-      summary: Revoke an invitation as an administrator
-      tags: [Admin]
-      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/AdminReasonRequest" }
-      responses:
-        "204": { description: Invitation revoked }
-        "400": { $ref: "#/components/responses/ApiError" }
-        "404": { $ref: "#/components/responses/ResourceNotFound" }
   /admin/users:
     get:
       operationId: listAdminUsers
@@ -1681,7 +1512,7 @@ paths:
       tags: [Admin]
       responses:
         "200":
-          description: Account metadata with masked emails and no content
+          description: Account metadata without user content
           content:
             application/json:
               schema:
@@ -1692,6 +1523,41 @@ paths:
                   items:
                     type: array
                     items: { $ref: "#/components/schemas/AdminUserSummary" }
+    post:
+      operationId: createAdminUser
+      summary: Create a user account as an administrator
+      tags: [Admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminCreateUserRequest" }
+      x-error-codes:
+        [CAPACITY_REACHED, DUPLICATE_RESOURCE, ADMIN_ACTION_REQUIRES_REASON]
+      responses:
+        "201":
+          description: User created with forced password change on first login
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminUserSummary" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "409": { $ref: "#/components/responses/ApiError" }
+  /admin/users/{id}/reset-password:
+    post:
+      operationId: resetAdminUserPassword
+      summary: Reset a user password and force a change on next login
+      tags: [Admin]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminResetPasswordRequest" }
+      x-error-codes: [ADMIN_ACTION_REQUIRES_REASON]
+      responses:
+        "204": { description: Password reset and forced change enabled }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
   /admin/users/{id}/suspend:
     post:
       operationId: suspendAdminUser
@@ -1733,40 +1599,38 @@ paths:
         content:
           application/json:
             schema: { $ref: "#/components/schemas/AdminReasonRequest" }
-      x-error-codes: [REOPEN_CAPACITY_REACHED, ADMIN_ACTION_REQUIRES_REASON]
+      x-error-codes: [ADMIN_ACTION_REQUIRES_REASON]
       responses:
         "204": { description: Account reopened }
         "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
-        "409": { $ref: "#/components/responses/ApiError" }
-  /admin/settings/registration:
+  /admin/settings:
     get:
-      operationId: getAdminRegistrationSettings
-      summary: Get registration and capacity settings
+      operationId: getAdminSystemSettings
+      summary: Get capacity settings
       tags: [Admin]
       responses:
         "200":
-          description: Registration settings
+          description: System settings
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/RegistrationSettings" }
+              schema: { $ref: "#/components/schemas/SystemSettings" }
     patch:
-      operationId: updateAdminRegistrationSettings
-      summary: Update registration and capacity settings with audit
+      operationId: updateAdminSystemSettings
+      summary: Update capacity settings with audit
       tags: [Admin]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              { $ref: "#/components/schemas/UpdateRegistrationSettingsRequest" }
+            schema: { $ref: "#/components/schemas/UpdateSystemSettingsRequest" }
       x-error-codes: [SETTING_LOWER_THAN_USAGE]
       responses:
         "200":
-          description: Registration settings updated
+          description: System settings updated
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/RegistrationSettings" }
+              schema: { $ref: "#/components/schemas/SystemSettings" }
         "400": { $ref: "#/components/responses/ApiError" }
         "409": { $ref: "#/components/responses/ApiError" }
   /admin/audits:
@@ -1961,21 +1825,13 @@ components:
         - UNAUTHORIZED
         - FORBIDDEN
         - RATE_LIMITED
-        - REGISTRATION_DISABLED
         - CAPACITY_REACHED
-        - INVITE_INVALID
-        - INVITE_EXPIRED
-        - INVITE_EXHAUSTED
-        - EMAIL_ALREADY_REGISTERED
         - INVALID_CREDENTIALS
+        - INVALID_CURRENT_PASSWORD
+        - PASSWORD_CHANGE_REQUIRED
         - ACCOUNT_NOT_ACTIVE
         - REFRESH_TOKEN_REQUIRED
         - REFRESH_TOKEN_INVALID
-        - RECOVERY_TOKEN_INVALID
-        - RECOVERY_TOKEN_EXPIRED
-        - RECOVERY_TOKEN_USED
-        - REOPEN_CAPACITY_REACHED
-        - REOPEN_NOT_ALLOWED
         - INVALID_STATE
         - SETTING_LOWER_THAN_USAGE
         - ADMIN_ACTION_REQUIRES_REASON
@@ -1985,11 +1841,8 @@ components:
         - DRAFT_CONFIRMATION_REQUIRED
         - CREDENTIAL_INVALID
         - CREDENTIAL_REVOKED
-        - OCR_UNAVAILABLE
         - ATTACHMENT_TYPE_NOT_ALLOWED
         - ATTACHMENT_TOO_LARGE
-        - ATTACHMENT_SCAN_FAILED
-        - ATTACHMENT_NOT_READY
         - DRAFT_NOT_EDITABLE
         - UPLOAD_INTENT_EXPIRED
         - UPLOAD_TOKEN_INVALID
@@ -2440,11 +2293,6 @@ components:
           type: array
           items: { $ref: "#/components/schemas/BudgetProgress" }
         updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
-    Email:
-      type: string
-      format: email
-      minLength: 3
-      maxLength: 254
     Password:
       type: string
       format: password
@@ -2458,15 +2306,11 @@ components:
       type: string
       minLength: 3
       maxLength: 500
-    RecoveryToken:
+    Username:
       type: string
-      minLength: 32
-      maxLength: 160
-    InviteCode:
-      type: string
-      minLength: 12
-      maxLength: 64
-      pattern: "^[A-Z0-9]+$"
+      minLength: 3
+      maxLength: 32
+      pattern: "^[a-z0-9_]{3,32}$"
     UserSummary:
       type: object
       additionalProperties: false
@@ -2474,7 +2318,7 @@ components:
         [
           id,
           displayName,
-          email,
+          username,
           role,
           status,
           createdAt,
@@ -2485,7 +2329,7 @@ components:
       properties:
         id: { $ref: "#/components/schemas/Identifier" }
         displayName: { $ref: "#/components/schemas/DisplayName" }
-        email: { $ref: "#/components/schemas/Email" }
+        username: { $ref: "#/components/schemas/Username" }
         role: { $ref: "#/components/schemas/UserRole" }
         status: { $ref: "#/components/schemas/UserStatus" }
         createdAt: { $ref: "#/components/schemas/IsoDateTime" }
@@ -2517,49 +2361,25 @@ components:
     AuthSessionResponse:
       type: object
       additionalProperties: false
-      required: [accessToken, expiresIn, user]
+      required: [accessToken, expiresIn, mustChangePassword, user]
       properties:
         accessToken: { type: string, minLength: 1 }
         expiresIn: { type: integer, minimum: 1 }
+        mustChangePassword: { type: boolean }
         user: { $ref: "#/components/schemas/UserSummary" }
-    RegisterRequest:
-      type: object
-      additionalProperties: false
-      required: [displayName, email, password]
-      properties:
-        displayName: { $ref: "#/components/schemas/DisplayName" }
-        email: { $ref: "#/components/schemas/Email" }
-        password: { $ref: "#/components/schemas/Password" }
-        inviteCode:
-          anyOf:
-            - { $ref: "#/components/schemas/InviteCode" }
-            - { type: "null" }
     LoginRequest:
       type: object
       additionalProperties: false
-      required: [email, password]
+      required: [username, password]
       properties:
-        email: { $ref: "#/components/schemas/Email" }
+        username: { $ref: "#/components/schemas/Username" }
         password: { $ref: "#/components/schemas/Password" }
-    ForgotPasswordRequest:
+    ChangePasswordRequest:
       type: object
       additionalProperties: false
-      required: [email]
+      required: [currentPassword, newPassword]
       properties:
-        email: { $ref: "#/components/schemas/Email" }
-    ResetPasswordRequest:
-      type: object
-      additionalProperties: false
-      required: [recoveryToken, newPassword]
-      properties:
-        recoveryToken: { $ref: "#/components/schemas/RecoveryToken" }
-        newPassword: { $ref: "#/components/schemas/Password" }
-    ReopenAccountRequest:
-      type: object
-      additionalProperties: false
-      required: [recoveryToken, newPassword]
-      properties:
-        recoveryToken: { $ref: "#/components/schemas/RecoveryToken" }
+        currentPassword: { $ref: "#/components/schemas/Password" }
         newPassword: { $ref: "#/components/schemas/Password" }
     CloseAccountRequest:
       type: object
@@ -2581,68 +2401,36 @@ components:
       required: [reason]
       properties:
         reason: { $ref: "#/components/schemas/Reason" }
-    InviteSummary:
+    AdminCreateUserRequest:
       type: object
       additionalProperties: false
-      required:
-        [
-          id,
-          codePrefix,
-          status,
-          expiresAt,
-          maxUses,
-          usedCount,
-          createdAt,
-          revokedAt,
-        ]
+      required: [displayName, username, reason]
       properties:
-        id: { $ref: "#/components/schemas/Identifier" }
-        codePrefix: { type: string, minLength: 4, maxLength: 8 }
-        status: { $ref: "#/components/schemas/InviteStatus" }
-        expiresAt:
+        displayName: { $ref: "#/components/schemas/DisplayName" }
+        username: { $ref: "#/components/schemas/Username" }
+        initialPassword:
           anyOf:
-            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { $ref: "#/components/schemas/Password" }
             - { type: "null" }
-        maxUses: { type: integer, minimum: 1, maximum: 100 }
-        usedCount: { type: integer, minimum: 0 }
-        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
-        revokedAt:
-          anyOf:
-            - { $ref: "#/components/schemas/IsoDateTime" }
-            - { type: "null" }
-    InviteCreateRequest:
-      type: object
-      additionalProperties: false
-      required: [maxUses, reason]
-      properties:
-        maxUses: { type: integer, minimum: 1, maximum: 100 }
         reason: { $ref: "#/components/schemas/Reason" }
-        expiresAt:
-          anyOf:
-            - { $ref: "#/components/schemas/IsoDateTime" }
-            - { type: "null" }
-    InviteCreatedResponse:
+    AdminResetPasswordRequest:
       type: object
       additionalProperties: false
-      required: [invite, plaintextCode]
+      required: [newPassword, reason]
       properties:
-        invite: { $ref: "#/components/schemas/InviteSummary" }
-        plaintextCode: { $ref: "#/components/schemas/InviteCode" }
-    RegistrationSettings:
+        newPassword: { $ref: "#/components/schemas/Password" }
+        reason: { $ref: "#/components/schemas/Reason" }
+    SystemSettings:
       type: object
       additionalProperties: false
-      required: [registrationEnabled, inviteRequired, maxActiveUsers]
+      required: [maxActiveUsers]
       properties:
-        registrationEnabled: { type: boolean }
-        inviteRequired: { type: boolean }
         maxActiveUsers: { type: integer, minimum: 1, maximum: 1000 }
-    UpdateRegistrationSettingsRequest:
+    UpdateSystemSettingsRequest:
       type: object
       additionalProperties: false
       required: [reason]
       properties:
-        registrationEnabled: { type: boolean }
-        inviteRequired: { type: boolean }
         maxActiveUsers: { type: integer, minimum: 1, maximum: 1000 }
         reason: { $ref: "#/components/schemas/Reason" }
     AdminDashboardResponse:
@@ -2650,8 +2438,6 @@ components:
       additionalProperties: false
       required:
         [
-          registrationEnabled,
-          inviteRequired,
           maxActiveUsers,
           activeUsers,
           suspendedUsers,
@@ -2659,8 +2445,6 @@ components:
           remainingSlots,
         ]
       properties:
-        registrationEnabled: { type: boolean }
-        inviteRequired: { type: boolean }
         maxActiveUsers: { type: integer, minimum: 1, maximum: 1000 }
         activeUsers: { type: integer, minimum: 0 }
         suspendedUsers: { type: integer, minimum: 0 }
@@ -2679,7 +2463,9 @@ components:
       required:
         [
           id,
-          maskedEmail,
+          username,
+          displayName,
+          mustChangePassword,
           role,
           status,
           createdAt,
@@ -2688,7 +2474,9 @@ components:
         ]
       properties:
         id: { $ref: "#/components/schemas/Identifier" }
-        maskedEmail: { type: string }
+        username: { $ref: "#/components/schemas/Username" }
+        displayName: { $ref: "#/components/schemas/DisplayName" }
+        mustChangePassword: { type: boolean }
         role: { $ref: "#/components/schemas/UserRole" }
         status: { $ref: "#/components/schemas/UserStatus" }
         createdAt: { $ref: "#/components/schemas/IsoDateTime" }
@@ -2710,7 +2498,7 @@ components:
           targetType,
           targetId,
           reason,
-          actorEmail,
+          actorUsername,
           requestId,
           createdAt,
           changes,
@@ -2724,9 +2512,9 @@ components:
             - { $ref: "#/components/schemas/Identifier" }
             - { type: "null" }
         reason: { $ref: "#/components/schemas/Reason" }
-        actorEmail:
+        actorUsername:
           anyOf:
-            - { $ref: "#/components/schemas/Email" }
+            - { $ref: "#/components/schemas/Username" }
             - { type: "null" }
         requestId: { type: string, minLength: 1 }
         createdAt: { $ref: "#/components/schemas/IsoDateTime" }
@@ -2739,9 +2527,6 @@ components:
     UserStatus:
       type: string
       enum: [ACTIVE, SUSPENDED, CLOSED, DELETION_PENDING, DELETED]
-    InviteStatus:
-      type: string
-      enum: [ACTIVE, EXHAUSTED, EXPIRED, REVOKED]
     TransactionType:
       type: string
       enum: [EXPENSE, INCOME, REFUND]
@@ -2750,7 +2535,7 @@ components:
       enum: [DRAFT, CONFIRMED, DELETED]
     RecordSource:
       type: string
-      enum: [MANUAL, SHORTCUT, OCR, TEXT, VOICE, IMPORT]
+      enum: [MANUAL, SHORTCUT, TEXT, VOICE, IMPORT]
     TaskStatus:
       type: string
       enum: [OPEN, COMPLETED, CANCELLED]
@@ -2778,9 +2563,6 @@ components:
     ShortcutScope:
       type: string
       enum: [transaction:draft:create, finance:summary:read]
-    AttachmentScanStatus:
-      type: string
-      enum: [PENDING, SCANNED, FAILED]
     AttachmentOwnerType:
       type: string
       enum: [TRANSACTION_DRAFT]
@@ -2910,16 +2692,6 @@ components:
       required: [draft]
       properties:
         draft: { $ref: "#/components/schemas/DraftSummary" }
-    OcrDraftRequest:
-      type: object
-      additionalProperties: false
-      required: [attachmentId]
-      properties:
-        attachmentId: { $ref: "#/components/schemas/Identifier" }
-        clientMutationId:
-          anyOf:
-            - { type: string, minLength: 16, maxLength: 128 }
-            - { type: "null" }
     DraftUpdateRequest:
       type: object
       additionalProperties: false
@@ -3539,7 +3311,6 @@ components:
           ownerId,
           mimeType,
           size,
-          scanStatus,
           createdAt,
           updatedAt,
           deletedAt,
@@ -3553,7 +3324,6 @@ components:
             - { type: "null" }
         mimeType: { type: string, maxLength: 100 }
         size: { type: integer, minimum: 0 }
-        scanStatus: { $ref: "#/components/schemas/AttachmentScanStatus" }
         createdAt: { $ref: "#/components/schemas/IsoDateTime" }
         updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
         deletedAt:

@@ -18,15 +18,11 @@ async function main(): Promise<void> {
     where: { id: "singleton" },
     create: {
       id: "singleton",
-      inviteRequired: true,
       maxActiveUsers: 20,
-      registrationEnabled: false,
     },
     update: {},
   });
-  console.log(
-    `SystemSetting ready: registration=${settings.registrationEnabled}, inviteRequired=${settings.inviteRequired}, maxActiveUsers=${settings.maxActiveUsers}`,
-  );
+  console.log(`SystemSetting ready: maxActiveUsers=${settings.maxActiveUsers}`);
 
   if (process.env.SEED_DEMO_USER === "true") {
     await seedDemoUser(prisma);
@@ -35,17 +31,17 @@ async function main(): Promise<void> {
 }
 
 async function seedDemoUser(prisma: PrismaClient): Promise<void> {
-  const demoEmail = process.env.DEMO_USER_EMAIL ?? "demo@example.com";
+  const demoUsername = process.env.DEMO_USER_USERNAME ?? "demo";
   const demoPassword = process.env.DEMO_USER_PASSWORD ?? "DemoUser123!";
   const passwordHash = await hash(demoPassword, { type: 2 });
-  const normalizedEmail = demoEmail.trim().toLowerCase();
+  const normalizedUsername = demoUsername.trim().toLowerCase();
 
   const user = await prisma.user.upsert({
-    where: { normalizedEmail },
+    where: { normalizedUsername },
     create: {
       displayName: "演示用户",
-      email: demoEmail.trim(),
-      normalizedEmail,
+      username: normalizedUsername,
+      normalizedUsername,
       passwordHash,
       role: "USER",
       status: "ACTIVE",
@@ -226,7 +222,7 @@ async function seedDemoUser(prisma: PrismaClient): Promise<void> {
   });
 
   console.log(
-    `Demo user ready: ${demoEmail} (password only in local development; set SEED_DEMO_USER=false to skip)`,
+    `Demo user ready: ${normalizedUsername} (password only in local development; set SEED_DEMO_USER=false to skip)`,
   );
 }
 

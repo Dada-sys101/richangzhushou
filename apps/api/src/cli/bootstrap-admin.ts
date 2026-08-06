@@ -23,7 +23,7 @@ function parseArgs(): Map<string, string | boolean> {
 
 async function main(): Promise<void> {
   const args = parseArgs();
-  const email = String(args.get("--email") ?? "")
+  const username = String(args.get("--username") ?? "")
     .trim()
     .toLowerCase();
   const displayName = String(args.get("--display-name") ?? "Administrator")
@@ -35,9 +35,9 @@ async function main(): Promise<void> {
     password = readFileSync(0, "utf8").trim();
   }
 
-  if (!email || !password) {
+  if (!username || !password) {
     console.error(
-      "Usage: npm run bootstrap:admin -- --email=<email> [--display-name=<name>] [--password-stdin]\n" +
+      "Usage: npm run bootstrap:admin -- --username=<username> [--display-name=<name>] [--password-stdin]\n" +
         "Set ADMIN_BOOTSTRAP_PASSWORD (or use --password-stdin) with at least 12 characters.",
     );
     process.exitCode = 2;
@@ -58,16 +58,13 @@ async function main(): Promise<void> {
     where: { id: "singleton" },
     create: {
       id: "singleton",
-      inviteRequired: true,
       maxActiveUsers: 20,
-      registrationEnabled: false,
     },
     update: {},
   });
 
-  const normalizedEmail = email.toLowerCase();
   const existing = await prisma.user.findUnique({
-    where: { normalizedEmail },
+    where: { normalizedUsername: username },
   });
   if (existing) {
     if (existing.role === "ADMIN") {
@@ -76,7 +73,7 @@ async function main(): Promise<void> {
       return;
     }
     console.error(
-      "A non-admin account with this email exists; refusing to escalate it.",
+      "A non-admin account with this username exists; refusing to escalate it.",
     );
     process.exitCode = 3;
     await prisma.$disconnect();
@@ -87,11 +84,11 @@ async function main(): Promise<void> {
   await prisma.user.create({
     data: {
       displayName,
-      email,
-      normalizedEmail,
+      normalizedUsername: username,
       passwordHash,
       role: "ADMIN",
       status: "ACTIVE",
+      username,
     },
   });
   console.log("Admin bootstrap account created.");

@@ -59,7 +59,7 @@ export class CreateTransactionDto {
 
   @IsOptional()
   @IsIn(RECORD_SOURCES)
-  source?: "MANUAL" | "SHORTCUT" | "OCR" | "TEXT" | "VOICE" | "IMPORT";
+  source?: "MANUAL" | "SHORTCUT" | "TEXT" | "VOICE" | "IMPORT";
 
   @IsOptional()
   @IsString()
@@ -121,7 +121,7 @@ export class UpdateTransactionDto {
 
   @IsOptional()
   @IsIn(RECORD_SOURCES)
-  source?: "MANUAL" | "SHORTCUT" | "OCR" | "TEXT" | "VOICE" | "IMPORT";
+  source?: "MANUAL" | "SHORTCUT" | "TEXT" | "VOICE" | "IMPORT";
 
   @IsOptional()
   @IsString()

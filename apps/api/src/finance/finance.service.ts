@@ -57,8 +57,7 @@ const DUPLICATE_WINDOW_MS = 10 * 60 * 1000;
 const CSV_MAX_ROWS = 10_000;
 
 type TransactionTypeValue = "EXPENSE" | "INCOME" | "REFUND";
-type RecordSourceValue =
-  "MANUAL" | "SHORTCUT" | "OCR" | "TEXT" | "VOICE" | "IMPORT";
+type RecordSourceValue = "MANUAL" | "SHORTCUT" | "TEXT" | "VOICE" | "IMPORT";
 
 @Injectable()
 export class FinanceService {

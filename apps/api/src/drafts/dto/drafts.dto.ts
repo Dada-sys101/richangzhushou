@@ -29,16 +29,6 @@ export class ParseTextDto {
   text!: string;
 }
 
-export class OcrDraftDto {
-  @IsString()
-  attachmentId!: string;
-
-  @IsOptional()
-  @IsString()
-  @Length(16, 128)
-  clientMutationId?: string | null;
-}
-
 export class DraftPayloadDto {
   @IsIn(TRANSACTION_TYPES)
   type!: "EXPENSE" | "INCOME" | "REFUND";

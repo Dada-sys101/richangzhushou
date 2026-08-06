@@ -26,35 +26,19 @@ export interface AdminUserSummary {
   closedAt: string | null;
   createdAt: string;
   deletionRequestedAt: string | null;
+  displayName: string;
   id: string;
-  maskedEmail: string;
+  mustChangePassword: boolean;
   role: "ADMIN" | "USER";
   status: string;
+  username: string;
 }
 
-export interface InviteSummary {
-  codePrefix: string;
-  createdAt: string;
-  expiresAt: string | null;
-  id: string;
-  maxUses: number;
-  revokedAt: string | null;
-  status: string;
-  usedCount: number;
-}
-
-export interface InviteCreatedResponse {
-  invite: InviteSummary;
-  plaintextCode: string;
-}
-
-export interface RegistrationSettings {
-  inviteRequired: boolean;
+export interface SystemSettings {
   maxActiveUsers: number;
-  registrationEnabled: boolean;
 }
 
-export interface AdminDashboardResponse extends RegistrationSettings {
+export interface AdminDashboardResponse extends SystemSettings {
   activeUsers: number;
   occupiedSlots: number;
   remainingSlots: number;
@@ -63,7 +47,7 @@ export interface AdminDashboardResponse extends RegistrationSettings {
 
 export interface AdminAuditEntry {
   action: string;
-  actorEmail: string | null;
+  actorUsername: string | null;
   changes: Record<string, unknown>;
   createdAt: string;
   id: string;
@@ -111,12 +95,13 @@ async function http<T>(
 }
 
 export const adminApi = {
-  createInvite(body: {
-    expiresAt?: string | null;
-    maxUses: number;
+  createUser(body: {
+    displayName: string;
+    initialPassword: string;
     reason: string;
+    username: string;
   }) {
-    return http<InviteCreatedResponse>("/admin/invites", {
+    return http<AdminUserSummary>("/admin/users", {
       body,
       method: "POST",
     });
@@ -131,17 +116,14 @@ export const adminApi = {
     return http<{ database: string; status: string }>("/admin/health");
   },
   getSettings() {
-    return http<RegistrationSettings>("/admin/settings/registration");
-  },
-  listInvites() {
-    return http<{ items: InviteSummary[] }>("/admin/invites");
+    return http<SystemSettings>("/admin/settings");
   },
   listUsers() {
     return http<{ items: AdminUserSummary[] }>("/admin/users");
   },
-  login(email: string, password: string) {
+  login(username: string, password: string) {
     return http<AuthSessionResponse>("/auth/login", {
-      body: { email, password },
+      body: { password, username },
       method: "POST",
     });
   },
@@ -151,19 +133,14 @@ export const adminApi = {
   refresh() {
     return http<AuthSessionResponse>("/auth/refresh", { method: "POST" });
   },
-  revokeInvite(id: string, reason: string) {
-    return http<void>(`/admin/invites/${id}/revoke`, {
-      body: { reason },
+  resetUserPassword(id: string, body: { newPassword: string; reason: string }) {
+    return http<void>(`/admin/users/${id}/reset-password`, {
+      body,
       method: "POST",
     });
   },
-  updateSettings(body: {
-    inviteRequired?: boolean;
-    maxActiveUsers?: number;
-    reason: string;
-    registrationEnabled?: boolean;
-  }) {
-    return http<RegistrationSettings>("/admin/settings/registration", {
+  updateSettings(body: { maxActiveUsers?: number; reason: string }) {
+    return http<SystemSettings>("/admin/settings", {
       body,
       method: "PATCH",
     });

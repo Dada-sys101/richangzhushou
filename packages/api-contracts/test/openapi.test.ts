@@ -5,12 +5,10 @@ import { parse } from "yaml";
 
 import {
   API_ERROR_CODES,
-  ATTACHMENT_SCAN_STATUSES,
   CALENDAR_EVENT_STATUSES,
   CATEGORY_KINDS,
   DRAFT_STATUSES,
   FINANCIAL_ACCOUNT_KINDS,
-  INVITE_STATUSES,
   PRIORITIES,
   RECORD_SOURCES,
   RECORD_STATUSES,
@@ -44,15 +42,12 @@ const openApiPath = new URL("../openapi/openapi.yaml", import.meta.url);
 const document = parse(await readFile(openApiPath, "utf8")) as OpenApiDocument;
 
 const requiredOperations = [
-  "POST /auth/register",
   "POST /auth/login",
   "POST /auth/refresh",
   "POST /auth/logout",
-  "POST /auth/forgot-password",
-  "POST /auth/reset-password",
   "GET /me",
   "POST /me/close",
-  "POST /me/reopen",
+  "POST /me/change-password",
   "POST /me/request-deletion",
   "DELETE /me/sessions",
   "DELETE /me/sessions/{sessionId}",
@@ -75,7 +70,6 @@ const requiredOperations = [
   "GET /finance/summary",
   "GET /finance/export.csv",
   "POST /drafts/parse-text",
-  "POST /drafts/ocr",
   "GET /drafts",
   "GET /drafts/{id}",
   "PATCH /drafts/{id}",
@@ -125,15 +119,14 @@ const requiredOperations = [
   "POST /sync/mutations",
   "GET /sync/status",
   "GET /admin/dashboard",
-  "GET /admin/invites",
-  "POST /admin/invites",
-  "POST /admin/invites/{id}/revoke",
   "GET /admin/users",
+  "POST /admin/users",
+  "POST /admin/users/{id}/reset-password",
   "POST /admin/users/{id}/suspend",
   "POST /admin/users/{id}/close",
   "POST /admin/users/{id}/reopen",
-  "GET /admin/settings/registration",
-  "PATCH /admin/settings/registration",
+  "GET /admin/settings",
+  "PATCH /admin/settings",
   "GET /admin/audits",
   "GET /admin/health",
 ] as const;
@@ -160,7 +153,6 @@ describe("OpenAPI baseline", () => {
     ["ApiErrorCode", API_ERROR_CODES],
     ["UserRole", USER_ROLES],
     ["UserStatus", USER_STATUSES],
-    ["InviteStatus", INVITE_STATUSES],
     ["TransactionType", TRANSACTION_TYPES],
     ["RecordStatus", RECORD_STATUSES],
     ["RecordSource", RECORD_SOURCES],
@@ -178,7 +170,6 @@ describe("OpenAPI baseline", () => {
     ["SyncAction", SYNC_ACTIONS],
     ["DraftStatus", DRAFT_STATUSES],
     ["ShortcutScope", SHORTCUT_SCOPES],
-    ["AttachmentScanStatus", ATTACHMENT_SCAN_STATUSES],
     ["TripItemType", TRIP_ITEM_TYPES],
   ] as const)(
     "keeps %s aligned with shared TypeScript",
@@ -240,7 +231,6 @@ describe("OpenAPI baseline", () => {
       "DraftListResponse",
       "ParseTextRequest",
       "DraftCreatedResponse",
-      "OcrDraftRequest",
       "DraftUpdateRequest",
       "DraftConfirmResponse",
       "DraftBatchDiscardRequest",
@@ -261,9 +251,6 @@ describe("OpenAPI baseline", () => {
       expect(schemas[name]).toBeDefined();
     }
     expect(schemas.ShortcutScope?.enum).toEqual([...SHORTCUT_SCOPES]);
-    expect(schemas.AttachmentScanStatus?.enum).toEqual([
-      ...ATTACHMENT_SCAN_STATUSES,
-    ]);
     expect(schemas.ShortcutTransactionDraftRequest?.required).toEqual([
       "type",
       "amount",
@@ -272,10 +259,8 @@ describe("OpenAPI baseline", () => {
     for (const code of [
       "CREDENTIAL_INVALID",
       "CREDENTIAL_REVOKED",
-      "OCR_UNAVAILABLE",
       "ATTACHMENT_TYPE_NOT_ALLOWED",
       "ATTACHMENT_TOO_LARGE",
-      "ATTACHMENT_SCAN_FAILED",
       "DRAFT_NOT_EDITABLE",
       "UPLOAD_INTENT_EXPIRED",
       "UPLOAD_TOKEN_INVALID",
@@ -374,7 +359,6 @@ describe("OpenAPI baseline", () => {
     }
     const userContentPaths = [
       "/drafts/parse-text",
-      "/drafts/ocr",
       "/drafts",
       "/drafts/{id}",
       "/drafts/{id}/confirm",

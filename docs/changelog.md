@@ -4,6 +4,35 @@
 更新：2026-08-06
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-06 — 首页界面优化完成（docs/29）
+- 首页改为“今日概览”（日期副标题）；未登录/登录失效/请求失败友好状态与按钮，
+  不再展示后端技术错误文本。
+- 顶部导航精简为首页/日程/待办/财务/行程/更多；移动端底部导航 5 项；
+  快捷操作保留 4 项并统一图标；新增本月财务摘要、今日安排说明、空状态卡片。
+- 同步状态支持已同步/同步中/同步失败并可重试；浅灰蓝背景 + 白色卡片 + 1280px 容器。
+- 修复本地缓存日程未按日期过滤的既有缺陷（planner store 前端过滤）。
+- 仅改前端；`npm run quality` PASS；用户端测试 15/15；浏览器 375–1440 无横向溢出；
+  未提交、未推送、未部署。
+
+## 2026-08-06 — WP9 身份与录入简化本地验收通过（docs/28）
+- 账号模型：`username`/`normalized_username`/`must_change_password`，邮箱列删除；
+  删除 `recovery_codes`/`invite_codes`/`invite_redemptions` 表与邮件适配器；
+  `system_settings` 仅保留 `max_active_users`；WP9 migration 含存量回填与回滚说明。
+- 认证：登录改账号密码；新增 `POST /me/change-password`；删除注册/忘记密码/重置/自助重开；
+  登录响应携带 `mustChangePassword`，未改密数据端点 403 `PASSWORD_CHANGE_REQUIRED`。
+- 管理端：新增创建账号与重置密码（容量校验、强制改密、脱敏审计），
+  `/admin/settings` 仅管理容量；邀请码与注册设置端点删除。
+- 录入：删除 `/drafts/ocr`、OCR/Scan 适配器与 `AttachmentScanStatus`；
+  附件保留上传/完成/删除与本地存储。
+- 前端：用户端登录改“账号”、新增修改密码页、删除注册/找回/重置页与截图入口；
+  管理端新增创建账号/重置密码，删除邀请码页。
+- 验证：`npm run quality`、空库 7 migrations+seed、API 92/92、契约 125/125、
+  浏览器登录/强制改密/管理端建号与控制台 0 错误、重启持久化全部通过。
+- 未提交、未推送、未部署、未开始 OPEN-007。
+
+## 2026-08-06 — 本机启动与访问验证完成（本地运行）
+- API/Web/Admin 在本机运行（3000/5173/5174），本地 MySQL 8.4.9（3307）新建本地库 `daily_assistant_local`（6 migrations + seed）；演示账号 `demo@example.com` 登录、待办/记账读写与 API 重启持久化验证通过；`.env` 已备份，状态文档已更新，未提交、未推送、未部署。
+
 ## 2026-08-06 — 输出 WP8 可执行规划（docs/25）
 
 - 新增 `docs/26-wp8-acceptance-report.md` 与 `docs/27-wp8-staging-release-checklist.md`：WP8 本地验收与发布清单。

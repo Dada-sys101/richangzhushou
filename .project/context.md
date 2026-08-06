@@ -2,14 +2,14 @@
 
 ## Last Updated
 
-2026-08-06 +08:00（WP8 本地验收完成；提交哈希以 `git log -1` 为准，不虚构）
+2026-08-06 +08:00（首页界面优化本地验收完成；提交哈希以 `git log -1` 为准，不虚构）
 
 ## Repository State
 
 - Repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
 - Current Branch: `codex/wp8-release-prep`
 - HEAD Commit: 以 `git log -1 --oneline` 为准（WP8 本地验收提交）
-- Working Tree Status: WP8 提交完成后工作树仅剩本地未跟踪/忽略文件（如 `apps/api/.env`、`output/playwright/`，gitignored）
+- Working Tree Status: WP9 与首页界面优化改动均未提交（含 `apps/web/src`、状态文档等）；另有本地未跟踪/忽略文件（如 `apps/api/.env`、`output/playwright/`，gitignored）
 - Last Verified Commit: 以 `git log -1 --oneline` 为准；`npm run quality`、空库 6 migrations+seed、
   集成 63/63、浏览器矩阵 174/174 通过，记录于 `docs/26-wp8-acceptance-report.md`
 
@@ -30,9 +30,29 @@
 
 - WP0（规划）至 WP8（全量质量与发布准备）均已完成本地验收（`docs/13`、`docs/14`、
   `docs/16`、`docs/18`、`docs/20`、`docs/22`、`docs/24`、`docs/26`）。
+- WP9 身份与录入简化、首页界面优化（docs/29）已完成后端/前端本地验收。
 - 无生产部署；未推送。
 
 ## Last Completed Task
+
+- Task: 首页界面优化（今日概览、友好认证状态、精简导航、移动端底部导航、本月财务摘要、
+  今日安排说明、空状态、同步状态文案；仅前端，不改 API 契约）。
+- Completion Date: 2026-08-06
+- Related Files: `apps/web/src`（HomeView、App、router、stores、offline/sync、SyncBadge、styles、
+  新增 AppIcon/SiteHeader/BottomNav/EmptyState 与 4 个测试文件）、`docs/29`
+- Verification: `npm run quality` PASS；用户端测试 15/15；浏览器验证未登录/登录态、
+  “更多”菜单、底部导航、375–1440 无横向溢出；控制台仅预期 401
+- Related Commit: 未提交（待用户授权后提交）
+- Task: WP9 身份与录入简化（账号密码登录、管理员建号、首登强制改密、管理员重置密码、邮箱/邀请码/截图 OCR 下线，一次性改完）。
+- Completion Date: 2026-08-06
+- Related Files: `packages/api-contracts`、`apps/api/prisma`、`apps/api/src/{auth,admin,account,capacity,attachments,drafts,integrations}`、`apps/web/src`、`apps/admin/src`、`docs/05/06/07/09/10/11/12/26/27/28`
+- Verification: `npm run quality` PASS；空库 7 migrations+seed；API 测试 92/92；契约 125/125；浏览器验证登录/强制改密/管理端建号与控制台 0 错误；重启持久化 PASS
+- Related Commit: 未提交（状态文档与代码待用户授权后提交）
+- Task: 本机启动 Daily Assistant V1.0 并访问验证（API/Web/Admin + 本地 MySQL + 演示账号登录 + 待办/记账读写 + API 重启持久化）。
+- Completion Date: 2026-08-06
+- Related Files: `apps/api/.env`（本地修改，已备份为 `apps/api/.env.bak-20260806`）；本地库 `daily_assistant_local`；`docs/26`、`docs/27` 已核对
+- Verification: 健康检查 200；Web 5173 / Admin 5174 可访问；浏览器登录演示账号进入首页；控制台无阻塞错误（登录前 refresh 401 为预期）；创建并读取待办与记账记录；API 重启后数据仍存在
+- Related Commit: 未提交（本地运行验证，状态文档更新待用户授权提交）
 
 - Task: 执行 WP8 全量质量与发布准备（契约/安全/上传复查、可访问性与响应式、全量回归、
   备份恢复与账号删除演练、staging 发布清单）。
@@ -45,7 +65,7 @@
 
 ## Current Task
 
-None（WP8 已完成本地验收；未推送、未部署）。
+None（首页界面优化已完成本地验收；未提交、未推送、未部署）。
 
 ## Next Recommended Task
 
@@ -60,6 +80,10 @@ None（WP8 已完成本地验收；未推送、未部署）。
 
 ## Completed Work
 
+- 首页界面优化：今日概览标题与日期副标题、未登录/登录失效/请求失败友好状态、
+  顶部导航精简为首页/日程/待办/财务/行程/更多、移动端底部导航、快捷操作 4 项带图标、
+  本月财务摘要、今日安排说明与入口、空状态、同步状态文案与重试、1280px 浅灰蓝设计体系
+  （`docs/29`；未提交）。
 - WP0：规划文档体系（提交 `5d52395`）。
 - WP1：Monorepo 骨架、OpenAPI 3.1、Prisma/MySQL 枚举基线、CI、本地质量门
   （提交 `6169ac0`；`docs/13`）。
@@ -88,6 +112,7 @@ None（WP8 已完成本地验收；未推送、未部署）。
 ## Remaining Work
 
 - In Progress: None。
+- 待用户授权提交：WP9 身份与录入简化、首页界面优化（均未提交）。
 - Partially Completed: 账号删除期满批量清理（未实现，缺口见 `docs/26` CP7/`docs/27`）；
   远端 CI 验证（未推送）；浏览器 QA 一键脚本化（OPEN-009）。
 - Not Started: 远端 CI；staging 创建/部署（需授权）。
@@ -116,6 +141,10 @@ None（WP8 已完成本地验收；未推送、未部署）。
 
 ## Verification Status
 
+- 首页界面优化: PASS（`npm run quality` 全绿；用户端 15/15；浏览器 375/390/430/768/1440
+  无横向溢出，未登录/登录态、更多菜单、底部导航验证通过；记录于 `docs/29`）
+- WP9（身份与录入简化）: PASS（quality、迁移、92/92 集成/单元、浏览器与重启持久化）
+- Runtime Verification（本机运行）: PASS（3000/5173/5174 服务运行中；登录、核心数据读写、重启持久化均通过）
 - Lint: PASS（WP8 验收时 `npm run quality`）
 - Type Check: PASS
 - Unit Tests: PASS（API 29/29 + 契约 132/132 + 前端 3/3，见 `docs/26`）
@@ -127,6 +156,10 @@ None（WP8 已完成本地验收；未推送、未部署）。
 
 ## Recent Changes
 
+- 本次：首页界面优化（今日概览/友好认证状态/精简导航/移动端底部导航/本月财务/空状态/
+  同步状态；`npm run quality` 通过；未提交）
+- 本次：WP9 身份与录入简化（账号密码登录、管理员建号/重置、首登强制改密、邮箱/邀请码/截图 OCR 下线；`npm run quality` 通过；未提交）
+- 本次：本机启动与访问验证（API dev + Web + Admin；本地库 daily_assistant_local；`.env` 已备份；状态文档已更新未提交）
 - `7cb7656` feat(contracts): WP4 shortcuts, drafts and attachments OpenAPI contracts
 - `4be9524` feat(db): WP4 device credentials, drafts and attachments schema and migration
 - `4cd75e9` feat(api): WP4 device credentials, shortcut drafts, draft center, and attachment OCR

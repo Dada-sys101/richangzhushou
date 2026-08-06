@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import type {
   DraftBatchDiscardIntentResponse,
   DraftBatchDiscardResult,
@@ -17,20 +17,12 @@ import { ApiException } from "../common/api-error.js";
 import { SecurityService } from "../common/security.service.js";
 import { FinanceService } from "../finance/finance.service.js";
 import { toDecimal } from "../finance/money.util.js";
-import {
-  OCR_ADAPTER,
-  OcrUnavailableError,
-  STORAGE_ADAPTER,
-  type OcrAdapter,
-  type StorageAdapter,
-} from "../integrations/integrations.types.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import type { CreateTransactionDto } from "../finance/dto/finance.dto.js";
 import {
   type BatchDiscardConfirmDto,
   type BatchDiscardDto,
   type ListDraftsQueryDto,
-  type OcrDraftDto,
   type ParseTextDto,
   type UpdateDraftDto,
 } from "./dto/drafts.dto.js";
@@ -54,8 +46,6 @@ export class DraftsService {
     private readonly financeService: FinanceService,
     private readonly securityService: SecurityService,
     private readonly auditService: AuditService,
-    @Inject(OCR_ADAPTER) private readonly ocrAdapter: OcrAdapter,
-    @Inject(STORAGE_ADAPTER) private readonly storageAdapter: StorageAdapter,
   ) {}
 
   async createTextDraft(
@@ -68,54 +58,6 @@ export class DraftsService {
       confidence: parsed.confidence,
       payload: payloadFromParsed(parsed),
       source: "TEXT",
-    });
-  }
-
-  async createOcrDraft(
-    userId: string,
-    dto: OcrDraftDto,
-  ): Promise<DraftCreatedResponse> {
-    const attachment = await this.prisma.attachment.findFirst({
-      where: { deletedAt: null, id: dto.attachmentId, userId },
-    });
-    if (!attachment) {
-      throw new ApiException("RESOURCE_NOT_FOUND", 404, "Attachment not found");
-    }
-    if (
-      attachment.scanStatus !== "SCANNED" ||
-      !attachment.contentStoredAt ||
-      !attachment.objectKey
-    ) {
-      throw new ApiException(
-        "ATTACHMENT_NOT_READY",
-        409,
-        "Attachment must be uploaded and scanned before OCR",
-      );
-    }
-
-    let text: string;
-    try {
-      const data = await this.storageAdapter.get(attachment.objectKey);
-      const result = await this.ocrAdapter.recognize(data, attachment.mimeType);
-      text = result.text;
-    } catch (error) {
-      if (error instanceof OcrUnavailableError) {
-        throw new ApiException(
-          "OCR_UNAVAILABLE",
-          503,
-          "OCR is temporarily unavailable",
-        );
-      }
-      throw error;
-    }
-
-    const parsed = parseTransactionText(text);
-    return this.createDraftRecord(userId, {
-      attachmentId: attachment.id,
-      clientMutationId: dto.clientMutationId ?? null,
-      confidence: { ...parsed.confidence, provider: 1 },
-      payload: payloadFromParsed(parsed),
-      source: "OCR",
     });
   }
 
