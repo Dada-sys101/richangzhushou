@@ -87,6 +87,7 @@
 | OPEN-011 | 仓库名与产品名关系 | 已决策：品牌显示名“日常助手 / Daily Assistant”与技术标识（仓库/package/目录 daily-assistant）分离（2026-08-07） |
 
 > 状态更新（2026-08-07）：OPEN-001/005/009/011 已通过 PR #3 合并到 main（`4fcc613`）；
-> main quality 通过，browser-qa 修复（PR #4）待合入；OPEN-006 为唯一未决 Staging 外部决策。
+> E2E 修复已通过 PR #4 合并到 main（`47c40c9`），main quality 与 browser-qa 均 SUCCESS；
+> OPEN-006 为唯一未决 Staging 外部决策。
 
 结论：以上任一项未决或未实现时，不得进入生产上线。

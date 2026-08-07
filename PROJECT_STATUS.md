@@ -1,7 +1,7 @@
 # Project Status
 
 版本：1.0<br>
-状态：正式 `main` 已建立并推送；OPEN-007、V1 决策与 OPEN-009 均已合并到 main（PR #1/#3）；main browser-qa 修复 PR #4 待合入；未部署<br>
+状态：正式 `main` 已建立并推送；OPEN-007、V1 决策、OPEN-009 与 E2E 修复均已合并到 main（PR #1/#3/#4），main CI 全绿；未部署<br>
 更新：2026-08-06
 
 ## 当前状态
@@ -14,8 +14,8 @@
 - V1 决策：正式产品名“日常助手 / Daily Assistant”（OPEN-001）；V1 仅应用内提醒（OPEN-005）；
   品牌显示名与仓库/技术标识分离（OPEN-011）
 - OPEN-009：Playwright 浏览器 QA 自动化（smoke + 完整矩阵 + CI browser-qa + 失败产物）
-- 合并进度：PR #3（V1 决策 + OPEN-009）已 squash 合并（`4fcc613`）；main quality 通过，
-  main browser-qa 因 E2E 时间助手缺陷失败，修复 PR #4（`8eb7cfe`）CI 已通过待合入
+- 合并进度：PR #3（V1 决策 + OPEN-009）已合并（`4fcc613`）；PR #4（E2E 24 小时制修复）已合并
+  （`47c40c9`）；main CI run `31144549537` quality/browser-qa 均 SUCCESS
 - 首页界面优化：已完成本地验收（今日概览/友好认证状态/精简导航/移动端底部导航/
   本月财务/空状态/同步状态；仅前端，`docs/29`；已提交 `68f3987` 并随 wp8/main 推送，未部署）
 - 代码：WP2 身份/容量/邀请码/管理端已实现；WP3 记账已实现；WP4 快捷指令/草稿/OCR 已实现；WP5 日程/待办/提醒已实现；WP6 行程/节点/行李/账单关联/费用汇总已实现；WP7 PWA/IndexedDB 离线缓存/同步队列/冲突页已实现；WP8 安全/上传/可访问性/全量回归/发布准备已完成（详见 `docs/26`、`docs/27`）
@@ -31,6 +31,7 @@
 
 ## 已完成
 
+- PR #4 合并：E2E 时间助手 24 小时制修复进入 main（`47c40c9`），main browser-qa 恢复 SUCCESS。
 - PR #3 合并：V1 决策与 OPEN-009 进入 main（`4fcc613`），任务分支已删除。
 - V1 发布决策固化：产品名统一配置（`packages/config` PRODUCT）、提醒页应用内文案、决策记录同步。
 - OPEN-009：`@playwright/test` 1.62.1；`playwright.config.ts`；`tests/e2e`（auth/admin/home/deletion）；
@@ -76,5 +77,5 @@
 
 - WP2 使用便携 MySQL 8.4 完成本地真实空库 migration 与集成测试；该 MySQL 位于仓库外，不随仓库分发。
 - staging 未创建；部署域、产品名、供应商等未定（OPEN-001~008）。
-- 发布前仍待确认：OPEN-006 部署地域与对象存储（其余发布决策 OPEN-001/005/009/011 已固化）；
-  先合并修复 PR #4 使 main browser-qa 恢复绿。
+- 发布前仍待确认：OPEN-006 部署地域与对象存储（其余发布决策 OPEN-001/005/009/011 已固化，
+  main CI 全绿）。
