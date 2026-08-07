@@ -78,3 +78,6 @@
 | DA-1102 | 修正 staging 发布清单过期内容（docs/27 + 状态文档同步） | DONE | RELEASE |
 | DA-1103 | OPEN-007 PR #1 squash 合并到 main（`6d9c888`，任务分支已删除） | DONE | RELEASE |
 | DA-1104 | 合并后状态文档同步（`codex/post-open-007-merge-status`，PR 待用户确认合并） | IN_PROGRESS | RELEASE |
+| DA-1201 | V1 发布决策固化（OPEN-001 产品名、OPEN-005 仅应用内提醒、OPEN-011 命名分离） | DONE | RELEASE |
+| DA-1202 | OPEN-009 Playwright 浏览器 QA 自动化（smoke/matrix/CI browser-qa/失败产物） | DONE | RELEASE |
+| DA-1203 | V1 决策 + 浏览器 QA 分支 PR（`codex/v1-decisions-browser-qa`，待确认） | IN_PROGRESS | RELEASE |

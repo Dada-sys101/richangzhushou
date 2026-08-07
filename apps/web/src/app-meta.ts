@@ -1,4 +1,7 @@
+import { PRODUCT } from "@daily-assistant/config";
+
 export const APP_META = {
-  name: "Daily Assistant",
+  name: PRODUCT.nameZh,
+  nameEn: PRODUCT.nameEn,
   platform: "web-pwa",
 } as const;

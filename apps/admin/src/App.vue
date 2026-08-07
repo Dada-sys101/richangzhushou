@@ -10,7 +10,7 @@ import { RouterView } from "vue-router";
 <template>
   <el-container class="admin-shell">
     <el-header class="admin-header">
-      <strong>Daily Assistant Admin</strong>
+      <strong>日常助手管理端</strong>
       <nav class="admin-nav">
         <RouterLink to="/dashboard">概览</RouterLink>
         <RouterLink to="/users">用户</RouterLink>

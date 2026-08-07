@@ -37,7 +37,7 @@ async function submit() {
 <template>
   <section class="auth-card" aria-labelledby="login-title">
     <p class="eyebrow">欢迎回来</p>
-    <h1 id="login-title">登录 Daily Assistant</h1>
+    <h1 id="login-title">登录日常助手</h1>
     <form class="auth-form" @submit.prevent="submit">
       <label>
         账号

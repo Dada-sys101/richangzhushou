@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 import type {
   ReminderRecurrence,
@@ -48,13 +48,6 @@ const editForm = ref({
   until: "",
   version: 1,
   weekdays: [] as number[],
-});
-
-const notificationStatus = computed(() => {
-  if (typeof Notification === "undefined") {
-    return "unsupported";
-  }
-  return Notification.permission;
 });
 
 onMounted(() => {
@@ -297,8 +290,8 @@ function messageOf(error: unknown): string {
       </div>
     </header>
 
-    <p v-if="notificationStatus !== 'granted'" class="warning-banner">
-      通知未开启：应用内提醒仍会保留，浏览器推送未授权。
+    <p class="panel-copy">
+      V1 提醒仅应用内查看：打开应用即可看到提醒，不会发送系统通知、短信或邮件。
     </p>
     <p v-if="errorMessage" class="form-error" role="alert">
       {{ errorMessage }}

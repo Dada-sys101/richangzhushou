@@ -2,9 +2,20 @@
 
 ## Session Status
 
-Completed（OPEN-007 已通过 PR #1 squash 合并到 main，main 远程 CI 通过；合并后状态同步分支待 PR）
+进行中（V1 发布决策固化与 OPEN-009 浏览器 QA 自动化已完成本地实现与验证，待提交推送；OPEN-007 已合并到 main）
 
 ## Task
+
+## 最近完成：V1 发布决策固化 + OPEN-009 浏览器 QA 自动化（2026-08-07）
+
+- 任务：固化 OPEN-001（日常助手 / Daily Assistant）、OPEN-005（仅应用内提醒）、
+  OPEN-011（品牌名与技术标识分离），并实现 OPEN-009 Playwright 浏览器 QA 自动化。
+- 结果：`packages/config` 统一 PRODUCT；提醒页仅应用内文案；`@playwright/test` 1.62.1、
+  `tests/e2e`（auth/admin/home/deletion）、`scripts/start-e2e-services.mjs`、
+  根命令 `test:e2e`/`test:e2e:smoke`/`test:e2e:headed`/`test:e2e:matrix`、
+  CI `browser-qa` job；web 客户端 401 单飞刷新重试。
+- 验证：本地 smoke 20/20、完整矩阵 70/70；`npm run quality` 以最终跑批为准。
+- 提交推送：以 `git log` / PR 为准（分支 `codex/v1-decisions-browser-qa`）。
 
 ## 最近完成：OPEN-007 PR #1 合并与收尾（2026-08-07）
 
@@ -152,7 +163,7 @@ None（本任务）；项目级阻塞见 `.project/context.md` Blockers。
 1. 正式 `main` 已建立并推送（`42bcef0`，main CI run `31086031458` 通过）；提交哈希与分支以 `git log` 为准。
 2. 下次任务开始前按 AGENTS.md 恢复顺序读取状态文件与 Git 历史。
 3. 若用户继续：按 `docs/27` 进行 staging 创建/部署决策（需授权）；OPEN-007 已合并到 main，
-   开启删除调度器并单实例验证前不得宣称生产环境“数据已删除”。
+   V1 发布决策已固化、OPEN-009 自动化完成；开启删除调度器并单实例验证前不得宣称生产环境“数据已删除”。
 
 ## Completion Criteria
 

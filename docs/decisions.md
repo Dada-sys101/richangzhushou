@@ -50,22 +50,26 @@
 | DEC-131 | WP9 下线邀请码与邮件恢复：`InviteCode`/`InviteRedemption`/`RecoveryCode` 表和邮件适配器删除；`SystemSetting` 仅保留 `maxActiveUsers`；容量在管理员建号/重开时强制校验 | `[代码] apps/api/prisma/migrations/20260806140000_wp9_identity_entry_simplification`、`apps/api/src/capacity` | 用户已确认的“邀请码下线/邮箱彻底移除” |
 | DEC-132 | WP9 下线截图 OCR：`/drafts/ocr`、OCR/Scan 适配器与 `AttachmentScanStatus` 删除；附件保留上传/完成/删除与本地存储，不做识别 | `[代码] apps/api/src/{drafts,attachments,integrations}`、`packages/api-contracts` | 用户已确认的“去掉 OCR 识别” |
 | DEC-133 | OPEN-007 账户期满删除清理：`users` 增加删除调度/开始/完成/尝试次数/失败原因/租约字段与 `DELETION_PROCESSING` 状态；后台任务原子领取（状态+租约+尝试上限）清理全部业务行与附件文件后写匿名墓碑；`AdminAudit` 脱敏；管理员可取消 `DELETION_PENDING`（容量复查）；已通过 PR #1 合并到 main（`6d9c888`） | `[代码] apps/api/src/account-deletion/*`、`apps/api/prisma/migrations/20260806092920_open007_account_deletion_cleanup`、`apps/api/src/admin` | 隐私不变量（BR-DEL）：失败不标记 DELETED、重复执行幂等、多实例不重复领取 |
+| DEC-134 | V1 正式产品名：中文“日常助手”、英文“Daily Assistant”；用户界面、PWA manifest、登录页与元数据统一使用，技术 package 名称不重构（OPEN-001） | `packages/config/src/index.ts`（PRODUCT）、`apps/web`、`apps/admin` | 品牌显示名与技术标识分离（OPEN-011） |
+| DEC-135 | V1 通知范围仅应用内提醒：不承诺 Web Push/系统通知/短信/邮件；`FakeNotificationAdapter` 仅用于本地与测试；提醒页明确“仅应用内查看”；Web Push/系统通知列为 V1.1 候选（OPEN-005） | `apps/web/src/views/RemindersView.vue`、`apps/api/src/integrations/*`、`docs/27` | 不显示虚假的“系统通知已开启”状态 |
+| DEC-136 | OPEN-011：正式产品显示名与 GitHub 仓库名 `richangzhushou`、npm workspace/服务名/部署目录 `daily-assistant` 分离；改品牌时不要求重命名仓库或 package | `packages/config/src/index.ts`、根 `package.json`、`.github/workflows/ci.yml` | 品牌演进低成本 |
+| DEC-137 | OPEN-009：Playwright 浏览器 QA 自动化——`tests/e2e` smoke（Chromium 桌面+移动）与完整矩阵（Firefox/WebKit/1440/375/430）、独立 CI `browser-qa` job、失败截图/trace/video 上传；web 客户端对 401 做单飞刷新重试 | `playwright.config.ts`、`tests/e2e/*`、`scripts/start-e2e-services.mjs`、`.github/workflows/ci.yml`、`apps/web/src/api/{client,session}.ts` | 核心冒烟不再依赖手工 playwright-cli |
 
 ## 尚未确定的决策
 
 | ID | 事项 | 状态/默认假设 | 阻塞范围 |
 | --- | --- | --- | --- |
-| OPEN-001 | 正式产品名称 | 使用 Daily Assistant 临时名 | 品牌/域名 |
+| OPEN-001 | 正式产品名称 | 已决策：日常助手 / Daily Assistant（DEC-134） | 品牌/域名 |
 | OPEN-002 | 正式仓库与远端 | origin 已配置并推送：`main` 为默认分支，`codex/*` 分支保留；仓库名与产品名关系见 OPEN-011 | 提交/协作 |
 | OPEN-003 | 邮件供应商 | 已关闭：WP9 下线邮箱，账号仅管理员创建 | 不适用 |
 | OPEN-004 | OCR/AI 供应商 | 已关闭：WP9 下线截图 OCR，保留手动/文本/快捷指令 | 不适用 |
-| OPEN-005 | 通知渠道 | 应用内 + 支持时 Web Push | 提醒最终验收 |
+| OPEN-005 | 通知渠道 | V1 已决策：仅应用内提醒；Web Push/系统通知为 V1.1 候选（DEC-135） | 提醒最终验收（V1 范围已定） |
 | OPEN-006 | 部署地域与备案 | 不创建生产资源 | 生产上线 |
 | OPEN-007 | 关闭/删除保留期 | 已实现并合并到 main（PR #1，`6d9c888`）：30 天默认且可配置；期满清理、取消删除、附件删除、匿名墓碑与重试上限；调度器默认关闭 | 隐私与恢复（待 staging 单实例验证） |
 | OPEN-008 | 邮箱验证是否首发必需 | 已关闭：WP9 下线邮箱，不适用 | 不适用 |
-| OPEN-009 | 浏览器 QA 工具与脚本化 | `docs/07` 规划 Playwright，但仓库无依赖/脚本 | QA 可复现性 |
+| OPEN-009 | 浏览器 QA 工具与脚本化 | 已完成：Playwright smoke/matrix + CI browser-qa + 失败产物（DEC-137） | QA 可复现性（已入库） |
 | OPEN-010 | 共享契约包接入方式 | 已接入：`apps/api` 引用 `@daily-assistant/api-contracts` 包；前端使用仓库内本地 client 类型（未启用代码生成客户端） | 契约一致性 |
-| OPEN-011 | origin 仓库名与产品名关系 | 待确认 | 品牌/推送 |
+| OPEN-011 | origin 仓库名与产品名关系 | 已决策：品牌显示名与技术标识分离（DEC-136） | 品牌/推送 |
 
 ## 无法确认的事项
 

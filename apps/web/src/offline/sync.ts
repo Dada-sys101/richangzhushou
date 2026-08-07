@@ -1,4 +1,8 @@
-import { API_BASE_URL, getAccessToken, setAccessToken } from "../api/session";
+import {
+  API_BASE_URL,
+  getAccessToken,
+  refreshSessionOnce,
+} from "../api/session";
 import {
   clearUserData,
   cursorKey,
@@ -550,16 +554,7 @@ async function doSyncFetch(
 }
 
 async function refreshAccessToken(): Promise<boolean> {
-  const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-    credentials: "include",
-    method: "POST",
-  });
-  if (!response.ok) {
-    return false;
-  }
-  const data = (await response.json()) as { accessToken: string };
-  setAccessToken(data.accessToken);
-  return true;
+  return (await refreshSessionOnce()) !== null;
 }
 
 export function newMutationId(): string {

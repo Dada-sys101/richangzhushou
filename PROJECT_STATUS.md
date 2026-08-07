@@ -1,7 +1,7 @@
 # Project Status
 
 版本：1.0<br>
-状态：正式 `main` 已建立并推送；OPEN-007 已通过 PR #1 合并到 main（`6d9c888`），main 远程 CI 通过（未部署）<br>
+状态：正式 `main` 已建立并推送；OPEN-007 已合并到 main；V1 发布决策已固化（产品名/通知范围/仓库命名）；OPEN-009 浏览器 QA 自动化已入库（未部署）<br>
 更新：2026-08-06
 
 ## 当前状态
@@ -11,6 +11,9 @@
 - 当前工作包：WP8 已完成本地验收；正式 `main` 已建立并推送（= `codex/wp8-release-prep` @ `42bcef0`，远端 CI 通过）
 - OPEN-007：账户期满删除清理已实现并通过 PR #1 合并到 main（保留期 30 天可配置、后台清理、
   附件删除、取消删除、匿名墓碑；调度器默认关闭，staging 单实例验证后再开启）
+- V1 决策：正式产品名“日常助手 / Daily Assistant”（OPEN-001）；V1 仅应用内提醒（OPEN-005）；
+  品牌显示名与仓库/技术标识分离（OPEN-011）
+- OPEN-009：Playwright 浏览器 QA 自动化（smoke + 完整矩阵 + CI browser-qa + 失败产物）
 - 首页界面优化：已完成本地验收（今日概览/友好认证状态/精简导航/移动端底部导航/
   本月财务/空状态/同步状态；仅前端，`docs/29`；已提交 `68f3987` 并随 wp8/main 推送，未部署）
 - 代码：WP2 身份/容量/邀请码/管理端已实现；WP3 记账已实现；WP4 快捷指令/草稿/OCR 已实现；WP5 日程/待办/提醒已实现；WP6 行程/节点/行李/账单关联/费用汇总已实现；WP7 PWA/IndexedDB 离线缓存/同步队列/冲突页已实现；WP8 安全/上传/可访问性/全量回归/发布准备已完成（详见 `docs/26`、`docs/27`）
@@ -26,6 +29,10 @@
 
 ## 已完成
 
+- V1 发布决策固化：产品名统一配置（`packages/config` PRODUCT）、提醒页应用内文案、决策记录同步。
+- OPEN-009：`@playwright/test` 1.62.1；`playwright.config.ts`；`tests/e2e`（auth/admin/home/deletion）；
+  `scripts/start-e2e-services.mjs`；根命令 `test:e2e`/`test:e2e:smoke`/`test:e2e:headed`/`test:e2e:matrix`；
+  本地 smoke 20/20、完整矩阵 70/70；web 客户端 401 单飞刷新重试。
 - OPEN-007 合并：PR #1 squash 合并到 main（merge commit `6d9c888`），任务分支已删除；
   main 远程 CI run `31136793516` PASS。
 - OPEN-007：`DELETION_PROCESSING` 状态与删除调度/租约字段；原子领取与失败重试；
@@ -66,5 +73,4 @@
 
 - WP2 使用便携 MySQL 8.4 完成本地真实空库 migration 与集成测试；该 MySQL 位于仓库外，不随仓库分发。
 - staging 未创建；部署域、产品名、供应商等未定（OPEN-001~008）。
-- 发布前需确认：OPEN-001 产品名称、OPEN-005 通知渠道、OPEN-006 部署地域与对象存储、
-  OPEN-009 浏览器 QA 自动化、OPEN-011 仓库名与产品名关系。
+- 发布前仍待确认：OPEN-006 部署地域与对象存储（其余发布决策 OPEN-001/005/009/011 已固化）。

@@ -66,7 +66,7 @@ onBeforeUnmount(() => {
 
 <template>
   <header class="site-header">
-    <RouterLink class="wordmark" to="/">Daily Assistant</RouterLink>
+    <RouterLink class="wordmark" to="/">日常助手</RouterLink>
     <div class="header-right">
       <nav v-if="auth.isAuthenticated" class="site-nav" aria-label="主导航">
         <RouterLink to="/">首页</RouterLink>
