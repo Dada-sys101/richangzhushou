@@ -1,8 +1,8 @@
 # Project Status
 
 版本：1.0<br>
-状态：正式 `main` 已建立并推送；OPEN-007、V1 决策、OPEN-009 与 E2E 修复均已合并到 main（PR #1/#3/#4），main CI 全绿；未部署<br>
-更新：2026-08-06
+状态：正式 `main` 已建立并推送；OPEN-007、V1 决策、OPEN-009 与 E2E 修复均已合并到 main（PR #1/#3/#4），main CI 全绿；OPEN-006 对象存储接入代码已实现并经 PR #6 提交（quality/browser-qa 通过，待合并），真实云资源与 staging 待授权；未部署<br>
+更新：2026-08-07
 
 ## 当前状态
 
@@ -14,6 +14,9 @@
 - V1 决策：正式产品名“日常助手 / Daily Assistant”（OPEN-001）；V1 仅应用内提醒（OPEN-005）；
   品牌显示名与仓库/技术标识分离（OPEN-011）
 - OPEN-009：Playwright 浏览器 QA 自动化（smoke + 完整矩阵 + CI browser-qa + 失败产物）
+- OPEN-006 代码任务：`AliyunOssStorageAdapter`（ali-oss 6.23.0）+ `STORAGE_PROVIDER=local|oss`
+  切换与必填校验 + `StorageKeyService`（新键 `users/{userId}/attachments/{fileId}`，旧键兼容）+
+  `deploy/staging/.env.staging.example`；生产禁止 local 作为 staging 门禁；未创建真实 Bucket/RAM
 - 合并进度：PR #3（V1 决策 + OPEN-009）已合并（`4fcc613`）；PR #4（E2E 24 小时制修复）已合并
   （`47c40c9`）；main CI run `31144549537` quality/browser-qa 均 SUCCESS
 - 首页界面优化：已完成本地验收（今日概览/友好认证状态/精简导航/移动端底部导航/
@@ -31,6 +34,8 @@
 
 ## 已完成
 
+- OPEN-006 对象存储接入代码：OSS 适配器、配置切换、键服务、22 项新增单元测试与环境示例
+  （分支 `codex/aliyun-oss-storage-adapter`，PR #6 已创建，quality/browser-qa 通过，待合并）。
 - PR #4 合并：E2E 时间助手 24 小时制修复进入 main（`47c40c9`），main browser-qa 恢复 SUCCESS。
 - PR #3 合并：V1 决策与 OPEN-009 进入 main（`4fcc613`），任务分支已删除。
 - V1 发布决策固化：产品名统一配置（`packages/config` PRODUCT）、提醒页应用内文案、决策记录同步。
@@ -70,6 +75,8 @@
 
 ## 下一步
 
+- 完成 OPEN-006 对象存储接入 PR 的合并与 CI 验证（quality/browser-qa）。
+- 授权后创建私有 OSS Bucket 与最小权限 RAM 凭据，完成真实上传/下载/删除与备份上传验证。
 - 按 `docs/27` 完成 staging 创建/部署决策（需用户授权）。
 - 如需逐一验证，再推送 WP2–WP7 分支并检查远端 CI（需授权）。
 
@@ -77,5 +84,5 @@
 
 - WP2 使用便携 MySQL 8.4 完成本地真实空库 migration 与集成测试；该 MySQL 位于仓库外，不随仓库分发。
 - staging 未创建；部署域、产品名、供应商等未定（OPEN-001~008）。
-- 发布前仍待确认：OPEN-006 部署地域与对象存储（其余发布决策 OPEN-001/005/009/011 已固化，
-  main CI 全绿）。
+- 发布前仍待确认：OPEN-006 真实对象存储资源与连通测试（OSS 适配器代码已完成；其余发布决策
+  OPEN-001/005/009/011 已固化，main CI 全绿）。

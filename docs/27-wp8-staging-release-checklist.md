@@ -7,7 +7,7 @@
 
 文档版本：1.0<br>
 状态：本地可执行清单（真实 staging 创建/部署需另行授权）<br>
-更新：2026-08-06<br>
+更新：2026-08-07<br>
 适用版本：V1.0
 
 ## 1. 用途
@@ -30,7 +30,7 @@
 | `REMINDER_SCHEDULER_ENABLED` | 是 | 单实例时 `true`；多实例前必须先做数据库租约 |
 | `ACCOUNT_DELETION_RETENTION_DAYS` / `ACCOUNT_DELETION_BATCH_SIZE` / `ACCOUNT_DELETION_MAX_ATTEMPTS` / `ACCOUNT_DELETION_LEASE_SECONDS` | 是 | 删除保留期与清理批处理/租约（默认 30/20/5/600） |
 | `ACCOUNT_DELETION_SCHEDULER_ENABLED` | 是 | 本地/测试默认 `false`；staging 单实例验证后再开启 |
-| `LOCAL_STORAGE_DIR` / 对象存储配置 | 是 | 生产不得使用本地临时存储；清理任务通过存储适配器删除附件 |
+| `STORAGE_PROVIDER` / `STORAGE_BUCKET` / `STORAGE_REGION` / `STORAGE_ENDPOINT` / `STORAGE_ACCESS_KEY_ID` / `STORAGE_ACCESS_KEY_SECRET` / `LOCAL_STORAGE_DIR` | 是 | staging/production 必须 `STORAGE_PROVIDER=oss` 且 Bucket/Region/Endpoint/AccessKey 齐全（缺失启动失败）；`LocalStorageAdapter` 仅限本地与测试；清理任务通过存储适配器删除附件 |
 | `FAKE_NOTIFICATION_FAIL` | 否 | 仅本地调试用；真实通知供应商接入后必须关闭 |
 
 ## 3. 安全与兼容性检查
@@ -79,7 +79,7 @@
 | OPEN-003 | 邮件供应商 | 不适用（WP9 下线邮箱，账号仅管理员创建） |
 | OPEN-004 | OCR/AI 供应商 | 不适用（WP9 下线截图 OCR） |
 | OPEN-005 | 通知渠道（Web Push/系统） | V1 已决策：仅应用内提醒；Web Push/系统通知列为 V1.1 候选（2026-08-07） |
-| OPEN-006 | 部署地域与对象存储 | 未决，未创建资源 |
+| OPEN-006 | 部署地域与对象存储 | 代码已实现并经 PR #6 提交（quality/browser-qa 通过，待合并）；真实 Bucket/RAM/连通测试未完成，OPEN-006 仍未完成 |
 | OPEN-007 | 关闭/删除保留期与清理 | 已实现并合并到 main（PR #1，`6d9c888`）；保留期 30 天可配置、期满清理、附件删除、取消删除、重试上限与匿名墓碑；调度器默认关闭，staging 单实例验证后再开启 |
 | OPEN-008 | 邮箱验证是否首版必选 | 不适用（WP9 下线邮箱） |
 | OPEN-009 | 浏览器 QA 脚本固化 | 已完成：Playwright smoke/matrix 入库，CI browser-qa 执行并上传失败产物（2026-08-07） |
@@ -88,6 +88,8 @@
 
 > 状态更新（2026-08-07）：OPEN-001/005/009/011 已通过 PR #3 合并到 main（`4fcc613`）；
 > E2E 修复已通过 PR #4 合并到 main（`47c40c9`），main quality 与 browser-qa 均 SUCCESS；
-> OPEN-006 为唯一未决 Staging 外部决策。
+> OPEN-006 为唯一未决 Staging 外部决策；OSS 适配器代码任务已完成（`codex/aliyun-oss-storage-adapter`），
+> PR #6 已创建且 quality/browser-qa 通过、无冲突，待合并；尚需创建私有 Bucket、最小权限 RAM 凭据
+> 并完成真实上传/下载/删除与备份上传验证后才能关闭 OPEN-006。
 
 结论：以上任一项未决或未实现时，不得进入生产上线。

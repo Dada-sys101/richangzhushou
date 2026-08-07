@@ -13,6 +13,7 @@ import {
   STORAGE_ADAPTER,
   type StorageAdapter,
 } from "../integrations/integrations.types.js";
+import { StorageKeyService } from "../integrations/storage-key.service.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import {
   MAX_ATTACHMENT_SIZE,
@@ -50,6 +51,7 @@ export class AttachmentsService {
     private readonly securityService: SecurityService,
     private readonly rateLimiter: RateLimiterService,
     @Inject(STORAGE_ADAPTER) private readonly storageAdapter: StorageAdapter,
+    private readonly storageKeyService: StorageKeyService,
   ) {}
 
   async createUploadIntent(
@@ -65,7 +67,11 @@ export class AttachmentsService {
       );
     }
     const extension = MIME_EXTENSIONS[dto.mimeType];
-    const objectKey = `attachments/${userId}/${randomUUID()}.${extension}`;
+    const fileId = `${randomUUID()}.${extension}`;
+    const objectKey = this.storageKeyService.generateAttachmentKey(
+      userId,
+      fileId,
+    );
     const uploadToken = this.securityService.generateUploadToken();
     const expiresAt = new Date(Date.now() + UPLOAD_INTENT_TTL_MS);
     const row = await this.prisma.attachment.create({

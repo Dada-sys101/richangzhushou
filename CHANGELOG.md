@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-08-07 — PR #6 创建与 CI 验证
+- PR #6（feat: add Aliyun OSS storage adapter）已创建：base=main、head=codex/aliyun-oss-storage-adapter、
+  head SHA `11614ba5d26fabc13595974471f0c13f642cb3a2`。
+- quality 与 browser-qa 均 SUCCESS（run `31156557067`、`31155080018`）；mergeable=true、
+  无冲突、未发现真实密钥或敏感配置；尚未合并到 main。
+- 历史情况：最初因本地 `gh` 未登录无法创建 PR；后续状态：PR #6 已创建，CI 已通过。
+
+## 2026-08-07 — OPEN-006 对象存储接入代码实现
+- 新增 `AliyunOssStorageAdapter`（ali-oss 6.23.0）：实现 `StorageAdapter` 的 `put/get/delete`，
+  缺失对象删除幂等，网络错误包装为不泄漏 AccessKey/正文的可诊断错误。
+- 新增 `STORAGE_PROVIDER=local|oss` 切换与必填校验（Bucket/Region/Endpoint/AccessKey）；
+  `NODE_ENV=production` 禁止 local，未显式配置也启动失败（staging 门禁）。
+- 新增 `StorageKeyService`：新附件键 `users/{userId}/attachments/{fileId}`；
+  旧 `attachments/` 键保留兼容读取与删除；上传仍由 API 服务端代理，无需 OSS CORS。
+- 新增/更新单元测试 22 项；新增 `deploy/staging/.env.staging.example`（仅占位符）。
+- 未创建真实 OSS Bucket/RAM、未完成真实连通测试；staging 未创建、生产未部署；OPEN-006 未关闭。
+
 ## 2026-08-07 — E2E 修复 PR #4 合并，main 全绿
 - PR #4（fix: use 24-hour clock in e2e datetime helper）以 squash 方式合并到 main，
   merge commit `47c40c9`；E2E 时间助手强制 24 小时制，跨正午边界不再误报 endsAt<startsAt。

@@ -4,6 +4,25 @@
 更新：2026-08-06
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-07 — PR #6 创建与 CI 验证
+
+- PR #6（feat: add Aliyun OSS storage adapter）已创建：base=main、
+  head=codex/aliyun-oss-storage-adapter、head SHA `11614ba5d26fabc13595974471f0c13f642cb3a2`。
+- quality 与 browser-qa 均 SUCCESS（run `31156557067`、`31155080018`）；mergeable=true、
+  无冲突、未发现真实密钥或敏感配置；尚未合并到 main。
+- 历史情况：最初因本地 `gh` 未登录无法创建 PR；后续状态：PR #6 已创建，CI 已通过。
+
+## 2026-08-07 — OPEN-006 对象存储接入代码实现
+
+- 新增 `AliyunOssStorageAdapter`（`apps/api/src/integrations/aliyun-oss-storage.adapter.ts`，
+  ali-oss 6.23.0）：实现 `put/get/delete`，缺失对象删除幂等，错误不泄漏 AccessKey/正文。
+- 新增 `STORAGE_PROVIDER=local|oss` 切换与必填校验；`NODE_ENV=production` 禁止 local
+  （staging 门禁），缺失 OSS 配置启动失败。
+- 新增 `StorageKeyService`：新附件键 `users/{userId}/attachments/{fileId}`，
+  旧 `attachments/{userId}/...` 键兼容；上传仍由 API 代理，无需 OSS CORS。
+- 新增/更新单元测试 22 项；`deploy/staging/.env.staging.example` 与 `.env.example` 同步。
+- 未创建真实 Bucket/RAM、未完成真实连通测试；staging 未创建、生产未部署；OPEN-006 未关闭。
+
 ## 2026-08-07 — E2E 修复 PR #4 合并，main 全绿
 
 - PR #4（E2E 时间助手 24 小时制修复）以 squash 方式合并到 main（`47c40c9`）。

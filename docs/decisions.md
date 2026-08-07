@@ -55,6 +55,7 @@
 | DEC-136 | OPEN-011：正式产品显示名与 GitHub 仓库名 `richangzhushou`、npm workspace/服务名/部署目录 `daily-assistant` 分离；改品牌时不要求重命名仓库或 package | `packages/config/src/index.ts`、根 `package.json`、`.github/workflows/ci.yml` | 品牌演进低成本 |
 | DEC-137 | OPEN-009：Playwright 浏览器 QA 自动化——`tests/e2e` smoke（Chromium 桌面+移动）与完整矩阵（Firefox/WebKit/1440/375/430）、独立 CI `browser-qa` job、失败截图/trace/video 上传；web 客户端对 401 做单飞刷新重试 | `playwright.config.ts`、`tests/e2e/*`、`scripts/start-e2e-services.mjs`、`.github/workflows/ci.yml`、`apps/web/src/api/{client,session}.ts` | 核心冒烟不再依赖手工 playwright-cli |
 | DEC-138 | PR #3 合并：V1 发布决策（OPEN-001/005/011）与 OPEN-009 以 squash 合并到 main（`4fcc613`）；合并后 browser-qa 暴露 E2E 时间助手 12/24 小时制缺陷，以 24 小时制修复并经 PR #4 合并到 main（`47c40c9`），main CI 全绿 | `[Git] 4fcc613`、`47c40c9`、`tests/e2e/helpers/e2e.ts` | 测试确定性：结束时间跨正午边界时不得被格式化为 01:xx |
+| DEC-139 | OPEN-006 对象存储接入：新增 `AliyunOssStorageAdapter`（实现 `put/get/delete`，缺失对象删除幂等，错误不泄漏 AccessKey/正文）与 `STORAGE_PROVIDER=local|oss` 配置切换；`NODE_ENV=production` 禁止 local、缺失 OSS 配置启动失败；新附件键 `users/{userId}/attachments/{fileId}`，旧 `attachments/` 键保留兼容；上传仍由 API 代理，无需 OSS CORS | `[代码] apps/api/src/integrations/{aliyun-oss-storage.adapter,storage.config,storage-key.service}.ts`、`apps/api/src/attachments/attachments.service.ts` | 私有 Bucket + 最小权限；未配置时不得意外连接 OSS；staging 门禁阻止误用本地临时存储 |
 
 ## 尚未确定的决策
 
@@ -65,7 +66,7 @@
 | OPEN-003 | 邮件供应商 | 已关闭：WP9 下线邮箱，账号仅管理员创建 | 不适用 |
 | OPEN-004 | OCR/AI 供应商 | 已关闭：WP9 下线截图 OCR，保留手动/文本/快捷指令 | 不适用 |
 | OPEN-005 | 通知渠道 | V1 已决策：仅应用内提醒；Web Push/系统通知为 V1.1 候选（DEC-135） | 提醒最终验收（V1 范围已定） |
-| OPEN-006 | 部署地域与备案 | 不创建生产资源 | 生产上线 |
+| OPEN-006 | 部署地域与备案 | 代码已实现并经 PR #6 提交（quality/browser-qa 通过，待合并）；真实 Bucket、RAM 凭据与连通测试未完成；staging 未创建 | 生产上线 |
 | OPEN-007 | 关闭/删除保留期 | 已实现并合并到 main（PR #1，`6d9c888`）：30 天默认且可配置；期满清理、取消删除、附件删除、匿名墓碑与重试上限；调度器默认关闭 | 隐私与恢复（待 staging 单实例验证） |
 | OPEN-008 | 邮箱验证是否首发必需 | 已关闭：WP9 下线邮箱，不适用 | 不适用 |
 | OPEN-009 | 浏览器 QA 工具与脚本化 | 已完成：Playwright smoke/matrix + CI browser-qa + 失败产物（DEC-137） | QA 可复现性（已入库） |
@@ -74,7 +75,8 @@
 
 > 状态更新（2026-08-07）：OPEN-001/005/009/011 已通过 PR #3 合并到 main（`4fcc613`），
 > E2E 修复经 PR #4 合并到 main（`47c40c9`），main CI 全绿；
-> OPEN-006（部署地域与对象存储）为唯一未决 Staging 外部决策。
+> OPEN-006（部署地域与对象存储）为唯一未决 Staging 外部决策；OSS 适配器代码已实现（DEC-139），
+> PR #6 已创建且 CI 通过、无冲突，待合并；真实 OSS 资源与连通验证待用户授权。
 
 ## 无法确认的事项
 

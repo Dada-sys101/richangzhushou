@@ -2,7 +2,7 @@
 
 文档版本：0.1  
 状态：待供应商确认  
-更新：2026-08-04  
+更新：2026-08-07
 适用版本：V1.0
 
 ## 环境
@@ -30,6 +30,22 @@
 - 日志级别、上传限制、容量配置。
 
 仓库中的 `.env.example` 只能包含变量名和安全占位符。
+
+## 对象存储接入状态（OPEN-006）
+
+- 已实现 `AliyunOssStorageAdapter`（`apps/api/src/integrations/aliyun-oss-storage.adapter.ts`），
+  实现现有 `StorageAdapter` 的 `put/get/delete`，删除缺失对象按幂等成功处理。
+- 已实现 `STORAGE_PROVIDER=local|oss` 切换与必填项校验：
+  `STORAGE_BUCKET`、`STORAGE_REGION`、`STORAGE_ENDPOINT`、`STORAGE_ACCESS_KEY_ID`、
+  `STORAGE_ACCESS_KEY_SECRET`；缺失配置时启动失败且错误信息不泄漏值。
+- `NODE_ENV=production` 时禁止 `STORAGE_PROVIDER=local`，未显式配置也会启动失败（staging 门禁）。
+- 上传仍由 API 服务端代理（`PUT /api/v1/attachments/:id/content`），不需要 OSS 浏览器 CORS。
+- 新附件使用 `users/{userId}/attachments/{fileId}` 键；旧 `attachments/{userId}/...` 键
+  保留兼容读取与删除（get/delete 始终使用数据库存储的 objectKey）。
+- `LocalStorageAdapter` 仅用于本地开发与测试。
+- 实现代码已通过 PR #6 提交（base=main，head `11614ba`）；quality/browser-qa 均 SUCCESS，
+  尚未合并到 main。
+- 尚未创建真实 OSS Bucket、RAM 用户或密钥；尚未完成真实 OSS 连通测试；staging 未创建、生产未部署。
 
 ## 发布流程
 
