@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-07 — PR #3 合并与 main 验证
+- PR #3（test: automate browser release smoke checks）以 squash 方式合并到 main，
+  merge commit `4fcc613`；V1 发布决策（OPEN-001/005/011）与 OPEN-009 进入 main。
+- main CI run `31143350121`：quality PASS；browser-qa 因 E2E 时间助手 12/24 小时制缺陷 FAIL，
+  修复提交 `8eb7cfe`（PR #4）已创建且 CI 通过，待用户合入。
+- 合并后本地验证：`npm run quality` PASS、smoke 20/20、完整矩阵 70/70。
+- OPEN-006（部署地域与对象存储）为唯一未决 Staging 外部决策；staging 未创建、生产未部署。
+
 ## 2026-08-07 — V1 发布决策固化 + OPEN-009 浏览器 QA 自动化
 - 产品名：正式中文“日常助手”、英文“Daily Assistant”（`packages/config` PRODUCT 统一配置，
   用户端/管理端/登录页/PWA manifest/元数据一致；技术标识保持 daily-assistant）。

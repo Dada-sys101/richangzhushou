@@ -2,9 +2,17 @@
 
 ## Session Status
 
-进行中（V1 发布决策固化与 OPEN-009 浏览器 QA 自动化已完成本地实现与验证，待提交推送；OPEN-007 已合并到 main）
+进行中（PR #3 已合并到 main；main browser-qa 修复 PR #4 已通过待合入；状态文档 PR 待确认）
 
 ## Task
+
+## 最近完成：PR #3 合并、main 验证与 Staging 前置收尾（2026-08-07）
+
+- 任务：安全合并 PR #3（squash + 删除任务分支），同步并验证 main，创建合并后状态文档分支，
+  输出 OPEN-006 决策准备清单。
+- 结果：PR #3 merge commit `4fcc613`；合并后本地 quality PASS、smoke 20/20、完整矩阵 70/70；
+  main CI `31143350121` quality PASS、browser-qa 因 E2E 时间助手缺陷 FAIL；
+  修复分支 `codex/fix-e2e-datetime-helper`（`8eb7cfe`）PR #4 已创建且 CI 通过（待用户合并）。
 
 ## 最近完成：V1 发布决策固化 + OPEN-009 浏览器 QA 自动化（2026-08-07）
 
@@ -162,8 +170,8 @@ None（本任务）；项目级阻塞见 `.project/context.md` Blockers。
 
 1. 正式 `main` 已建立并推送（`42bcef0`，main CI run `31086031458` 通过）；提交哈希与分支以 `git log` 为准。
 2. 下次任务开始前按 AGENTS.md 恢复顺序读取状态文件与 Git 历史。
-3. 若用户继续：按 `docs/27` 进行 staging 创建/部署决策（需授权）；OPEN-007 已合并到 main，
-   V1 发布决策已固化、OPEN-009 自动化完成；开启删除调度器并单实例验证前不得宣称生产环境“数据已删除”。
+3. 若用户继续：先合并修复 PR #4（使 main browser-qa 恢复绿），再按 `docs/27` 确认 OPEN-006
+   与 staging 创建/部署决策（需授权）；开启删除调度器并单实例验证前不得宣称生产环境“数据已删除”。
 
 ## Completion Criteria
 
