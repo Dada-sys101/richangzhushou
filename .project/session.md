@@ -2,9 +2,17 @@
 
 ## Session Status
 
-进行中（OPEN-007 账户期满删除清理已完成本地实现与验证，待提交推送；正式 main 已建立并推送且默认分支已切换为 main）
+Completed（OPEN-007 已通过 PR #1 squash 合并到 main，main 远程 CI 通过；合并后状态同步分支待 PR）
 
 ## Task
+
+## 最近完成：OPEN-007 PR #1 合并与收尾（2026-08-07）
+
+- 任务：确认 PR #1 检查通过且无未解决审查意见后，以 squash 方式合并到 main 并删除任务分支；
+  同步本地 main、跑合并后 quality、确认 main 远程 CI，再创建状态同步分支。
+- 结果：PR #1 state=MERGED，merge commit `6d9c888`；main = origin/main = `6d9c888`；
+  本地 `npm run quality` PASS；main CI run `31136793516` PASS；
+  状态文档分支 `codex/post-open-007-merge-status` 已创建并提交（PR 编号以 GitHub 为准）。
 
 ## 最近完成：OPEN-007 账户期满删除清理实现（2026-08-06）
 
@@ -17,7 +25,7 @@
   管理员 `POST /admin/users/:id/cancel-deletion` 可取消保留期内删除申请。
 - 验证：API 测试 111/111（新增 8 单元 + 11 OPEN-007 集成）；空库 8 migrations
   `prisma migrate deploy` 通过；CLI 演练 `claimed=1 completed=1`；`docs/27` 过期内容已修正。
-- 提交推送：以 `git log` / `git log origin/codex/open-007-deletion-cleanup` 为准。
+- 提交：已通过 PR #1 squash 合并到 main（`6d9c888`），任务分支已删除。
 
 ## 最近完成：正式 main 分支建立与推送（2026-08-06）
 
@@ -143,7 +151,7 @@ None（本任务）；项目级阻塞见 `.project/context.md` Blockers。
 
 1. 正式 `main` 已建立并推送（`42bcef0`，main CI run `31086031458` 通过）；提交哈希与分支以 `git log` 为准。
 2. 下次任务开始前按 AGENTS.md 恢复顺序读取状态文件与 Git 历史。
-3. 若用户继续：按 `docs/27` 进行 staging 创建/部署决策（需授权）；OPEN-007 已实现，
+3. 若用户继续：按 `docs/27` 进行 staging 创建/部署决策（需授权）；OPEN-007 已合并到 main，
    开启删除调度器并单实例验证前不得宣称生产环境“数据已删除”。
 
 ## Completion Criteria

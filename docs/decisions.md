@@ -49,7 +49,7 @@
 | DEC-130 | WP9 账号模型：唯一 `username`（小写规范化）+ 密码登录；邮箱彻底移除；账号仅由管理员创建/重置密码，首次登录或重置后必须改密（`mustChangePassword`，未改密时数据端点 403） | `[代码] apps/api/prisma/schema.prisma`、`apps/api/src/{auth,admin}`、`packages/api-contracts` | 用户已确认的范围调整（docs/28） |
 | DEC-131 | WP9 下线邀请码与邮件恢复：`InviteCode`/`InviteRedemption`/`RecoveryCode` 表和邮件适配器删除；`SystemSetting` 仅保留 `maxActiveUsers`；容量在管理员建号/重开时强制校验 | `[代码] apps/api/prisma/migrations/20260806140000_wp9_identity_entry_simplification`、`apps/api/src/capacity` | 用户已确认的“邀请码下线/邮箱彻底移除” |
 | DEC-132 | WP9 下线截图 OCR：`/drafts/ocr`、OCR/Scan 适配器与 `AttachmentScanStatus` 删除；附件保留上传/完成/删除与本地存储，不做识别 | `[代码] apps/api/src/{drafts,attachments,integrations}`、`packages/api-contracts` | 用户已确认的“去掉 OCR 识别” |
-| DEC-133 | OPEN-007 账户期满删除清理：`users` 增加删除调度/开始/完成/尝试次数/失败原因/租约字段与 `DELETION_PROCESSING` 状态；后台任务原子领取（状态+租约+尝试上限）清理全部业务行与附件文件后写匿名墓碑；`AdminAudit` 脱敏；管理员可取消 `DELETION_PENDING`（容量复查） | `[代码] apps/api/src/account-deletion/*`、`apps/api/prisma/migrations/20260806092920_open007_account_deletion_cleanup`、`apps/api/src/admin` | 隐私不变量（BR-DEL）：失败不标记 DELETED、重复执行幂等、多实例不重复领取 |
+| DEC-133 | OPEN-007 账户期满删除清理：`users` 增加删除调度/开始/完成/尝试次数/失败原因/租约字段与 `DELETION_PROCESSING` 状态；后台任务原子领取（状态+租约+尝试上限）清理全部业务行与附件文件后写匿名墓碑；`AdminAudit` 脱敏；管理员可取消 `DELETION_PENDING`（容量复查）；已通过 PR #1 合并到 main（`6d9c888`） | `[代码] apps/api/src/account-deletion/*`、`apps/api/prisma/migrations/20260806092920_open007_account_deletion_cleanup`、`apps/api/src/admin` | 隐私不变量（BR-DEL）：失败不标记 DELETED、重复执行幂等、多实例不重复领取 |
 
 ## 尚未确定的决策
 
@@ -61,7 +61,7 @@
 | OPEN-004 | OCR/AI 供应商 | 已关闭：WP9 下线截图 OCR，保留手动/文本/快捷指令 | 不适用 |
 | OPEN-005 | 通知渠道 | 应用内 + 支持时 Web Push | 提醒最终验收 |
 | OPEN-006 | 部署地域与备案 | 不创建生产资源 | 生产上线 |
-| OPEN-007 | 关闭/删除保留期 | 已实现：30 天默认且可配置；期满清理、取消删除、附件删除、匿名墓碑与重试上限（2026-08-06） | 隐私与恢复（实现完成，待 staging 验证） |
+| OPEN-007 | 关闭/删除保留期 | 已实现并合并到 main（PR #1，`6d9c888`）：30 天默认且可配置；期满清理、取消删除、附件删除、匿名墓碑与重试上限；调度器默认关闭 | 隐私与恢复（待 staging 单实例验证） |
 | OPEN-008 | 邮箱验证是否首发必需 | 已关闭：WP9 下线邮箱，不适用 | 不适用 |
 | OPEN-009 | 浏览器 QA 工具与脚本化 | `docs/07` 规划 Playwright，但仓库无依赖/脚本 | QA 可复现性 |
 | OPEN-010 | 共享契约包接入方式 | 已接入：`apps/api` 引用 `@daily-assistant/api-contracts` 包；前端使用仓库内本地 client 类型（未启用代码生成客户端） | 契约一致性 |

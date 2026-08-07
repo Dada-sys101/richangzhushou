@@ -2,15 +2,15 @@
 
 ## Last Updated
 
-2026-08-06 +08:00（OPEN-007 账户期满删除清理在 codex/open-007-deletion-cleanup 分支完成本地实现与验证；提交与推送以 `git log` 为准；未部署）
+2026-08-07 +08:00（OPEN-007 已通过 PR #1 squash 合并到 main，main 远程 CI 通过；合并 commit `6d9c888`；未部署）
 
 ## Repository State
 
 - Repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
-- Current Branch: `codex/open-007-deletion-cleanup`（OPEN-007 任务分支，基于 main）
-- HEAD Commit: 以 `git log` 为准（分支包含 OPEN-007 实现与文档同步）
+- Current Branch: `main`（= origin/main @ `6d9c888`；OPEN-007 已合并）
+- HEAD Commit: `6d9c888`（feat: implement expired account deletion cleanup）
 - Working Tree Status: clean（忽略文件除外，如 `apps/api/.env`、`output/playwright/`，gitignored）
-- Last Verified Commit: `42bcef0`；远端 GitHub Actions run `31086031458` PASS（main 推送触发；quality、空库 migrate deploy、WP2 集成测试全部通过）
+- Last Verified Commit: `6d9c888`；本地 `npm run quality` PASS；远端 main GitHub Actions run `31136793516` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）
 
 ## Project Summary
 
@@ -22,19 +22,25 @@
 - 核心模块：auth/account/capacity/invites/admin/audit（WP2）、finance（WP3）、
   shortcuts/drafts/attachments/integrations（WP4）、calendar/tasks/reminders（WP5）、
   trips（WP6）。
-- 当前部署方式：无任何部署；正式 `main` 已建立并推送（= `codex/wp8-release-prep` @ `42bcef0`，main CI 通过）；
-  origin 已有分支 `codex/wp1-foundation`、`codex/wp8-release-prep`、`main`（GitHub 默认分支已切换为 `main`；旧分支暂时保留）。
+- 当前部署方式：无任何部署；正式 `main` 已建立并推送，OPEN-007 已通过 PR #1 合并到 main
+  （`6d9c888`，main CI 通过）；origin 已有分支 `codex/wp1-foundation`、`codex/wp8-release-prep`、`main`
+  （GitHub 默认分支为 `main`；旧分支暂时保留）。
 
 ## Current Development Stage
 
 - WP0（规划）至 WP8（全量质量与发布准备）均已完成本地验收（`docs/13`、`docs/14`、
   `docs/16`、`docs/18`、`docs/20`、`docs/22`、`docs/24`、`docs/26`）。
 - WP9 身份与录入简化、首页界面优化（docs/29）已完成后端/前端本地验收。
-- 无生产部署；正式 `main` 已建立并推送（= `codex/wp8-release-prep` @ `42bcef0`，main CI 通过）；
-  OPEN-007 账户期满删除清理已在任务分支实现并通过本地测试；staging 未创建。
+- 无生产部署；正式 `main` 已建立并推送；OPEN-007 账户期满删除清理已实现并通过 PR #1 合并到 main
+  （`6d9c888`）；staging 未创建。
 
 ## Last Completed Task
 
+- Task: OPEN-007 Pull Request #1 安全合并（squash）与合并后收尾。
+- Completion Date: 2026-08-07
+- Related Files: 无代码改动（合并 + 状态文档同步）
+- Verification: PR #1 state=MERGED（merge commit `6d9c888`）；合并后本地 `npm run quality` PASS；main 远程 CI run `31136793516` PASS；工作树干净
+- Related Commit: `6d9c888`（main = origin/main）
 - Task: OPEN-007 账户期满删除清理实现（保留期/调度/附件删除/取消删除/匿名墓碑/重试上限），并同步修正 staging 发布清单。
 - Completion Date: 2026-08-06（本地实现与验证完成；提交推送以 `git log` 为准）
 - Related Files: `apps/api/src/account-deletion/*`、`apps/api/src/cli/account-deletion-run.ts`、`apps/api/src/{auth,admin,audit}`、`apps/api/prisma/schema.prisma`、migration `20260806092920_open007_account_deletion_cleanup`、`packages/api-contracts`、`apps/admin/src`、`apps/web/src/api/client.ts`、`docs/05/06/27/28/decisions` 与状态文件
@@ -80,7 +86,7 @@
 
 ## Current Task
 
-None（OPEN-007 本地实现与验证完成，待提交推送；正式 main 已建立并推送且默认分支已切换为 main；未执行 staging/生产部署，未创建 PR）。
+None（OPEN-007 已通过 PR #1 合并到 main；未执行 staging/生产部署）。
 
 ## Next Recommended Task
 
@@ -95,6 +101,8 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 
 ## Completed Work
 
+- OPEN-007 合并：PR #1 以 squash 方式合并到 main（`6d9c888`），任务分支已删除；
+  合并后本地 quality 与 main 远程 CI（run `31136793516`）均通过。
 - OPEN-007：`UserStatus` 新增 `DELETION_PROCESSING`，`users` 新增删除调度/开始/完成/
   尝试次数/失败原因/租约字段；申请删除写入计划时间；后台任务原子领取批量清理全部业务行
   与附件文件，失败可重试、达到上限可诊断，成功后写匿名墓碑；管理员可取消保留期内删除
@@ -145,8 +153,8 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 - 便携 MySQL 8.4 位于仓库外，其他机器复跑集成测试需自备 MySQL 8.x。
 - 邮件/通知/OCR/AI/对象存储供应商未确定（OPEN-003/004/005/006），当前使用本地
   适配器与假实现。
-- 发布决策未确认项：产品名、通知渠道、部署地域/对象存储、浏览器 QA 脚本化、仓库名与产品名关系等
-  （OPEN-001/005/006/009/011，详见 `docs/27`）。
+- 发布决策未确认项：OPEN-001 产品名称、OPEN-005 通知渠道、OPEN-006 部署地域与对象存储、
+  OPEN-009 浏览器 QA 自动化、OPEN-011 仓库名与产品名关系（详见 `docs/27`）。
 
 ## Known Issues
 
@@ -158,11 +166,12 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 | WP3 边界：整体预算 NULL 唯一性服务层校验；原账单软删后退款仍计入统计；统计仅 CNY；CSV 上限 10,000 行 | V1 规模可接受 | finance | `docs/16` |
 | OCR/AI 与对象存储供应商未定；当前使用假实现与本地临时存储 | 真实识别/上传能力未验收 | integrations | OPEN-004/006 |
 | 通知通道未定；当前为应用内 + 假适配器；调度器按单进程周期扫描 | 真实推送未验收；多实例部署前需租约 | reminders/integrations | OPEN-005；`docs/20` |
-| 账号删除期满清理 | WP8 演练时未实现；OPEN-007 已实现（migration `20260806092920_open007_account_deletion_cleanup`），调度器默认关闭，staging 单实例验证后再开启 | auth/account-deletion | 已实现（OPEN-007） |
+| 账号删除期满清理 | OPEN-007 已实现并合并到 main（PR #1，`6d9c888`）；调度器默认关闭，staging 单实例验证后再开启 | auth/account-deletion | 已实现（OPEN-007） |
 | 本机 Git 全局代理 7890 不可用、7897 可用 | 远程 Git 操作需临时覆盖 | 本机环境 | 未修改全局配置 |
 
 ## Verification Status
 
+- main 远程 CI（`6d9c888`）: PASS（run `31136793516`；quality、空库 migrate deploy、WP2 集成测试全部通过）。
 - OPEN-007（本地）: PASS（API 111/111、空库 8 migrations、CLI 演练；`npm run quality` 以最终跑批为准）。
 - 远端 CI（`main` @ `42bcef0`）: PASS（run `31086031458`；quality、空库 migrate deploy、WP2 集成测试全部通过；main 推送触发）。
 - 远端 CI（`codex/wp8-release-prep` @ `42bcef0`）: PASS（run `31085287317`；quality、空库 migrate deploy、WP2 集成测试全部通过）。
@@ -181,6 +190,8 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 
 ## Recent Changes
 
+- 本次：OPEN-007 PR #1 squash 合并到 main（`6d9c888`），任务分支已删除；main CI run
+  `31136793516` PASS；随后创建状态同步分支 `codex/post-open-007-merge-status`（PR 待确认）。
 - 本次：OPEN-007——账户期满删除清理实现（migration、原子领取调度、附件清理、匿名墓碑、
   取消删除、契约/OpenAPI/管理端同步、docs/27 修正、测试与 CLI），分支
   `codex/open-007-deletion-cleanup`。

@@ -76,3 +76,5 @@
 | DA-1005 | GitHub 默认分支切换为 `main`（用户网页操作完成） | DONE | RELEASE |
 | DA-1101 | OPEN-007 账户期满删除清理（保留期/调度/附件删除/取消/重试上限/匿名墓碑） | DONE | RELEASE |
 | DA-1102 | 修正 staging 发布清单过期内容（docs/27 + 状态文档同步） | DONE | RELEASE |
+| DA-1103 | OPEN-007 PR #1 squash 合并到 main（`6d9c888`，任务分支已删除） | DONE | RELEASE |
+| DA-1104 | 合并后状态文档同步（`codex/post-open-007-merge-status`，PR 待用户确认合并） | IN_PROGRESS | RELEASE |
