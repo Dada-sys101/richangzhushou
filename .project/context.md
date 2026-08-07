@@ -113,7 +113,8 @@
 ## Current Task
 
 OPEN-006 对象存储接入代码任务（分支 `codex/aliyun-oss-storage-adapter`）：实现与本地验证完成，
-PR 待创建/合并与 CI 验证；未创建任何真实云资源。
+已推送；PR 创建被 GitHub 认证阻塞（gh 未登录、无 GH_TOKEN），需用户登录 gh 或提供 Token 后创建；
+未创建任何真实云资源。
 
 ## Next Recommended Task
 
@@ -188,6 +189,8 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 - 便携 MySQL 8.4 位于仓库外，其他机器复跑集成测试需自备 MySQL 8.x。
 - 邮件/通知/OCR/AI 供应商未确定（OPEN-003/004/005）；对象存储适配器已实现，
   真实凭据与连通待授权（OPEN-006）。
+- PR 创建阻塞：`gh` 未登录且环境中无 `GH_TOKEN`（仓库私有）；推送已完成，创建链接：
+  https://github.com/Dada-sys101/richangzhushou/pull/new/codex/aliyun-oss-storage-adapter
 - 已处理：状态文档 PR #5 已合并到 main（`6927d93`）。
 - 发布决策未确认项：OPEN-006 真实对象存储资源与连通（其余 OPEN-001/005/009/011 已决策，详见 `docs/27`）。
 
@@ -207,6 +210,7 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 ## Verification Status
 
 - OPEN-006（本地）：新增单元测试 22/22；`npm run quality` PASS；`npm run test:e2e:smoke` 20/20 PASS。
+- OPEN-006（PR/CI）：任务分支已推送；PR 创建与 CI quality/browser-qa 待用户完成 GitHub 认证后核验。
 - main 远程 CI（`47c40c9`）run `31144549537`：quality PASS、browser-qa PASS。
 - 本地（main）: PASS（quality、smoke 20/20、完整矩阵 70/70）。
 - OPEN-009（本地）: PASS（smoke 20/20、完整矩阵 70/70）。
