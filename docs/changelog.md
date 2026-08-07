@@ -4,12 +4,22 @@
 更新：2026-08-06
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-07 — PR #6 合并到 main
+
+- PR #6（feat: add Aliyun OSS storage adapter）已 squash 合并到 main（merge commit `db5c5d3`），
+  远程任务分支 `codex/aliyun-oss-storage-adapter` 已删除。
+- main CI run `31158434661`：quality SUCCESS、browser-qa SUCCESS；本地 quality PASS、smoke 20/20。
+- Aliyun OSS 适配器、`STORAGE_PROVIDER` 配置切换、`StorageKeyService` 与测试已进入 main；
+  `LocalStorageAdapter` 仍仅用于本地与测试。
+- 未创建真实 OSS Bucket/RAM/凭据；未执行真实上传/读取/删除与备份上传验证；staging 未创建、
+  生产未部署；OPEN-006 仍为部分完成。
+
 ## 2026-08-07 — PR #6 创建与 CI 验证
 
 - PR #6（feat: add Aliyun OSS storage adapter）已创建：base=main、
   head=codex/aliyun-oss-storage-adapter、head SHA `11614ba5d26fabc13595974471f0c13f642cb3a2`。
 - quality 与 browser-qa 均 SUCCESS（run `31156557067`、`31155080018`）；mergeable=true、
-  无冲突、未发现真实密钥或敏感配置；尚未合并到 main。
+  无冲突、未发现真实密钥或敏感配置；尚未合并到 main（当时状态；随后已 squash 合并，见下条）。
 - 历史情况：最初因本地 `gh` 未登录无法创建 PR；后续状态：PR #6 已创建，CI 已通过。
 
 ## 2026-08-07 — OPEN-006 对象存储接入代码实现
