@@ -108,6 +108,7 @@ export function shanghaiLocalInput(date: Date): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
     day: "2-digit",
     hour: "2-digit",
+    hourCycle: "h23",
     minute: "2-digit",
     month: "2-digit",
     timeZone: "Asia/Shanghai",
