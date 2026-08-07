@@ -5,13 +5,15 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const npmCli = path.join(
-  path.dirname(process.execPath),
-  "node_modules",
-  "npm",
-  "bin",
-  "npm-cli.js",
-);
+const npmCli =
+  process.env.npm_execpath ??
+  path.join(
+    path.dirname(process.execPath),
+    "node_modules",
+    "npm",
+    "bin",
+    "npm-cli.js",
+  );
 const API = "http://127.0.0.1:3000";
 const WEB = "http://127.0.0.1:5173";
 const ADMIN = "http://127.0.0.1:5174";

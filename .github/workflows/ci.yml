@@ -50,6 +50,9 @@ jobs:
       - name: Build shared API contracts
         run: npm run build --workspace @daily-assistant/api-contracts
 
+      - name: Build shared config
+        run: npm run build --workspace @daily-assistant/config
+
       - name: Run quality gates
         run: npm run quality
 
@@ -104,6 +107,9 @@ jobs:
 
       - name: Build shared API contracts
         run: npm run build --workspace @daily-assistant/api-contracts
+
+      - name: Build shared config
+        run: npm run build --workspace @daily-assistant/config
 
       - name: Run browser smoke tests
         run: npm run test:e2e:smoke
