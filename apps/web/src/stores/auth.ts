@@ -2,11 +2,11 @@ import { defineStore } from "pinia";
 
 import {
   api,
-  isOfflineError,
   setAccessToken,
   type AuthSessionResponse,
   type UserSummary,
 } from "../api/client";
+import { refreshSessionOnce } from "../api/session";
 import { getLastUserId, hasAnyLocalData, resetUserData } from "../offline/sync";
 
 interface AuthState {
@@ -77,16 +77,14 @@ export const useAuthStore = defineStore("auth", {
       this.mustChangePassword = false;
     },
     async refresh() {
-      try {
-        this.applySession(await api.refresh());
-      } catch (error) {
-        if (!isOfflineError(error)) {
-          throw error;
-        }
-        const entered = await this.enterOfflineMode();
-        if (!entered) {
-          throw error;
-        }
+      const session = await refreshSessionOnce();
+      if (session) {
+        this.applySession(session);
+        return;
+      }
+      const entered = await this.enterOfflineMode();
+      if (!entered) {
+        throw new Error("SESSION_REFRESH_FAILED");
       }
     },
     async logout() {

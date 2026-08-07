@@ -1,6 +1,8 @@
-# Daily Assistant
+# 日常助手（Daily Assistant）
 
 面向 10–20 名受邀早期用户的个人日常助手。V1.0 聚焦记账、日程、待办、提醒、行程、Apple 快捷指令辅助记账，以及云端同步和本地离线能力。
+
+V1 提醒仅应用内查看（不承诺 Web Push/系统通知/短信/邮件，Web Push 与系统通知列为 V1.1 候选）。
 
 > 当前阶段：WP1–WP8 已完成本机验收；WP9 完成身份与录入简化（账号密码登录、管理员建号、首登强制改密、邮箱/邀请码/截图 OCR 下线）。没有生产环境。
 
@@ -23,6 +25,17 @@ npm run dev --workspace @daily-assistant/api
 npm run dev --workspace @daily-assistant/web
 npm run dev --workspace @daily-assistant/admin
 ```
+
+## 浏览器 QA（OPEN-009）
+
+- 安装浏览器：`npx playwright install chromium firefox webkit`
+- 冒烟（Chromium 桌面 + 390×844 移动）：`npm run test:e2e:smoke`
+- 完整矩阵（Chromium/Firefox/WebKit、1440/390/375/430）：`npm run test:e2e:matrix`
+- 全部用例：`npm run test:e2e`；带界面调试：`npm run test:e2e:headed`
+
+E2E 使用独立测试库，本地运行前设置 `E2E_DATABASE_URL`（专用 MySQL 8 库，禁止使用开发/生产库）；
+测试启动脚本会自动执行 Prisma generate、契约构建、migration、测试管理员引导并启动 API/Web/管理端，
+结束后关闭进程。失败产物位于 `test-results/` 与 `playwright-report/`（已 gitignore）。
 
 默认地址：API `http://127.0.0.1:3000/api/v1/health`、用户端 `http://localhost:5173`、管理端 `http://localhost:5174`。`.env.example` 只含本地占位值；真实密码、Token、API Key 和生产凭据不得提交。
 

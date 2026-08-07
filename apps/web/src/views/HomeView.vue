@@ -115,7 +115,7 @@ async function changeMonth() {
         <span class="auth-state-icon">
           <AppIcon name="user" :size="28" />
         </span>
-        <p class="eyebrow">Daily Assistant</p>
+        <p class="eyebrow">日常助手</p>
         <h1 id="home-title">今日概览</h1>
         <p class="auth-state-message">请登录后查看今日数据</p>
         <p class="auth-state-copy">
@@ -135,7 +135,7 @@ async function changeMonth() {
         <span class="auth-state-icon">
           <AppIcon name="lock" :size="28" />
         </span>
-        <p class="eyebrow">Daily Assistant</p>
+        <p class="eyebrow">日常助手</p>
         <h1 id="home-title">今日概览</h1>
         <p class="auth-state-message">登录状态已过期，请重新登录</p>
         <p class="auth-state-copy">
@@ -155,7 +155,7 @@ async function changeMonth() {
         <span class="auth-state-icon">
           <AppIcon name="alert" :size="28" />
         </span>
-        <p class="eyebrow">Daily Assistant</p>
+        <p class="eyebrow">日常助手</p>
         <h1 id="home-title">今日概览</h1>
         <p class="auth-state-message">数据加载失败，请稍后重试</p>
         <p class="auth-state-copy">暂时无法获取今日数据，请检查网络后重试。</p>

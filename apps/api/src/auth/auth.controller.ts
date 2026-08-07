@@ -23,11 +23,27 @@ const REFRESH_COOKIE_NAME = "da_refresh";
 
 @Controller("auth")
 export class AuthController {
+  private readonly loginLimit: number;
+  private readonly loginWindowMs: number;
+
   constructor(
     private readonly authService: AuthService,
     private readonly cookieService: CookieService,
     private readonly rateLimiter: RateLimiterService,
-  ) {}
+  ) {
+    const parsedLimit = Number(process.env.LOGIN_RATE_LIMIT_MAX ?? 10);
+    const parsedWindow = Number(
+      process.env.LOGIN_RATE_LIMIT_WINDOW_MS ?? 15 * 60 * 1000,
+    );
+    this.loginLimit =
+      Number.isFinite(parsedLimit) && parsedLimit > 0
+        ? Math.floor(parsedLimit)
+        : 10;
+    this.loginWindowMs =
+      Number.isFinite(parsedWindow) && parsedWindow > 0
+        ? Math.floor(parsedWindow)
+        : 15 * 60 * 1000;
+  }
 
   @Post("login")
   @HttpCode(HttpStatus.OK)
@@ -38,8 +54,8 @@ export class AuthController {
   ) {
     this.rateLimiter.consume(
       `login:${request.ip ?? "unknown"}:${dto.username.toLowerCase()}`,
-      10,
-      15 * 60 * 1000,
+      this.loginLimit,
+      this.loginWindowMs,
     );
     const result = await this.authService.login(dto);
     this.writeSession(response, result);

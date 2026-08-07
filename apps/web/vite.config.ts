@@ -8,9 +8,9 @@ export default defineConfig({
     VitePWA({
       injectRegister: "auto",
       manifest: {
-        name: "Daily Assistant",
-        short_name: "Daily",
-        description: "Daily Assistant 用户端",
+        name: "日常助手",
+        short_name: "日常助手",
+        description: "日常助手（Daily Assistant）用户端",
         display: "standalone",
         icons: [
           {

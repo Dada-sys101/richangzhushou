@@ -1,4 +1,9 @@
-import { API_BASE_URL, getAccessToken, setAccessToken } from "./session";
+import {
+  API_BASE_URL,
+  getAccessToken,
+  refreshSessionOnce,
+  setAccessToken,
+} from "./session";
 
 export { setAccessToken };
 
@@ -491,51 +496,66 @@ async function http<T>(
     }
     throw new OfflineNetworkError(method, path);
   }
-  let response: Response;
-  try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
-      body:
-        options.body === undefined ? undefined : JSON.stringify(options.body),
-      credentials: "include",
-      headers: {
-        Accept: "application/json",
-        ...(getAccessToken()
-          ? { Authorization: `Bearer ${getAccessToken()}` }
-          : {}),
-        "Content-Type": "application/json",
-      },
-      method,
-    });
-  } catch {
-    const route = matchOfflineRoute(method, path);
-    if (route) {
-      return handleOffline(route, path, options.body) as T;
-    }
-    throw new OfflineNetworkError(method, path);
-  }
-
-  if (response.status === 204) {
-    return undefined as T;
-  }
-  const text = await response.text();
-  let data: unknown = null;
-  if (text) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    let response: Response;
     try {
-      data = JSON.parse(text) as unknown;
+      response = await fetch(`${API_BASE_URL}${path}`, {
+        body:
+          options.body === undefined ? undefined : JSON.stringify(options.body),
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          ...(getAccessToken()
+            ? { Authorization: `Bearer ${getAccessToken()}` }
+            : {}),
+          "Content-Type": "application/json",
+        },
+        method,
+      });
     } catch {
-      data = null;
+      const route = matchOfflineRoute(method, path);
+      if (route) {
+        return handleOffline(route, path, options.body) as T;
+      }
+      throw new OfflineNetworkError(method, path);
     }
+
+    if (response.status === 204) {
+      return undefined as T;
+    }
+    const text = await response.text();
+    let data: unknown = null;
+    if (text) {
+      try {
+        data = JSON.parse(text) as unknown;
+      } catch {
+        data = null;
+      }
+    }
+    if (!response.ok) {
+      const error = (data ?? {}) as ApiErrorBody;
+      if (
+        response.status === 401 &&
+        attempt === 0 &&
+        !path.startsWith("/auth/") &&
+        (await refreshAccessTokenOnce())
+      ) {
+        continue;
+      }
+      throw new ApiClientError(
+        response.status,
+        error.code ?? "SERVICE_UNAVAILABLE",
+        error.message ?? "服务暂时不可用，请稍后重试",
+        error.fieldErrors,
+      );
+    }
+    return data as T;
   }
-  if (!response.ok) {
-    const error = (data ?? {}) as ApiErrorBody;
-    throw new ApiClientError(
-      response.status,
-      error.code ?? "SERVICE_UNAVAILABLE",
-      error.message ?? "服务暂时不可用，请稍后重试",
-      error.fieldErrors,
-    );
-  }
-  return data as T;
+  throw new ApiClientError(401, "UNAUTHORIZED", "登录状态已过期，请重新登录");
+}
+
+async function refreshAccessTokenOnce(): Promise<boolean> {
+  return (await refreshSessionOnce()) !== null;
 }
 
 export const api = {

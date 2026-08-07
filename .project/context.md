@@ -2,13 +2,13 @@
 
 ## Last Updated
 
-2026-08-07 +08:00（OPEN-007 已通过 PR #1 squash 合并到 main，main 远程 CI 通过；合并 commit `6d9c888`；未部署）
+2026-08-07 +08:00（V1 发布决策固化与 OPEN-009 浏览器 QA 自动化在 codex/v1-decisions-browser-qa 分支完成；本地 smoke 20/20、完整矩阵 70/70；提交与推送以 `git log`/PR 为准；未部署）
 
 ## Repository State
 
 - Repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
-- Current Branch: `main`（= origin/main @ `6d9c888`；OPEN-007 已合并）
-- HEAD Commit: `6d9c888`（feat: implement expired account deletion cleanup）
+- Current Branch: `codex/v1-decisions-browser-qa`（V1 决策 + OPEN-009 任务分支，基于 main）
+- HEAD Commit: 以 `git log` 为准（分支包含产品命名、通知范围、Playwright 自动化与文档同步）
 - Working Tree Status: clean（忽略文件除外，如 `apps/api/.env`、`output/playwright/`，gitignored）
 - Last Verified Commit: `6d9c888`；本地 `npm run quality` PASS；远端 main GitHub Actions run `31136793516` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）
 
@@ -32,10 +32,15 @@
   `docs/16`、`docs/18`、`docs/20`、`docs/22`、`docs/24`、`docs/26`）。
 - WP9 身份与录入简化、首页界面优化（docs/29）已完成后端/前端本地验收。
 - 无生产部署；正式 `main` 已建立并推送；OPEN-007 账户期满删除清理已实现并通过 PR #1 合并到 main
-  （`6d9c888`）；staging 未创建。
+  （`6d9c888`）；V1 发布决策已固化、OPEN-009 浏览器 QA 自动化已完成本地验证；staging 未创建。
 
 ## Last Completed Task
 
+- Task: V1 发布决策固化（OPEN-001 产品名、OPEN-005 仅应用内提醒、OPEN-011 命名分离）+ OPEN-009 Playwright 浏览器 QA 自动化。
+- Completion Date: 2026-08-07（本地实现与验证完成；提交推送以 `git log`/PR 为准）
+- Related Files: `packages/config`、`apps/web`（UI 文案、401 单飞刷新）、`apps/admin`、`playwright.config.ts`、`tests/e2e/*`、`scripts/start-e2e-services.mjs`、`apps/api/src/cli/e2e-prep.ts`、`.github/workflows/ci.yml`、`docs/27/26/decisions` 与状态文件
+- Verification: 本地 smoke 20/20、完整矩阵 70/70；`npm run quality` 以最终跑批为准
+- Related Commit: 以 `git log` 为准（分支 `codex/v1-decisions-browser-qa`）
 - Task: OPEN-007 Pull Request #1 安全合并（squash）与合并后收尾。
 - Completion Date: 2026-08-07
 - Related Files: 无代码改动（合并 + 状态文档同步）
@@ -86,7 +91,7 @@
 
 ## Current Task
 
-None（OPEN-007 已通过 PR #1 合并到 main；未执行 staging/生产部署）。
+None（V1 决策与 OPEN-009 本地完成，待提交推送与 PR；OPEN-007 已合并到 main；未执行 staging/生产部署）。
 
 ## Next Recommended Task
 
@@ -101,6 +106,11 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 
 ## Completed Work
 
+- V1 决策固化：`packages/config` 统一 PRODUCT（日常助手 / Daily Assistant）；提醒页仅应用内文案；
+  docs/27 与 decisions 记录 OPEN-001/005/011 已决策。
+- OPEN-009：Playwright 1.62.1、`tests/e2e` 10 用例、`scripts/start-e2e-services.mjs`、
+  根命令 test:e2e 系列、CI `browser-qa` job；web 客户端 401 单飞刷新重试；
+  本地 smoke 20/20、完整矩阵 70/70。
 - OPEN-007 合并：PR #1 以 squash 方式合并到 main（`6d9c888`），任务分支已删除；
   合并后本地 quality 与 main 远程 CI（run `31136793516`）均通过。
 - OPEN-007：`UserStatus` 新增 `DELETION_PROCESSING`，`users` 新增删除调度/开始/完成/
@@ -153,8 +163,7 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 - 便携 MySQL 8.4 位于仓库外，其他机器复跑集成测试需自备 MySQL 8.x。
 - 邮件/通知/OCR/AI/对象存储供应商未确定（OPEN-003/004/005/006），当前使用本地
   适配器与假实现。
-- 发布决策未确认项：OPEN-001 产品名称、OPEN-005 通知渠道、OPEN-006 部署地域与对象存储、
-  OPEN-009 浏览器 QA 自动化、OPEN-011 仓库名与产品名关系（详见 `docs/27`）。
+- 发布决策未确认项：OPEN-006 部署地域与对象存储（其余 OPEN-001/005/009/011 已决策，详见 `docs/27`）。
 
 ## Known Issues
 
@@ -171,6 +180,7 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 
 ## Verification Status
 
+- OPEN-009（本地）: PASS（smoke 20/20、完整矩阵 70/70）。
 - main 远程 CI（`6d9c888`）: PASS（run `31136793516`；quality、空库 migrate deploy、WP2 集成测试全部通过）。
 - OPEN-007（本地）: PASS（API 111/111、空库 8 migrations、CLI 演练；`npm run quality` 以最终跑批为准）。
 - 远端 CI（`main` @ `42bcef0`）: PASS（run `31086031458`；quality、空库 migrate deploy、WP2 集成测试全部通过；main 推送触发）。
@@ -190,6 +200,9 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 
 ## Recent Changes
 
+- 本次：V1 决策固化与 OPEN-009——产品名统一配置、仅应用内提醒、命名分离决策；
+  Playwright smoke/matrix 与 CI browser-qa；web 401 单飞刷新；分支
+  `codex/v1-decisions-browser-qa`。
 - 本次：OPEN-007 PR #1 squash 合并到 main（`6d9c888`），任务分支已删除；main CI run
   `31136793516` PASS；随后创建状态同步分支 `codex/post-open-007-merge-status`（PR 待确认）。
 - 本次：OPEN-007——账户期满删除清理实现（migration、原子领取调度、附件清理、匿名墓碑、

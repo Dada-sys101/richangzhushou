@@ -26,7 +26,7 @@ describe("SiteHeader", () => {
       global: { stubs: { RouterLink: RouterLinkStub } },
     });
     expect(wrapper.find("nav").exists()).toBe(false);
-    expect(wrapper.text()).toContain("Daily Assistant");
+    expect(wrapper.text()).toContain("日常助手");
   });
 
   it("shows the concise desktop navigation when authenticated", async () => {
@@ -37,7 +37,7 @@ describe("SiteHeader", () => {
     });
     const links = wrapper.findAllComponents(RouterLinkStub);
     expect(links.map((link) => link.text())).toEqual([
-      "Daily Assistant",
+      "日常助手",
       "首页",
       "日程",
       "待办",

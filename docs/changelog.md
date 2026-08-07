@@ -4,6 +4,22 @@
 更新：2026-08-06
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-07 — V1 发布决策固化 + OPEN-009 浏览器 QA 自动化
+
+- 产品名：正式中文“日常助手”、英文“Daily Assistant”（OPEN-001）；统一产品配置
+  `packages/config/src/index.ts`（PRODUCT），用户端/管理端/登录页/PWA manifest/元数据一致；
+  技术 package 名不重构（OPEN-011 品牌显示名与技术标识分离）。
+- 通知范围：V1 仅应用内提醒（OPEN-005），提醒页明确“仅应用内查看”，不再展示浏览器推送授权状态；
+  `FakeNotificationAdapter` 仅用于本地与测试；Web Push/系统通知列为 V1.1 候选。
+- OPEN-009：`@playwright/test` 1.62.1、`playwright.config.ts`、`tests/e2e`
+  （auth/admin/home/deletion 10 个用例）、`scripts/start-e2e-services.mjs`
+  （专用测试库 + 自动 generate/build/migrate/bootstrap + 三服务启动 + 健康等待 + 进程清理）、
+  根命令 `test:e2e`/`test:e2e:smoke`/`test:e2e:headed`/`test:e2e:matrix`；
+  CI 新增独立 `browser-qa` job（Node 24 + MySQL 8.4 + Chromium + 失败截图/trace/video 上传）。
+- 稳定性修复：web 客户端 401 单飞刷新重试，避免会话轮换竞态；登录限流可配置
+  （`LOGIN_RATE_LIMIT_MAX`，默认仍为 10）。
+- 验证：本地 smoke 20/20；完整矩阵 70/70（Chromium 桌面/390 移动、Firefox、WebKit、1440/375/430）。
+
 ## 2026-08-07 — OPEN-007 合并到 main（PR #1）
 
 - PR #1（feat: implement expired account deletion cleanup）以 squash 方式合并到 main，

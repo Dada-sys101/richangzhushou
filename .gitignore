@@ -2,10 +2,14 @@ node_modules/
 .playwright-cli/
 output/playwright/
 output/browser-qa/
+output/e2e/
 dist/
 coverage/
 .vite/
 *.tsbuildinfo
+playwright-report/
+test-results/
+blob-report/
 
 .env
 .env.*
