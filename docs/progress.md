@@ -16,8 +16,9 @@
   旧 `attachments/` 键兼容；上传仍由 API 服务端代理，无需 OSS CORS。
 - 测试：新增/更新单元测试 22 项（配置选择/缺失校验/适配器行为/附件与账号删除服务接入）。
 - 示例：`deploy/staging/.env.staging.example`（仅占位符）；`.env.example` 同步。
-- PR #6 已创建（base=main，head=codex/aliyun-oss-storage-adapter，head SHA `11614ba`）；
-  quality/browser-qa 均 SUCCESS；无冲突、未发现敏感信息；尚未合并到 main。
+- PR #6 已 squash 合并到 main（merge commit `db5c5d3`，2026-08-07）；main CI run `31158434661`
+  quality/browser-qa 均 SUCCESS；OSS 适配器已进入 main。
+- `LocalStorageAdapter` 仍仅用于本地与测试；生产/staging 必须 `STORAGE_PROVIDER=oss`。
 - 未创建真实 Bucket/RAM、未完成真实连通测试；staging 未创建、生产未部署。
 
 ### E2E 修复 PR #4 合并与 main 全绿（2026-08-07）
@@ -159,7 +160,7 @@
 
 ## 进行中
 
-- OPEN-006 对象存储接入 PR #6（已创建，quality/browser-qa 通过，待用户确认合并）。
+- 状态文档分支 `codex/post-pr6-merge-status`（记录 PR #6 合并，PR 待确认合并）。
 
 ## 未开始
 

@@ -2,13 +2,13 @@
 
 ## Last Updated
 
-2026-08-07 +08:00（OPEN-006 对象存储接入代码完成并进入 PR #6（base=main，head=codex/aliyun-oss-storage-adapter，head SHA `11614ba`）；quality/browser-qa 通过、无冲突、待合并；真实 Bucket/RAM/连通与 staging 待授权）
+2026-08-07 +08:00（PR #6 已 squash 合并到 main（merge commit `db5c5d3`）；main quality/browser-qa 通过；OSS 适配器代码已进入 main；真实 Bucket/RAM/连通与 staging 待授权）
 
 ## Repository State
 
 - Repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
-- Current Branch: `codex/aliyun-oss-storage-adapter`（OPEN-006 对象存储接入任务分支，基于 main `6927d93`）
-- HEAD Commit: 以 `git log` 为准（OSS 适配器 + 配置切换 + 键服务 + 测试 + 文档）
+- Current Branch: `codex/post-pr6-merge-status`（PR #6 合并后状态文档分支，基于 main `db5c5d3`）
+- HEAD Commit: 以 `git log` 为准（记录 PR #6 合并与 OSS 就绪状态）
 - Working Tree Status: clean（忽略文件除外，如 `apps/api/.env`、`output/playwright/`，gitignored）
 - Last Verified Commit: `6d9c888`；本地 `npm run quality` PASS；远端 main GitHub Actions run `31136793516` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）
 
@@ -44,8 +44,8 @@
   `apps/api/src/types/ali-oss.d.ts`、`apps/api/src/attachments/attachments.service.ts`、
   4 个测试文件、`deploy/staging/.env.staging.example`、12 个状态/发布文档
 - Verification: 新增单元测试 22/22；本地 `npm run quality` PASS；`npm run test:e2e:smoke` 20/20 PASS；
-  PR #6 CI：quality SUCCESS、browser-qa SUCCESS（run `31156557067`、`31155080018`）
-- Related Commit: 以 `git log` 为准（分支 `codex/aliyun-oss-storage-adapter`）
+  PR #6 CI：quality SUCCESS、browser-qa SUCCESS；已 squash 合并到 main
+- Related Commit: `db5c5d3`（PR #6 squash merge commit，已进入 main）
 - Task: PR #4（E2E 时间助手 24 小时制修复）安全合并 + main 全绿验证 + PR #5 文档更新。
 - Completion Date: 2026-08-07
 - Related Files: `tests/e2e/helpers/e2e.ts`、状态文档（10 个）
@@ -112,9 +112,7 @@
 
 ## Current Task
 
-OPEN-006 对象存储接入代码任务（分支 `codex/aliyun-oss-storage-adapter`）：实现与本地验证完成，
-PR #6 已创建（base=main，head SHA `11614ba5d26fabc13595974471f0c13f642cb3a2`），
-quality/browser-qa 已通过、无冲突、具备合并条件，待用户确认合并；未创建任何真实云资源。
+None（PR #6 已合并到 main；OPEN-006 真实 OSS 资源与 staging 创建待用户授权；未执行生产部署）。
 
 ## Next Recommended Task
 
@@ -122,7 +120,7 @@ quality/browser-qa 已通过、无冲突、具备合并条件，待用户确认�
   真实上传/下载/删除与备份上传验证（需用户授权）。
 - Priority: P0（前置动作）
 - Reason: OSS 适配器代码已完成；真实资源与连通验证是关闭 OPEN-006 与创建 staging 的前置条件。
-- Dependencies: 用户确认合并 PR #6；授权创建云资源并提供 RAM 凭据（凭据绝不入库）。
+- Dependencies: 用户授权创建云资源并提供 RAM 凭据（凭据绝不入库）；状态文档 PR 合并确认。
 - Acceptance Criteria: 私有 Bucket + RAM 最小权限完成；真实连通测试通过；staging 按 `docs/27` 创建并验证。
 
 下一开发任务：按 `docs/27` 完成 staging 决策（需用户授权）；OPEN-006 适配器代码已完成，
@@ -177,7 +175,7 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 
 ## Remaining Work
 
-- In Progress: OPEN-006 对象存储接入 PR #6（已创建，quality/browser-qa 通过，待用户确认合并）。
+- In Progress: 状态文档分支 `codex/post-pr6-merge-status`（记录 PR #6 合并与 OSS 就绪状态，PR 待合并）。
 - 待用户授权推送：WP2–WP7 分支尚未推送；如需远端 CI 逐一验证需另行授权。
 - Partially Completed: OPEN-006 对象存储接入（代码完成；真实 Bucket/RAM/连通未完成）；浏览器 QA 一键脚本化（OPEN-009）。
 - Not Started: 真实 OSS Bucket/RAM/连通测试与 staging 创建/部署（需授权）。
@@ -210,9 +208,8 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 ## Verification Status
 
 - OPEN-006（本地）：新增单元测试 22/22；`npm run quality` PASS；`npm run test:e2e:smoke` 20/20 PASS。
-- OPEN-006（PR #6）：head `11614ba5d26fabc13595974471f0c13f642cb3a2`；quality SUCCESS、
-  browser-qa SUCCESS（run `31156557067`、`31155080018`）；mergeable=true、mergeable_state=clean；
-  无冲突、未发现真实密钥或敏感配置。
+- OPEN-006（main）：OSS 适配器已随 PR #6 squash 合并到 main（`db5c5d3`）；main CI run
+  `31158434661` quality/browser-qa 均 SUCCESS；本地 quality PASS、smoke 20/20。
 - main 远程 CI（`47c40c9`）run `31144549537`：quality PASS、browser-qa PASS。
 - 本地（main）: PASS（quality、smoke 20/20、完整矩阵 70/70）。
 - OPEN-009（本地）: PASS（smoke 20/20、完整矩阵 70/70）。
