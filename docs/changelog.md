@@ -4,6 +4,15 @@
 更新：2026-08-06
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-07 — OPEN-007 合并到 main（PR #1）
+
+- PR #1（feat: implement expired account deletion cleanup）以 squash 方式合并到 main，
+  merge commit `6d9c888`；任务分支 `codex/open-007-deletion-cleanup` 已删除。
+- 合并后本地 `npm run quality` PASS；main 远程 CI run `31136793516` PASS
+  （quality、空库 migrate deploy、WP2 集成测试全部通过）。
+- 账户删除调度器默认关闭，staging 单实例验证后方可开启；staging 未创建、生产未部署。
+- 合并后状态文档同步在 `codex/post-open-007-merge-status` 分支（PR 待用户确认）。
+
 ## 2026-08-06 — OPEN-007 账户期满删除清理实现完成
 
 - 数据模型：`UserStatus` 新增 `DELETION_PROCESSING`；`users` 新增
