@@ -2,7 +2,7 @@
 
 ## Session Status
 
-进行中（OPEN-006 对象存储接入代码任务：实现/本地验证/推送完成；PR 创建被 GitHub 认证阻塞）
+进行中（OPEN-006 对象存储接入代码任务：PR #6 已创建，quality/browser-qa 通过，待用户确认合并）
 
 ## Task
 
@@ -14,8 +14,8 @@
   （新键 `users/{userId}/attachments/{fileId}`，旧键兼容）；22 项新增单元测试；
   `deploy/staging/.env.staging.example` 与 12 个状态/发布文档同步。
 - 未创建真实 Bucket/RAM、未完成真实连通测试；staging 未创建、生产未部署；OPEN-006 未关闭。
-- 分支：`codex/aliyun-oss-storage-adapter`（已推送 `e557136`）；PR 创建被 `gh` 未登录阻塞，
-  需用户登录 `gh` 或提供 `GH_TOKEN` 后创建并与 CI 验证。
+- 分支：`codex/aliyun-oss-storage-adapter`（已推送 `11614ba`）；PR #6 已创建（base=main），
+  quality/browser-qa 已通过、无冲突、无敏感信息，待用户确认合并。
 
 ## 最近完成：PR #4 合并与 main 全绿验证（2026-08-07）
 
@@ -116,7 +116,7 @@
 
 ## Current Progress
 
-- 完成比例：95%（代码/测试/文档/推送完成；PR 创建与 CI 验证待用户 GitHub 认证）
+- 完成比例：98%（代码/测试/文档/推送完成；PR #6 已创建且 CI 通过，仅剩用户确认合并）
 - 已完成步骤：
   1. 建立 `codex/aliyun-oss-storage-adapter` 分支（基于 main `6927d93`）。
   2. 实现 `AliyunOssStorageAdapter`（ali-oss 6.23.0）与 `StorageOperationError`（不泄漏凭据/正文）。
@@ -126,6 +126,7 @@
   5. 新增/更新单元测试 22 项（配置/适配器/键服务/附件与账号删除服务接入）。
   6. 新增 `deploy/staging/.env.staging.example` 与 12 个状态/发布文档同步。
   7. `npm run quality` PASS、`npm run test:e2e:smoke` 20/20 PASS、`git diff --check` PASS。
+  8. 状态文档更新为 PR #6 已创建、quality/browser-qa 通过、无冲突、待确认合并。
   7. CP6 备份恢复演练：mysqldump → 隔离库恢复 → 24/24 表行数一致，抽查哈希/状态一致；
      migration 回滚说明核对（migrations README）。
   8. CP7 账号删除演练：真实 API 流程 DELETION_PENDING、会话撤销、容量释放、
@@ -178,25 +179,21 @@
 
 ## Blockers
 
-本任务：PR 创建阻塞——`gh` 未登录、无 `GH_TOKEN`、仓库私有；需用户在 GitHub 登录
-`gh auth login` 或提供 Token（创建链接：
-https://github.com/Dada-sys101/richangzhushou/pull/new/codex/aliyun-oss-storage-adapter）。
+本任务：无当前阻塞（PR #6 已创建，quality/browser-qa 通过，无冲突；合并需用户确认）。
+历史情况：最初因本地 `gh` 未登录无法创建 PR；后续状态：PR #6 已通过 GitHub 连接创建并完成 CI 验证。
 项目级阻塞见 `.project/context.md` Blockers。
 
 ## Resume Instructions
 
 1. 当前任务分支 `codex/aliyun-oss-storage-adapter` 基于 main `6927d93`；提交哈希以 `git log` 为准。
 2. 下次任务开始前按 AGENTS.md 恢复顺序读取状态文件与 Git 历史。
-3. 若用户继续：先完成 OSS 适配器 PR 合并与 CI 验证；再授权创建私有 Bucket/RAM 并完成
-   真实连通测试；按 `docs/27` 创建 staging；开启删除调度器并单实例验证前不得宣称
-   生产环境“数据已删除”。
-4. PR 创建前需用户完成 GitHub 认证（`gh auth login` 或设置 `GH_TOKEN`），认证后运行：
-   `gh pr create --repo Dada-sys101/richangzhushou --base main --head codex/aliyun-oss-storage-adapter --title "feat: add Aliyun OSS storage adapter"`。
+3. 若用户继续：确认合并 PR #6 后，授权创建私有 Bucket/RAM 并完成真实连通测试；
+   按 `docs/27` 创建 staging；开启删除调度器并单实例验证前不得宣称生产环境“数据已删除”。
 
 ## Completion Criteria
 
 - OSS 适配器代码、配置切换、键服务、测试与示例完成；`npm run quality` 与
-  `npm run test:e2e:smoke` 通过；PR 创建并等待 CI。
+  `npm run test:e2e:smoke` 通过；PR #6 已创建且 quality/browser-qa 通过，等待用户确认合并。
 - 未创建真实云资源、未部署；OPEN-006 未关闭；staging 未创建。
 - 本地提交完成并推送任务分支（无 force push）。
 

@@ -1,7 +1,7 @@
 # Project Status
 
 版本：1.0<br>
-状态：正式 `main` 已建立并推送；OPEN-007、V1 决策、OPEN-009 与 E2E 修复均已合并到 main（PR #1/#3/#4），main CI 全绿；OPEN-006 对象存储接入代码已实现（分支 `codex/aliyun-oss-storage-adapter`），真实云资源与 staging 待授权；未部署<br>
+状态：正式 `main` 已建立并推送；OPEN-007、V1 决策、OPEN-009 与 E2E 修复均已合并到 main（PR #1/#3/#4），main CI 全绿；OPEN-006 对象存储接入代码已实现并经 PR #6 提交（quality/browser-qa 通过，待合并），真实云资源与 staging 待授权；未部署<br>
 更新：2026-08-07
 
 ## 当前状态
@@ -35,7 +35,7 @@
 ## 已完成
 
 - OPEN-006 对象存储接入代码：OSS 适配器、配置切换、键服务、22 项新增单元测试与环境示例
-  （分支 `codex/aliyun-oss-storage-adapter`，PR 待合并与 CI 验证）。
+  （分支 `codex/aliyun-oss-storage-adapter`，PR #6 已创建，quality/browser-qa 通过，待合并）。
 - PR #4 合并：E2E 时间助手 24 小时制修复进入 main（`47c40c9`），main browser-qa 恢复 SUCCESS。
 - PR #3 合并：V1 决策与 OPEN-009 进入 main（`4fcc613`），任务分支已删除。
 - V1 发布决策固化：产品名统一配置（`packages/config` PRODUCT）、提醒页应用内文案、决策记录同步。

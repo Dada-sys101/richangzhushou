@@ -16,6 +16,8 @@
   旧 `attachments/` 键兼容；上传仍由 API 服务端代理，无需 OSS CORS。
 - 测试：新增/更新单元测试 22 项（配置选择/缺失校验/适配器行为/附件与账号删除服务接入）。
 - 示例：`deploy/staging/.env.staging.example`（仅占位符）；`.env.example` 同步。
+- PR #6 已创建（base=main，head=codex/aliyun-oss-storage-adapter，head SHA `11614ba`）；
+  quality/browser-qa 均 SUCCESS；无冲突、未发现敏感信息；尚未合并到 main。
 - 未创建真实 Bucket/RAM、未完成真实连通测试；staging 未创建、生产未部署。
 
 ### E2E 修复 PR #4 合并与 main 全绿（2026-08-07）
@@ -157,7 +159,7 @@
 
 ## 进行中
 
-- OPEN-006 对象存储接入 PR（代码/推送完成；PR 创建被 GitHub 认证阻塞，待用户登录 gh 后创建）。
+- OPEN-006 对象存储接入 PR #6（已创建，quality/browser-qa 通过，待用户确认合并）。
 
 ## 未开始
 

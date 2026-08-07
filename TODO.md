@@ -83,5 +83,5 @@
 | DA-1203 | V1 决策 + 浏览器 QA 分支 PR（#3）squash 合并到 main（`4fcc613`） | DONE | RELEASE |
 | DA-1204 | main browser-qa 修复（E2E 时间助手 24 小时制，PR #4 已合并 `47c40c9`） | DONE | RELEASE |
 | DA-1205 | PR #3 合并后状态文档 PR（`codex/post-pr3-merge-status`，已随 PR #5 合并到 main `6927d93`） | DONE | RELEASE |
-| DA-1301 | OPEN-006 对象存储接入代码（OSS 适配器/STORAGE_PROVIDER 切换/键服务/测试/示例） | DONE | RELEASE |
+| DA-1301 | OPEN-006 对象存储接入代码（OSS 适配器/STORAGE_PROVIDER 切换/键服务/测试/示例） | DONE（PR #6 已创建，待合并） | RELEASE |
 | DA-1302 | 真实私有 OSS Bucket + 最小权限 RAM + 真实连通/备份上传验证（需授权） | NOT_STARTED | RELEASE |

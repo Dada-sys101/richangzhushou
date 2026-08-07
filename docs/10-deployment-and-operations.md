@@ -43,6 +43,8 @@
 - 新附件使用 `users/{userId}/attachments/{fileId}` 键；旧 `attachments/{userId}/...` 键
   保留兼容读取与删除（get/delete 始终使用数据库存储的 objectKey）。
 - `LocalStorageAdapter` 仅用于本地开发与测试。
+- 实现代码已通过 PR #6 提交（base=main，head `11614ba`）；quality/browser-qa 均 SUCCESS，
+  尚未合并到 main。
 - 尚未创建真实 OSS Bucket、RAM 用户或密钥；尚未完成真实 OSS 连通测试；staging 未创建、生产未部署。
 
 ## 发布流程

@@ -4,7 +4,7 @@
 
 V1 提醒仅应用内查看（不承诺 Web Push/系统通知/短信/邮件，Web Push 与系统通知列为 V1.1 候选）。
 
-> 当前阶段：WP1–WP8 已完成本机验收；WP9 完成身份与录入简化（账号密码登录、管理员建号、首登强制改密、邮箱/邀请码/截图 OCR 下线）；对象存储接入代码已完成（OPEN-006），真实云资源与 staging 待授权。没有生产环境。
+> 当前阶段：WP1–WP8 已完成本机验收；WP9 完成身份与录入简化（账号密码登录、管理员建号、首登强制改密、邮箱/邀请码/截图 OCR 下线）；对象存储接入代码已完成并经 PR #6 提交（CI 通过，待合并），真实云资源与 staging 待授权。没有生产环境。
 
 ## 工程结构
 
@@ -47,6 +47,8 @@ E2E 使用独立测试库，本地运行前设置 `E2E_DATABASE_URL`（专用 My
   `STORAGE_ACCESS_KEY_SECRET` 缺失时启动失败，`NODE_ENV=production` 禁止 local。
 - 上传仍由 API 服务端代理（`PUT /api/v1/attachments/:id/content`），无需 OSS 浏览器 CORS；
   新附件键为 `users/{userId}/attachments/{fileId}`，旧 `attachments/` 键兼容读取与删除。
+- 实现代码已进入 PR #6（base=main，head `codex/aliyun-oss-storage-adapter`）；
+  quality/browser-qa 通过、无冲突，尚未合并到 main。
 - 尚未创建真实 OSS Bucket/RAM，尚未完成真实连通测试；staging 未创建、生产未部署。
 - 示例文件：`deploy/staging/.env.staging.example`（仅占位符，真实 `.env.staging` 已 gitignore）。
 
