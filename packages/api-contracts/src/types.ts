@@ -58,7 +58,13 @@ export interface UserSummary {
   displayName: string;
   username: string;
   role: "USER" | "ADMIN";
-  status: "ACTIVE" | "SUSPENDED" | "CLOSED" | "DELETION_PENDING" | "DELETED";
+  status:
+    | "ACTIVE"
+    | "SUSPENDED"
+    | "CLOSED"
+    | "DELETION_PENDING"
+    | "DELETION_PROCESSING"
+    | "DELETED";
   createdAt: IsoDateTime;
   updatedAt: IsoDateTime;
   closedAt: IsoDateTime | null;
@@ -138,7 +144,13 @@ export interface AdminUserSummary {
   displayName: string;
   mustChangePassword: boolean;
   role: "USER" | "ADMIN";
-  status: "ACTIVE" | "SUSPENDED" | "CLOSED" | "DELETION_PENDING" | "DELETED";
+  status:
+    | "ACTIVE"
+    | "SUSPENDED"
+    | "CLOSED"
+    | "DELETION_PENDING"
+    | "DELETION_PROCESSING"
+    | "DELETED";
   createdAt: IsoDateTime;
   closedAt: IsoDateTime | null;
   deletionRequestedAt: IsoDateTime | null;

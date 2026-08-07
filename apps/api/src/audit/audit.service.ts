@@ -5,7 +5,7 @@ import { PrismaService } from "../prisma/prisma.service.js";
 
 export interface AuditChange {
   action: string;
-  actorId: string;
+  actorId: string | null;
   after?: Record<string, unknown>;
   before?: Record<string, unknown>;
   reason: string;

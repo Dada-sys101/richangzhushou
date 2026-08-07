@@ -4,6 +4,29 @@
 更新：2026-08-06
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-06 — OPEN-007 账户期满删除清理实现完成
+
+- 数据模型：`UserStatus` 新增 `DELETION_PROCESSING`；`users` 新增
+  `deletion_scheduled_at`/`deletion_started_at`/`deletion_completed_at`/
+  `deletion_attempt_count`/`deletion_last_error`/`deletion_lease_expires_at`；
+  migration `20260806092920_open007_account_deletion_cleanup`。
+- 申请删除：写入计划删除时间（默认 30 天，`ACCOUNT_DELETION_RETENTION_DAYS` 可配置）。
+- 清理任务：`AccountDeletionService` 原子领取（状态+租约+尝试上限）、批量扫描、
+  失败保留可诊断状态并可在租约过期后重试；`AccountDeletionScheduler` 受
+  `ACCOUNT_DELETION_SCHEDULER_ENABLED` 开关控制；手工入口
+  `npm run account-deletion:run`。
+- 清理范围：sessions/device_credentials/分类/账户/账单/预算/草稿/附件/日程/待办/
+  提醒/行程（含节点与行李）/sync_mutations 真实删除；附件先经 `StorageAdapter.delete`
+  删除文件再删记录（文件缺失幂等成功）。
+- 匿名墓碑：随机 `deleted_<hex>` 用户名、空显示名、随机 Argon2 密码散列、
+  `status=DELETED`、`deletion_completed_at`；原账号名可重新使用；`AdminAudit`
+  清空 JSON 与原因并保留最小审计事实。
+- 取消删除：管理端 `POST /admin/users/:id/cancel-deletion`（仅 `DELETION_PENDING`、
+  容量复查、`USER_DELETE_CANCEL` 审计），契约/OpenAPI/管理端已同步。
+- 测试：API 测试 111/111（新增 8 个单元 + 11 个 OPEN-007 集成）；空库 8 migrations
+  `prisma migrate deploy` 通过；CLI 演练通过。
+- 文档：`docs/05`、`docs/06`、`docs/27`、`docs/28`、`docs/decisions.md` 与状态文件同步。
+
 ## 2026-08-06 — 正式 main 分支建立与推送完成
 
 - 确认 `codex/wp8-release-prep` 完整包含 `codex/wp1-foundation`（`rev-list --left-right --count` = `0 42`，`merge-base` = `981aafc8`）。

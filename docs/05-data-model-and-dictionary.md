@@ -41,7 +41,7 @@ erDiagram
 
 | 实体 | 关键字段 | 关键约束/索引 |
 | --- | --- | --- |
-| `User` | username, normalizedUsername, passwordHash, role, status, closedAt, mustChangePassword | username/normalizedUsername 唯一；status 索引 |
+| `User` | username, normalizedUsername, passwordHash, role, status, closedAt, mustChangePassword, deletionRequestedAt, deletionScheduledAt, deletionStartedAt, deletionCompletedAt, deletionAttemptCount, deletionLastError, deletionLeaseExpiresAt | username/normalizedUsername 唯一；status 索引；删除调度/租约字段支撑期满清理 |
 | `SystemSetting` | maxActiveUsers | 单例或版本化配置 |
 | `Session` | userId, refreshTokenHash, expiresAt, revokedAt | token 哈希唯一 |
 | `DeviceCredential` | userId, name, tokenHash（唯一）, tokenPrefix, scopes（JSON）, lastUsedAt, revokedAt | 快捷指令凭证仅保存 SHA-256 哈希与展示前缀；scopes 为 ShortcutScope JSON 数组；撤销置 revokedAt |
@@ -65,7 +65,7 @@ erDiagram
 | 枚举 | 值 |
 | --- | --- |
 | `UserRole` | `USER`, `ADMIN` |
-| `UserStatus` | `ACTIVE`, `SUSPENDED`, `CLOSED`, `DELETION_PENDING`, `DELETED` |
+| `UserStatus` | `ACTIVE`, `SUSPENDED`, `CLOSED`, `DELETION_PENDING`, `DELETION_PROCESSING`, `DELETED` |
 | `TransactionType` | `EXPENSE`, `INCOME`, `REFUND` |
 | `RecordStatus` | `DRAFT`, `CONFIRMED`, `DELETED` |
 | `RecordSource` | `MANUAL`, `SHORTCUT`, `TEXT`, `VOICE`, `IMPORT` |
@@ -94,8 +94,34 @@ erDiagram
 ## 删除与保留
 
 - 普通业务记录先软删除并参与同步墓碑处理。
-- 账号进入 `DELETION_PENDING` 后禁止登录，期满执行异步分批清理。
-- 审计日志只保留最小必要信息并脱敏，不保存账单、日程或行程正文快照。
+- 账号进入 `DELETION_PENDING` 后禁止登录并撤销会话；申请时写入
+  `deletion_requested_at` 与 `deletion_scheduled_at`（默认 30 天，可配置）。
+- 期满后清理任务以原子领取（状态 + 租约 + 尝试次数）将用户置为
+  `DELETION_PROCESSING`；全部业务行与附件真实删除成功后置为 `DELETED`
+  并保留匿名墓碑；中途失败不标记 `DELETED`，租约过期后可重试，达到上限后
+  保留可诊断错误。
+- 审计日志只保留最小必要信息并脱敏，不保存账单、日程或行程正文快照；
+  账号清理时 `AdminAudit` 的 `beforeJson`/`afterJson` 清空、原因替换为通用
+  常量，用户名/昵称/密码散列/业务正文不保留。
+
+## OPEN-007 补充说明（2026-08-06）
+
+- `UserStatus` 新增 `DELETION_PROCESSING`；`users` 新增
+  `deletion_scheduled_at`/`deletion_started_at`/`deletion_completed_at`/
+  `deletion_attempt_count`/`deletion_last_error`/`deletion_lease_expires_at`
+  （migration `20260806092920_open007_account_deletion_cleanup`）。
+- 清理范围：`sessions`/`device_credentials`/`categories`/`financial_accounts`/
+  `transactions`/`budgets`/`draft_records`/`attachments`/`calendar_events`/
+  `tasks`/`reminders`/`trips`（含 `trip_items`/`packing_items` 级联）/
+  `sync_mutations` 真实删除；附件先经 `StorageAdapter.delete` 删除文件再删记录，
+  文件缺失视为幂等成功。
+- 匿名墓碑：`username`/`normalized_username` 改为 `deleted_<随机hex>`，
+  `display_name` 置空，`password_hash` 替换为随机密码的 Argon2 散列，
+  `role=USER`、`must_change_password=false`、`status=DELETED`、
+  `deletion_completed_at` 记录真实完成时间；原账号名可重新使用。
+- 取消删除：管理员 `POST /admin/users/:id/cancel-deletion`，仅允许
+  `DELETION_PENDING`，重查容量后恢复 `ACTIVE` 并清空删除调度字段，写
+  `USER_DELETE_CANCEL` 审计。
 
 ## WP3 补充说明（2026-08-05）
 

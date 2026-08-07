@@ -15,7 +15,11 @@
 | WP6 | 行程、节点、清单和账单关联 | DONE |
 | WP7 | PWA、本地缓存、离线写入、同步和冲突处理 | DONE |
 | WP8 | 安全、兼容、可访问性、全量验收和发布准备 | DONE（本地验收，未部署） |
+| WP9 | 身份与录入简化（管理员建号、密码登录、邮箱/邀请码/OCR 下线） | DONE（已随 main 推送） |
+| OPEN-007 | 账户期满删除清理（保留期/调度/附件删除/取消/匿名墓碑） | DONE（本任务实现，待 staging 验证） |
 
 WP1 已在 `codex/wp1-foundation` 完成；WP2 在 `codex/wp2-identity-capacity` 完成本地实现与验收（报告见 `docs/14-wp2-acceptance-report.md`）。WP3 在 `codex/wp3-finance` 完成本地实现与验收（报告见 `docs/16-wp3-acceptance-report.md`）。WP4 在 `codex/wp4-shortcuts-ocr` 完成本地实现与验收（报告见 `docs/18-wp4-acceptance-report.md`）。WP5 在 `codex/wp5-calendar-tasks` 完成本地实现与验收（报告见 `docs/20-wp5-acceptance-report.md`）。WP6 在 `codex/wp6-trips` 完成本地实现与验收（报告见 `docs/22-wp6-acceptance-report.md`）。均使用本机便携 MySQL 8.4 完成真实空库 migration、API 集成与浏览器矩阵验证。
 WP7 在 `codex/wp7-pwa-sync` 完成本地实现与验收（报告见 `docs/24-wp7-acceptance-report.md`）。
 WP8 在 `codex/wp8-release-prep` 完成本地实现与验收（报告见 `docs/26-wp8-acceptance-report.md`）；分支已推送至 `42bcef0` 且远端 CI 通过（run `31085287317`）；正式 `main` 已从 wp8 建立并推送（`42bcef0`，main run `31086031458` PASS），GitHub 默认分支已切换为 main（用户网页操作），`codex/wp1-foundation`、`codex/wp8-release-prep` 暂时保留，未部署。
+OPEN-007 在 `codex/open-007-deletion-cleanup` 分支实现（migration `20260806092920_open007_account_deletion_cleanup`），
+本地 API 测试 111/111、空库 8 migrations 与 CLI 演练通过；未部署。

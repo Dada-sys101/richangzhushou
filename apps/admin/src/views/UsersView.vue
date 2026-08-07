@@ -12,7 +12,7 @@ const createForm = ref({
 });
 const creating = ref(false);
 const selectedAction = ref<{
-  action: "close" | "reopen" | "reset-password" | "suspend";
+  action: "cancel-deletion" | "close" | "reopen" | "reset-password" | "suspend";
   id: string;
   username: string;
 } | null>(null);
@@ -140,6 +140,22 @@ onMounted(load);
       <el-table-column label="操作" width="360">
         <template #default="{ row }">
           <el-button
+            v-if="row.status === 'DELETION_PENDING'"
+            size="small"
+            type="danger"
+            plain
+            @click="
+              selectedAction = {
+                action: 'cancel-deletion',
+                id: row.id,
+                username: row.username,
+              };
+              reason = '';
+            "
+          >
+            取消删除
+          </el-button>
+          <el-button
             size="small"
             type="warning"
             @click="
@@ -206,7 +222,9 @@ onMounted(load);
         {{
           selectedAction.action === "reset-password"
             ? "重置密码"
-            : selectedAction.action
+            : selectedAction.action === "cancel-deletion"
+              ? "取消删除"
+              : selectedAction.action
         }}
       </template>
       <el-form label-position="top" @submit.prevent="submitAction">

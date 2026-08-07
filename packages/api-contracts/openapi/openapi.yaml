@@ -1604,6 +1604,24 @@ paths:
         "204": { description: Account reopened }
         "400": { $ref: "#/components/responses/ApiError" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /admin/users/{id}/cancel-deletion:
+    post:
+      operationId: cancelUserDeletion
+      summary: Cancel a pending account deletion after rechecking global capacity
+      tags: [Admin]
+      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminReasonRequest" }
+      x-error-codes:
+        [ADMIN_ACTION_REQUIRES_REASON, INVALID_STATE, CAPACITY_REACHED]
+      responses:
+        "204": { description: Pending account deletion cancelled }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /admin/settings:
     get:
       operationId: getAdminSystemSettings
@@ -2526,7 +2544,15 @@ components:
       enum: [USER, ADMIN]
     UserStatus:
       type: string
-      enum: [ACTIVE, SUSPENDED, CLOSED, DELETION_PENDING, DELETED]
+      enum:
+        [
+          ACTIVE,
+          SUSPENDED,
+          CLOSED,
+          DELETION_PENDING,
+          DELETION_PROCESSING,
+          DELETED,
+        ]
     TransactionType:
       type: string
       enum: [EXPENSE, INCOME, REFUND]

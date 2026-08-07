@@ -2,13 +2,13 @@
 
 ## Last Updated
 
-2026-08-06 +08:00（发布准备第二阶段：建立并推送正式 main 分支并完成状态文档收尾；main 与 codex/wp8-release-prep @ 42bcef0 一致；main CI run 31086031458 通过；GitHub 默认分支已切换为 main）
+2026-08-06 +08:00（OPEN-007 账户期满删除清理在 codex/open-007-deletion-cleanup 分支完成本地实现与验证；提交与推送以 `git log` 为准；未部署）
 
 ## Repository State
 
 - Repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
-- Current Branch: `main`（已推送到 origin；来源 `codex/wp8-release-prep` @ `42bcef0`）
-- HEAD Commit: `42bcef0`（docs: record wp8 release-prep push and remote CI verification）
+- Current Branch: `codex/open-007-deletion-cleanup`（OPEN-007 任务分支，基于 main）
+- HEAD Commit: 以 `git log` 为准（分支包含 OPEN-007 实现与文档同步）
 - Working Tree Status: clean（忽略文件除外，如 `apps/api/.env`、`output/playwright/`，gitignored）
 - Last Verified Commit: `42bcef0`；远端 GitHub Actions run `31086031458` PASS（main 推送触发；quality、空库 migrate deploy、WP2 集成测试全部通过）
 
@@ -30,10 +30,16 @@
 - WP0（规划）至 WP8（全量质量与发布准备）均已完成本地验收（`docs/13`、`docs/14`、
   `docs/16`、`docs/18`、`docs/20`、`docs/22`、`docs/24`、`docs/26`）。
 - WP9 身份与录入简化、首页界面优化（docs/29）已完成后端/前端本地验收。
-- 无生产部署；正式 `main` 已建立并推送（= `codex/wp8-release-prep` @ `42bcef0`，main CI 通过）；staging 未创建。
+- 无生产部署；正式 `main` 已建立并推送（= `codex/wp8-release-prep` @ `42bcef0`，main CI 通过）；
+  OPEN-007 账户期满删除清理已在任务分支实现并通过本地测试；staging 未创建。
 
 ## Last Completed Task
 
+- Task: OPEN-007 账户期满删除清理实现（保留期/调度/附件删除/取消删除/匿名墓碑/重试上限），并同步修正 staging 发布清单。
+- Completion Date: 2026-08-06（本地实现与验证完成；提交推送以 `git log` 为准）
+- Related Files: `apps/api/src/account-deletion/*`、`apps/api/src/cli/account-deletion-run.ts`、`apps/api/src/{auth,admin,audit}`、`apps/api/prisma/schema.prisma`、migration `20260806092920_open007_account_deletion_cleanup`、`packages/api-contracts`、`apps/admin/src`、`apps/web/src/api/client.ts`、`docs/05/06/27/28/decisions` 与状态文件
+- Verification: API 测试 111/111（新增 8 单元 + 11 OPEN-007 集成）；空库 8 migrations `prisma migrate deploy` 通过；CLI 演练 `claimed=1 completed=1`；`npm run quality` 以最终跑批为准
+- Related Commit: 以 `git log` 为准（分支 `codex/open-007-deletion-cleanup`）
 - Task: 发布准备第二阶段：建立并推送正式 `main` 分支（确认 `codex/wp8-release-prep` 完整包含 `codex/wp1-foundation` 后从 wp8 创建 main，`git push -u origin main`）。
 - Completion Date: 2026-08-06
 - Related Files: 无代码改动；Git 分支 `main`（本地与远端）
@@ -74,21 +80,26 @@
 
 ## Current Task
 
-None（正式 main 已建立并推送且 GitHub 默认分支已切换为 main；未执行 staging/生产部署，未创建 PR；状态文档收尾提交待本次任务完成）。
+None（OPEN-007 本地实现与验证完成，待提交推送；正式 main 已建立并推送且默认分支已切换为 main；未执行 staging/生产部署，未创建 PR）。
 
 ## Next Recommended Task
 
-- Task: 发布准备第二阶段：按 `docs/27` 完成 staging 创建/部署决策（需用户授权）。
+- Task: 发布准备第三阶段：按 `docs/27` 完成 staging 创建/部署决策（需用户授权；OPEN-007 已实现）。
 - Priority: P0（前置动作）
 - Reason: WP8 分支远端 CI 已验证通过；staging 是发布清单的下一前置动作。
 - Dependencies: 用户授权创建/部署 staging（默认分支已切换为 main，无需再操作）。
 - Acceptance Criteria: staging 环境按 `docs/27` 创建并验证；后续以 main 为正式主分支。
 
-下一开发任务：按 `docs/27` 完成 staging 决策（需用户授权）；在账号删除期满清理实现前
-不得宣称“数据已删除”（OPEN-007）。
+下一开发任务：按 `docs/27` 完成 staging 决策（需用户授权）；OPEN-007 已实现，
+staging 开启删除调度器并单实例验证前，不得宣称生产环境“数据已删除”。
 
 ## Completed Work
 
+- OPEN-007：`UserStatus` 新增 `DELETION_PROCESSING`，`users` 新增删除调度/开始/完成/
+  尝试次数/失败原因/租约字段；申请删除写入计划时间；后台任务原子领取批量清理全部业务行
+  与附件文件，失败可重试、达到上限可诊断，成功后写匿名墓碑；管理员可取消保留期内删除
+  （容量复查 + 审计）；契约/OpenAPI/管理端/文档同步；API 测试 111/111、空库 8 migrations、
+  CLI 演练通过。
 - 发布准备第二阶段：建立并推送正式 `main` 分支（从 `codex/wp8-release-prep` @ `42bcef0` 创建，push -u origin main）；main CI run `31086031458` PASS；未强推、未改旧分支；GitHub 默认分支已切换为 main（用户网页操作）。
 - 发布准备第一阶段：推送 `codex/wp8-release-prep`（`71b9f74` 首推、`3e88808` CI 修复后推送）；修复 CI 纯净环境缺生成产物问题（workflow 前置 `prisma generate` + contracts `build`）；远端 GitHub Actions run `31084755305` PASS（quality + 空库 migration + WP2 集成测试）。
 - 首页界面优化：今日概览标题与日期副标题、未登录/登录失效/请求失败友好状态、
@@ -124,8 +135,7 @@ None（正式 main 已建立并推送且 GitHub 默认分支已切换为 main；
 
 - In Progress: None。
 - 待用户授权推送：WP2–WP7 分支尚未推送；如需远端 CI 逐一验证需另行授权。
-- Partially Completed: 账号删除期满批量清理（未实现，缺口见 `docs/26` CP7/`docs/27`）；
-  浏览器 QA 一键脚本化（OPEN-009）。
+- Partially Completed: 浏览器 QA 一键脚本化（OPEN-009）。
 - Not Started: staging 创建/部署（需授权）。
 - Needs Verification: 真实 OCR/对象存储/通知供应商业效（OPEN-004/005/006）。
 
@@ -135,8 +145,8 @@ None（正式 main 已建立并推送且 GitHub 默认分支已切换为 main；
 - 便携 MySQL 8.4 位于仓库外，其他机器复跑集成测试需自备 MySQL 8.x。
 - 邮件/通知/OCR/AI/对象存储供应商未确定（OPEN-003/004/005/006），当前使用本地
   适配器与假实现。
-- 账号删除期满批量清理未实现（OPEN-007；实现前不得宣称数据已删除）。
-- 发布决策未确认项 OPEN-001~011（详见 `docs/27`：产品名、仓库命名、部署域、供应商、数据保留等）。
+- 发布决策未确认项：产品名、通知渠道、部署地域/对象存储、浏览器 QA 脚本化、仓库名与产品名关系等
+  （OPEN-001/005/006/009/011，详见 `docs/27`）。
 
 ## Known Issues
 
@@ -148,11 +158,12 @@ None（正式 main 已建立并推送且 GitHub 默认分支已切换为 main；
 | WP3 边界：整体预算 NULL 唯一性服务层校验；原账单软删后退款仍计入统计；统计仅 CNY；CSV 上限 10,000 行 | V1 规模可接受 | finance | `docs/16` |
 | OCR/AI 与对象存储供应商未定；当前使用假实现与本地临时存储 | 真实识别/上传能力未验收 | integrations | OPEN-004/006 |
 | 通知通道未定；当前为应用内 + 假适配器；调度器按单进程周期扫描 | 真实推送未验收；多实例部署前需租约 | reminders/integrations | OPEN-005；`docs/20` |
-| 账号删除期满批量清理未实现；演练后用户内容与附件仍保留 | 隐私/合规未验收 | auth/attachments | OPEN-007；`docs/26` CP7 |
+| 账号删除期满清理 | WP8 演练时未实现；OPEN-007 已实现（migration `20260806092920_open007_account_deletion_cleanup`），调度器默认关闭，staging 单实例验证后再开启 | auth/account-deletion | 已实现（OPEN-007） |
 | 本机 Git 全局代理 7890 不可用、7897 可用 | 远程 Git 操作需临时覆盖 | 本机环境 | 未修改全局配置 |
 
 ## Verification Status
 
+- OPEN-007（本地）: PASS（API 111/111、空库 8 migrations、CLI 演练；`npm run quality` 以最终跑批为准）。
 - 远端 CI（`main` @ `42bcef0`）: PASS（run `31086031458`；quality、空库 migrate deploy、WP2 集成测试全部通过；main 推送触发）。
 - 远端 CI（`codex/wp8-release-prep` @ `42bcef0`）: PASS（run `31085287317`；quality、空库 migrate deploy、WP2 集成测试全部通过）。
 - 首页界面优化: PASS（`npm run quality` 全绿；用户端 15/15；浏览器 375/390/430/768/1440
@@ -166,10 +177,13 @@ None（正式 main 已建立并推送且 GitHub 默认分支已切换为 main；
 - Build: PASS（全部 workspace）
 - Runtime Verification: PASS（浏览器矩阵 174/174 含 200% 缩放、主流程与错误态、
   离线排队→恢复→单条落库、备份恢复 24/24 表一致、账号删除演练）
-- Unverified Areas: WP2–WP7 分支远端 CI（未推送）；账号删除期满清理；真实 OCR/对象存储/通知供应商业效
+- Unverified Areas: WP2–WP7 分支远端 CI（未推送）；真实 OCR/对象存储/通知供应商业效
 
 ## Recent Changes
 
+- 本次：OPEN-007——账户期满删除清理实现（migration、原子领取调度、附件清理、匿名墓碑、
+  取消删除、契约/OpenAPI/管理端同步、docs/27 修正、测试与 CLI），分支
+  `codex/open-007-deletion-cleanup`。
 - 本次：发布准备第二阶段——确认 wp8 完整包含 wp1（0/42）后，从 `codex/wp8-release-prep` @ `42bcef0` 创建并推送正式 `main`；main CI run `31086031458` PASS；未强推、未改旧分支；GitHub 默认分支已切换为 main（用户网页操作）。
 - 本次：main 状态文档收尾——统一 9 个状态文档并提交推送（`docs: sync project status after main branch setup`，以 `git log` 为准）。
 - 本次：发布准备第一阶段——推送 `codex/wp8-release-prep`（`71b9f74`）；首轮远端 CI 失败后最小修复 `.github/workflows/ci.yml`（quality 前生成 Prisma client 并构建 api-contracts），提交 `3e88808` 并推送；run `31084755305` PASS。

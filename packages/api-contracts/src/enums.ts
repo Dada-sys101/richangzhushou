@@ -6,6 +6,7 @@ export const USER_STATUSES = [
   "SUSPENDED",
   "CLOSED",
   "DELETION_PENDING",
+  "DELETION_PROCESSING",
   "DELETED",
 ] as const;
 export type UserStatus = (typeof USER_STATUSES)[number];
@@ -176,6 +177,8 @@ export const ADMIN_AUDIT_ACTIONS = [
   "USER_CLOSE",
   "USER_REOPEN",
   "USER_DELETE_REQUEST",
+  "USER_DELETE_CANCEL",
+  "USER_DELETION_COMPLETED",
   "DRAFT_BATCH_DISCARD",
 ] as const;
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number];

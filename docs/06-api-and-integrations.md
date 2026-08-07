@@ -32,6 +32,13 @@
 首次登录或管理员重置密码后，`mustChangePassword=true`，除改密与个人资料外
 的数据端点返回 `PASSWORD_CHANGE_REQUIRED`（403），改密后恢复访问。
 
+账号删除生命周期：`POST /me/request-deletion` 将账号置为 `DELETION_PENDING`、
+撤销全部会话并写入计划删除时间（`ACCOUNT_DELETION_RETENTION_DAYS`，默认 30 天）；
+期满后由后台任务置为 `DELETION_PROCESSING` 并清理业务数据与附件，成功后置为
+`DELETED`（匿名墓碑）。管理员可在保留期内通过
+`POST /admin/users/:id/cancel-deletion` 取消删除（仅 `DELETION_PENDING`，
+重查容量后恢复 `ACTIVE`，写 `USER_DELETE_CANCEL` 审计）。
+
 ### 记账（WP3）
 
 - `GET/POST /transactions`
@@ -188,6 +195,7 @@ WP6 契约要点：
 - `POST /admin/users/:id/suspend`
 - `POST /admin/users/:id/close`
 - `POST /admin/users/:id/reopen`
+- `POST /admin/users/:id/cancel-deletion`（取消 `DELETION_PENDING` 删除申请）
 - `GET/PATCH /admin/settings`
 - `GET /admin/audits`
 - `GET /admin/health`

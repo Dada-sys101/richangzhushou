@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "account-deletion:run": "tsx src/cli/account-deletion-run.ts",
     "bootstrap:admin": "tsx src/cli/bootstrap-admin.ts",
     "build": "nest build",
     "dev": "nest start --watch",
