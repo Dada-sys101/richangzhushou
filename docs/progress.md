@@ -2,11 +2,21 @@
 
 文档版本：1.0
 状态：已与代码、Git 历史交叉核对
-更新：2026-08-06
+更新：2026-08-07
 
 说明：条目尽量附文件、模块或 Git 提交依据。提交：`5d52395` = 初始化项目（WP0 规划）；`6169ac0` = WP1 工程骨架与共享契约。
 
 ## 已完成
+
+### OPEN-006 对象存储接入代码（2026-08-07）
+- `AliyunOssStorageAdapter`（ali-oss 6.23.0）：`put/get/delete`、缺失对象删除幂等、
+  错误不泄漏 AccessKey/正文；`STORAGE_PROVIDER=local|oss` 切换与必填校验；
+  `NODE_ENV=production` 禁止 local（staging 门禁）。
+- `StorageKeyService`：新附件键 `users/{userId}/attachments/{fileId}`，
+  旧 `attachments/` 键兼容；上传仍由 API 服务端代理，无需 OSS CORS。
+- 测试：新增/更新单元测试 22 项（配置选择/缺失校验/适配器行为/附件与账号删除服务接入）。
+- 示例：`deploy/staging/.env.staging.example`（仅占位符）；`.env.example` 同步。
+- 未创建真实 Bucket/RAM、未完成真实连通测试；staging 未创建、生产未部署。
 
 ### E2E 修复 PR #4 合并与 main 全绿（2026-08-07）
 - PR #4（E2E 时间助手 24 小时制）squash 合并到 main（`47c40c9`）。
@@ -147,11 +157,12 @@
 
 ## 进行中
 
-- 无进行中业务任务。
+- OPEN-006 对象存储接入 PR（代码已完成，待合并与 CI 验证）。
 
 ## 未开始
 
-- 无（WP8 已完成本地验收并推送；正式 `main` 已建立并推送、默认分支已切换为 main 且 CI 通过；staging 创建/部署需另行授权，见 `docs/26`、`docs/27`）
+- 真实 OSS Bucket/RAM/连通测试与备份上传验证（OPEN-006，需授权）。
+- staging 创建/部署需另行授权（见 `docs/26`、`docs/27`）。
 
 以上工作包状态与 `MASTER_PLAN.md`、`TODO.md` 一致：WP0–WP7 已 DONE（WP7 验收见
 `docs/24-wp7-acceptance-report.md`），WP8 为 `DONE`（本地验收，`docs/26`）。
@@ -176,4 +187,5 @@
 - `npm run check:context` 与 `npm run quality` 已在本次机制任务中复跑通过。
 - 未实现功能一律不得视为已验证；计划中的功能不得写成已完成。
 - WP8 验收：`npm run quality`、空库 6 migrations+seed、集成 63/63、浏览器矩阵 174/174、备份恢复 24/24 表一致、离线排队→恢复→单条落库均通过（`docs/26`）；账号删除期满清理未实现（缺口已记录）。
-- 真实 OCR/AI/对象存储/邮件/通知供应商效果未验证（OPEN-003/004/005/006）。
+- 真实 OCR/AI/通知供应商效果未验证（OPEN-003/004/005）；对象存储真实连通未验证
+  （OPEN-006，适配器代码已完成）。

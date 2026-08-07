@@ -2,9 +2,19 @@
 
 ## Session Status
 
-进行中（PR #3/#4 已合并，main CI 全绿；状态文档 PR #5 待确认合并）
+进行中（OPEN-006 对象存储接入代码任务：实现与本地验证完成，PR 待创建/合并与 CI 验证）
 
 ## Task
+
+## 最近完成：OPEN-006 对象存储接入代码（2026-08-07）
+
+- 任务：实现阿里云 OSS 存储适配器，建立 Staging 对象存储接入能力（仅代码/测试/文档）。
+- 结果：`AliyunOssStorageAdapter`（ali-oss 6.23.0，`put/get/delete`，缺失对象删除幂等）；
+  `STORAGE_PROVIDER=local|oss` 切换与必填校验（生产禁止 local）；`StorageKeyService`
+  （新键 `users/{userId}/attachments/{fileId}`，旧键兼容）；22 项新增单元测试；
+  `deploy/staging/.env.staging.example` 与 12 个状态/发布文档同步。
+- 未创建真实 Bucket/RAM、未完成真实连通测试；staging 未创建、生产未部署；OPEN-006 未关闭。
+- 分支：`codex/aliyun-oss-storage-adapter`；PR 待创建并与 CI 验证。
 
 ## 最近完成：PR #4 合并与 main 全绿验证（2026-08-07）
 
@@ -105,19 +115,16 @@
 
 ## Current Progress
 
-- 完成比例：100%（本地验收）
+- 完成比例：100%（OPEN-006 对象存储接入代码；真实云资源与 staging 待授权）
 - 已完成步骤：
-  1. 建立 `codex/wp8-release-prep` 分支；基线 `npm run quality` 通过。
-  2. CP1 契约一致性：OpenAPI 72 路径与控制器一致、枚举全量交叉一致；修复审计枚举
-     `DRAFT_BATCH_DISCARD`、`docs/05` RecoveryCode、`docs/06` DELETE /me/sessions。
-  3. CP2 安全：生产强制 `CONFIRMATION_TOKEN_SECRET`；用户自助关号/申请删除/恢复码重开
-     补写脱敏审计；`.env.example` 补齐适配器/调度变量。
-  4. CP3 上传：新增 JPEG/PNG/WEBP 魔数校验；超大上传流 resume；wp4 测试适配并新增不匹配用例；
-     悬空清理缺口如实记录。
-  5. CP4 可访问性与响应式：键盘/焦点/语义/错误关联/触控检查；375/390/430/768/1440 + 200% 缩放
-     矩阵 Web 102/公开 30/管理端 42 全部无横向溢出。
-  6. CP5 回归：`npm run quality`、空库 6 migrations+seed、集成 63/63、浏览器主流程
-     （注册/登录/记账/日程/行程）与离线排队→恢复→单条落库。
+  1. 建立 `codex/aliyun-oss-storage-adapter` 分支（基于 main `6927d93`）。
+  2. 实现 `AliyunOssStorageAdapter`（ali-oss 6.23.0）与 `StorageOperationError`（不泄漏凭据/正文）。
+  3. 实现 `loadStorageConfig`/`createStorageAdapter`：`STORAGE_PROVIDER=local|oss`、
+     必填校验、生产禁止 local（staging 门禁）。
+  4. 实现 `StorageKeyService` 并将 `AttachmentsService` 改为新键格式（旧键兼容）。
+  5. 新增/更新单元测试 22 项（配置/适配器/键服务/附件与账号删除服务接入）。
+  6. 新增 `deploy/staging/.env.staging.example` 与 12 个状态/发布文档同步。
+  7. `npm run quality` PASS、`npm run test:e2e:smoke` 20/20 PASS、`git diff --check` PASS。
   7. CP6 备份恢复演练：mysqldump → 隔离库恢复 → 24/24 表行数一致，抽查哈希/状态一致；
      migration 回滚说明核对（migrations README）。
   8. CP7 账号删除演练：真实 API 流程 DELETION_PENDING、会话撤销、容量释放、
@@ -162,10 +169,10 @@
 
 ## Pending Validation
 
+- 真实 OSS 上传/下载/删除与备份上传验证（OPEN-006，需授权）。
 - 同步失败/冲突徽章与空状态的浏览器端真实触发（单元测试覆盖，未人工演练）。
 - WP2–WP7 分支远端 CI（未推送，待授权）。
-- 账号删除期满批量清理（未实现，OPEN-007）。
-- 真实 OCR/AI/对象存储/邮件/通知供应商效果（OPEN-003/004/005/006）。
+- 真实 OCR/AI/通知供应商效果（OPEN-003/004/005）。
 - 浏览器 QA 一键脚本化（OPEN-009）。
 
 ## Blockers
@@ -174,17 +181,19 @@ None（本任务）；项目级阻塞见 `.project/context.md` Blockers。
 
 ## Resume Instructions
 
-1. 正式 `main` 已建立并推送（`42bcef0`，main CI run `31086031458` 通过）；提交哈希与分支以 `git log` 为准。
+1. 当前任务分支 `codex/aliyun-oss-storage-adapter` 基于 main `6927d93`；提交哈希以 `git log` 为准。
 2. 下次任务开始前按 AGENTS.md 恢复顺序读取状态文件与 Git 历史。
-3. 若用户继续：按 `docs/27` 确认 OPEN-006 与 staging 创建/部署决策（需授权）；
-   开启删除调度器并单实例验证前不得宣称生产环境“数据已删除”。
+3. 若用户继续：先完成 OSS 适配器 PR 合并与 CI 验证；再授权创建私有 Bucket/RAM 并完成
+   真实连通测试；按 `docs/27` 创建 staging；开启删除调度器并单实例验证前不得宣称
+   生产环境“数据已删除”。
 
 ## Completion Criteria
 
-- `docs/09` 质量门通过；浏览器矩阵与主流程通过；备份恢复与账号删除演练真实执行并记录结果。
-- 缺口（删除清理、远端 CI、供应商、OPEN-001~011）全部明确记录，未宣称生产可用。
-- 本地提交完成；`codex/wp8-release-prep` 已推送且远端 CI 通过；未部署、未创建生产资源。
+- OSS 适配器代码、配置切换、键服务、测试与示例完成；`npm run quality` 与
+  `npm run test:e2e:smoke` 通过；PR 创建并等待 CI。
+- 未创建真实云资源、未部署；OPEN-006 未关闭；staging 未创建。
+- 本地提交完成并推送任务分支（无 force push）。
 
 ## Last Updated
 
-2026-08-06 +08:00
+2026-08-07 +08:00

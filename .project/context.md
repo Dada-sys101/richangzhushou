@@ -2,13 +2,13 @@
 
 ## Last Updated
 
-2026-08-07 +08:00（PR #3、PR #4 均已 squash 合并到 main（4fcc613、47c40c9）；main quality 与 browser-qa 全绿；OPEN-006 为唯一未决 Staging 外部决策；未部署）
+2026-08-07 +08:00（OPEN-006 对象存储接入代码完成，分支 `codex/aliyun-oss-storage-adapter`，基于 main `6927d93`；真实 Bucket/RAM/连通与 staging 待授权）
 
 ## Repository State
 
 - Repository: `D:\daily-assistant`（独立 Git 仓库；origin: `https://github.com/Dada-sys101/richangzhushou.git`）
-- Current Branch: `codex/post-pr3-merge-status`（合并后状态文档分支，已合入最新 main；正式分支 main = `47c40c9`）
-- HEAD Commit: 以 `git log` 为准（分支包含 E2E 修复与状态文档更新）
+- Current Branch: `codex/aliyun-oss-storage-adapter`（OPEN-006 对象存储接入任务分支，基于 main `6927d93`）
+- HEAD Commit: 以 `git log` 为准（OSS 适配器 + 配置切换 + 键服务 + 测试 + 文档）
 - Working Tree Status: clean（忽略文件除外，如 `apps/api/.env`、`output/playwright/`，gitignored）
 - Last Verified Commit: `6d9c888`；本地 `npm run quality` PASS；远端 main GitHub Actions run `31136793516` PASS（quality、空库 migrate deploy、WP2 集成测试全部通过）
 
@@ -24,7 +24,7 @@
   trips（WP6）。
 - 当前部署方式：无任何部署；正式 `main` 已建立并推送，OPEN-007 已通过 PR #1 合并到 main
   （`6d9c888`，main CI 通过）；origin 已有分支 `codex/wp1-foundation`、`codex/wp8-release-prep`、`main`
-  （GitHub 默认分支为 `main`；旧分支暂时保留）。
+  （GitHub 默认分支为 `main`；旧分支暂时保留）；对象存储接入代码已实现（OPEN-006），真实 OSS 资源待授权。
 
 ## Current Development Stage
 
@@ -33,10 +33,19 @@
 - WP9 身份与录入简化、首页界面优化（docs/29）已完成后端/前端本地验收。
 - 无生产部署；正式 `main` 已建立并推送；OPEN-007 账户期满删除清理已实现并通过 PR #1 合并到 main
   （`6d9c888`）；V1 发布决策与 OPEN-009 已通过 PR #3 合并到 main（`4fcc613`）；
-  E2E 24 小时制修复已通过 PR #4 合并到 main（`47c40c9`），main CI 全绿；staging 未创建。
+  E2E 24 小时制修复已通过 PR #4 合并到 main（`47c40c9`），main CI 全绿；OPEN-006 对象存储
+  接入代码已完成（`codex/aliyun-oss-storage-adapter`），staging 未创建。
 
 ## Last Completed Task
 
+- Task: OPEN-006 对象存储接入代码（阿里云 OSS 存储适配器 + Staging 对象存储接入能力）。
+- Completion Date: 2026-08-07
+- Related Files: `apps/api/src/integrations/{aliyun-oss-storage.adapter,storage.config,storage-key.service}.ts`、
+  `apps/api/src/types/ali-oss.d.ts`、`apps/api/src/attachments/attachments.service.ts`、
+  4 个测试文件、`deploy/staging/.env.staging.example`、12 个状态/发布文档
+- Verification: 新增单元测试 22/22；本地 `npm run quality` PASS；`npm run test:e2e:smoke` 20/20 PASS；
+  CI quality/browser-qa 以 PR 跑批为准
+- Related Commit: 以 `git log` 为准（分支 `codex/aliyun-oss-storage-adapter`）
 - Task: PR #4（E2E 时间助手 24 小时制修复）安全合并 + main 全绿验证 + PR #5 文档更新。
 - Completion Date: 2026-08-07
 - Related Files: `tests/e2e/helpers/e2e.ts`、状态文档（10 个）
@@ -103,17 +112,19 @@
 
 ## Current Task
 
-None（PR #3/#4 已合并，main CI 全绿；OPEN-006 决策与 staging 创建待用户确认；未执行生产部署）。
+OPEN-006 对象存储接入代码任务（分支 `codex/aliyun-oss-storage-adapter`）：实现与本地验证完成，
+PR 待创建/合并与 CI 验证；未创建任何真实云资源。
 
 ## Next Recommended Task
 
-- Task: 发布准备第三阶段：按 `docs/27` 完成 staging 创建/部署决策（需用户授权；OPEN-007 已实现）。
+- Task: OPEN-006 真实对象存储与 staging 准备：创建私有 OSS Bucket、最小权限 RAM 凭据、
+  真实上传/下载/删除与备份上传验证（需用户授权）。
 - Priority: P0（前置动作）
-- Reason: WP8 分支远端 CI 已验证通过；staging 是发布清单的下一前置动作。
-- Dependencies: 用户授权创建/部署 staging（默认分支已切换为 main，无需再操作）。
-- Acceptance Criteria: staging 环境按 `docs/27` 创建并验证；后续以 main 为正式主分支。
+- Reason: OSS 适配器代码已完成；真实资源与连通验证是关闭 OPEN-006 与创建 staging 的前置条件。
+- Dependencies: 用户授权创建云资源并提供 RAM 凭据（凭据绝不入库）；OSS 适配器 PR 合并且 CI 通过。
+- Acceptance Criteria: 私有 Bucket + RAM 最小权限完成；真实连通测试通过；staging 按 `docs/27` 创建并验证。
 
-下一开发任务：按 `docs/27` 完成 staging 决策（需用户授权）；OPEN-007 已实现，
+下一开发任务：按 `docs/27` 完成 staging 决策（需用户授权）；OPEN-006 适配器代码已完成，
 staging 开启删除调度器并单实例验证前，不得宣称生产环境“数据已删除”。
 
 ## Completed Work
@@ -165,20 +176,20 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 
 ## Remaining Work
 
-- In Progress: None。
+- In Progress: OPEN-006 对象存储接入 PR（代码已完成，待合并与 CI 验证）。
 - 待用户授权推送：WP2–WP7 分支尚未推送；如需远端 CI 逐一验证需另行授权。
-- Partially Completed: 浏览器 QA 一键脚本化（OPEN-009）。
-- Not Started: staging 创建/部署（需授权）。
-- Needs Verification: 真实 OCR/对象存储/通知供应商业效（OPEN-004/005/006）。
+- Partially Completed: OPEN-006 对象存储接入（代码完成；真实 Bucket/RAM/连通未完成）；浏览器 QA 一键脚本化（OPEN-009）。
+- Not Started: 真实 OSS Bucket/RAM/连通测试与 staging 创建/部署（需授权）。
+- Needs Verification: 真实 OSS 连通效果（OPEN-006）；OCR/AI/通知供应商（OPEN-004/005）。
 
 ## Blockers
 
-- staging 未创建；部署域、产品名等未定（OPEN-001~008）。
+- staging 未创建；真实 OSS Bucket/RAM/连通测试待授权（OPEN-006）。
 - 便携 MySQL 8.4 位于仓库外，其他机器复跑集成测试需自备 MySQL 8.x。
-- 邮件/通知/OCR/AI/对象存储供应商未确定（OPEN-003/004/005/006），当前使用本地
-  适配器与假实现。
-- 待处理：状态文档 PR #5 合并确认。
-- 发布决策未确认项：OPEN-006 部署地域与对象存储（其余 OPEN-001/005/009/011 已决策，详见 `docs/27`）。
+- 邮件/通知/OCR/AI 供应商未确定（OPEN-003/004/005）；对象存储适配器已实现，
+  真实凭据与连通待授权（OPEN-006）。
+- 已处理：状态文档 PR #5 已合并到 main（`6927d93`）。
+- 发布决策未确认项：OPEN-006 真实对象存储资源与连通（其余 OPEN-001/005/009/011 已决策，详见 `docs/27`）。
 
 ## Known Issues
 
@@ -188,13 +199,14 @@ staging 开启删除调度器并单实例验证前，不得宣称生产环境“
 | origin 仓库名 `richangzhushou` 与产品名不一致 | 品牌/仓库命名 | 仓库 | OPEN-002 |
 | CI 纯净环境 typecheck 失败（缺 Prisma 生成客户端与 contracts dist） | 首次远端 CI 失败 | CI/Prisma/api-contracts | 已修复（`3e88808`，run `31084755305` PASS） |
 | WP3 边界：整体预算 NULL 唯一性服务层校验；原账单软删后退款仍计入统计；统计仅 CNY；CSV 上限 10,000 行 | V1 规模可接受 | finance | `docs/16` |
-| OCR/AI 与对象存储供应商未定；当前使用假实现与本地临时存储 | 真实识别/上传能力未验收 | integrations | OPEN-004/006 |
+| 对象存储真实连通未验收（适配器已实现）；OCR/AI 供应商未定 | 真实上传/识别能力未验收 | integrations | OPEN-004/006 |
 | 通知通道未定；当前为应用内 + 假适配器；调度器按单进程周期扫描 | 真实推送未验收；多实例部署前需租约 | reminders/integrations | OPEN-005；`docs/20` |
 | 账号删除期满清理 | OPEN-007 已实现并合并到 main（PR #1，`6d9c888`）；调度器默认关闭，staging 单实例验证后再开启 | auth/account-deletion | 已实现（OPEN-007） |
 | 本机 Git 全局代理 7890 不可用、7897 可用 | 远程 Git 操作需临时覆盖 | 本机环境 | 未修改全局配置 |
 
 ## Verification Status
 
+- OPEN-006（本地）：新增单元测试 22/22；`npm run quality` PASS；`npm run test:e2e:smoke` 20/20 PASS。
 - main 远程 CI（`47c40c9`）run `31144549537`：quality PASS、browser-qa PASS。
 - 本地（main）: PASS（quality、smoke 20/20、完整矩阵 70/70）。
 - OPEN-009（本地）: PASS（smoke 20/20、完整矩阵 70/70）。

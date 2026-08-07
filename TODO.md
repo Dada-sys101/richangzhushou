@@ -77,9 +77,11 @@
 | DA-1101 | OPEN-007 账户期满删除清理（保留期/调度/附件删除/取消/重试上限/匿名墓碑） | DONE | RELEASE |
 | DA-1102 | 修正 staging 发布清单过期内容（docs/27 + 状态文档同步） | DONE | RELEASE |
 | DA-1103 | OPEN-007 PR #1 squash 合并到 main（`6d9c888`，任务分支已删除） | DONE | RELEASE |
-| DA-1104 | 合并后状态文档同步（`codex/post-open-007-merge-status`，PR 待用户确认合并） | IN_PROGRESS | RELEASE |
+| DA-1104 | 合并后状态文档同步（`codex/post-open-007-merge-status`，已随 PR #5 合并到 main `6927d93`） | DONE | RELEASE |
 | DA-1201 | V1 发布决策固化（OPEN-001 产品名、OPEN-005 仅应用内提醒、OPEN-011 命名分离） | DONE | RELEASE |
 | DA-1202 | OPEN-009 Playwright 浏览器 QA 自动化（smoke/matrix/CI browser-qa/失败产物） | DONE | RELEASE |
 | DA-1203 | V1 决策 + 浏览器 QA 分支 PR（#3）squash 合并到 main（`4fcc613`） | DONE | RELEASE |
 | DA-1204 | main browser-qa 修复（E2E 时间助手 24 小时制，PR #4 已合并 `47c40c9`） | DONE | RELEASE |
-| DA-1205 | PR #3 合并后状态文档 PR（`codex/post-pr3-merge-status`，待确认） | IN_PROGRESS | RELEASE |
+| DA-1205 | PR #3 合并后状态文档 PR（`codex/post-pr3-merge-status`，已随 PR #5 合并到 main `6927d93`） | DONE | RELEASE |
+| DA-1301 | OPEN-006 对象存储接入代码（OSS 适配器/STORAGE_PROVIDER 切换/键服务/测试/示例） | DONE | RELEASE |
+| DA-1302 | 真实私有 OSS Bucket + 最小权限 RAM + 真实连通/备份上传验证（需授权） | NOT_STARTED | RELEASE |
