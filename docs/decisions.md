@@ -54,6 +54,7 @@
 | DEC-135 | V1 通知范围仅应用内提醒：不承诺 Web Push/系统通知/短信/邮件；`FakeNotificationAdapter` 仅用于本地与测试；提醒页明确“仅应用内查看”；Web Push/系统通知列为 V1.1 候选（OPEN-005） | `apps/web/src/views/RemindersView.vue`、`apps/api/src/integrations/*`、`docs/27` | 不显示虚假的“系统通知已开启”状态 |
 | DEC-136 | OPEN-011：正式产品显示名与 GitHub 仓库名 `richangzhushou`、npm workspace/服务名/部署目录 `daily-assistant` 分离；改品牌时不要求重命名仓库或 package | `packages/config/src/index.ts`、根 `package.json`、`.github/workflows/ci.yml` | 品牌演进低成本 |
 | DEC-137 | OPEN-009：Playwright 浏览器 QA 自动化——`tests/e2e` smoke（Chromium 桌面+移动）与完整矩阵（Firefox/WebKit/1440/375/430）、独立 CI `browser-qa` job、失败截图/trace/video 上传；web 客户端对 401 做单飞刷新重试 | `playwright.config.ts`、`tests/e2e/*`、`scripts/start-e2e-services.mjs`、`.github/workflows/ci.yml`、`apps/web/src/api/{client,session}.ts` | 核心冒烟不再依赖手工 playwright-cli |
+| DEC-138 | PR #3 合并：V1 发布决策（OPEN-001/005/011）与 OPEN-009 以 squash 合并到 main（`4fcc613`）；合并后 browser-qa 暴露 E2E 时间助手 12/24 小时制缺陷，以 24 小时制修复并经 PR #4 合并到 main（`47c40c9`），main CI 全绿 | `[Git] 4fcc613`、`47c40c9`、`tests/e2e/helpers/e2e.ts` | 测试确定性：结束时间跨正午边界时不得被格式化为 01:xx |
 
 ## 尚未确定的决策
 
@@ -70,6 +71,10 @@
 | OPEN-009 | 浏览器 QA 工具与脚本化 | 已完成：Playwright smoke/matrix + CI browser-qa + 失败产物（DEC-137） | QA 可复现性（已入库） |
 | OPEN-010 | 共享契约包接入方式 | 已接入：`apps/api` 引用 `@daily-assistant/api-contracts` 包；前端使用仓库内本地 client 类型（未启用代码生成客户端） | 契约一致性 |
 | OPEN-011 | origin 仓库名与产品名关系 | 已决策：品牌显示名与技术标识分离（DEC-136） | 品牌/推送 |
+
+> 状态更新（2026-08-07）：OPEN-001/005/009/011 已通过 PR #3 合并到 main（`4fcc613`），
+> E2E 修复经 PR #4 合并到 main（`47c40c9`），main CI 全绿；
+> OPEN-006（部署地域与对象存储）为唯一未决 Staging 外部决策。
 
 ## 无法确认的事项
 

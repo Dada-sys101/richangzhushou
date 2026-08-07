@@ -4,6 +4,22 @@
 更新：2026-08-06
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-07 — E2E 修复 PR #4 合并，main 全绿
+
+- PR #4（E2E 时间助手 24 小时制修复）以 squash 方式合并到 main（`47c40c9`）。
+- main CI run `31144549537`：quality SUCCESS、browser-qa SUCCESS。
+- 状态文档 PR #5 分支已合入最新 main，同步 PR #4 已合并与 main CI 全绿。
+
+## 2026-08-07 — PR #3 合并与 main 验证
+
+- PR #3（test: automate browser release smoke checks）以 squash 方式合并到 main，
+  merge commit `4fcc613`；V1 发布决策与 OPEN-009 自动化正式进入 main。
+- main CI run `31143350121`：quality PASS；browser-qa 的 E2E 时间助手 12/24 小时制缺陷
+  （`endsAt` 被格式化为 01:xx 早于 `startsAt`）已由 PR #4（`47c40c9`）修复，
+  后续 main run `31144549537` quality/browser-qa 均 SUCCESS。
+- 合并后本地验证：quality PASS、smoke 20/20、完整矩阵 70/70。
+- OPEN-006 为唯一未决 Staging 外部决策；staging 未创建、生产未部署。
+
 ## 2026-08-07 — V1 发布决策固化 + OPEN-009 浏览器 QA 自动化
 
 - 产品名：正式中文“日常助手”、英文“Daily Assistant”（OPEN-001）；统一产品配置

@@ -1,7 +1,7 @@
 # Master Plan
 
 版本：0.8<br>
-状态：WP0–WP9 本地验收完成；OPEN-007 已合并到 main；V1 发布决策固化；OPEN-009 浏览器 QA 自动化完成<br>
+状态：WP0–WP9 本地验收完成；OPEN-007、V1 决策、OPEN-009 与 E2E 修复均已合并到 main，main CI 全绿；OPEN-006 为唯一未决 Staging 外部决策<br>
 更新：2026-08-06
 
 | 工作包 | 目标 | 状态 |
@@ -26,4 +26,6 @@ OPEN-007 已通过 PR #1（squash）合并到 main（merge commit `6d9c888`，mi
 `20260806092920_open007_account_deletion_cleanup`）；本地 API 测试 111/111、空库 8 migrations、
 CLI 演练与 main 远程 CI（run `31136793516`）均通过；未部署。
 V1 决策（OPEN-001/005/011）与 OPEN-009 浏览器 QA 自动化在 `codex/v1-decisions-browser-qa` 分支完成：
-Playwright smoke 20/20、完整矩阵 70/70；待 PR 合并与 CI 验证。
+Playwright smoke 20/20、完整矩阵 70/70；已通过 PR #3 squash 合并到 main（`4fcc613`）。
+合并后 main browser-qa 暴露 E2E 时间助手 12/24 小时制缺陷，修复已通过 PR #4 合并到 main（`47c40c9`），
+main CI run `31144549537` quality/browser-qa 均 SUCCESS。

@@ -80,4 +80,6 @@
 | DA-1104 | 合并后状态文档同步（`codex/post-open-007-merge-status`，PR 待用户确认合并） | IN_PROGRESS | RELEASE |
 | DA-1201 | V1 发布决策固化（OPEN-001 产品名、OPEN-005 仅应用内提醒、OPEN-011 命名分离） | DONE | RELEASE |
 | DA-1202 | OPEN-009 Playwright 浏览器 QA 自动化（smoke/matrix/CI browser-qa/失败产物） | DONE | RELEASE |
-| DA-1203 | V1 决策 + 浏览器 QA 分支 PR（`codex/v1-decisions-browser-qa`，待确认） | IN_PROGRESS | RELEASE |
+| DA-1203 | V1 决策 + 浏览器 QA 分支 PR（#3）squash 合并到 main（`4fcc613`） | DONE | RELEASE |
+| DA-1204 | main browser-qa 修复（E2E 时间助手 24 小时制，PR #4 已合并 `47c40c9`） | DONE | RELEASE |
+| DA-1205 | PR #3 合并后状态文档 PR（`codex/post-pr3-merge-status`，待确认） | IN_PROGRESS | RELEASE |

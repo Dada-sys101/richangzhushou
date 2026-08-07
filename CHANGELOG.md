@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-08-07 — E2E 修复 PR #4 合并，main 全绿
+- PR #4（fix: use 24-hour clock in e2e datetime helper）以 squash 方式合并到 main，
+  merge commit `47c40c9`；E2E 时间助手强制 24 小时制，跨正午边界不再误报 endsAt<startsAt。
+- main CI run `31144549537`：quality SUCCESS、browser-qa SUCCESS。
+- 状态文档 PR #5 已合入最新 main，同步 PR #4 已合并与 main CI 全绿。
+
+## 2026-08-07 — PR #3 合并与 main 验证
+- PR #3（test: automate browser release smoke checks）以 squash 方式合并到 main，
+  merge commit `4fcc613`；V1 发布决策（OPEN-001/005/011）与 OPEN-009 进入 main。
+- main CI run `31143350121`：quality PASS；browser-qa 的 E2E 时间助手 12/24 小时制缺陷
+  已由 PR #4（`47c40c9`）修复，后续 main run `31144549537` quality/browser-qa 均 SUCCESS。
+- 合并后本地验证：`npm run quality` PASS、smoke 20/20、完整矩阵 70/70。
+- OPEN-006（部署地域与对象存储）为唯一未决 Staging 外部决策；staging 未创建、生产未部署。
+
 ## 2026-08-07 — V1 发布决策固化 + OPEN-009 浏览器 QA 自动化
 - 产品名：正式中文“日常助手”、英文“Daily Assistant”（`packages/config` PRODUCT 统一配置，
   用户端/管理端/登录页/PWA manifest/元数据一致；技术标识保持 daily-assistant）。
