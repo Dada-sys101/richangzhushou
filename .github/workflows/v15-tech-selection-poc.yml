@@ -1,0 +1,110 @@
+name: V1.5 Technology Selection PoC
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/v15-tech-selection-poc
+    paths:
+      - "pocs/v15-tech-selection/**"
+      - ".github/workflows/v15-tech-selection-poc.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  poc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: pocs/v15-tech-selection
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify runtime
+        run: |
+          node --version
+          npm --version
+          python --version
+      - name: Install JavaScript dependencies
+        run: npm install --ignore-scripts
+      - name: Install fixture generator
+        run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Generate representative and 100k-row fixtures
+        run: python scripts/generate-fixtures.py
+      - name: Run ordered automated PoCs and retain all evidence
+        id: automated-pocs
+        shell: bash
+        run: |
+          mkdir -p results
+          : > results/test-output.txt
+          failures=0
+          for file in \
+            tests/01-rrule.test.mjs \
+            tests/02-local-encryption.test.mjs \
+            tests/03-indexeddb-migration.test.mjs \
+            tests/04-import.test.mjs \
+            tests/05-web-push.test.mjs \
+            tests/06-ai-adapter.test.mjs
+          do
+            echo "===== $file =====" | tee -a results/test-output.txt
+            node --test "$file" 2>&1 | tee -a results/test-output.txt
+            code=${PIPESTATUS[0]}
+            if [ "$code" -ne 0 ]; then
+              failures=1
+            fi
+          done
+          echo "===== import benchmark =====" | tee -a results/test-output.txt
+          node scripts/import-benchmark.mjs 2>&1 | tee -a results/test-output.txt
+          if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+            failures=1
+          fi
+          echo "===== dependency notices =====" | tee -a results/test-output.txt
+          node scripts/generate-notices.mjs 2>&1 | tee -a results/test-output.txt
+          if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+            failures=1
+          fi
+          echo "$failures" > results/automated-poc-exit-code.txt
+          exit "$failures"
+        continue-on-error: true
+      - name: Generate npm audit report
+        if: always()
+        shell: bash
+        run: |
+          npm audit --json > results/npm-audit.json
+          echo "$?" > results/npm-audit-exit-code.txt
+          exit 0
+      - name: Generate CycloneDX SBOM
+        if: always()
+        shell: bash
+        run: |
+          npm sbom --sbom-format cyclonedx > results/sbom.cdx.json
+      - name: Add summary
+        if: always()
+        run: |
+          echo "## V1.5 Technology Selection PoC" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat results/test-output.txt >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "### Import benchmark" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat results/04-import-performance.json >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload PoC artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v15-tech-selection-poc-results
+          path: pocs/v15-tech-selection/results
+          if-no-files-found: error
+          retention-days: 30
+      - name: Enforce automated PoC gate
+        if: always()
+        run: |
+          test "$(cat results/automated-poc-exit-code.txt)" = "0"
