@@ -2,8 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createECDH, randomBytes } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { generateRequestDetails, generateVAPIDKeys, setVapidDetails } from "web-push";
+import webPushPackage from "web-push";
 
+const { generateRequestDetails, generateVAPIDKeys, setVapidDetails } = webPushPackage;
 mkdirSync("results", { recursive: true });
 const result = {};
 
