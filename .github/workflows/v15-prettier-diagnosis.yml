@@ -1,0 +1,69 @@
+name: V1.5 Prettier Diagnosis
+
+on:
+  push:
+    branches:
+      - codex/v15-tech-selection-poc
+    paths:
+      - .github/workflows/v15-prettier-diagnosis.yml
+      - pocs/v15-tech-selection/**/*.mjs
+      - package.json
+      - package-lock.json
+      - .prettierignore
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run Prettier check and capture per-file diffs
+        shell: bash
+        run: |
+          set +e
+          mkdir -p prettier-diagnosis/diffs
+          files=(
+            pocs/v15-tech-selection/scripts/generate-notices.mjs
+            pocs/v15-tech-selection/scripts/import-benchmark.mjs
+            pocs/v15-tech-selection/scripts/rrule-child.mjs
+            pocs/v15-tech-selection/tests/01-rrule.test.mjs
+            pocs/v15-tech-selection/tests/02-local-encryption.test.mjs
+            pocs/v15-tech-selection/tests/03-indexeddb-migration.test.mjs
+            pocs/v15-tech-selection/tests/04-import.test.mjs
+            pocs/v15-tech-selection/tests/05-web-push.test.mjs
+            pocs/v15-tech-selection/tests/06-ai-adapter.test.mjs
+          )
+
+          npx prettier --check "${files[@]}" > prettier-diagnosis/check-output.txt 2>&1
+          echo $? > prettier-diagnosis/check-exit-code.txt
+
+          for file in "${files[@]}"; do
+            safe_name=$(echo "$file" | tr '/' '_')
+            npx prettier "$file" > "/tmp/${safe_name}.formatted"
+            diff -u "$file" "/tmp/${safe_name}.formatted" > "prettier-diagnosis/diffs/${safe_name}.diff"
+          done
+
+          cat prettier-diagnosis/check-output.txt
+          find prettier-diagnosis/diffs -type f -maxdepth 1 -print -exec cat {} \;
+          exit 0
+
+      - name: Upload diagnosis artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: v15-prettier-diagnosis
+          path: prettier-diagnosis
+          retention-days: 30
