@@ -107,11 +107,7 @@ export function validatePushSubscription(subscription) {
   try {
     endpointUrl = new URL(endpoint);
   } catch (error) {
-    throw pushError(
-      "PUSH_ENDPOINT_INVALID",
-      { endpoint },
-      { cause: error },
-    );
+    throw pushError("PUSH_ENDPOINT_INVALID", { endpoint }, { cause: error });
   }
   if (endpointUrl.protocol !== "https:") {
     throw pushError("PUSH_ENDPOINT_INSECURE", { endpoint });
@@ -168,7 +164,9 @@ export function normalizePushPayload(payload) {
     deepLink: normalizeDeepLink(payload.deepLink),
     tag: payload.tag ? String(payload.tag).slice(0, 64) : undefined,
     data:
-      payload.data && typeof payload.data === "object" && !Array.isArray(payload.data)
+      payload.data &&
+      typeof payload.data === "object" &&
+      !Array.isArray(payload.data)
         ? payload.data
         : undefined,
   };
