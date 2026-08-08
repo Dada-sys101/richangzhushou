@@ -1,6 +1,7 @@
-import { rrulestr } from "rrule";
+import rrulePackage from "rrule";
 import { DateTime } from "luxon";
 
+const { rrulestr } = rrulePackage;
 const zone = "America/New_York";
 const input = `DTSTART;TZID=${zone}:20260301T090000\nRRULE:FREQ=WEEKLY;COUNT=4`;
 const rule = rrulestr(input);
