@@ -32,6 +32,7 @@ jobs:
         run: |
           npx prettier --write \
             pocs/v15-tech-selection/lib/local-crypto.mjs \
+            pocs/v15-tech-selection/lib/indexeddb-migration.mjs \
             pocs/v15-tech-selection/scripts/generate-notices.mjs \
             pocs/v15-tech-selection/scripts/import-benchmark.mjs \
             pocs/v15-tech-selection/scripts/rrule-child.mjs \
@@ -53,6 +54,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
             pocs/v15-tech-selection/lib/local-crypto.mjs \
+            pocs/v15-tech-selection/lib/indexeddb-migration.mjs \
             pocs/v15-tech-selection/scripts/generate-notices.mjs \
             pocs/v15-tech-selection/scripts/import-benchmark.mjs \
             pocs/v15-tech-selection/scripts/rrule-child.mjs \
@@ -62,5 +64,5 @@ jobs:
             pocs/v15-tech-selection/tests/04-import.test.mjs \
             pocs/v15-tech-selection/tests/05-web-push.test.mjs \
             pocs/v15-tech-selection/tests/06-ai-adapter.test.mjs
-          git commit -m "style(poc): format stage 2 local encryption files"
+          git commit -m "style(poc): format stage 3 IndexedDB migration files"
           git push origin HEAD:codex/v15-tech-selection-poc
