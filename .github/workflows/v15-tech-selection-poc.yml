@@ -42,6 +42,7 @@ jobs:
         id: automated-pocs
         shell: bash
         run: |
+          set +e
           mkdir -p results
           : > results/test-output.txt
           failures=0
@@ -77,14 +78,14 @@ jobs:
         if: always()
         shell: bash
         run: |
+          set +e
           npm audit --json > results/npm-audit.json
           echo "$?" > results/npm-audit-exit-code.txt
           exit 0
       - name: Generate CycloneDX SBOM
         if: always()
         shell: bash
-        run: |
-          npm sbom --sbom-format cyclonedx > results/sbom.cdx.json
+        run: npm sbom --sbom-format cyclonedx > results/sbom.cdx.json
       - name: Add summary
         if: always()
         run: |
