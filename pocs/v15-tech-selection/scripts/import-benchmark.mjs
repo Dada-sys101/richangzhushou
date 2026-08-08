@@ -4,13 +4,12 @@ import { parse } from "csv-parse";
 import { readSheet } from "read-excel-file/node";
 
 mkdirSync("results", { recursive: true });
-const limits = {
-  maxUploadBytes: 10 * 1024 * 1024,
-  maxRows: 100_000,
-  maxColumns: 64,
-  maxCellCharacters: 64 * 1024,
-  recommendedXlsxRows: 50_000,
+const releaseLimits = {
+  csv: { maxUploadBytes: 10 * 1024 * 1024, maxRows: 100_000 },
+  xlsx: { maxUploadBytes: 5 * 1024 * 1024, maxRows: 50_000 },
+  common: { maxColumns: 64, maxCellCharacters: 64 * 1024 },
 };
+const stressProfile = { rows: 100_000, purpose: "measure resource amplification beyond the XLSX release limit" };
 
 async function benchmarkCsv(path) {
   const size = statSync(path).size;
@@ -22,13 +21,12 @@ async function benchmarkCsv(path) {
     bom: true,
     skip_empty_lines: true,
     relax_column_count: true,
-    max_record_size: limits.maxCellCharacters * limits.maxColumns,
+    max_record_size: releaseLimits.common.maxCellCharacters * releaseLimits.common.maxColumns,
   }));
   for await (const row of parser) {
     rows += 1;
     columns = Math.max(columns, row.length);
-    if (rows > limits.maxRows + 1) throw new Error("IMPORT_ROW_LIMIT_EXCEEDED");
-    if (row.length > limits.maxColumns) throw new Error("IMPORT_COLUMN_LIMIT_EXCEEDED");
+    if (row.length > releaseLimits.common.maxColumns) throw new Error("IMPORT_COLUMN_LIMIT_EXCEEDED");
   }
   return {
     sizeBytes: size,
@@ -36,16 +34,13 @@ async function benchmarkCsv(path) {
     columns,
     durationMs: Math.round(performance.now() - started),
     rssDeltaBytes: process.memoryUsage().rss - before,
-    acceptedByByteLimit: size <= limits.maxUploadBytes,
-    acceptedByRowLimit: rows - 1 <= limits.maxRows,
+    acceptedByReleaseByteLimit: size <= releaseLimits.csv.maxUploadBytes,
+    acceptedByReleaseRowLimit: rows - 1 <= releaseLimits.csv.maxRows,
   };
 }
 
 async function benchmarkXlsx(path) {
   const size = statSync(path).size;
-  if (size > limits.maxUploadBytes) {
-    return { sizeBytes: size, rejectedBeforeParse: true, reason: "IMPORT_FILE_TOO_LARGE" };
-  }
   const before = process.memoryUsage().rss;
   const started = performance.now();
   const rows = await readSheet(path, 1);
@@ -56,14 +51,16 @@ async function benchmarkXlsx(path) {
     columns,
     durationMs: Math.round(performance.now() - started),
     rssDeltaBytes: process.memoryUsage().rss - before,
-    acceptedByRowLimit: rows.length - 1 <= limits.maxRows,
-    warning: rows.length - 1 > limits.recommendedXlsxRows ? "XLSX_ABOVE_RECOMMENDED_ROWS" : null,
+    acceptedByReleaseByteLimit: size <= releaseLimits.xlsx.maxUploadBytes,
+    acceptedByReleaseRowLimit: rows.length - 1 <= releaseLimits.xlsx.maxRows,
+    stressResult: "PARSED_FOR_BENCHMARK_ONLY_NOT_ACCEPTED_BY_RELEASE_GATE",
   };
 }
 
 const results = {
   environment: { node: process.version, platform: process.platform, arch: process.arch },
-  limits,
+  releaseLimits,
+  stressProfile,
   csv: await benchmarkCsv("fixtures/large-100k.csv"),
   xlsx: await benchmarkXlsx("fixtures/large-100k.xlsx"),
 };
