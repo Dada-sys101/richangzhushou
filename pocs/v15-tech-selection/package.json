@@ -18,7 +18,9 @@
     "bench:import": "node scripts/import-benchmark.mjs",
     "test:web-push": "node --test tests/05-web-push.test.mjs",
     "test:ai-adapter": "node --test tests/06*.test.mjs",
+    "test:governance": "node --test tests/07-dependency-governance.test.mjs",
     "licenses": "node scripts/generate-notices.mjs",
+    "governance": "node scripts/validate-governance.mjs",
     "poc": "mkdir -p results && node --test --test-reporter=spec tests/*.test.mjs | tee results/test-output.txt && node scripts/import-benchmark.mjs && node scripts/generate-notices.mjs"
   },
   "dependencies": {
