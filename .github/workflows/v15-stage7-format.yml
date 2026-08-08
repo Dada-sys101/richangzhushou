@@ -1,0 +1,80 @@
+name: V1.5 Stage 7 Normalize and Format
+
+on:
+  push:
+    branches:
+      - codex/v15-tech-selection-poc
+    paths:
+      - .github/workflows/v15-stage7-format.yml
+      - .github/workflows/v15-tech-selection-poc.yml
+      - pocs/v15-tech-selection/lib/dependency-governance.mjs
+      - pocs/v15-tech-selection/scripts/generate-notices.mjs
+      - pocs/v15-tech-selection/scripts/validate-governance.mjs
+      - pocs/v15-tech-selection/tests/07-dependency-governance.test.mjs
+      - pocs/v15-tech-selection/package.json
+      - pocs/v15-tech-selection/dependency-governance-exceptions.json
+
+permissions:
+  contents: write
+
+jobs:
+  normalize-format-and-commit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: codex/v15-tech-selection-poc
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Normalize absolute-path evidence rule
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("pocs/v15-tech-selection/lib/dependency-governance.mjs")
+          content = path.read_text(encoding="utf-8")
+          previous = r'/(?:^|\s)\/[A-Za-z0-9._-]+\/(?:home|Users|tmp)\//u,'
+          corrected = r'/(?:^|\s)(?:\/home\/|\/Users\/|\/tmp\/)/u,'
+          if previous in content:
+              path.write_text(content.replace(previous, corrected), encoding="utf-8")
+          PY
+
+      - name: Format Stage 7 files
+        run: |
+          npx prettier --write \
+            .github/workflows/v15-tech-selection-poc.yml \
+            pocs/v15-tech-selection/lib/dependency-governance.mjs \
+            pocs/v15-tech-selection/scripts/generate-notices.mjs \
+            pocs/v15-tech-selection/scripts/validate-governance.mjs \
+            pocs/v15-tech-selection/tests/07-dependency-governance.test.mjs \
+            pocs/v15-tech-selection/package.json \
+            pocs/v15-tech-selection/dependency-governance-exceptions.json
+          git diff --check
+
+      - name: Commit normalized formatting changes
+        run: |
+          if git diff --quiet; then
+            echo "No Stage 7 normalization or formatting changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            .github/workflows/v15-tech-selection-poc.yml \
+            pocs/v15-tech-selection/lib/dependency-governance.mjs \
+            pocs/v15-tech-selection/scripts/generate-notices.mjs \
+            pocs/v15-tech-selection/scripts/validate-governance.mjs \
+            pocs/v15-tech-selection/tests/07-dependency-governance.test.mjs \
+            pocs/v15-tech-selection/package.json \
+            pocs/v15-tech-selection/dependency-governance-exceptions.json
+          git commit -m "style(poc): normalize and format Stage 7 governance files"
+          git push origin HEAD:codex/v15-tech-selection-poc
