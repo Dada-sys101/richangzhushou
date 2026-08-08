@@ -320,11 +320,7 @@ async function encryptPending(database, cryptoProvider, deviceId, row) {
   };
 }
 
-export async function verifyEquivalentJson(
-  left,
-  right,
-  cryptoProvider,
-) {
+export async function verifyEquivalentJson(left, right, cryptoProvider) {
   const [leftHash, rightHash] = await Promise.all([
     stableJsonSha256(left, cryptoProvider),
     stableJsonSha256(right, cryptoProvider),
