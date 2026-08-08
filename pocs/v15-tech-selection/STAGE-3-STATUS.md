@@ -1,18 +1,14 @@
-# Stage 3 verification boundary
+# Stage 3 verification status
 
-This file marks the final validation boundary for the IndexedDB v1-to-v2 migration and rollback PoC.
+Stage 3 remains open and Stage 4 must not start.
 
-Included in this boundary:
+Current remediation order:
 
-- recoverable shadow migration engine;
-- AES-256-GCM encryption of entity and pending payloads;
-- per-user non-extractable CryptoKey isolation;
-- decrypt-and-compare verification before activation;
-- migration journal and interrupted-run recovery;
-- pre-activation automatic rollback;
-- post-activation active-schema pointer rollback;
-- recurrence series and exception stores derived from Stage 1;
-- old-tab blocked-upgrade coordination test;
-- Stage 3 acceptance report.
+1. canonical JSON SHA-256 verification fix;
+2. iOS Safari and Android Chrome real-device verification;
+3. real failure injection for quota, transaction abort and page/process termination;
+4. asynchronous timing matrix, repeated randomized runs and concurrent migration locking.
 
-The final GitHub Actions runs for this commit are the Stage 3 acceptance evidence. Stage 4 must not start before explicit user approval.
+Task 1 implementation now uses recursively key-sorted canonical JSON, preserves array order, rejects unsupported JSON values and compares SHA-256 digests. The final status of Task 1 depends on the GitHub Actions run triggered by this commit.
+
+The previous Stage 3 acceptance boundary is superseded. Stage 3 is not formally closed until all required evidence is complete and reviewed.
