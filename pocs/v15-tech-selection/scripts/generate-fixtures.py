@@ -45,7 +45,7 @@ with (FIXTURES / "large-100k.csv").open("w", encoding="utf-8-sig", newline="") a
     writer = csv.writer(file)
     writer.writerow(WECHAT)
     for index in range(100_000):
-        writer.writerow(["2026-08-01 12:30:01", "商户消费", f"商户{index % 50}", "测试商品", "支出", f"{(index % 5000) / 100:.2f}", "零钱", "支付成功", f"420{index:012d}", f"M{index:012d}", ""])
+        writer.writerow(["2026-08-01 12:30:01", "c", f"m{index % 50}", "x", "o", f"{(index % 5000) / 100:.2f}", "w", "ok", f"420{index:012d}", f"M{index:012d}", ""])
 
 book = Workbook(write_only=True)
 sheet = book.create_sheet("账单")
