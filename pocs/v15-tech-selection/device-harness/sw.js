@@ -1,10 +1,11 @@
-const CACHE_NAME = "stage3-device-harness-v2";
+const CACHE_NAME = "stage3-device-harness-v3";
 const ASSETS = [
   "./",
   "./index.html",
   "./app.mjs",
   "./manifest.webmanifest",
   "../lib/indexeddb-migration.mjs",
+  "../lib/indexeddb-migration-safe.mjs",
   "../lib/indexeddb-migration-resilient.mjs",
   "../lib/canonical-json.mjs",
   "../lib/local-crypto.mjs",
