@@ -1,14 +1,27 @@
 # Stage 3 verification status
 
-Stage 3 remains open and Stage 4 must not start.
+Status: CLOSED FOR POC PROGRESSION BY PROJECT OWNER DECISION (2026-08-09).
 
-Current remediation order:
+Completed automated evidence:
 
-1. canonical JSON SHA-256 verification fix;
-2. iOS Safari and Android Chrome real-device verification;
-3. real failure injection for quota, transaction abort and page/process termination;
-4. asynchronous timing matrix, repeated randomized runs and concurrent migration locking.
+1. canonical JSON SHA-256 verification;
+2. IndexedDB quota and transaction-abort rollback handling;
+3. page-close and renderer-crash transaction tests in real Chromium;
+4. deterministic and randomized asynchronous timing matrices;
+5. concurrent migration locking with real Chromium Web Locks.
 
-Task 1 implementation now uses recursively key-sorted canonical JSON, preserves array order, rejects unsupported JSON values and compares SHA-256 digests. The final status of Task 1 depends on the GitHub Actions run triggered by this commit.
+Manual device evidence:
 
-The previous Stage 3 acceptance boundary is superseded. Stage 3 is not formally closed until all required evidence is complete and reviewed.
+- the GitHub Pages device harness was opened successfully on a physical iPhone in Safari;
+- the project owner reported no material issue in basic real-device testing;
+- a Safari private-browsing reopen difference was observed and is treated as a platform storage-lifetime characteristic rather than a migration correctness failure.
+
+Accepted residual evidence gaps:
+
+- no separate Android Chrome JSON evidence is archived in the repository;
+- no long-duration Safari storage-retention result is archived;
+- the full exported device-evidence JSON set is not yet committed.
+
+The project owner explicitly accepts these residual evidence gaps for continuing the isolated PoC sequence. This closure does not authorize production rollout, deletion of v1 data, or merging the migration implementation into `main` without a later integration gate.
+
+Stage 4 may start.
