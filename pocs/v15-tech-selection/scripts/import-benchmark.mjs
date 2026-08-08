@@ -1,7 +1,7 @@
 import { createReadStream, mkdirSync, statSync, writeFileSync } from "node:fs";
 import { performance } from "node:perf_hooks";
 import { parse } from "csv-parse";
-import readXlsxFile from "read-excel-file/node";
+import { readSheet } from "read-excel-file/node";
 
 mkdirSync("results", { recursive: true });
 const limits = {
@@ -48,7 +48,7 @@ async function benchmarkXlsx(path) {
   }
   const before = process.memoryUsage().rss;
   const started = performance.now();
-  const rows = await readXlsxFile(path, { sheet: 1 });
+  const rows = await readSheet(path, 1);
   const columns = rows.reduce((max, row) => Math.max(max, row.length), 0);
   return {
     sizeBytes: size,
