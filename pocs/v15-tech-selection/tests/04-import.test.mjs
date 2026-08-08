@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createReadStream, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { parse } from "csv-parse";
-import readXlsxFile from "read-excel-file/node";
+import { readSheet } from "read-excel-file/node";
 
 mkdirSync("results", { recursive: true });
 
@@ -20,7 +20,7 @@ async function parseCsv(path, encoding) {
 }
 
 function findHeader(rows, required) {
-  const index = rows.findIndex((row) => required.every((name) => row.includes(name)));
+  const index = rows.findIndex((row) => Array.isArray(row) && required.every((name) => row.includes(name)));
   if (index < 0) throw new Error("HEADER_NOT_FOUND");
   return { headerIndex: index, header: rows[index], data: rows.slice(index + 1) };
 }
@@ -47,7 +47,7 @@ test("representative Alipay CSV parses GB18030 after explicit decoding", async (
 });
 
 test("representative XLSX handles merged title row and blank cells", async () => {
-  const rows = await readXlsxFile("fixtures/alipay-representative.xlsx", { sheet: "账单" });
+  const rows = await readSheet("fixtures/alipay-representative.xlsx", "账单");
   const table = findHeader(rows, ["交易号", "金额（元）", "交易状态"]);
   assert.equal(table.headerIndex, 1);
   assert.equal(table.data.length, 2);
