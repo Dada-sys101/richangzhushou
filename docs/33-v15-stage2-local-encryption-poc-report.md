@@ -37,17 +37,6 @@ CryptoKey通过结构化克隆存入IndexedDB
 
 ```text
 app
-tschemeVersion
-userId
-keyId
-recordType
-recordId
-```
-
-实际代码字段为：
-
-```text
-app
 schemeVersion
 userId
 keyId
