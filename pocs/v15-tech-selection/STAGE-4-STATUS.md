@@ -1,38 +1,46 @@
 # Stage 4 verification status
 
-Status: FINAL AUTOMATED VERIFICATION IN PROGRESS.
+Status: CLOSED — AUTOMATED POC GATES PASSED (2026-08-09).
 
 Scope: CSV/XLSX import PoC.
 
-Implemented:
+Implemented and accepted:
 
 1. reusable import preflight, normalization and ImportBatch modules;
 2. Node adapters for CSV and XLSX parsing;
-3. UTF-8 BOM, plain UTF-8 and GB18030 decoding checks;
-4. deterministic header discovery and mapping error codes;
+3. UTF-8 BOM, plain UTF-8 and GB18030 decoding;
+4. deterministic header discovery and mapping errors;
 5. malformed-row, blank-required-field and duplicate-transaction detection;
 6. atomic and valid-row partial-success policies;
 7. repository/write-interface boundary with no direct IndexedDB v2 writes;
-8. CSV streaming and XLSX memory-amplification benchmark gates;
+8. CSV streaming and XLSX memory-amplification gates;
 9. localized zh-CN error-message catalog;
-10. retained correctness and performance JSON artifacts.
+10. retained correctness and performance JSON evidence.
 
-Current evidence:
+Final automated evidence:
 
-- the Stage 4 implementation run on commit `7d0f93dd81d86237f0f9df865c73a48c10e1ab74` completed successfully;
-- the Stage 4 formatter completed successfully and produced commit `c43bf92872367454b799a6eceb061442c2a0b9ba`;
-- this status update intentionally triggers final PoC and full-repository CI verification against the formatted implementation.
+- implementation commit: `7489523d1ed12535753c8ceca18fe37ff42397d1`;
+- V1.5 Technology Selection PoC run: `31267847756`, conclusion `success`;
+- full-repository CI run: `31267847766`, both `quality` and `browser-qa` concluded `success`;
+- retained artifact: `9024696942` (`v15-tech-selection-poc-results`), SHA-256 digest `07fba49be132260507f783b75ffab932bf31dea302930f509c79deaa4c855da1`.
 
-Stage 4 completion gates:
+Correctness evidence:
 
-1. final V1.5 Technology Selection PoC run succeeds;
-2. final full-repository CI quality and browser jobs succeed;
-3. Stage 4 correctness and performance artifacts are present;
-4. no production merge, real account-data import, or direct migration-store write occurs.
+- UTF-8 BOM, plain UTF-8 and GB18030 detection passed;
+- representative WeChat CSV produced 2 valid normalized rows;
+- representative Alipay CSV and XLSX produced equivalent identifiers and amounts;
+- preflight, deterministic header errors, atomic rejection, valid-row partial success, repository failure isolation and unsupported-structure handling passed.
 
-Restrictions:
+Performance evidence on the CI runner:
 
-- do not merge into `main` during the isolated PoC;
-- do not treat private WeChat/Alipay export formats as fully validated without supplied samples;
-- do not write imported data directly into migration shadow stores;
-- do not mark Stage 4 closed until the final formatted-head runs are reviewed.
+- CSV: 100,000 data rows, 7,260,129 bytes, streaming strategy, 470 ms, RSS increase 8.05 MiB, file-memory amplification 1.16x;
+- XLSX: 100,000 data rows, 6,055,047 bytes, in-memory strategy, 7,842 ms, RSS increase 590.24 MiB, file-memory amplification 102.21x;
+- therefore the release gates remain CSV <= 10 MiB / 100,000 rows and XLSX <= 5 MiB / 50,000 rows.
+
+Accepted limitations:
+
+- private or future WeChat/Alipay export variants are not claimed as validated without representative samples;
+- this PoC does not authorize production import, merge to `main`, or direct writes to migration shadow stores;
+- integration must implement the accepted repository interface and retain ImportBatch auditability.
+
+Stage 5 may start.
