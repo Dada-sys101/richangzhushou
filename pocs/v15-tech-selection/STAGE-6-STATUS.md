@@ -1,10 +1,10 @@
 # Stage 6 verification status
 
-Status: FINAL AUTOMATED VERIFICATION IN PROGRESS.
+Status: CLOSED — AUTOMATED ADAPTER GATES PASSED; LIVE-PROVIDER GATE OPEN (2026-08-09).
 
 Scope: AI Adapter capability discovery, unified response validation, provider failover and safe business-write boundary.
 
-Implemented:
+Implemented and accepted:
 
 1. reusable request/response schema, capability registry, circuit breaker and router modules;
 2. runtime model listing plus capability probes instead of hard-coded model selection;
@@ -15,30 +15,39 @@ Implemented:
 7. request text/context, locale and timezone safety limits;
 8. duplicate-request claim, provider attempt audit, selected model, latency and token-usage evidence;
 9. confirmation-required proposal boundary with no direct business-table writes;
-10. all-provider failure, fallback success, invalid-response isolation, timeout, circuit-open and idempotency tests.
+10. all-provider failure, fallback success, invalid-response isolation, timeout, circuit-open and idempotency handling.
 
-Current evidence:
+Verification correction:
 
-- expanded Stage 6 PoC run `31269117801` completed successfully;
-- formatter commit `2c6b3aadaebd8453919256356efcbd86f5caf5df` contains the formatted implementation;
-- this status update intentionally triggers final PoC and full-repository CI verification against that formatted implementation.
+- the first final run exposed that the ordered PoC workflow still executed only the baseline AI test;
+- commit `8080594380143fe45fa8c1456726246bfbcaad0c` added both extended Stage 6 test files to the enforced ordered gate;
+- the corrected run executed the baseline, core and router suites and retained all three JSON evidence files.
 
-Final completion gates:
+Final automated evidence:
 
-1. final V1.5 Technology Selection PoC succeeds;
-2. final full-repository CI `quality` and `browser-qa` jobs succeed;
-3. baseline and extended `06-ai-adapter*.json` evidence is retained;
-4. no real provider API keys, paid calls or raw AI business writes occur.
+- formatted implementation commit: `2c6b3aadaebd8453919256356efcbd86f5caf5df`;
+- effective final gate commit: `8080594380143fe45fa8c1456726246bfbcaad0c`;
+- V1.5 Technology Selection PoC run: `31269311509`, conclusion `success`;
+- full-repository CI run: `31269311504`, both `quality` and `browser-qa` concluded `success`;
+- retained artifact: `9025115237` (`v15-tech-selection-poc-results`), SHA-256 digest `19c1ba3afef9107bb00260f3fc5025ba92dac2699ff6a1ae16053dc92393d8d3`.
 
-Manual/live-provider gate retained:
+Artifact evidence:
 
-- no real OpenAI, DeepSeek or other paid provider is called during the isolated PoC;
-- live model capabilities, quotas, latency and provider-specific response behavior remain unverified until credentials and explicit permission are supplied;
-- automated closure may validate adapter architecture and deterministic failure behavior, but must not claim live-provider compatibility.
+- baseline capability discovery, fallback and schema-write gate passed;
+- request/response validation, dynamic capability caching, failure classification and circuit-breaker tests passed;
+- transient failover, invalid-response isolation, timeout, open-circuit skipping, idempotency, bounded all-provider failure and proposal-only write boundary passed.
 
-Restrictions:
+Live-provider gate retained:
+
+- no real OpenAI, DeepSeek or other paid provider was called during this isolated PoC;
+- live model capabilities, credentials, quota behavior, latency and provider-specific response formats remain unverified;
+- this gate must be completed before claiming production compatibility with a named provider, but it does not block the final dependency-governance PoC.
+
+Restrictions retained:
 
 - do not commit provider API keys;
 - do not infer capability from a model name alone;
 - do not allow raw AI output to write business tables directly;
 - do not merge into `main` until a later integration gate.
+
+Stage 7 may start.
