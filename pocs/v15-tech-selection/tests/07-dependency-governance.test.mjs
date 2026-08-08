@@ -79,10 +79,7 @@ const futureException = {
 test("license policy allows permissive licenses, reviews weak copyleft and blocks unknown or deny-listed licenses", () => {
   assert.equal(classifyLicense("MIT").state, GOVERNANCE_STATES.pass);
   assert.equal(classifyLicense("MPL-2.0").state, GOVERNANCE_STATES.review);
-  assert.equal(
-    classifyLicense("GPL-3.0-only").state,
-    GOVERNANCE_STATES.block,
-  );
+  assert.equal(classifyLicense("GPL-3.0-only").state, GOVERNANCE_STATES.block);
   assert.equal(classifyLicense("UNKNOWN").state, GOVERNANCE_STATES.block);
   assert.equal(
     classifyLicense("MIT OR GPL-3.0-only").state,

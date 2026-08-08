@@ -130,9 +130,7 @@ export function classifyLicense(value, policy = LICENSE_POLICY) {
       (item) => item.state === GOVERNANCE_STATES.block,
     )
       ? GOVERNANCE_STATES.block
-      : classifications.some(
-            (item) => item.state === GOVERNANCE_STATES.review,
-          )
+      : classifications.some((item) => item.state === GOVERNANCE_STATES.review)
         ? GOVERNANCE_STATES.review
         : GOVERNANCE_STATES.pass;
     return {
@@ -177,7 +175,10 @@ export function validateGovernanceExceptions(input, nowMs = Date.now()) {
     );
     const owner = nonEmpty(`exceptions[${index}].owner`, item.owner);
     const reason = nonEmpty(`exceptions[${index}].reason`, item.reason);
-    const expiresAt = nonEmpty(`exceptions[${index}].expiresAt`, item.expiresAt);
+    const expiresAt = nonEmpty(
+      `exceptions[${index}].expiresAt`,
+      item.expiresAt,
+    );
     const expiresAtMs = parseExpiry(expiresAt);
     if (expiresAtMs === null) {
       throw governanceError("GOVERNANCE_EXCEPTION_EXPIRY_INVALID", {
@@ -419,13 +420,10 @@ export function evaluateNpmAudit(
     },
   );
   const declared = audit.metadata.vulnerabilities;
-  const declaredTotal = [
-    "info",
-    "low",
-    "moderate",
-    "high",
-    "critical",
-  ].reduce((sum, severity) => sum + Number(declared[severity] ?? 0), 0);
+  const declaredTotal = ["info", "low", "moderate", "high", "critical"].reduce(
+    (sum, severity) => sum + Number(declared[severity] ?? 0),
+    0,
+  );
   if (declaredTotal !== Number(declared.total ?? 0)) {
     throw governanceError("NPM_AUDIT_COUNT_INCONSISTENT", {
       declaredTotal,
@@ -476,7 +474,7 @@ export function validateGeneratedNotices(notices, packages) {
     throw governanceError("NOTICES_INVALID");
   }
   const prohibitedPatterns = [
-    /(?:^|\s)\/[A-Za-z0-9._-]+\/(?:home|Users|tmp)\//u,
+    /(?:^|\s)(?:\/home\/|\/Users\/|\/tmp\/)/u,
     /[A-Za-z]:\\(?:Users|Documents|Temp)\\/u,
     /BEGIN [A-Z ]*PRIVATE KEY/u,
     /(?:ghp_|github_pat_|sk-)[A-Za-z0-9_-]{12,}/u,
@@ -491,9 +489,7 @@ export function validateGeneratedNotices(notices, packages) {
   const deterministic = notices === renderThirdPartyNotices(packages);
   return {
     state:
-      violations.length === 0 &&
-      missingPackages.length === 0 &&
-      deterministic
+      violations.length === 0 && missingPackages.length === 0 && deterministic
         ? GOVERNANCE_STATES.pass
         : GOVERNANCE_STATES.block,
     deterministic,

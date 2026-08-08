@@ -76,7 +76,8 @@ function inspectPackage(directory) {
     homepage: manifest.homepage ?? null,
   };
   const existing = packages.get(identity);
-  if (!existing || existing.scope === "development") packages.set(identity, row);
+  if (!existing || existing.scope === "development")
+    packages.set(identity, row);
 }
 
 function walkNodeModules(nodeModulesDirectory) {
@@ -92,7 +93,9 @@ function walkNodeModules(nodeModulesDirectory) {
 
 walkNodeModules("node_modules");
 const matrix = [...packages.values()].sort((left, right) =>
-  `${left.name}@${left.version}`.localeCompare(`${right.name}@${right.version}`),
+  `${left.name}@${left.version}`.localeCompare(
+    `${right.name}@${right.version}`,
+  ),
 );
 writeFileSync(
   "results/dependency-license-matrix.json",
