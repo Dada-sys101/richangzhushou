@@ -11,7 +11,9 @@
     "test": "node --test tests/*.test.mjs",
     "test:rrule": "node --test tests/01-rrule.test.mjs",
     "test:local-encryption": "node --test tests/02-local-encryption.test.mjs",
-    "test:indexeddb-migration": "node --test tests/03-canonical-json.test.mjs tests/03-indexeddb-migration.test.mjs",
+    "test:indexeddb-migration": "node --test tests/03-canonical-json.test.mjs tests/03-indexeddb-migration.test.mjs tests/03-indexeddb-faults.test.mjs tests/03-indexeddb-timing-matrix.test.mjs",
+    "test:indexeddb-faults": "node --test tests/03-indexeddb-faults.test.mjs",
+    "test:indexeddb-timing": "node --test tests/03-indexeddb-timing-matrix.test.mjs",
     "bench:import": "node scripts/import-benchmark.mjs",
     "licenses": "node scripts/generate-notices.mjs",
     "poc": "mkdir -p results && node --test --test-reporter=spec tests/*.test.mjs | tee results/test-output.txt && node scripts/import-benchmark.mjs && node scripts/generate-notices.mjs"
