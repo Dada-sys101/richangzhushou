@@ -57,7 +57,8 @@ jobs:
             tests/05-web-push.test.mjs \
             tests/06-ai-adapter.test.mjs \
             tests/06-ai-adapter-core.test.mjs \
-            tests/06-ai-adapter-router.test.mjs
+            tests/06-ai-adapter-router.test.mjs \
+            tests/07-dependency-governance.test.mjs
           do
             echo "===== $file =====" | tee -a results/test-output.txt
             node --test "$file" 2>&1 | tee -a results/test-output.txt
@@ -91,6 +92,17 @@ jobs:
         if: always()
         shell: bash
         run: npm sbom --sbom-format cyclonedx > results/sbom.cdx.json
+      - name: Validate dependency governance gate
+        id: governance
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          node scripts/validate-governance.mjs 2>&1 | tee results/07-dependency-governance-output.txt
+          code=${PIPESTATUS[0]}
+          echo "$code" > results/governance-exit-code.txt
+          exit "$code"
       - name: Add summary
         if: always()
         run: |
@@ -102,6 +114,10 @@ jobs:
           echo '```json' >> "$GITHUB_STEP_SUMMARY"
           cat results/04-import-performance.json >> "$GITHUB_STEP_SUMMARY" || true
           echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "### Dependency governance" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat results/07-dependency-governance.json >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
       - name: Upload PoC artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -110,7 +126,8 @@ jobs:
           path: pocs/v15-tech-selection/results
           if-no-files-found: error
           retention-days: 30
-      - name: Enforce automated PoC gate
+      - name: Enforce automated PoC and governance gates
         if: always()
         run: |
           test "$(cat results/automated-poc-exit-code.txt)" = "0"
+          test "$(cat results/governance-exit-code.txt)" = "0"
