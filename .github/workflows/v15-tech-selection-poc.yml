@@ -49,6 +49,7 @@ jobs:
           for file in \
             tests/01-rrule.test.mjs \
             tests/02-local-encryption.test.mjs \
+            tests/03-canonical-json.test.mjs \
             tests/03-indexeddb-migration.test.mjs \
             tests/04-import.test.mjs \
             tests/05-web-push.test.mjs \
