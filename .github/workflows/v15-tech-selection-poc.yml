@@ -15,7 +15,7 @@ permissions:
 jobs:
   poc:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: pocs/v15-tech-selection
@@ -51,6 +51,8 @@ jobs:
             tests/02-local-encryption.test.mjs \
             tests/03-canonical-json.test.mjs \
             tests/03-indexeddb-migration.test.mjs \
+            tests/03-indexeddb-faults.test.mjs \
+            tests/03-indexeddb-timing-matrix.test.mjs \
             tests/04-import.test.mjs \
             tests/05-web-push.test.mjs \
             tests/06-ai-adapter.test.mjs
