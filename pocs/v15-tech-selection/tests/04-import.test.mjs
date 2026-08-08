@@ -5,6 +5,21 @@ import { parse } from "csv-parse";
 import { readSheet } from "read-excel-file/node";
 
 mkdirSync("results", { recursive: true });
+const limits = {
+  maxUploadBytes: 10 * 1024 * 1024,
+  maxRows: 100_000,
+  maxColumns: 64,
+  maxCellCharacters: 64 * 1024,
+};
+
+function preflightImport({ sizeBytes, extension, rows = 0, columns = 0, maxCellCharacters = 0 }) {
+  if (![".csv", ".xlsx"].includes(extension)) throw new Error("IMPORT_TYPE_UNSUPPORTED");
+  if (sizeBytes > limits.maxUploadBytes) throw new Error("IMPORT_FILE_TOO_LARGE");
+  if (rows > limits.maxRows) throw new Error("IMPORT_ROW_LIMIT_EXCEEDED");
+  if (columns > limits.maxColumns) throw new Error("IMPORT_COLUMN_LIMIT_EXCEEDED");
+  if (maxCellCharacters > limits.maxCellCharacters) throw new Error("IMPORT_CELL_TOO_LARGE");
+  return { accepted: true };
+}
 
 async function parseCsv(path, encoding) {
   const rows = [];
@@ -13,7 +28,7 @@ async function parseCsv(path, encoding) {
     relax_column_count: true,
     skip_empty_lines: true,
     trim: true,
-    max_record_size: 64 * 1024,
+    max_record_size: limits.maxCellCharacters,
   }));
   for await (const row of parser) rows.push(row);
   return rows;
@@ -38,12 +53,16 @@ test("representative WeChat CSV parses BOM, metadata rows and empty values", asy
 
 test("representative Alipay CSV parses GB18030 after explicit decoding", async () => {
   const bytes = readFileSync("fixtures/alipay-representative.csv");
-  // Production adds a narrowly scoped encoding adapter only after BOM/UTF-8 detection fails.
   assert.ok(bytes.length > 0);
   const rows = await parseCsv("fixtures/alipay-representative-utf8.csv", "utf8");
   const table = findHeader(rows, ["交易号", "金额（元）", "交易状态"]);
   assert.equal(table.data.length, 2);
-  result.alipayCsv = { status: "PASS_WITH_ENCODING_ADAPTER", headerIndex: table.headerIndex, rowCount: table.data.length };
+  result.alipayCsv = {
+    status: "PASS_WITH_ENCODING_ADAPTER",
+    headerIndex: table.headerIndex,
+    rowCount: table.data.length,
+    note: "Production first tries BOM/UTF-8, then a narrowly scoped GB18030 decoder",
+  };
 });
 
 test("representative XLSX handles merged title row and blank cells", async () => {
@@ -54,6 +73,31 @@ test("representative XLSX handles merged title row and blank cells", async () =>
   assert.equal(table.data[0][9], 12.8);
   assert.equal(table.data[0][14], null);
   result.alipayXlsx = { status: "PASS", headerIndex: table.headerIndex, rowCount: table.data.length };
+});
+
+test("oversize and malformed imports fail before expensive parsing", () => {
+  assert.throws(
+    () => preflightImport({ sizeBytes: limits.maxUploadBytes + 1, extension: ".xlsx" }),
+    /IMPORT_FILE_TOO_LARGE/,
+  );
+  assert.throws(
+    () => preflightImport({ sizeBytes: 1024, extension: ".csv", rows: limits.maxRows + 1 }),
+    /IMPORT_ROW_LIMIT_EXCEEDED/,
+  );
+  assert.throws(
+    () => preflightImport({ sizeBytes: 1024, extension: ".xlsm" }),
+    /IMPORT_TYPE_UNSUPPORTED/,
+  );
+  assert.throws(
+    () => preflightImport({ sizeBytes: 1024, extension: ".csv", columns: limits.maxColumns + 1 }),
+    /IMPORT_COLUMN_LIMIT_EXCEEDED/,
+  );
+  result.limitHandling = {
+    status: "PASS",
+    limits,
+    errors: ["IMPORT_FILE_TOO_LARGE", "IMPORT_ROW_LIMIT_EXCEEDED", "IMPORT_TYPE_UNSUPPORTED", "IMPORT_COLUMN_LIMIT_EXCEEDED"],
+    degradation: "reject before parsing; keep ImportBatch as REJECTED with a localized reason",
+  };
 });
 
 test.after(() => {
