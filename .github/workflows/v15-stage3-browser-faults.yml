@@ -7,7 +7,7 @@ on:
       - codex/v15-tech-selection-poc
     paths:
       - "pocs/v15-tech-selection/lib/**"
-      - "pocs/v15-tech-selection/scripts/browser-transaction-termination.mjs"
+      - "pocs/v15-tech-selection/scripts/browser-transaction-termination-v2.mjs"
       - "pocs/v15-tech-selection/scripts/browser-web-locks.mjs"
       - ".github/workflows/v15-stage3-browser-faults.yml"
 
@@ -34,8 +34,8 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run page-close and renderer-crash transaction tests
-        run: node pocs/v15-tech-selection/scripts/browser-transaction-termination.mjs
+      - name: Run bounded page-close and renderer-crash transaction tests
+        run: node pocs/v15-tech-selection/scripts/browser-transaction-termination-v2.mjs
 
       - name: Run real Web Locks migration concurrency tests
         run: node pocs/v15-tech-selection/scripts/browser-web-locks.mjs
