@@ -34,6 +34,11 @@ Final completion gates:
 4. no dependency version is changed solely to obtain a clean result;
 5. no merge into `main` or production deployment occurs.
 
+Final trigger note:
+
+- the formatter commit was authored by GitHub Actions and therefore did not recursively trigger another workflow run;
+- this status-only commit intentionally triggers the final PoC and full CI against formatted commit `636ea70361ddccfade060f609b9e107cda6c8d3d` plus this documentation marker.
+
 Restrictions retained:
 
 - do not silently ignore unknown licenses or vulnerabilities;
