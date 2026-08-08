@@ -16,6 +16,7 @@
     "test:indexeddb-timing": "node --test tests/03-indexeddb-timing-matrix.test.mjs",
     "test:import": "node --test tests/04-import.test.mjs",
     "bench:import": "node scripts/import-benchmark.mjs",
+    "test:web-push": "node --test tests/05-web-push.test.mjs",
     "licenses": "node scripts/generate-notices.mjs",
     "poc": "mkdir -p results && node --test --test-reporter=spec tests/*.test.mjs | tee results/test-output.txt && node scripts/import-benchmark.mjs && node scripts/generate-notices.mjs"
   },
