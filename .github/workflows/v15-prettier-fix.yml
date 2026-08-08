@@ -31,13 +31,16 @@ jobs:
       - name: Format diagnosed PoC files only
         run: |
           npx prettier --write \
+            pocs/v15-tech-selection/lib/canonical-json.mjs \
             pocs/v15-tech-selection/lib/local-crypto.mjs \
             pocs/v15-tech-selection/lib/indexeddb-migration.mjs \
+            pocs/v15-tech-selection/lib/indexeddb-migration-engine.mjs \
             pocs/v15-tech-selection/scripts/generate-notices.mjs \
             pocs/v15-tech-selection/scripts/import-benchmark.mjs \
             pocs/v15-tech-selection/scripts/rrule-child.mjs \
             pocs/v15-tech-selection/tests/01-rrule.test.mjs \
             pocs/v15-tech-selection/tests/02-local-encryption.test.mjs \
+            pocs/v15-tech-selection/tests/03-canonical-json.test.mjs \
             pocs/v15-tech-selection/tests/03-indexeddb-migration.test.mjs \
             pocs/v15-tech-selection/tests/04-import.test.mjs \
             pocs/v15-tech-selection/tests/05-web-push.test.mjs \
@@ -53,16 +56,19 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
+            pocs/v15-tech-selection/lib/canonical-json.mjs \
             pocs/v15-tech-selection/lib/local-crypto.mjs \
             pocs/v15-tech-selection/lib/indexeddb-migration.mjs \
+            pocs/v15-tech-selection/lib/indexeddb-migration-engine.mjs \
             pocs/v15-tech-selection/scripts/generate-notices.mjs \
             pocs/v15-tech-selection/scripts/import-benchmark.mjs \
             pocs/v15-tech-selection/scripts/rrule-child.mjs \
             pocs/v15-tech-selection/tests/01-rrule.test.mjs \
             pocs/v15-tech-selection/tests/02-local-encryption.test.mjs \
+            pocs/v15-tech-selection/tests/03-canonical-json.test.mjs \
             pocs/v15-tech-selection/tests/03-indexeddb-migration.test.mjs \
             pocs/v15-tech-selection/tests/04-import.test.mjs \
             pocs/v15-tech-selection/tests/05-web-push.test.mjs \
             pocs/v15-tech-selection/tests/06-ai-adapter.test.mjs
-          git commit -m "style(poc): format stage 3 IndexedDB migration files"
+          git commit -m "style(poc): format stage 3 verification files"
           git push origin HEAD:codex/v15-tech-selection-poc
