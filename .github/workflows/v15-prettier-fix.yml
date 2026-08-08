@@ -40,6 +40,7 @@ jobs:
             pocs/v15-tech-selection/lib/indexeddb-migration.mjs \
             pocs/v15-tech-selection/lib/indexeddb-migration-engine.mjs \
             pocs/v15-tech-selection/lib/indexeddb-migration-resilient.mjs \
+            pocs/v15-tech-selection/lib/indexeddb-migration-safe.mjs \
             pocs/v15-tech-selection/scripts/browser-transaction-termination.mjs \
             pocs/v15-tech-selection/scripts/browser-web-locks.mjs \
             pocs/v15-tech-selection/scripts/generate-notices.mjs \
@@ -74,6 +75,7 @@ jobs:
             pocs/v15-tech-selection/lib/indexeddb-migration.mjs \
             pocs/v15-tech-selection/lib/indexeddb-migration-engine.mjs \
             pocs/v15-tech-selection/lib/indexeddb-migration-resilient.mjs \
+            pocs/v15-tech-selection/lib/indexeddb-migration-safe.mjs \
             pocs/v15-tech-selection/scripts/browser-transaction-termination.mjs \
             pocs/v15-tech-selection/scripts/browser-web-locks.mjs \
             pocs/v15-tech-selection/scripts/generate-notices.mjs \
