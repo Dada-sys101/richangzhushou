@@ -243,7 +243,10 @@ async function runInterruptionRecovery(phase, predicate, label) {
     batchSize: 3,
     useLock: false,
   });
-  const recovered = await inspectMigrationState({ indexedDB, databaseName: name });
+  const recovered = await inspectMigrationState({
+    indexedDB,
+    databaseName: name,
+  });
 
   assert.equal(retry.status, "COMPLETED");
   assert.equal(retry.recoveredInterruptedMigration, true);

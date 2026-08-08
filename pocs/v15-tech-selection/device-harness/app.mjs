@@ -197,9 +197,9 @@ async function reopenVerification() {
 }
 
 function exportEvidence() {
-  const value = evidence ?? JSON.parse(
-    localStorage.getItem("stage3-device-evidence") ?? "null",
-  );
+  const value =
+    evidence ??
+    JSON.parse(localStorage.getItem("stage3-device-evidence") ?? "null");
   if (!value) {
     render({ error: "NO_EVIDENCE_TO_EXPORT" });
     return;

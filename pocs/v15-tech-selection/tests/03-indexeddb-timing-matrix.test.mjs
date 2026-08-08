@@ -37,7 +37,8 @@ function transactionComplete(transaction) {
   return new Promise((resolve, reject) => {
     transaction.oncomplete = () => resolve();
     transaction.onerror = () => reject(transaction.error);
-    transaction.onabort = () => reject(transaction.error ?? new Error("ABORTED"));
+    transaction.onabort = () =>
+      reject(transaction.error ?? new Error("ABORTED"));
   });
 }
 
@@ -162,7 +163,10 @@ async function interruptAndRecover({ label, shouldFail, repeats = 10 }) {
       batchSize: 3,
       useLock: false,
     });
-    const recovered = await inspectMigrationState({ indexedDB, databaseName: name });
+    const recovered = await inspectMigrationState({
+      indexedDB,
+      databaseName: name,
+    });
     assert.equal(retry.status, "COMPLETED");
     assert.equal(retry.recoveredInterruptedMigration, true);
     assertFinalState(recovered, source);
@@ -219,7 +223,10 @@ test("each critical migration stage recovers consistently across 10 repeated int
   }
   assert.equal(statistics.deterministic.length, deterministicScenarios.length);
   assert.equal(
-    statistics.deterministic.reduce((sum, entry) => sum + entry.outcomes.length, 0),
+    statistics.deterministic.reduce(
+      (sum, entry) => sum + entry.outcomes.length,
+      0,
+    ),
     deterministicScenarios.length * 10,
   );
 });
@@ -248,12 +255,14 @@ const randomFaultPoints = [
   ...Array.from({ length: 8 }, (_, index) => ({
     name: `verify-entity-${index}`,
     match: (event) =>
-      event.phase === MIGRATION_PHASES.verifyEntityAfter && event.index === index,
+      event.phase === MIGRATION_PHASES.verifyEntityAfter &&
+      event.index === index,
   })),
   ...Array.from({ length: 4 }, (_, index) => ({
     name: `verify-pending-${index}`,
     match: (event) =>
-      event.phase === MIGRATION_PHASES.verifyPendingAfter && event.index === index,
+      event.phase === MIGRATION_PHASES.verifyPendingAfter &&
+      event.index === index,
   })),
   {
     name: "before-activation",
@@ -265,7 +274,8 @@ const randomFaultPoints = [
 test("60 seeded random interruption runs recover with zero anomalous states", async () => {
   const random = createRandom(statistics.randomized.seed);
   for (let run = 0; run < 60; run += 1) {
-    const fault = randomFaultPoints[Math.floor(random() * randomFaultPoints.length)];
+    const fault =
+      randomFaultPoints[Math.floor(random() * randomFaultPoints.length)];
     statistics.randomized.phaseCounts[fault.name] =
       (statistics.randomized.phaseCounts[fault.name] ?? 0) + 1;
     const name = databaseName(`random-${run}`);
@@ -302,7 +312,10 @@ test("60 seeded random interruption runs recover with zero anomalous states", as
       });
       assert.equal(retry.status, "COMPLETED");
       assert.equal(retry.recoveredInterruptedMigration, true);
-      const state = await inspectMigrationState({ indexedDB, databaseName: name });
+      const state = await inspectMigrationState({
+        indexedDB,
+        databaseName: name,
+      });
       assertFinalState(state, source);
       statistics.randomized.recovered += 1;
     } catch (error) {

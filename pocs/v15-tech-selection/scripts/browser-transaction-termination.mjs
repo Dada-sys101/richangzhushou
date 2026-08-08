@@ -9,7 +9,9 @@ const payload = "x".repeat(4096);
 function startServer() {
   const server = createServer((request, response) => {
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    response.end("<!doctype html><meta charset='utf-8'><title>Stage 3 browser fault harness</title>");
+    response.end(
+      "<!doctype html><meta charset='utf-8'><title>Stage 3 browser fault harness</title>",
+    );
   });
   return new Promise((resolve, reject) => {
     server.once("error", reject);
@@ -50,7 +52,8 @@ async function startSequentialTransaction(page, databaseName) {
         openRequest.result.createObjectStore("rows", { keyPath: "id" });
       };
       openRequest.onerror = () => {
-        window.stage3Transaction.error = openRequest.error?.message ?? "OPEN_FAILED";
+        window.stage3Transaction.error =
+          openRequest.error?.message ?? "OPEN_FAILED";
       };
       openRequest.onsuccess = () => {
         const database = openRequest.result;
@@ -79,7 +82,8 @@ async function startSequentialTransaction(page, databaseName) {
             if (index < total) writeNext();
           };
           request.onerror = () => {
-            window.stage3Transaction.error = request.error?.message ?? "PUT_FAILED";
+            window.stage3Transaction.error =
+              request.error?.message ?? "PUT_FAILED";
           };
         };
         writeNext();
@@ -113,7 +117,13 @@ async function countRows(page, databaseName) {
   );
 }
 
-async function runTerminationScenario({ context, origin, mode, triggerCount, run }) {
+async function runTerminationScenario({
+  context,
+  origin,
+  mode,
+  triggerCount,
+  run,
+}) {
   const databaseName = `stage3-${mode}-${run}`;
   let page = await context.newPage();
   await page.goto(origin);
@@ -203,8 +213,10 @@ const summary = {
   },
   runs: results.length,
   pageCloseRuns: results.filter((entry) => entry.mode === "page-close").length,
-  rendererCrashRuns: results.filter((entry) => entry.mode === "renderer-crash").length,
-  rolledBack: results.filter((entry) => entry.atomicOutcome === "ROLLED_BACK").length,
+  rendererCrashRuns: results.filter((entry) => entry.mode === "renderer-crash")
+    .length,
+  rolledBack: results.filter((entry) => entry.atomicOutcome === "ROLLED_BACK")
+    .length,
   fullyCommitted: results.filter(
     (entry) => entry.atomicOutcome === "FULLY_COMMITTED",
   ).length,

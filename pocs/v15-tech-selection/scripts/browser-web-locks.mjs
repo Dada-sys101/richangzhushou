@@ -18,10 +18,15 @@ function startServer() {
     const pathname = new URL(request.url, "http://127.0.0.1").pathname;
     if (pathname === "/") {
       response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-      response.end("<!doctype html><meta charset='utf-8'><title>Web Locks harness</title>");
+      response.end(
+        "<!doctype html><meta charset='utf-8'><title>Web Locks harness</title>",
+      );
       return;
     }
-    const relative = normalize(decodeURIComponent(pathname)).replace(/^[/\\]+/u, "");
+    const relative = normalize(decodeURIComponent(pathname)).replace(
+      /^[/\\]+/u,
+      "",
+    );
     const filePath = join(root, relative);
     if (!filePath.startsWith(root)) {
       response.writeHead(403).end();
@@ -30,7 +35,8 @@ function startServer() {
     try {
       if (!statSync(filePath).isFile()) throw new Error("NOT_FILE");
       response.writeHead(200, {
-        "content-type": contentTypes[extname(filePath)] ?? "application/octet-stream",
+        "content-type":
+          contentTypes[extname(filePath)] ?? "application/octet-stream",
         "cache-control": "no-store",
       });
       createReadStream(filePath).pipe(response);
@@ -118,7 +124,9 @@ async function runCaller(page, databaseName, callerId, evidenceKey) {
           const entries = JSON.parse(localStorage.getItem(key) ?? "[]");
           entries.push({ callerId: id, enteredAt, exitedAt: null });
           localStorage.setItem(key, JSON.stringify(entries));
-          await new Promise((resolvePromise) => setTimeout(resolvePromise, 120));
+          await new Promise((resolvePromise) =>
+            setTimeout(resolvePromise, 120),
+          );
           const updated = JSON.parse(localStorage.getItem(key) ?? "[]");
           const entry = updated.find((candidate) => candidate.callerId === id);
           entry.exitedAt = performance.timeOrigin + performance.now();
@@ -149,7 +157,9 @@ const firstPage = await context.newPage();
 const secondPage = await context.newPage();
 await Promise.all([firstPage.goto(origin), secondPage.goto(origin)]);
 
-const supported = await firstPage.evaluate(() => Boolean(navigator.locks?.request));
+const supported = await firstPage.evaluate(() =>
+  Boolean(navigator.locks?.request),
+);
 assert.equal(supported, true, "Chromium Web Locks API must be available");
 
 const runs = [];
@@ -158,7 +168,10 @@ try {
     const databaseName = `stage3-browser-lock-${run}`;
     const evidenceKey = `stage3-lock-evidence-${run}`;
     await seed(firstPage, databaseName);
-    await firstPage.evaluate((key) => localStorage.removeItem(key), evidenceKey);
+    await firstPage.evaluate(
+      (key) => localStorage.removeItem(key),
+      evidenceKey,
+    );
 
     const [first, second] = await Promise.all([
       runCaller(firstPage, databaseName, `caller-a-${run}`, evidenceKey),

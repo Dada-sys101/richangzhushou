@@ -66,7 +66,10 @@ function transactionComplete(transaction) {
     transaction.oncomplete = () => resolve();
     transaction.onerror = () => reject(transaction.error);
     transaction.onabort = () =>
-      reject(transaction.error ?? new DOMException("Transaction aborted", "AbortError"));
+      reject(
+        transaction.error ??
+          new DOMException("Transaction aborted", "AbortError"),
+      );
   });
 }
 
@@ -444,14 +447,22 @@ async function verifyMigration(
       `${source.userId}:${source.entityType}:${source.id}`,
     );
     if (!target) throw new Error("MIGRATION_ENTITY_MISSING");
-    emit(options, MIGRATION_PHASES.verifyEntityBefore, { index, source, target });
+    emit(options, MIGRATION_PHASES.verifyEntityBefore, {
+      index,
+      source,
+      target,
+    });
     await verifyEncryptedRow(
       database,
       cryptoProvider,
       entitySensitiveValue(source),
       target,
     );
-    emit(options, MIGRATION_PHASES.verifyEntityAfter, { index, source, target });
+    emit(options, MIGRATION_PHASES.verifyEntityAfter, {
+      index,
+      source,
+      target,
+    });
   }
 
   const pendingTargets = new Map(targetPending.map((row) => [row.id, row]));
@@ -459,14 +470,22 @@ async function verifyMigration(
     const source = sourcePending[index];
     const target = pendingTargets.get(source.id);
     if (!target) throw new Error("MIGRATION_PENDING_MISSING");
-    emit(options, MIGRATION_PHASES.verifyPendingBefore, { index, source, target });
+    emit(options, MIGRATION_PHASES.verifyPendingBefore, {
+      index,
+      source,
+      target,
+    });
     await verifyEncryptedRow(
       database,
       cryptoProvider,
       pendingSensitiveValue(source),
       target,
     );
-    emit(options, MIGRATION_PHASES.verifyPendingAfter, { index, source, target });
+    emit(options, MIGRATION_PHASES.verifyPendingAfter, {
+      index,
+      source,
+      target,
+    });
   }
 
   return {
