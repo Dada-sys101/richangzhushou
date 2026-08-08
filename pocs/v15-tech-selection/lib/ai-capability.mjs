@@ -27,7 +27,10 @@ export class CapabilityRegistry {
   #clock;
   #ttlMs;
 
-  constructor({ ttlMs = AI_LIMITS.capabilityTtlMs, clock = () => Date.now() } = {}) {
+  constructor({
+    ttlMs = AI_LIMITS.capabilityTtlMs,
+    clock = () => Date.now(),
+  } = {}) {
     if (!Number.isSafeInteger(ttlMs) || ttlMs < 1) {
       throw aiError("AI_CAPABILITY_TTL_INVALID", { ttlMs });
     }
@@ -158,9 +161,7 @@ export class CircuitBreakerRegistry {
     const current = this.state(providerId);
     const failures = current.failures + 1;
     const openUntilMs =
-      failures >= this.#failureThreshold
-        ? this.#clock() + this.#cooldownMs
-        : 0;
+      failures >= this.#failureThreshold ? this.#clock() + this.#cooldownMs : 0;
     this.#entries.set(providerId, { failures, openUntilMs });
     return this.state(providerId);
   }

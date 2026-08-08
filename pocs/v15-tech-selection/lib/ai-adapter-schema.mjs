@@ -237,11 +237,13 @@ export function validateCaptureResponse(response) {
   if (!validateSchema(response)) {
     throw aiError("AI_RESPONSE_SCHEMA_INVALID", {
       category: AI_FAILURE_CATEGORIES.invalidResponse,
-      errors: validateSchema.errors?.map(({ instancePath, keyword, message }) => ({
-        instancePath,
-        keyword,
-        message,
-      })),
+      errors: validateSchema.errors?.map(
+        ({ instancePath, keyword, message }) => ({
+          instancePath,
+          keyword,
+          message,
+        }),
+      ),
     });
   }
   response.operations.forEach((operation, index) => {
@@ -273,7 +275,9 @@ export function classifyProviderFailure(error) {
     };
   }
   const rawStatus = error?.statusCode ?? error?.status;
-  const statusCode = Number.isInteger(Number(rawStatus)) ? Number(rawStatus) : null;
+  const statusCode = Number.isInteger(Number(rawStatus))
+    ? Number(rawStatus)
+    : null;
   const code = String(error?.code ?? "");
   const message = error instanceof Error ? error.message : String(error);
   if (statusCode === 401 || statusCode === 403) {
@@ -310,7 +314,10 @@ export function classifyProviderFailure(error) {
       message,
     };
   }
-  if ([408, 425].includes(statusCode) || (statusCode >= 500 && statusCode <= 599)) {
+  if (
+    [408, 425].includes(statusCode) ||
+    (statusCode >= 500 && statusCode <= 599)
+  ) {
     return {
       code: "AI_PROVIDER_TRANSIENT_FAILURE",
       category: AI_FAILURE_CATEGORIES.transient,

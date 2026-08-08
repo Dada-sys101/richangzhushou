@@ -34,7 +34,9 @@ function withTimeout(task, timeoutMs) {
 function normalizeUsage(usage) {
   if (!usage || typeof usage !== "object") return null;
   const inputTokens = Number(usage.inputTokens ?? usage.promptTokens ?? 0);
-  const outputTokens = Number(usage.outputTokens ?? usage.completionTokens ?? 0);
+  const outputTokens = Number(
+    usage.outputTokens ?? usage.completionTokens ?? 0,
+  );
   if (
     !Number.isSafeInteger(inputTokens) ||
     inputTokens < 0 ||
@@ -54,7 +56,11 @@ function normalizeProviderResult(value) {
 }
 
 function requireRepository(repository) {
-  for (const method of ["claimAiRequest", "recordAiAttempt", "recordAiResult"]) {
+  for (const method of [
+    "claimAiRequest",
+    "recordAiAttempt",
+    "recordAiResult",
+  ]) {
     if (typeof repository?.[method] !== "function") {
       throw aiError("AI_REPOSITORY_METHOD_MISSING", { method });
     }
@@ -111,7 +117,10 @@ export class AiRouter {
     }
 
     const attempts = [];
-    for (const provider of this.#providers.slice(0, AI_LIMITS.maxProviderAttempts)) {
+    for (const provider of this.#providers.slice(
+      0,
+      AI_LIMITS.maxProviderAttempts,
+    )) {
       const providerId = nonEmpty("provider.id", provider?.id);
       const circuit = this.#breakers.state(providerId);
       if (circuit.isOpen) {

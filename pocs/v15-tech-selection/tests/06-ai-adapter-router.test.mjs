@@ -115,7 +115,10 @@ test("router falls back from transient primary failure and audits provider, mode
     totalTokens: 30,
   });
   assert.equal(audit.calls.results.at(-1).state, AI_RESULT_STATES.proposed);
-  result.failover = { status: "PASS", selectedProvider: output.selectedProvider };
+  result.failover = {
+    status: "PASS",
+    selectedProvider: output.selectedProvider,
+  };
 });
 
 test("invalid response is isolated and valid fallback may still produce a proposal", async () => {
@@ -194,7 +197,10 @@ test("open circuit skips provider and duplicate claim skips all providers", asyn
   assert.equal(primary.calls.captures, 0);
 
   const existing = { proposalId: "proposal-1" };
-  const duplicateAudit = repository({ claimed: false, existingResult: existing });
+  const duplicateAudit = repository({
+    claimed: false,
+    existingResult: existing,
+  });
   const unused = provider("unused");
   const duplicate = await new AiRouter({
     providers: [unused],

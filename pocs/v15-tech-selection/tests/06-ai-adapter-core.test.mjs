@@ -43,18 +43,22 @@ function provider(id, behavior = {}) {
     calls,
     async listModels() {
       calls.list += 1;
-      return behavior.models ?? [
-        { id: `${id}-a`, status: "available" },
-        { id: `${id}-b`, status: "available" },
-      ];
+      return (
+        behavior.models ?? [
+          { id: `${id}-a`, status: "available" },
+          { id: `${id}-b`, status: "available" },
+        ]
+      );
     },
     async probeCapabilities(modelId) {
       calls.probes.push(modelId);
-      return behavior.probe?.(modelId) ?? {
-        structuredOutput: true,
-        toolCalling: false,
-        maxOutputTokens: 8192,
-      };
+      return (
+        behavior.probe?.(modelId) ?? {
+          structuredOutput: true,
+          toolCalling: false,
+          maxOutputTokens: 8192,
+        }
+      );
     },
   };
 }
