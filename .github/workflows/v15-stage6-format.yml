@@ -1,0 +1,67 @@
+name: V1.5 Stage 6 Format
+
+on:
+  push:
+    branches:
+      - codex/v15-tech-selection-poc
+    paths:
+      - .github/workflows/v15-stage6-format.yml
+      - pocs/v15-tech-selection/lib/ai-adapter-schema.mjs
+      - pocs/v15-tech-selection/lib/ai-capability.mjs
+      - pocs/v15-tech-selection/lib/ai-router.mjs
+      - pocs/v15-tech-selection/lib/ai-adapter-core.mjs
+      - pocs/v15-tech-selection/tests/06-ai-adapter-core.test.mjs
+      - pocs/v15-tech-selection/tests/06-ai-adapter-router.test.mjs
+      - pocs/v15-tech-selection/package.json
+
+permissions:
+  contents: write
+
+jobs:
+  format-and-commit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: codex/v15-tech-selection-poc
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Format Stage 6 files
+        run: |
+          npx prettier --write \
+            pocs/v15-tech-selection/lib/ai-adapter-schema.mjs \
+            pocs/v15-tech-selection/lib/ai-capability.mjs \
+            pocs/v15-tech-selection/lib/ai-router.mjs \
+            pocs/v15-tech-selection/lib/ai-adapter-core.mjs \
+            pocs/v15-tech-selection/tests/06-ai-adapter-core.test.mjs \
+            pocs/v15-tech-selection/tests/06-ai-adapter-router.test.mjs \
+            pocs/v15-tech-selection/package.json
+          git diff --check
+
+      - name: Commit formatting-only changes
+        run: |
+          if git diff --quiet; then
+            echo "No formatting changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            pocs/v15-tech-selection/lib/ai-adapter-schema.mjs \
+            pocs/v15-tech-selection/lib/ai-capability.mjs \
+            pocs/v15-tech-selection/lib/ai-router.mjs \
+            pocs/v15-tech-selection/lib/ai-adapter-core.mjs \
+            pocs/v15-tech-selection/tests/06-ai-adapter-core.test.mjs \
+            pocs/v15-tech-selection/tests/06-ai-adapter-router.test.mjs \
+            pocs/v15-tech-selection/package.json
+          git commit -m "style(poc): format Stage 6 AI Adapter files"
+          git push origin HEAD:codex/v15-tech-selection-poc
