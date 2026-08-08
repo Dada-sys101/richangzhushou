@@ -1,32 +1,42 @@
 # Stage 7 verification status
 
-Status: IN PROGRESS.
+Status: FINAL AUTOMATED VERIFICATION IN PROGRESS.
 
 Scope: dependency license governance, CycloneDX SBOM generation and npm vulnerability-audit policy.
 
-Existing baseline:
+Implemented:
 
-- the PoC workflow generates `THIRD_PARTY_NOTICES.md` and `dependency-license-matrix.json`;
-- `npm sbom --sbom-format cyclonedx` produces `sbom.cdx.json`;
-- `npm audit --json` is retained with its actual exit code;
-- current artifacts are generated, but there is no explicit release policy that turns unacceptable licenses, missing metadata or vulnerability severity into a deterministic gate.
+1. reusable dependency-governance policy and report validators;
+2. production/development dependency scope discovery through the installed npm tree;
+3. explicit allow, review and deny license policy with conservative handling of unknown and multi-license expressions;
+4. exact, time-bounded license and vulnerability exceptions with owner, reason and expiry;
+5. CycloneDX structure, component coverage and dependency-reference validation;
+6. npm-audit severity policy: high/critical block, moderate review, low/info record;
+7. deterministic third-party notices with secret and local absolute-path detection;
+8. retained license matrix, notices, SBOM, audit and governance-summary artifacts;
+9. eight dependency-governance unit tests;
+10. GitHub Actions enforcement of both the ordered PoC gate and the real-artifact governance gate.
 
-Stage 7 completion gates:
+Current evidence:
 
-1. extract reusable dependency-governance policy and report-validation modules;
-2. verify every production dependency has identifiable name, version and license metadata;
-3. define an explicit allow/review/deny license policy, including unknown and multi-license expressions;
-4. reject known deny-listed strong-copyleft or non-commercial licenses unless an approved exception is recorded;
-5. validate the CycloneDX document structure, component identity and dependency coverage;
-6. validate npm-audit JSON shape and enforce a documented severity policy without hiding its exit code;
-7. support time-bounded, reasoned exceptions with owner and expiry fields;
-8. ensure generated notices are deterministic and do not contain secrets or local absolute paths;
-9. retain final license matrix, notices, SBOM, audit report and governance-summary evidence;
-10. run final PoC and full-repository CI gates before closing the technology-selection sequence.
+- initial enforced Stage 7 PoC run `31269786668` completed successfully;
+- artifact `9025254089` reported 40 installed packages, 39 release-gated packages, 38 allowed packages, one MPL-2.0 review item and zero blockers;
+- npm audit reported zero info, low, moderate, high or critical vulnerabilities;
+- CycloneDX 1.5 covered all 40 installed components with no dangling references;
+- generated notices were deterministic, complete and free of detected secrets or local absolute paths;
+- formatting and absolute-path-rule normalization produced commit `636ea70361ddccfade060f609b9e107cda6c8d3d`.
 
-Restrictions:
+Final completion gates:
+
+1. final V1.5 Technology Selection PoC succeeds against the formatted implementation;
+2. final full-repository CI `quality` and `browser-qa` jobs succeed;
+3. final artifact retains `07-dependency-governance.json` and the source reports;
+4. no dependency version is changed solely to obtain a clean result;
+5. no merge into `main` or production deployment occurs.
+
+Restrictions retained:
 
 - do not silently ignore unknown licenses or vulnerabilities;
 - do not claim legal advice or universal license compatibility;
-- do not modify dependency versions solely to make the report appear clean without an explicit remediation decision;
+- `web-push@3.6.7` under MPL-2.0 remains an explicit human review item, not a blocker or an automatic approval;
 - do not merge into `main` until the final integration review.
