@@ -1,175 +1,356 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import {
-  createReadStream,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
-import { parse } from "csv-parse";
-import { readSheet } from "read-excel-file/node";
+  IMPORT_BATCH_STATES,
+  IMPORT_ERROR_MESSAGES_ZH_CN,
+  IMPORT_LIMITS,
+  IMPORT_POLICIES,
+  ImportError,
+  executeImportBatch,
+  findHeader,
+  preflightImport,
+  prepareImportRows,
+} from "../lib/import-core.mjs";
+import {
+  parseCsvBytes,
+  parseCsvFile,
+  parseCsvText,
+  parseXlsxFile,
+  validateWorkbookRows,
+} from "../lib/import-node.mjs";
 
 mkdirSync("results", { recursive: true });
-const releaseLimits = {
-  csv: { maxUploadBytes: 10 * 1024 * 1024, maxRows: 100_000 },
-  xlsx: { maxUploadBytes: 5 * 1024 * 1024, maxRows: 50_000 },
-  common: { maxColumns: 64, maxCellCharacters: 64 * 1024 },
-};
-
-function preflightImport({
-  sizeBytes,
-  extension,
-  rows = 0,
-  columns = 0,
-  maxCellCharacters = 0,
-}) {
-  const type =
-    extension === ".csv" ? "csv" : extension === ".xlsx" ? "xlsx" : null;
-  if (!type) throw new Error("IMPORT_TYPE_UNSUPPORTED");
-  const limits = releaseLimits[type];
-  if (sizeBytes > limits.maxUploadBytes)
-    throw new Error("IMPORT_FILE_TOO_LARGE");
-  if (rows > limits.maxRows) throw new Error("IMPORT_ROW_LIMIT_EXCEEDED");
-  if (columns > releaseLimits.common.maxColumns)
-    throw new Error("IMPORT_COLUMN_LIMIT_EXCEEDED");
-  if (maxCellCharacters > releaseLimits.common.maxCellCharacters)
-    throw new Error("IMPORT_CELL_TOO_LARGE");
-  return { accepted: true, type, limits };
-}
-
-async function parseCsv(path, encoding) {
-  const rows = [];
-  const parser = createReadStream(path, { encoding }).pipe(
-    parse({
-      bom: true,
-      relax_column_count: true,
-      skip_empty_lines: true,
-      trim: true,
-      max_record_size: releaseLimits.common.maxCellCharacters,
-    }),
-  );
-  for await (const row of parser) rows.push(row);
-  return rows;
-}
-
-function findHeader(rows, required) {
-  const index = rows.findIndex(
-    (row) => Array.isArray(row) && required.every((name) => row.includes(name)),
-  );
-  if (index < 0) throw new Error("HEADER_NOT_FOUND");
-  return {
-    headerIndex: index,
-    header: rows[index],
-    data: rows.slice(index + 1),
-  };
-}
-
 const result = {};
 
-test("representative WeChat CSV parses BOM, metadata rows and empty values", async () => {
-  const rows = await parseCsv("fixtures/wechat-representative.csv", "utf8");
-  const table = findHeader(rows, ["交易时间", "金额(元)", "交易单号"]);
-  assert.equal(table.data.length, 2);
-  assert.equal(table.data[0][5], "¥12.80");
-  assert.equal(table.data[1][10], "");
+function assertImportError(error, code) {
+  return error instanceof ImportError && error.code === code;
+}
+
+function wechatRows() {
+  return [
+    ["微信支付账单明细"],
+    [
+      "交易时间",
+      "交易类型",
+      "交易对方",
+      "商品",
+      "收/支",
+      "金额(元)",
+      "支付方式",
+      "当前状态",
+      "交易单号",
+      "商户单号",
+      "备注",
+    ],
+    [
+      "2026-08-01 12:30:01",
+      "商户消费",
+      "示例餐厅",
+      "午餐",
+      "支出",
+      "¥12.80",
+      "零钱",
+      "支付成功",
+      "4200001",
+      "M001",
+      "",
+    ],
+  ];
+}
+
+function deterministicClock() {
+  let tick = 0;
+  return () => `2026-08-09T00:00:${String(tick++).padStart(2, "0")}.000Z`;
+}
+
+test("CSV decoding distinguishes UTF-8 BOM, plain UTF-8 and GB18030", async () => {
+  const withBom = await parseCsvFile("fixtures/wechat-representative.csv");
+  assert.equal(withBom.encoding, "utf-8");
+  assert.equal(withBom.bom, true);
+
+  const plainBytes = new TextEncoder().encode(
+    "交易时间,金额(元),交易单号,收/支\n2026-08-01 00:00:00,1.00,plain-1,支出\n",
+  );
+  const plain = await parseCsvBytes(plainBytes);
+  assert.equal(plain.encoding, "utf-8");
+  assert.equal(plain.bom, false);
+
+  const gb18030 = await parseCsvFile("fixtures/alipay-representative.csv");
+  assert.equal(gb18030.encoding, "gb18030");
+  assert.equal(gb18030.bom, false);
+
+  result.encoding = {
+    status: "PASS",
+    detected: [withBom.encoding, plain.encoding, gb18030.encoding],
+  };
+});
+
+test("representative WeChat CSV maps to normalized import records", async () => {
+  const parsed = await parseCsvFile("fixtures/wechat-representative.csv");
+  const prepared = prepareImportRows({
+    rows: parsed.rows,
+    profile: "wechat",
+    extension: ".csv",
+  });
+  assert.equal(prepared.headerIndex, 2);
+  assert.equal(prepared.records.length, 2);
+  assert.equal(prepared.errors.length, 0);
+  assert.equal(prepared.records[0].amountMinor, 1280);
+  assert.equal(prepared.records[0].direction, "EXPENSE");
+  assert.equal(prepared.records[1].direction, "INCOME");
+  assert.equal(prepared.records[1].note, "");
   result.wechat = {
     status: "PASS",
-    headerIndex: table.headerIndex,
-    rowCount: table.data.length,
+    rowCount: prepared.records.length,
+    headerIndex: prepared.headerIndex,
   };
 });
 
-test("representative Alipay CSV parses GB18030 after explicit decoding", async () => {
-  const bytes = readFileSync("fixtures/alipay-representative.csv");
-  assert.ok(bytes.length > 0);
-  const rows = await parseCsv(
-    "fixtures/alipay-representative-utf8.csv",
-    "utf8",
+test("representative Alipay CSV and XLSX produce equivalent identifiers and amounts", async () => {
+  const csv = await parseCsvFile("fixtures/alipay-representative.csv");
+  const csvPrepared = prepareImportRows({
+    rows: csv.rows,
+    profile: "alipay",
+    extension: ".csv",
+  });
+  const xlsx = await parseXlsxFile("fixtures/alipay-representative.xlsx", {
+    sheet: "账单",
+  });
+  const xlsxPrepared = prepareImportRows({
+    rows: xlsx.rows,
+    profile: "alipay",
+    extension: ".xlsx",
+  });
+
+  assert.deepEqual(
+    csvPrepared.records.map((row) => [row.sourceTransactionId, row.amountMinor]),
+    xlsxPrepared.records.map((row) => [row.sourceTransactionId, row.amountMinor]),
   );
-  const table = findHeader(rows, ["交易号", "金额（元）", "交易状态"]);
-  assert.equal(table.data.length, 2);
-  result.alipayCsv = {
-    status: "PASS_WITH_ENCODING_ADAPTER",
-    headerIndex: table.headerIndex,
-    rowCount: table.data.length,
-    note: "Production first tries BOM/UTF-8, then a narrowly scoped GB18030 decoder",
-  };
-});
-
-test("representative XLSX handles merged title row and blank cells", async () => {
-  const rows = await readSheet("fixtures/alipay-representative.xlsx", "账单");
-  const table = findHeader(rows, ["交易号", "金额（元）", "交易状态"]);
-  assert.equal(table.headerIndex, 1);
-  assert.equal(table.data.length, 2);
-  assert.equal(table.data[0][9], 12.8);
-  assert.equal(table.data[0][14], null);
-  result.alipayXlsx = {
+  assert.equal(xlsxPrepared.headerIndex, 1);
+  result.alipay = {
     status: "PASS",
-    headerIndex: table.headerIndex,
-    rowCount: table.data.length,
+    csvEncoding: csv.encoding,
+    xlsxRows: xlsxPrepared.records.length,
   };
 });
 
-test("format-specific release limits reject oversize work before expensive parsing", () => {
+test("preflight rejects unsupported, oversize, over-column and over-cell imports", () => {
   assert.throws(
     () =>
       preflightImport({
-        sizeBytes: releaseLimits.csv.maxUploadBytes + 1,
+        sizeBytes: IMPORT_LIMITS.csv.maxUploadBytes + 1,
         extension: ".csv",
       }),
-    /IMPORT_FILE_TOO_LARGE/,
+    (error) => assertImportError(error, "IMPORT_FILE_TOO_LARGE"),
   );
   assert.throws(
     () =>
       preflightImport({
-        sizeBytes: 1024,
-        extension: ".csv",
-        rows: releaseLimits.csv.maxRows + 1,
-      }),
-    /IMPORT_ROW_LIMIT_EXCEEDED/,
-  );
-  assert.throws(
-    () =>
-      preflightImport({
-        sizeBytes: releaseLimits.xlsx.maxUploadBytes + 1,
+        sizeBytes: 1,
         extension: ".xlsx",
+        rows: IMPORT_LIMITS.xlsx.maxRows + 1,
       }),
-    /IMPORT_FILE_TOO_LARGE/,
+    (error) => assertImportError(error, "IMPORT_ROW_LIMIT_EXCEEDED"),
+  );
+  assert.throws(
+    () => preflightImport({ sizeBytes: 1, extension: ".xlsm" }),
+    (error) => assertImportError(error, "IMPORT_TYPE_UNSUPPORTED"),
   );
   assert.throws(
     () =>
       preflightImport({
-        sizeBytes: 1024,
-        extension: ".xlsx",
-        rows: releaseLimits.xlsx.maxRows + 1,
-      }),
-    /IMPORT_ROW_LIMIT_EXCEEDED/,
-  );
-  assert.throws(
-    () => preflightImport({ sizeBytes: 1024, extension: ".xlsm" }),
-    /IMPORT_TYPE_UNSUPPORTED/,
-  );
-  assert.throws(
-    () =>
-      preflightImport({
-        sizeBytes: 1024,
+        sizeBytes: 1,
         extension: ".csv",
-        columns: releaseLimits.common.maxColumns + 1,
+        columns: IMPORT_LIMITS.common.maxColumns + 1,
       }),
-    /IMPORT_COLUMN_LIMIT_EXCEEDED/,
+    (error) => assertImportError(error, "IMPORT_COLUMN_LIMIT_EXCEEDED"),
   );
-  result.limitHandling = {
-    status: "PASS",
-    releaseLimits,
-    errors: [
-      "IMPORT_FILE_TOO_LARGE",
-      "IMPORT_ROW_LIMIT_EXCEEDED",
-      "IMPORT_TYPE_UNSUPPORTED",
-      "IMPORT_COLUMN_LIMIT_EXCEEDED",
+  assert.throws(
+    () =>
+      preflightImport({
+        sizeBytes: 1,
+        extension: ".csv",
+        maxCellCharacters: IMPORT_LIMITS.common.maxCellCharacters + 1,
+      }),
+    (error) => assertImportError(error, "IMPORT_CELL_TOO_LARGE"),
+  );
+  result.preflight = { status: "PASS", limits: IMPORT_LIMITS };
+});
+
+test("header discovery has deterministic missing, ambiguous and duplicate errors", () => {
+  assert.throws(
+    () => findHeader([["说明"]], ["交易时间", "金额(元)", "交易单号"]),
+    (error) => assertImportError(error, "IMPORT_HEADER_NOT_FOUND"),
+  );
+  const header = ["交易时间", "金额(元)", "交易单号", "收/支"];
+  assert.throws(
+    () => findHeader([header, header], ["交易时间", "金额(元)", "交易单号"]),
+    (error) => assertImportError(error, "IMPORT_HEADER_AMBIGUOUS"),
+  );
+  assert.throws(
+    () =>
+      findHeader(
+        [["交易时间", "金额(元)", "交易单号", "交易单号", "收/支"]],
+        ["交易时间", "金额(元)", "交易单号"],
+      ),
+    (error) => assertImportError(error, "IMPORT_HEADER_DUPLICATE_COLUMN"),
+  );
+  result.headers = { status: "PASS" };
+});
+
+test("atomic policy rejects malformed rows and performs no repository writes", async () => {
+  const rows = wechatRows();
+  rows.push([
+    "2026-08-02 12:30:01",
+    "商户消费",
+    "重复商户",
+    "重复",
+    "支出",
+    "2.00",
+    "零钱",
+    "支付成功",
+    "4200001",
+    "M002",
+    "",
+  ]);
+  rows.push([
+    "2026-08-03 12:30:01",
+    "商户消费",
+    "空编号",
+    "测试",
+    "支出",
+    "3.00",
+    "零钱",
+    "支付成功",
+    "",
+    "M003",
+    "",
+  ]);
+  rows.push([
+    "2026-08-04 12:30:01",
+    "商户消费",
+    "错误金额",
+    "测试",
+    "支出",
+    "12.345",
+    "零钱",
+    "支付成功",
+    "4200004",
+    "M004",
+    "",
+  ]);
+
+  let writes = 0;
+  const batch = await executeImportBatch({
+    batchId: "atomic-1",
+    fileName: "malformed.csv",
+    rows,
+    profile: "wechat",
+    extension: ".csv",
+    policy: IMPORT_POLICIES.atomic,
+    clock: deterministicClock(),
+    repository: {
+      async writeImportedRecords() {
+        writes += 1;
+      },
+    },
+  });
+
+  assert.equal(batch.state, IMPORT_BATCH_STATES.rejected);
+  assert.equal(batch.recordsWritten, 0);
+  assert.equal(writes, 0);
+  assert.deepEqual(
+    batch.errors.map((error) => error.code),
+    [
+      "IMPORT_DUPLICATE_TRANSACTION_ID",
+      "IMPORT_REQUIRED_FIELD_BLANK",
+      "IMPORT_AMOUNT_INVALID",
     ],
-    degradation:
-      "reject before parsing; keep ImportBatch as REJECTED with a localized reason",
-  };
+  );
+  result.atomic = { status: "PASS", errorCount: batch.errors.length };
+});
+
+test("valid-rows policy writes only validated records through the repository interface", async () => {
+  const rows = wechatRows();
+  rows.push([
+    "2026-08-02 12:30:01",
+    "商户消费",
+    "错误金额",
+    "测试",
+    "支出",
+    "bad",
+    "零钱",
+    "支付成功",
+    "4200002",
+    "M002",
+    "",
+  ]);
+  const calls = [];
+  const batch = await executeImportBatch({
+    batchId: "partial-1",
+    fileName: "partial.csv",
+    rows,
+    profile: "wechat",
+    extension: ".csv",
+    policy: IMPORT_POLICIES.validRows,
+    clock: deterministicClock(),
+    repository: {
+      async writeImportedRecords(payload) {
+        calls.push(payload);
+        return { recordsWritten: payload.records.length };
+      },
+    },
+  });
+
+  assert.equal(batch.state, IMPORT_BATCH_STATES.completedWithErrors);
+  assert.equal(batch.recordsWritten, 1);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].records.length, 1);
+  assert.equal(calls[0].records[0].sourceTransactionId, "4200001");
+  assert.deepEqual(
+    batch.history.map((entry) => entry.state),
+    ["CREATED", "VALIDATING", "READY", "COMMITTING", "COMPLETED_WITH_ERRORS"],
+  );
+  result.partial = { status: "PASS", recordsWritten: batch.recordsWritten };
+});
+
+test("repository failure is isolated as a failed ImportBatch", async () => {
+  const batch = await executeImportBatch({
+    batchId: "write-failure-1",
+    fileName: "valid.csv",
+    rows: wechatRows(),
+    profile: "wechat",
+    extension: ".csv",
+    clock: deterministicClock(),
+    repository: {
+      async writeImportedRecords() {
+        throw new Error("database unavailable");
+      },
+    },
+  });
+  assert.equal(batch.state, IMPORT_BATCH_STATES.failed);
+  assert.equal(batch.recordsWritten, 0);
+  assert.equal(batch.errors[0].code, "IMPORT_REPOSITORY_WRITE_FAILED");
+  result.repositoryFailure = { status: "PASS" };
+});
+
+test("unsupported CSV and workbook structures return stable error codes", async () => {
+  await assert.rejects(
+    () => parseCsvText('a,b\n"unterminated'),
+    (error) => assertImportError(error, "IMPORT_CSV_PARSE_FAILED"),
+  );
+  assert.throws(
+    () => validateWorkbookRows([]),
+    (error) => assertImportError(error, "IMPORT_WORKBOOK_STRUCTURE_UNSUPPORTED"),
+  );
+  assert.ok(IMPORT_ERROR_MESSAGES_ZH_CN.IMPORT_WORKBOOK_STRUCTURE_UNSUPPORTED);
+  result.structures = { status: "PASS" };
+});
+
+test("actual GB18030 fixture contains non-UTF-8 bytes", () => {
+  const bytes = readFileSync("fixtures/alipay-representative.csv");
+  assert.throws(() => new TextDecoder("utf-8", { fatal: true }).decode(bytes));
 });
 
 test.after(() => {
