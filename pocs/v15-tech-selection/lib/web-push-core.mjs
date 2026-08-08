@@ -107,7 +107,11 @@ export function validatePushSubscription(subscription) {
   try {
     endpointUrl = new URL(endpoint);
   } catch (error) {
-    throw pushError("PUSH_ENDPOINT_INVALID", { endpoint }, { cause: error });
+    throw pushError(
+      "PUSH_ENDPOINT_INVALID",
+      { endpoint },
+      { cause: error },
+    );
   }
   if (endpointUrl.protocol !== "https:") {
     throw pushError("PUSH_ENDPOINT_INSECURE", { endpoint });
@@ -130,8 +134,12 @@ export function validatePushSubscription(subscription) {
 
 export function normalizeDeepLink(value) {
   if (value === undefined || value === null || value === "") return "/";
-  const deepLink = nonEmpty("deepLink", value);
+  if (typeof value !== "string" || value.trim() === "") {
+    throw pushError("PUSH_REQUIRED_VALUE_MISSING", { name: "deepLink" });
+  }
+  const deepLink = value;
   if (
+    deepLink !== deepLink.trim() ||
     !deepLink.startsWith("/") ||
     deepLink.startsWith("//") ||
     deepLink.includes("\\") ||
@@ -160,9 +168,7 @@ export function normalizePushPayload(payload) {
     deepLink: normalizeDeepLink(payload.deepLink),
     tag: payload.tag ? String(payload.tag).slice(0, 64) : undefined,
     data:
-      payload.data &&
-      typeof payload.data === "object" &&
-      !Array.isArray(payload.data)
+      payload.data && typeof payload.data === "object" && !Array.isArray(payload.data)
         ? payload.data
         : undefined,
   };
