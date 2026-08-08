@@ -20,7 +20,9 @@ const normalized = rule.all().map((date) => {
   };
 });
 
-process.stdout.write(JSON.stringify({
-  hostZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  normalized,
-}));
+process.stdout.write(
+  JSON.stringify({
+    hostZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    normalized,
+  }),
+);

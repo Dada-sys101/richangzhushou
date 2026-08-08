@@ -29,7 +29,9 @@ async function createV1(name) {
   open.onupgradeneeded = () => {
     const db = open.result;
     db.createObjectStore("kv", { keyPath: "key" });
-    db.createObjectStore("entities", { keyPath: ["userId", "entityType", "id"] });
+    db.createObjectStore("entities", {
+      keyPath: ["userId", "entityType", "id"],
+    });
     db.createObjectStore("pending", { keyPath: "id" });
   };
   const db = await request(open);
@@ -53,8 +55,12 @@ async function upgradeSchema(name) {
   open.onupgradeneeded = () => {
     const db = open.result;
     if (!db.objectStoreNames.contains("v2_entities")) {
-      db.createObjectStore("v2_entities", { keyPath: ["userId", "entityType", "id"] });
-      db.createObjectStore("local_capture_drafts", { keyPath: ["userId", "id"] });
+      db.createObjectStore("v2_entities", {
+        keyPath: ["userId", "entityType", "id"],
+      });
+      db.createObjectStore("local_capture_drafts", {
+        keyPath: ["userId", "id"],
+      });
       db.createObjectStore("crypto_keys", { keyPath: ["userId", "keyId"] });
       db.createObjectStore("migration_journal", { keyPath: "id" });
     }
@@ -76,21 +82,33 @@ async function migrate(name, { failAfter = Number.POSITIVE_INFINITY } = {}) {
   try {
     for (let index = 0; index < source.length; index += 1) {
       if (index === failAfter) throw new Error("INJECTED_MIGRATION_FAILURE");
-      const tx = db.transaction(["v2_entities", "migration_journal"], "readwrite");
+      const tx = db.transaction(
+        ["v2_entities", "migration_journal"],
+        "readwrite",
+      );
       tx.objectStore("v2_entities").put({
         ...source[index],
         data: { ...source[index].data, schemaVersion: 2 },
       });
-      tx.objectStore("migration_journal").put({ id: `copy-${index}`, status: "COPIED" });
+      tx.objectStore("migration_journal").put({
+        id: `copy-${index}`,
+        status: "COPIED",
+      });
       await transactionDone(tx);
     }
     const tx = db.transaction(["kv", "migration_journal"], "readwrite");
     tx.objectStore("kv").put({ key: "activeSchema", value: "v2" });
-    tx.objectStore("migration_journal").put({ id: "activation", status: "ACTIVE" });
+    tx.objectStore("migration_journal").put({
+      id: "activation",
+      status: "ACTIVE",
+    });
     await transactionDone(tx);
     return { status: "COMPLETED" };
   } catch (error) {
-    const cleanup = db.transaction(["v2_entities", "migration_journal", "kv"], "readwrite");
+    const cleanup = db.transaction(
+      ["v2_entities", "migration_journal", "kv"],
+      "readwrite",
+    );
     cleanup.objectStore("v2_entities").clear();
     cleanup.objectStore("migration_journal").clear();
     cleanup.objectStore("kv").put({ key: "activeSchema", value: "v1" });
@@ -124,7 +142,12 @@ test("v1 to v2 succeeds through shadow copy and atomic activation", async () => 
   assert.equal(state.entities.length, 20);
   assert.equal(state.v2.length, 20);
   assert.equal(state.activeSchema, "v2");
-  result.success = { status: "PASS", sourceRows: 20, targetRows: 20, activeSchema: "v2" };
+  result.success = {
+    status: "PASS",
+    sourceRows: 20,
+    targetRows: 20,
+    activeSchema: "v2",
+  };
 });
 
 test("injected failure rolls back fully to v1 without data loss", async () => {
@@ -150,5 +173,8 @@ test("injected failure rolls back fully to v1 without data loss", async () => {
 });
 
 test.after(() => {
-  writeFileSync("results/03-indexeddb-migration.json", JSON.stringify(result, null, 2));
+  writeFileSync(
+    "results/03-indexeddb-migration.json",
+    JSON.stringify(result, null, 2),
+  );
 });

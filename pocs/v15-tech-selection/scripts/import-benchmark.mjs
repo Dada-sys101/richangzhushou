@@ -9,7 +9,10 @@ const releaseLimits = {
   xlsx: { maxUploadBytes: 5 * 1024 * 1024, maxRows: 50_000 },
   common: { maxColumns: 64, maxCellCharacters: 64 * 1024 },
 };
-const stressProfile = { rows: 100_000, purpose: "measure resource amplification beyond the XLSX release limit" };
+const stressProfile = {
+  rows: 100_000,
+  purpose: "measure resource amplification beyond the XLSX release limit",
+};
 
 async function benchmarkCsv(path) {
   const size = statSync(path).size;
@@ -17,16 +20,21 @@ async function benchmarkCsv(path) {
   const started = performance.now();
   let rows = 0;
   let columns = 0;
-  const parser = createReadStream(path).pipe(parse({
-    bom: true,
-    skip_empty_lines: true,
-    relax_column_count: true,
-    max_record_size: releaseLimits.common.maxCellCharacters * releaseLimits.common.maxColumns,
-  }));
+  const parser = createReadStream(path).pipe(
+    parse({
+      bom: true,
+      skip_empty_lines: true,
+      relax_column_count: true,
+      max_record_size:
+        releaseLimits.common.maxCellCharacters *
+        releaseLimits.common.maxColumns,
+    }),
+  );
   for await (const row of parser) {
     rows += 1;
     columns = Math.max(columns, row.length);
-    if (row.length > releaseLimits.common.maxColumns) throw new Error("IMPORT_COLUMN_LIMIT_EXCEEDED");
+    if (row.length > releaseLimits.common.maxColumns)
+      throw new Error("IMPORT_COLUMN_LIMIT_EXCEEDED");
   }
   return {
     sizeBytes: size,
@@ -58,11 +66,18 @@ async function benchmarkXlsx(path) {
 }
 
 const results = {
-  environment: { node: process.version, platform: process.platform, arch: process.arch },
+  environment: {
+    node: process.version,
+    platform: process.platform,
+    arch: process.arch,
+  },
   releaseLimits,
   stressProfile,
   csv: await benchmarkCsv("fixtures/large-100k.csv"),
   xlsx: await benchmarkXlsx("fixtures/large-100k.xlsx"),
 };
-writeFileSync("results/04-import-performance.json", JSON.stringify(results, null, 2));
+writeFileSync(
+  "results/04-import-performance.json",
+  JSON.stringify(results, null, 2),
+);
 console.log(JSON.stringify(results, null, 2));

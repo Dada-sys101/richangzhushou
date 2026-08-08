@@ -1,4 +1,11 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 
 mkdirSync("results", { recursive: true });
@@ -13,7 +20,10 @@ function inspectPackage(directory) {
     name: manifest.name,
     version: manifest.version,
     license: manifest.license ?? manifest.licenses ?? "UNKNOWN",
-    repository: typeof manifest.repository === "string" ? manifest.repository : manifest.repository?.url ?? null,
+    repository:
+      typeof manifest.repository === "string"
+        ? manifest.repository
+        : (manifest.repository?.url ?? null),
     homepage: manifest.homepage ?? null,
   });
 }
@@ -29,8 +39,13 @@ for (const name of readdirSync(root)) {
   }
 }
 
-packages.sort((a, b) => `${a.name}@${a.version}`.localeCompare(`${b.name}@${b.version}`));
-writeFileSync("results/dependency-license-matrix.json", JSON.stringify(packages, null, 2));
+packages.sort((a, b) =>
+  `${a.name}@${a.version}`.localeCompare(`${b.name}@${b.version}`),
+);
+writeFileSync(
+  "results/dependency-license-matrix.json",
+  JSON.stringify(packages, null, 2),
+);
 const notices = [
   "# THIRD-PARTY NOTICES — V1.5 Technology Selection PoC",
   "",

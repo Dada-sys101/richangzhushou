@@ -4,7 +4,8 @@ import { createECDH, randomBytes } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import webPushPackage from "web-push";
 
-const { generateRequestDetails, generateVAPIDKeys, setVapidDetails } = webPushPackage;
+const { generateRequestDetails, generateVAPIDKeys, setVapidDetails } =
+  webPushPackage;
 mkdirSync("results", { recursive: true });
 const result = {};
 
@@ -14,7 +15,11 @@ function base64url(buffer) {
 
 test("web-push generates VAPID keys and encrypted request details without network delivery", () => {
   const vapid = generateVAPIDKeys();
-  setVapidDetails("mailto:ops@example.invalid", vapid.publicKey, vapid.privateKey);
+  setVapidDetails(
+    "mailto:ops@example.invalid",
+    vapid.publicKey,
+    vapid.privateKey,
+  );
 
   const ecdh = createECDH("prime256v1");
   ecdh.generateKeys();
@@ -45,12 +50,20 @@ test("platform matrix keeps Push as a best-effort channel, not the source of tru
   result.platformMatrix = {
     iPhone: {
       automatedStatus: "NOT_RUN_REQUIRES_PHYSICAL_DEVICE",
-      conditions: ["iOS/iPadOS 16.4+", "installed to Home Screen", "permission requested from user gesture"],
+      conditions: [
+        "iOS/iPadOS 16.4+",
+        "installed to Home Screen",
+        "permission requested from user gesture",
+      ],
       nativeWrapperRequired: false,
     },
     androidChrome: {
       automatedStatus: "NOT_RUN_REQUIRES_DEVICE_OR_BROWSER_PUSH_SERVICE",
-      conditions: ["service worker active", "notification permission granted", "push service reachable"],
+      conditions: [
+        "service worker active",
+        "notification permission granted",
+        "push service reachable",
+      ],
       nativeWrapperRequired: false,
     },
     desktop: {
@@ -58,7 +71,8 @@ test("platform matrix keeps Push as a best-effort channel, not the source of tru
       conditions: ["supported browser", "notification permission granted"],
       nativeWrapperRequired: false,
     },
-    fallback: "All reminders remain queryable in-app; delivery rows track sent/failed/expired endpoints",
+    fallback:
+      "All reminders remain queryable in-app; delivery rows track sent/failed/expired endpoints",
   };
   assert.equal(result.platformMatrix.iPhone.nativeWrapperRequired, false);
 });
