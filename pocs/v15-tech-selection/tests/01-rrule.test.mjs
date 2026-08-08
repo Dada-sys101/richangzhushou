@@ -42,20 +42,23 @@ function splitSeries(occurrences, splitIndex, replacementLocalHour) {
 
 const result = { candidateA: {}, candidateB: {}, domainSemantics: {} };
 
-test("candidate A: rrule.js + Luxon keeps wall-clock time across DST after documented normalization", () => {
+test("candidate A: record rrule.js + Luxon behavior across host zones and DST", () => {
   const hostZones = ["UTC", "Asia/Shanghai", "America/Los_Angeles"];
   const runs = hostZones.map(runRruleJsInHostZone);
-  for (const run of runs) {
-    assert.deepEqual(
-      run.normalized.map((item) => item.instant),
-      expectedInstants,
-    );
-    assert.deepEqual(
-      run.normalized.map((item) => item.seriesLocal),
-      expectedLocal,
-    );
-  }
-  result.candidateA = { status: "PASS", hostZones: runs };
+  const instantMatches = runs.every((run) =>
+    JSON.stringify(run.normalized.map((item) => item.instant)) === JSON.stringify(expectedInstants),
+  );
+  const localMatches = runs.every((run) =>
+    JSON.stringify(run.normalized.map((item) => item.seriesLocal)) === JSON.stringify(expectedLocal),
+  );
+  result.candidateA = {
+    status: instantMatches && localMatches ? "PASS" : "FAIL",
+    reason: instantMatches && localMatches ? null : "DST boundary output depends on ambiguous Date normalization and produced an incorrect instant",
+    expectedInstants,
+    expectedLocal,
+    hostZones: runs,
+  };
+  assert.equal(runs.length, 3);
 });
 
 test("candidate B: rrule-temporal returns explicit ZonedDateTime values across DST", () => {
