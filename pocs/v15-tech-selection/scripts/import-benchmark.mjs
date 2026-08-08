@@ -121,8 +121,9 @@ results.gate = {
   xlsxReleaseGateRejectsStressFile:
     !results.xlsx.acceptedByReleaseRowLimit ||
     !results.xlsx.acceptedByReleaseByteLimit,
-  xlsxMemoryAmplificationRecorded:
-    Number.isFinite(results.xlsx.rssAmplificationVsFile),
+  xlsxMemoryAmplificationRecorded: Number.isFinite(
+    results.xlsx.rssAmplificationVsFile,
+  ),
 };
 
 if (!Object.values(results.gate).every(Boolean)) {

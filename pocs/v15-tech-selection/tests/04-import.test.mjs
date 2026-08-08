@@ -124,8 +124,14 @@ test("representative Alipay CSV and XLSX produce equivalent identifiers and amou
   });
 
   assert.deepEqual(
-    csvPrepared.records.map((row) => [row.sourceTransactionId, row.amountMinor]),
-    xlsxPrepared.records.map((row) => [row.sourceTransactionId, row.amountMinor]),
+    csvPrepared.records.map((row) => [
+      row.sourceTransactionId,
+      row.amountMinor,
+    ]),
+    xlsxPrepared.records.map((row) => [
+      row.sourceTransactionId,
+      row.amountMinor,
+    ]),
   );
   assert.equal(xlsxPrepared.headerIndex, 1);
   result.alipay = {
@@ -342,7 +348,8 @@ test("unsupported CSV and workbook structures return stable error codes", async 
   );
   assert.throws(
     () => validateWorkbookRows([]),
-    (error) => assertImportError(error, "IMPORT_WORKBOOK_STRUCTURE_UNSUPPORTED"),
+    (error) =>
+      assertImportError(error, "IMPORT_WORKBOOK_STRUCTURE_UNSUPPORTED"),
   );
   assert.ok(IMPORT_ERROR_MESSAGES_ZH_CN.IMPORT_WORKBOOK_STRUCTURE_UNSUPPORTED);
   result.structures = { status: "PASS" };

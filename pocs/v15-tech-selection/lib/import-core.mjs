@@ -44,7 +44,9 @@ function ensureNonNegativeSafeInteger(name, value) {
 }
 
 export function resolveImportType(extension) {
-  const normalized = String(extension ?? "").trim().toLowerCase();
+  const normalized = String(extension ?? "")
+    .trim()
+    .toLowerCase();
   if (normalized === ".csv") return "csv";
   if (normalized === ".xlsx") return "xlsx";
   throw importError("IMPORT_TYPE_UNSUPPORTED", { extension });
@@ -94,7 +96,12 @@ export function preflightImport({
 }
 
 function isUtf8Bom(bytes) {
-  return bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf;
+  return (
+    bytes.length >= 3 &&
+    bytes[0] === 0xef &&
+    bytes[1] === 0xbb &&
+    bytes[2] === 0xbf
+  );
 }
 
 function isUtf16Bom(bytes) {
@@ -170,7 +177,8 @@ function normalizedHeader(row) {
 }
 
 export function findHeader(rows, requiredHeaders, options = {}) {
-  const maxScanRows = options.maxScanRows ?? IMPORT_LIMITS.common.maxHeaderScanRows;
+  const maxScanRows =
+    options.maxScanRows ?? IMPORT_LIMITS.common.maxHeaderScanRows;
   const required = requiredHeaders.map(normalizeHeaderName);
   const candidates = [];
   for (let index = 0; index < Math.min(rows.length, maxScanRows); index += 1) {
@@ -246,7 +254,8 @@ function profileFor(profile) {
   if (typeof profile === "string" && IMPORT_PROFILES[profile]) {
     return IMPORT_PROFILES[profile];
   }
-  if (profile?.id && profile?.fields && profile?.requiredHeaders) return profile;
+  if (profile?.id && profile?.fields && profile?.requiredHeaders)
+    return profile;
   throw importError("IMPORT_PROFILE_UNSUPPORTED", { profile });
 }
 
@@ -265,7 +274,7 @@ function blank(value) {
 }
 
 function rowValue(row, index) {
-  return index < 0 ? null : row[index] ?? null;
+  return index < 0 ? null : (row[index] ?? null);
 }
 
 function parseAmountMinor(value) {
@@ -292,7 +301,10 @@ function normalizeDirection(value) {
 
 function rawObject(header, row) {
   return Object.fromEntries(
-    header.map((name, index) => [name || `column_${index + 1}`, row[index] ?? null]),
+    header.map((name, index) => [
+      name || `column_${index + 1}`,
+      row[index] ?? null,
+    ]),
   );
 }
 
@@ -303,7 +315,9 @@ function rowError(error, rowNumber) {
   return {
     code: "IMPORT_ROW_INVALID",
     rowNumber,
-    details: { message: error instanceof Error ? error.message : String(error) },
+    details: {
+      message: error instanceof Error ? error.message : String(error),
+    },
   };
 }
 
@@ -332,7 +346,9 @@ export function prepareImportRows({ rows, profile, extension }) {
   const requiredFields = ["transactionId", "occurredAt", "amount", "direction"];
   const missingColumns = requiredFields.filter((field) => headerMap[field] < 0);
   if (missingColumns.length > 0) {
-    throw importError("IMPORT_REQUIRED_COLUMN_MISSING", { fields: missingColumns });
+    throw importError("IMPORT_REQUIRED_COLUMN_MISSING", {
+      fields: missingColumns,
+    });
   }
 
   const records = [];
@@ -348,8 +364,12 @@ export function prepareImportRows({ rows, profile, extension }) {
           limit: IMPORT_LIMITS.common.maxColumns,
         });
       }
-      const transactionId = String(rowValue(row, headerMap.transactionId) ?? "").trim();
-      const occurredAt = String(rowValue(row, headerMap.occurredAt) ?? "").trim();
+      const transactionId = String(
+        rowValue(row, headerMap.transactionId) ?? "",
+      ).trim();
+      const occurredAt = String(
+        rowValue(row, headerMap.occurredAt) ?? "",
+      ).trim();
       const amountValue = rowValue(row, headerMap.amount);
       const directionValue = rowValue(row, headerMap.direction);
       const blankFields = [];
@@ -358,7 +378,9 @@ export function prepareImportRows({ rows, profile, extension }) {
       if (blank(amountValue)) blankFields.push("amount");
       if (blank(directionValue)) blankFields.push("direction");
       if (blankFields.length > 0) {
-        throw importError("IMPORT_REQUIRED_FIELD_BLANK", { fields: blankFields });
+        throw importError("IMPORT_REQUIRED_FIELD_BLANK", {
+          fields: blankFields,
+        });
       }
       if (seenIds.has(transactionId)) {
         throw importError("IMPORT_DUPLICATE_TRANSACTION_ID", { transactionId });
@@ -375,7 +397,9 @@ export function prepareImportRows({ rows, profile, extension }) {
         amountMinor: parseAmountMinor(amountValue),
         currency: "CNY",
         direction: normalizeDirection(directionValue),
-        counterparty: String(rowValue(row, headerMap.counterparty) ?? "").trim(),
+        counterparty: String(
+          rowValue(row, headerMap.counterparty) ?? "",
+        ).trim(),
         description: String(rowValue(row, headerMap.description) ?? "").trim(),
         sourceStatus: String(rowValue(row, headerMap.status) ?? "").trim(),
         note: String(rowValue(row, headerMap.note) ?? "").trim(),
@@ -476,7 +500,9 @@ export async function executeImportBatch({
       records: prepared.records,
     });
     const recordsWritten =
-      writeResult?.recordsWritten ?? writeResult?.inserted ?? prepared.records.length;
+      writeResult?.recordsWritten ??
+      writeResult?.inserted ??
+      prepared.records.length;
     const state =
       prepared.errors.length > 0
         ? IMPORT_BATCH_STATES.completedWithErrors
