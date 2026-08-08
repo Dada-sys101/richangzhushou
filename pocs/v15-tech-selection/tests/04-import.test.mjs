@@ -5,20 +5,21 @@ import { parse } from "csv-parse";
 import { readSheet } from "read-excel-file/node";
 
 mkdirSync("results", { recursive: true });
-const limits = {
-  maxUploadBytes: 10 * 1024 * 1024,
-  maxRows: 100_000,
-  maxColumns: 64,
-  maxCellCharacters: 64 * 1024,
+const releaseLimits = {
+  csv: { maxUploadBytes: 10 * 1024 * 1024, maxRows: 100_000 },
+  xlsx: { maxUploadBytes: 5 * 1024 * 1024, maxRows: 50_000 },
+  common: { maxColumns: 64, maxCellCharacters: 64 * 1024 },
 };
 
 function preflightImport({ sizeBytes, extension, rows = 0, columns = 0, maxCellCharacters = 0 }) {
-  if (![".csv", ".xlsx"].includes(extension)) throw new Error("IMPORT_TYPE_UNSUPPORTED");
+  const type = extension === ".csv" ? "csv" : extension === ".xlsx" ? "xlsx" : null;
+  if (!type) throw new Error("IMPORT_TYPE_UNSUPPORTED");
+  const limits = releaseLimits[type];
   if (sizeBytes > limits.maxUploadBytes) throw new Error("IMPORT_FILE_TOO_LARGE");
   if (rows > limits.maxRows) throw new Error("IMPORT_ROW_LIMIT_EXCEEDED");
-  if (columns > limits.maxColumns) throw new Error("IMPORT_COLUMN_LIMIT_EXCEEDED");
-  if (maxCellCharacters > limits.maxCellCharacters) throw new Error("IMPORT_CELL_TOO_LARGE");
-  return { accepted: true };
+  if (columns > releaseLimits.common.maxColumns) throw new Error("IMPORT_COLUMN_LIMIT_EXCEEDED");
+  if (maxCellCharacters > releaseLimits.common.maxCellCharacters) throw new Error("IMPORT_CELL_TOO_LARGE");
+  return { accepted: true, type, limits };
 }
 
 async function parseCsv(path, encoding) {
@@ -28,7 +29,7 @@ async function parseCsv(path, encoding) {
     relax_column_count: true,
     skip_empty_lines: true,
     trim: true,
-    max_record_size: limits.maxCellCharacters,
+    max_record_size: releaseLimits.common.maxCellCharacters,
   }));
   for await (const row of parser) rows.push(row);
   return rows;
@@ -75,13 +76,21 @@ test("representative XLSX handles merged title row and blank cells", async () =>
   result.alipayXlsx = { status: "PASS", headerIndex: table.headerIndex, rowCount: table.data.length };
 });
 
-test("oversize and malformed imports fail before expensive parsing", () => {
+test("format-specific release limits reject oversize work before expensive parsing", () => {
   assert.throws(
-    () => preflightImport({ sizeBytes: limits.maxUploadBytes + 1, extension: ".xlsx" }),
+    () => preflightImport({ sizeBytes: releaseLimits.csv.maxUploadBytes + 1, extension: ".csv" }),
     /IMPORT_FILE_TOO_LARGE/,
   );
   assert.throws(
-    () => preflightImport({ sizeBytes: 1024, extension: ".csv", rows: limits.maxRows + 1 }),
+    () => preflightImport({ sizeBytes: 1024, extension: ".csv", rows: releaseLimits.csv.maxRows + 1 }),
+    /IMPORT_ROW_LIMIT_EXCEEDED/,
+  );
+  assert.throws(
+    () => preflightImport({ sizeBytes: releaseLimits.xlsx.maxUploadBytes + 1, extension: ".xlsx" }),
+    /IMPORT_FILE_TOO_LARGE/,
+  );
+  assert.throws(
+    () => preflightImport({ sizeBytes: 1024, extension: ".xlsx", rows: releaseLimits.xlsx.maxRows + 1 }),
     /IMPORT_ROW_LIMIT_EXCEEDED/,
   );
   assert.throws(
@@ -89,12 +98,12 @@ test("oversize and malformed imports fail before expensive parsing", () => {
     /IMPORT_TYPE_UNSUPPORTED/,
   );
   assert.throws(
-    () => preflightImport({ sizeBytes: 1024, extension: ".csv", columns: limits.maxColumns + 1 }),
+    () => preflightImport({ sizeBytes: 1024, extension: ".csv", columns: releaseLimits.common.maxColumns + 1 }),
     /IMPORT_COLUMN_LIMIT_EXCEEDED/,
   );
   result.limitHandling = {
     status: "PASS",
-    limits,
+    releaseLimits,
     errors: ["IMPORT_FILE_TOO_LARGE", "IMPORT_ROW_LIMIT_EXCEEDED", "IMPORT_TYPE_UNSUPPORTED", "IMPORT_COLUMN_LIMIT_EXCEEDED"],
     degradation: "reject before parsing; keep ImportBatch as REJECTED with a localized reason",
   };
