@@ -31,10 +31,17 @@ jobs:
       - name: Format diagnosed PoC files only
         run: |
           npx prettier --write \
+            pocs/v15-tech-selection/device-harness/index.html \
+            pocs/v15-tech-selection/device-harness/app.mjs \
+            pocs/v15-tech-selection/device-harness/manifest.webmanifest \
+            pocs/v15-tech-selection/device-harness/sw.js \
             pocs/v15-tech-selection/lib/canonical-json.mjs \
             pocs/v15-tech-selection/lib/local-crypto.mjs \
             pocs/v15-tech-selection/lib/indexeddb-migration.mjs \
             pocs/v15-tech-selection/lib/indexeddb-migration-engine.mjs \
+            pocs/v15-tech-selection/lib/indexeddb-migration-resilient.mjs \
+            pocs/v15-tech-selection/scripts/browser-transaction-termination.mjs \
+            pocs/v15-tech-selection/scripts/browser-web-locks.mjs \
             pocs/v15-tech-selection/scripts/generate-notices.mjs \
             pocs/v15-tech-selection/scripts/import-benchmark.mjs \
             pocs/v15-tech-selection/scripts/rrule-child.mjs \
@@ -42,6 +49,8 @@ jobs:
             pocs/v15-tech-selection/tests/02-local-encryption.test.mjs \
             pocs/v15-tech-selection/tests/03-canonical-json.test.mjs \
             pocs/v15-tech-selection/tests/03-indexeddb-migration.test.mjs \
+            pocs/v15-tech-selection/tests/03-indexeddb-faults.test.mjs \
+            pocs/v15-tech-selection/tests/03-indexeddb-timing-matrix.test.mjs \
             pocs/v15-tech-selection/tests/04-import.test.mjs \
             pocs/v15-tech-selection/tests/05-web-push.test.mjs \
             pocs/v15-tech-selection/tests/06-ai-adapter.test.mjs
@@ -56,10 +65,17 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
+            pocs/v15-tech-selection/device-harness/index.html \
+            pocs/v15-tech-selection/device-harness/app.mjs \
+            pocs/v15-tech-selection/device-harness/manifest.webmanifest \
+            pocs/v15-tech-selection/device-harness/sw.js \
             pocs/v15-tech-selection/lib/canonical-json.mjs \
             pocs/v15-tech-selection/lib/local-crypto.mjs \
             pocs/v15-tech-selection/lib/indexeddb-migration.mjs \
             pocs/v15-tech-selection/lib/indexeddb-migration-engine.mjs \
+            pocs/v15-tech-selection/lib/indexeddb-migration-resilient.mjs \
+            pocs/v15-tech-selection/scripts/browser-transaction-termination.mjs \
+            pocs/v15-tech-selection/scripts/browser-web-locks.mjs \
             pocs/v15-tech-selection/scripts/generate-notices.mjs \
             pocs/v15-tech-selection/scripts/import-benchmark.mjs \
             pocs/v15-tech-selection/scripts/rrule-child.mjs \
@@ -67,8 +83,10 @@ jobs:
             pocs/v15-tech-selection/tests/02-local-encryption.test.mjs \
             pocs/v15-tech-selection/tests/03-canonical-json.test.mjs \
             pocs/v15-tech-selection/tests/03-indexeddb-migration.test.mjs \
+            pocs/v15-tech-selection/tests/03-indexeddb-faults.test.mjs \
+            pocs/v15-tech-selection/tests/03-indexeddb-timing-matrix.test.mjs \
             pocs/v15-tech-selection/tests/04-import.test.mjs \
             pocs/v15-tech-selection/tests/05-web-push.test.mjs \
             pocs/v15-tech-selection/tests/06-ai-adapter.test.mjs
-          git commit -m "style(poc): format stage 3 verification files"
+          git commit -m "style(poc): format Stage 3 remediation files"
           git push origin HEAD:codex/v15-tech-selection-poc
