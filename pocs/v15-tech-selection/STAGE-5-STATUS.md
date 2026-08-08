@@ -1,26 +1,40 @@
 # Stage 5 verification status
 
-Status: IN PROGRESS.
+Status: FINAL AUTOMATED VERIFICATION IN PROGRESS.
 
 Scope: Web Push server-side request generation, subscription lifecycle and manual platform delivery checklist.
 
-Existing baseline:
+Implemented:
 
-- the current test generates VAPID keys and encrypted Web Push request details without network delivery;
-- the current platform matrix records iPhone, Android Chrome and desktop prerequisites;
-- reminders remain queryable in-app, so Push is a best-effort delivery channel rather than the source of truth.
+1. reusable Web Push validation, request-input and delivery-lifecycle core;
+2. server-side `web-push` request factory with VAPID configuration validation;
+3. stable validation errors for VAPID subject/keys and subscription endpoint/keys;
+4. payload byte, title/body, TTL, urgency, topic and relative deep-link safety gates;
+5. success, expired endpoint, rate limit, transient failure and permanent failure classification;
+6. bounded exponential retry with `Retry-After`, five-attempt cap and retry exhaustion handling;
+7. delivery idempotency claim and repository/audit interfaces;
+8. expired subscription deactivation and duplicate-send suppression;
+9. localized zh-CN error catalog;
+10. manual platform matrix that keeps physical delivery separate from automated request generation.
 
-Stage 5 completion gates:
+Defect discovered and fixed:
 
-1. extract reusable Web Push configuration, validation and request-generation modules from test-only code;
-2. validate VAPID subject/public/private configuration without storing secrets in the repository;
-3. validate subscription endpoint, `p256dh` and `auth` inputs with stable error codes;
-4. validate payload size, TTL, urgency, topic and deep-link safety boundaries;
-5. define delivery states and endpoint lifecycle handling for success, expired subscriptions, rate limits and transient failures;
-6. define bounded retry/backoff behavior and idempotency boundaries;
-7. ensure send attempts and delivery results pass through a repository/audit interface;
-8. retain automated request-generation and failure-classification evidence;
-9. keep physical iPhone/Android/desktop delivery as an explicit manual gate unless real endpoints are supplied and permission is granted.
+- the first expanded run found that trailing control characters in deep links were removed by trimming rather than rejected;
+- commit `c2119ba5d28c4b6d53ab195446c1147d79776c4c` rejects leading/trailing whitespace and control characters before request generation;
+- PoC run `31268457944` passed after the fix;
+- formatter commit `ad731af8af980aabf2faf84de2a7a7866c42abad` contains the formatted implementation.
+
+Final automated completion gates:
+
+1. final V1.5 Technology Selection PoC run succeeds on the formatted implementation;
+2. final full-repository CI quality and browser jobs succeed;
+3. `05-web-push.json` evidence is retained;
+4. no real VAPID private key, real subscription or real network notification is used.
+
+Manual gate retained:
+
+- physical delivery to iPhone Home Screen PWA, Android Chrome and desktop remains unverified until real subscriptions are intentionally supplied and permission is granted;
+- automated Stage 5 closure will validate architecture and request lifecycle, not claim physical notification delivery.
 
 Restrictions:
 
