@@ -88,11 +88,7 @@ test("AES-GCM rejects ciphertext and record-identity tampering", async () => {
     value: { secret: "A" },
   });
 
-  const original = await vault.getEnvelope(
-    "user-a",
-    "DRAFT_RECORD",
-    "draft-1",
-  );
+  const original = await vault.getEnvelope("user-a", "DRAFT_RECORD", "draft-1");
   const keyRow = await vault.getKeyRow(original.keyId);
 
   await assert.rejects(() =>
@@ -270,11 +266,7 @@ test("temporary session loss retains encrypted data for offline mode", async () 
 
   const afterSessionLoss = createVault(name);
   assert.deepEqual(
-    await afterSessionLoss.decryptRecord(
-      "user-a",
-      "DRAFT_RECORD",
-      "draft-1",
-    ),
+    await afterSessionLoss.decryptRecord("user-a", "DRAFT_RECORD", "draft-1"),
     { availableOffline: true },
   );
 

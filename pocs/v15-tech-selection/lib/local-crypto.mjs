@@ -326,10 +326,7 @@ export class IndexedDbLocalVault {
 
   async eraseUser(userId) {
     const database = await this.#open();
-    const transaction = database.transaction(
-      ["keys", "records"],
-      "readwrite",
-    );
+    const transaction = database.transaction(["keys", "records"], "readwrite");
     await Promise.all([
       deleteIndexRows(transaction.objectStore("keys").index("userId"), userId),
       deleteIndexRows(
