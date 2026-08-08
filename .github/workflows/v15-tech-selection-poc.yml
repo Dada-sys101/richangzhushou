@@ -55,7 +55,9 @@ jobs:
             tests/03-indexeddb-timing-matrix.test.mjs \
             tests/04-import.test.mjs \
             tests/05-web-push.test.mjs \
-            tests/06-ai-adapter.test.mjs
+            tests/06-ai-adapter.test.mjs \
+            tests/06-ai-adapter-core.test.mjs \
+            tests/06-ai-adapter-router.test.mjs
           do
             echo "===== $file =====" | tee -a results/test-output.txt
             node --test "$file" 2>&1 | tee -a results/test-output.txt
