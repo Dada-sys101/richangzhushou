@@ -299,10 +299,7 @@ test("successful delivery is claimed, audited and marked sent", async () => {
   assert.equal(delivery.state, PUSH_DELIVERY_STATES.sent);
   assert.equal(transportCalls, 1);
   assert.equal(harness.calls.claims.length, 1);
-  assert.equal(
-    harness.calls.attempts[0].state,
-    PUSH_DELIVERY_STATES.sending,
-  );
+  assert.equal(harness.calls.attempts[0].state, PUSH_DELIVERY_STATES.sending);
   assert.equal(harness.calls.results[0].state, PUSH_DELIVERY_STATES.sent);
   result.successLifecycle = { status: "PASS" };
 });
