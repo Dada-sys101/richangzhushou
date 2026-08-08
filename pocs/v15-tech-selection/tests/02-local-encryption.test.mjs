@@ -32,8 +32,8 @@ function createVault(name) {
 }
 
 function mutateBase64Url(value) {
-  const lastCharacter = value.at(-1);
-  return `${value.slice(0, -1)}${lastCharacter === "A" ? "B" : "A"}`;
+  const firstCharacter = value.at(0);
+  return `${firstCharacter === "A" ? "B" : "A"}${value.slice(1)}`;
 }
 
 test("non-extractable AES key survives IndexedDB close and reopen", async () => {
