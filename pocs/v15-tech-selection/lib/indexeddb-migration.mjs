@@ -341,7 +341,12 @@ async function verifyEncryptedRow(
   }
 }
 
-async function verifyMigration(database, cryptoProvider, sourceEntities, sourcePending) {
+async function verifyMigration(
+  database,
+  cryptoProvider,
+  sourceEntities,
+  sourcePending,
+) {
   const targetEntities = await getAllRows(database, STORES.entitiesV2);
   const targetPending = await getAllRows(database, STORES.pendingV2);
   if (targetEntities.length !== sourceEntities.length) {
@@ -352,7 +357,10 @@ async function verifyMigration(database, cryptoProvider, sourceEntities, sourceP
   }
 
   const entityTargets = new Map(
-    targetEntities.map((row) => [`${row.userId}:${row.entityType}:${row.id}`, row]),
+    targetEntities.map((row) => [
+      `${row.userId}:${row.entityType}:${row.id}`,
+      row,
+    ]),
   );
   for (const source of sourceEntities) {
     const target = entityTargets.get(
@@ -400,13 +408,21 @@ export async function migrateV1ToV2({
   }
   const database = await openV2Database(indexedDB, databaseName);
   try {
-    const activeSchemaRow = await getRow(database, STORES.kv, ACTIVE_SCHEMA_KEY);
+    const activeSchemaRow = await getRow(
+      database,
+      STORES.kv,
+      ACTIVE_SCHEMA_KEY,
+    );
     const activeSchema = activeSchemaRow?.value ?? "v1";
     if (activeSchema === "v2") {
       return { status: "ALREADY_ACTIVE" };
     }
 
-    const previousJournal = await getRow(database, STORES.journal, MIGRATION_ID);
+    const previousJournal = await getRow(
+      database,
+      STORES.journal,
+      MIGRATION_ID,
+    );
     let recoveredInterruptedMigration = false;
     if (
       previousJournal &&

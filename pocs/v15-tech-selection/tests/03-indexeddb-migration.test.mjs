@@ -50,12 +50,9 @@ async function deleteDatabase(name) {
 function createFixture() {
   const entities = Array.from({ length: 12 }, (_, index) => {
     const userId = index < 7 ? "user-a" : "user-b";
-    const entityType = [
-      "TASK",
-      "REMINDER",
-      "DRAFT_RECORD",
-      "TRANSACTION",
-    ][index % 4];
+    const entityType = ["TASK", "REMINDER", "DRAFT_RECORD", "TRANSACTION"][
+      index % 4
+    ];
     return {
       userId,
       entityType,
@@ -139,8 +136,14 @@ function sortPending(rows) {
 }
 
 function assertSourceUnchanged(state, fixture) {
-  assert.deepEqual(sortEntities(state.sourceEntities), sortEntities(fixture.entities));
-  assert.deepEqual(sortPending(state.sourcePending), sortPending(fixture.pending));
+  assert.deepEqual(
+    sortEntities(state.sourceEntities),
+    sortEntities(fixture.entities),
+  );
+  assert.deepEqual(
+    sortPending(state.sourcePending),
+    sortPending(fixture.pending),
+  );
 }
 
 async function decryptTarget(state, targetRow) {
@@ -229,7 +232,10 @@ test("v2 schema upgrade creates shadow, key, journal and recurrence stores witho
   for (const storeName of Object.values(STORES)) {
     assert.ok(schema.stores.includes(storeName), `missing store ${storeName}`);
   }
-  assert.deepEqual(schema.indexes.entitiesV2.sort(), ["keyId", "userEntityType"]);
+  assert.deepEqual(schema.indexes.entitiesV2.sort(), [
+    "keyId",
+    "userEntityType",
+  ]);
   assert.deepEqual(schema.indexes.pendingV2.sort(), [
     "createdAt",
     "keyId",
@@ -297,7 +303,10 @@ test("successful migration encrypts entity and pending payloads, isolates accoun
   assert.ok(targetEntity);
   assert.ok(sourceEntity);
   assert.equal("data" in targetEntity, false);
-  assert.equal(JSON.stringify(targetEntity).includes(sourceEntity.data.note), false);
+  assert.equal(
+    JSON.stringify(targetEntity).includes(sourceEntity.data.note),
+    false,
+  );
   assert.deepEqual(await decryptTarget(state, targetEntity), {
     data: sourceEntity.data,
   });
