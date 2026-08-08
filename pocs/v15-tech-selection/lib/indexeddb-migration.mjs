@@ -1,1 +1,1 @@
-export * from "./indexeddb-migration-engine.mjs";
+export * from "./indexeddb-migration-resilient.mjs";
