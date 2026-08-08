@@ -43,7 +43,8 @@ async function deleteDatabase(page, databaseName) {
           const request = indexedDB.deleteDatabase(name);
           request.onsuccess = () => resolve();
           request.onerror = () => reject(request.error);
-          request.onblocked = () => reject(new Error("DELETE_DATABASE_BLOCKED"));
+          request.onblocked = () =>
+            reject(new Error("DELETE_DATABASE_BLOCKED"));
         }),
       databaseName,
     ),
@@ -66,7 +67,8 @@ async function startSequentialTransaction(page, databaseName) {
         openRequest.result.createObjectStore("rows", { keyPath: "id" });
       };
       openRequest.onerror = () => {
-        window.stage3Transaction.error = openRequest.error?.message ?? "OPEN_FAILED";
+        window.stage3Transaction.error =
+          openRequest.error?.message ?? "OPEN_FAILED";
       };
       openRequest.onsuccess = () => {
         const database = openRequest.result;
@@ -95,7 +97,8 @@ async function startSequentialTransaction(page, databaseName) {
             if (index < total) writeNext();
           };
           request.onerror = () => {
-            window.stage3Transaction.error = request.error?.message ?? "PUT_FAILED";
+            window.stage3Transaction.error =
+              request.error?.message ?? "PUT_FAILED";
           };
         };
         writeNext();
@@ -237,8 +240,10 @@ const summary = {
   runsPerCase: 5,
   totalRuns: results.length,
   pageCloseRuns: results.filter((entry) => entry.mode === "page-close").length,
-  rendererCrashRuns: results.filter((entry) => entry.mode === "renderer-crash").length,
-  rolledBack: results.filter((entry) => entry.atomicOutcome === "ROLLED_BACK").length,
+  rendererCrashRuns: results.filter((entry) => entry.mode === "renderer-crash")
+    .length,
+  rolledBack: results.filter((entry) => entry.atomicOutcome === "ROLLED_BACK")
+    .length,
   fullyCommitted: results.filter(
     (entry) => entry.atomicOutcome === "FULLY_COMMITTED",
   ).length,
