@@ -1,0 +1,42 @@
+name: V1.5 PR1 format helper
+
+on:
+  push:
+    branches:
+      - codex/tmp-v15-pr1-format
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Format PR1 test files
+        run: >-
+          npx prettier --write
+          apps/api/src/reminders/reminders.service.test.ts
+          apps/api/src/integration/v15-rrule-expand.integration.test.ts
+
+      - name: Upload formatted files
+        uses: actions/upload-artifact@v4
+        with:
+          name: v15-pr1-formatted-tests
+          path: |
+            apps/api/src/reminders/reminders.service.test.ts
+            apps/api/src/integration/v15-rrule-expand.integration.test.ts
+          if-no-files-found: error
+          retention-days: 1
