@@ -150,6 +150,28 @@ enum TripItemType {
   OTHER
 }
 
+enum RecurrenceEngine {
+  RRULE_TEMPORAL
+}
+
+enum RecurrenceTimeMode {
+  WALL_CLOCK
+  ABSOLUTE_INSTANT
+}
+
+enum RecurrenceBackfillStatus {
+  NOT_REQUIRED
+  PENDING
+  COMPLETED
+  MISMATCH
+  FAILED
+}
+
+enum RecurrenceExceptionType {
+  CANCEL
+  REPLACE
+}
+
 model SystemSetting {
   id                  String   @id @default("singleton")
   maxActiveUsers      Int      @default(20) @map("max_active_users")
@@ -469,12 +491,65 @@ model Reminder {
   updatedAt        DateTime             @updatedAt @map("updated_at")
   deletedAt        DateTime?            @map("deleted_at")
   user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recurrenceRule   ReminderRecurrenceRule?
 
   @@index([userId, status, scheduledAt])
   @@index([userId, deletedAt])
   @@index([status, scheduledAt, nextAttemptAt])
   @@index([userId, updatedAt])
   @@map("reminders")
+}
+
+model ReminderRecurrenceRule {
+  id                     String                   @id @default(cuid())
+  reminderId             String                   @map("reminder_id")
+  engine                 RecurrenceEngine         @default(RRULE_TEMPORAL)
+  schemaVersion          Int                      @default(1) @map("schema_version") @db.SmallInt
+  rruleText              String                   @map("rrule_text") @db.Text
+  timeZoneId             String                   @map("time_zone_id") @db.VarChar(64)
+  timeMode               RecurrenceTimeMode       @default(WALL_CLOCK) @map("time_mode")
+  dtstartLocal           DateTime?                @map("dtstart_local")
+  dtstartInstant         DateTime                 @map("dtstart_instant")
+  canonicalHash          String                   @map("canonical_hash") @db.Char(64)
+  parentRuleId           String?                  @map("parent_rule_id")
+  splitFromOccurrenceKey String?                  @map("split_from_occurrence_key") @db.VarChar(128)
+  backfillStatus         RecurrenceBackfillStatus @default(PENDING) @map("backfill_status")
+  backfilledAt           DateTime?                @map("backfilled_at")
+  dualReadVerifiedAt     DateTime?                @map("dual_read_verified_at")
+  parityMismatchCount    Int                      @default(0) @map("parity_mismatch_count")
+  version                Int                      @default(1)
+  createdAt              DateTime                 @default(now()) @map("created_at")
+  updatedAt              DateTime                 @updatedAt @map("updated_at")
+  reminder               Reminder                 @relation(fields: [reminderId], references: [id], onDelete: Cascade, map: "rrule_reminder_id_fkey")
+  parentRule             ReminderRecurrenceRule?  @relation("ReminderRecurrenceRuleParent", fields: [parentRuleId], references: [id], onDelete: SetNull, map: "rrule_parent_rule_id_fkey")
+  childRules             ReminderRecurrenceRule[] @relation("ReminderRecurrenceRuleParent")
+  exceptions             ReminderRecurrenceException[]
+
+  @@unique([reminderId], map: "rrule_reminder_id_key")
+  @@index([parentRuleId], map: "rrule_parent_rule_id_idx")
+  @@index([backfillStatus], map: "rrule_backfill_status_idx")
+  @@index([timeZoneId], map: "rrule_time_zone_id_idx")
+  @@index([dualReadVerifiedAt], map: "rrule_dual_read_verified_at_idx")
+  @@map("reminder_recurrence_rules")
+}
+
+model ReminderRecurrenceException {
+  id                       String                  @id @default(cuid())
+  recurrenceRuleId         String                  @map("recurrence_rule_id")
+  occurrenceKey            String                  @map("occurrence_key") @db.VarChar(128)
+  originalOccurrenceAt     DateTime                @map("original_occurrence_at")
+  exceptionType            RecurrenceExceptionType @map("exception_type")
+  replacementLocalAt       DateTime?               @map("replacement_local_at")
+  replacementInstantAt     DateTime?               @map("replacement_instant_at")
+  replacementTimeZoneId    String?                 @map("replacement_time_zone_id") @db.VarChar(64)
+  replacementPayloadJson   Json?                   @map("replacement_payload_json")
+  createdAt                DateTime                @default(now()) @map("created_at")
+  updatedAt                DateTime                @updatedAt @map("updated_at")
+  recurrenceRule           ReminderRecurrenceRule  @relation(fields: [recurrenceRuleId], references: [id], onDelete: Cascade, map: "rrule_exception_rule_id_fkey")
+
+  @@unique([recurrenceRuleId, occurrenceKey], map: "rrule_exception_occurrence_key")
+  @@index([recurrenceRuleId, originalOccurrenceAt], map: "rrule_exception_original_at_idx")
+  @@map("reminder_recurrence_exceptions")
 }
 
 model Trip {
