@@ -4,9 +4,10 @@
 日期：2026-08-09  
 项目：日常助手 / Daily Assistant  
 仓库：`Dada-sys101/richangzhushou`  
-计划状态：AWAITING_USER_REVIEW  
-当前任务：`V15-CTRL-001a`  
-下一任务：`V15-CTRL-001`（仅在用户确认 v1.1 后进入）  
+计划状态：ACTIVE  
+当前执行任务：无  
+最近完成任务：`V15-CTRL-001a`（`DONE_COMMITTED`）  
+下一任务：`V15-CTRL-001`（`READY`，尚未开始）  
 
 > 当前执行项目唯一指向：`Dada-sys101/richangzhushou`，
 > `codex/v15-integration-foundation`，日常助手 V1.5 正式集成阶段。
@@ -250,16 +251,17 @@ Excel 管理排期保留为 2026-08-10 至 2026-11-27、74 个计划工作日。
 
 #### V15-CTRL-001a：执行总规划文档一致性修补 v1.1
 
-状态：`VERIFYING`  
+状态：`DONE_COMMITTED`  
 依赖：无。  
 范围：只修改执行总规划文档。  
 禁止：修改代码、迁移、CI 配置及 `.project/*` 状态文件；不得提交、推送或创建 PR。  
-完成：v1.1 完整 diff 已输出并经用户确认。
+完成：v1.1 完整 diff 已输出并经用户确认。  
+证据：`PLANS.md` 已由提交 `a8845626af90a35bfe3ae961217b36d944fe8006` 写入计划分支。
 
 #### V15-CTRL-001：V1.5 状态归一
 
-状态：`PENDING`  
-依赖：V15-CTRL-001a 完成、用户确认 v1.1，且 PR1 已合入 integration。  
+状态：`READY`  
+依赖：已满足——V15-CTRL-001a 已完成、用户已确认 v1.1，且 PR1 已合入 integration。  
 目标：建立 GPT 后续可自动恢复的唯一状态源。
 
 交付：
@@ -614,10 +616,10 @@ nextCandidate: PR2
 - main = 13bfad4d32157166fa6e8f5215ce5f813a1ad67c。
 - codex/v15-integration-foundation 比 main 领先 2 个提交。
 - PR #8（V1.5 PR1 RRULE 数据库 Expand）已合入 integration，未进入 main、未启用。
-- 当前任务为 V15-CTRL-001a：执行总规划文档一致性修补 v1.1，状态为 VERIFYING。
-- V15-CTRL-001a 的完整 diff 未经用户确认前，不得进入 V15-CTRL-001。
+- V15-CTRL-001a 已完成，v1.1 完整 diff 已获用户确认，`PLANS.md` 已提交。
+- 当前下一任务为 V15-CTRL-001：V1.5 状态归一，状态为 READY，但尚未开始。
 
-先只恢复并核验 V15-CTRL-001a；用户确认 v1.1 后，再输出 V15-CTRL-001 的详细执行计划，确认范围后实施。
+先只恢复状态并输出 V15-CTRL-001 的详细执行计划；确认范围后再实施。
 ```
 
 ## 12. 用户日常使用方式
