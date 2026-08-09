@@ -87,8 +87,7 @@ describeWithDb("V1.5 PR1 parent Rule SET NULL", () => {
       },
     });
 
-    const splitFromOccurrenceKey =
-      "2026-09-01T08:00:00[Asia/Shanghai]";
+    const splitFromOccurrenceKey = "2026-09-01T08:00:00[Asia/Shanghai]";
     const childRule = await prisma.reminderRecurrenceRule.create({
       data: {
         backfillStatus: "PENDING",
@@ -118,9 +117,7 @@ describeWithDb("V1.5 PR1 parent Rule SET NULL", () => {
       });
 
     expect(loadedChildRule.parentRuleId).toBeNull();
-    expect(loadedChildRule.splitFromOccurrenceKey).toBe(
-      splitFromOccurrenceKey,
-    );
+    expect(loadedChildRule.splitFromOccurrenceKey).toBe(splitFromOccurrenceKey);
 
     expect(
       await prisma.reminder.findUnique({
