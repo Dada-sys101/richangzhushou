@@ -1,9 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import {
-  Prisma,
-  type Reminder,
-} from "../generated/prisma/client.js";
+import { Prisma, type Reminder } from "../generated/prisma/client.js";
 import type { PrismaService } from "../prisma/prisma.service.js";
 import { RemindersService } from "./reminders.service.js";
 
@@ -331,9 +328,9 @@ describe("RemindersService legacy behavior during V1.5 RRULE expand", () => {
     };
     const service = createService(prisma);
 
-    await expect(
-      service.softDelete("user_1", "missing"),
-    ).rejects.toMatchObject({ code: "RESOURCE_NOT_FOUND" });
+    await expect(service.softDelete("user_1", "missing")).rejects.toMatchObject(
+      { code: "RESOURCE_NOT_FOUND" },
+    );
 
     const restored = await service.restore("user_1", "reminder_1");
     expect(restored.id).toBe("reminder_1");

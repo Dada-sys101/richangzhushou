@@ -90,10 +90,7 @@ describeWithDb("V1.5 PR1 RRULE expand schema", () => {
         )
     `;
     const byColumn = new Map(
-      columns.map((row) => [
-        `${row.tableName}.${row.columnName}`,
-        row,
-      ]),
+      columns.map((row) => [`${row.tableName}.${row.columnName}`, row]),
     );
 
     expect(
@@ -115,8 +112,7 @@ describeWithDb("V1.5 PR1 RRULE expand schema", () => {
       expect(backfillType).toContain(`'${value}'`);
     }
     expect(
-      byColumn.get("reminder_recurrence_exceptions.exception_type")
-        ?.columnType,
+      byColumn.get("reminder_recurrence_exceptions.exception_type")?.columnType,
     ).toContain("'CANCEL','REPLACE'");
 
     expect(
@@ -129,9 +125,8 @@ describeWithDb("V1.5 PR1 RRULE expand schema", () => {
       byColumn.get("reminder_recurrence_rules.dtstart_local")?.isNullable,
     ).toBe("YES");
     expect(
-      byColumn.get(
-        "reminder_recurrence_exceptions.replacement_payload_json",
-      )?.isNullable,
+      byColumn.get("reminder_recurrence_exceptions.replacement_payload_json")
+        ?.isNullable,
     ).toBe("YES");
 
     for (const legacyColumn of [
@@ -321,9 +316,9 @@ describeWithDb("V1.5 PR1 RRULE expand schema", () => {
     const reminder = await createLegacyReminder(user.id, "DAILY");
     await createWallClockRule(reminder.id, "d");
 
-    await expect(
-      createWallClockRule(reminder.id, "e"),
-    ).rejects.toMatchObject({ code: "P2002" });
+    await expect(createWallClockRule(reminder.id, "e")).rejects.toMatchObject({
+      code: "P2002",
+    });
 
     await expect(
       createWallClockRule("missing_reminder", "f"),
@@ -357,27 +352,22 @@ describeWithDb("V1.5 PR1 RRULE expand schema", () => {
         reminderId: childReminder.id,
         rruleText: "FREQ=DAILY;INTERVAL=2",
         schemaVersion: 1,
-        splitFromOccurrenceKey:
-          "2026-09-01T08:00:00[Asia/Shanghai]",
+        splitFromOccurrenceKey: "2026-09-01T08:00:00[Asia/Shanghai]",
         timeMode: "WALL_CLOCK",
         timeZoneId: "Asia/Shanghai",
       },
     });
 
-    const loadedParent =
-      await prisma.reminderRecurrenceRule.findUniqueOrThrow({
-        include: { childRules: true },
-        where: { id: parent.id },
-      });
-    const loadedChild =
-      await prisma.reminderRecurrenceRule.findUniqueOrThrow({
-        include: { parentRule: true },
-        where: { id: child.id },
-      });
+    const loadedParent = await prisma.reminderRecurrenceRule.findUniqueOrThrow({
+      include: { childRules: true },
+      where: { id: parent.id },
+    });
+    const loadedChild = await prisma.reminderRecurrenceRule.findUniqueOrThrow({
+      include: { parentRule: true },
+      where: { id: child.id },
+    });
 
-    expect(loadedParent.childRules.map((row) => row.id)).toEqual([
-      child.id,
-    ]);
+    expect(loadedParent.childRules.map((row) => row.id)).toEqual([child.id]);
     expect(loadedChild.parentRule?.id).toBe(parent.id);
     expect(loadedChild.splitFromOccurrenceKey).toBe(
       "2026-09-01T08:00:00[Asia/Shanghai]",
@@ -388,15 +378,14 @@ describeWithDb("V1.5 PR1 RRULE expand schema", () => {
     const user = await createUser();
     const reminder = await createLegacyReminder(user.id, "DAILY");
     const rule = await createWallClockRule(reminder.id, "3");
-    const exception =
-      await prisma.reminderRecurrenceException.create({
-        data: {
-          exceptionType: "CANCEL",
-          occurrenceKey: "cascade-occurrence",
-          originalOccurrenceAt: new Date("2026-08-15T00:00:00.000Z"),
-          recurrenceRuleId: rule.id,
-        },
-      });
+    const exception = await prisma.reminderRecurrenceException.create({
+      data: {
+        exceptionType: "CANCEL",
+        occurrenceKey: "cascade-occurrence",
+        originalOccurrenceAt: new Date("2026-08-15T00:00:00.000Z"),
+        recurrenceRuleId: rule.id,
+      },
+    });
 
     await prisma.reminder.delete({ where: { id: reminder.id } });
     expect(
@@ -412,15 +401,14 @@ describeWithDb("V1.5 PR1 RRULE expand schema", () => {
 
     const secondReminder = await createLegacyReminder(user.id, "DAILY");
     const secondRule = await createWallClockRule(secondReminder.id, "4");
-    const secondException =
-      await prisma.reminderRecurrenceException.create({
-        data: {
-          exceptionType: "CANCEL",
-          occurrenceKey: "rule-cascade-occurrence",
-          originalOccurrenceAt: new Date("2026-08-16T00:00:00.000Z"),
-          recurrenceRuleId: secondRule.id,
-        },
-      });
+    const secondException = await prisma.reminderRecurrenceException.create({
+      data: {
+        exceptionType: "CANCEL",
+        occurrenceKey: "rule-cascade-occurrence",
+        originalOccurrenceAt: new Date("2026-08-16T00:00:00.000Z"),
+        recurrenceRuleId: secondRule.id,
+      },
+    });
 
     await prisma.reminderRecurrenceRule.delete({
       where: { id: secondRule.id },
@@ -474,10 +462,7 @@ describeWithDb("V1.5 PR1 RRULE expand schema", () => {
     });
   }
 
-  function createWallClockRule(
-    reminderId: string,
-    hashCharacter: string,
-  ) {
+  function createWallClockRule(reminderId: string, hashCharacter: string) {
     return prisma.reminderRecurrenceRule.create({
       data: {
         backfillStatus: "PENDING",
