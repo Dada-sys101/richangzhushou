@@ -6,7 +6,8 @@ mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 integrationHead: bc747b7ba4232adf888d68243f30573f1ca7866f
 activeBranch: codex/v15-ctrl-001-rebaseline
 activeTask: V15-CTRL-001
-activeStatus: DONE_PUSHED
+activeStatus: DONE_PUSHED / HUMAN_REVIEW
+activeDraftPR: 10
 nextEngineeringTask: PR6a
 staging: NOT_CREATED
 production: NOT_DEPLOYED
@@ -21,8 +22,8 @@ production: NOT_DEPLOYED
 
 ## Current
 
-V15-CTRL-001 已写入任务分支，等待 Draft PR CI、人工审阅和合并。
-合入前不得开始 PR6a。
+V15-CTRL-001 已写入任务分支并创建 Draft PR #10。
+等待 CI、ADR/计划/状态审阅和人工合并。合入前不得开始 PR6a。
 
 ## First Release
 
@@ -33,9 +34,17 @@ V15-CTRL-001 已写入任务分支，等待 Draft PR CI、人工审阅和合并�
 - R2/R3 后移但不取消；
 - 6 周目标，第 7 周只作风险缓冲。
 
+## Validation
+
+- prepared-set context validation: PASS
+- allowed-file scope review: PASS
+- complete local quality: NOT_RUN
+- PR #10 CI: PENDING
+
 ## Blocking
 
 - ADR-026、PLANS v1.2 和 execution state 人工审阅；
+- PR #10 CI 和 integration 合并；
 - AI-DECISION-001 阻塞 PR2；
 - H1/H2/H7 阻塞 R1；
 - Staging 和部署需要独立批准；

@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-08-10 +08:00（V15-CTRL-001 已推送任务分支，等待 Draft PR 审阅）
+2026-08-10 +08:00（V15-CTRL-001 已推送并创建 Draft PR #10，等待 CI 与人工审阅）
 
 ## Repository State
 
@@ -10,6 +10,8 @@
 - Main: `13bfad4d32157166fa6e8f5215ce5f813a1ad67c`
 - Integration: `bc747b7ba4232adf888d68243f30573f1ca7866f`
 - Active branch: `codex/v15-ctrl-001-rebaseline`
+- Active Draft PR: `#10`
+- Content commit: `28417e75c1d22182af3962e340cc52895ca889cb`
 - Staging: not created
 - Production: not deployed
 
@@ -35,10 +37,11 @@ R2/R3 后移但不取消。
 ## Current Task
 
 - ID: `V15-CTRL-001`
-- Status: `DONE_PUSHED`
+- Status: `DONE_PUSHED / HUMAN_REVIEW`
 - Branch: `codex/v15-ctrl-001-rebaseline`
+- Draft PR: `#10`
 - Contract: `tasks/V15-CTRL-001.md`
-- Blocker: Draft PR CI、人工审阅和 integration 合并
+- Blocker: CI、人工审阅和 integration 合并
 
 ## Release Targets
 
@@ -52,14 +55,16 @@ R2/R3 后移但不取消。
 - AI-DECISION-001 阻塞 PR2；
 - H1/H2/H7 阻塞 R1；
 - H6/H8 只阻塞 Push；
-- Staging/生产需独立授权。
+- Staging/生产需独立授权；
+- PR #10 不得自动合并。
 
 ## Verification Status
 
 - GitHub 启动核验：PASS；
+- 任务净 diff 范围复核：PASS；
 - context script syntax/function on prepared files：PASS；
-- `npm run quality`：NOT_RUN，完整仓库不可用；
-- GitHub CI：PENDING；
+- `npm run quality`：NOT_RUN，完整私有仓库 checkout 不可用；
+- PR #10 CI：PENDING；
 - Staging/production：NOT_RUN。
 
 ## Next Recommended Task
@@ -70,7 +75,7 @@ AI-DECISION-001 可并行讨论，必须在 PR2 前关闭。
 ## Handoff Instructions
 
 1. 读取 AGENTS、PLANS、execution state 和任务契约；
-2. 核验 Draft PR、commit 和 CI；
+2. 核验 Draft PR #10 最新 head、最终净 diff 和 CI；
 3. 审阅 ADR-026、PLANS 和 execution state；
 4. 不自动 merge；
 5. 合入后标记 DONE_INTEGRATION，再进入 PR6a。

@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-08-10T01:16:30+08:00
+updatedAt: 2026-08-10T01:42:39+08:00
 mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 integrationBranch: codex/v15-integration-foundation
 integrationHead: bc747b7ba4232adf888d68243f30573f1ca7866f
@@ -9,7 +9,7 @@ pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: V15-CTRL-001
 currentStatus: DONE_PUSHED
 nextCandidate: PR6a
-openPullRequests: PENDING_DRAFT_PR
+openPullRequests: [10]
 
 ## Active Task
 
@@ -18,20 +18,22 @@ openPullRequests: PENDING_DRAFT_PR
 - branch: codex/v15-ctrl-001-rebaseline
 - baseBranch: codex/v15-integration-foundation
 - baseHead: bc747b7ba4232adf888d68243f30573f1ca7866f
+- contentHead: 28417e75c1d22182af3962e340cc52895ca889cb
+- draftPR: 10
 - dependencies: PR #8 merged; PR #9 merged
 - contract: tasks/V15-CTRL-001.md
 - forbiddenScope: apps, packages, Prisma, migrations, CI, dependencies, cloud, staging, production
 - validation: check:context; quality; git diff --check; GitHub CI
-- blockers: CI; human review; integration merge
+- blockers: CI; ADR/plan/execution-state human review; integration merge
 
 ## Task Ledger
 
 | ID | Status | Release | Dependencies | Gate | Evidence | Next |
 |---|---|---|---|---|---|---|
-| V15-CTRL-001a | DONE_INTEGRATION | R1 | none | none | PR #9 | historical |
-| V15-CTRL-001 | DONE_PUSHED | R1 | PR #8/#9 | review | task branch | Draft PR/CI |
+| V15-CTRL-001a | DONE_INTEGRATION | R1 | none | none | PR #9 / `bc747b7...` | historical |
+| V15-CTRL-001 | DONE_PUSHED | R1 | PR #8/#9 | review | PR #10 / `28417e7...` | CI/review/merge |
 | PR1 | DONE_INTEGRATION | foundation | baseline | none | PR #8 | no action |
-| PR6a | PENDING | R1 | V15-CTRL-001 | none | none | next |
+| PR6a | PENDING | R1 | V15-CTRL-001 | none | none | next after merge |
 | AI-DECISION-001 | PENDING_USER_DECISION | R1 | governance | user | ADR-026 | before PR2 |
 | PR2 | BLOCKED | R1 | V15-CTRL-001, PR6a, AI decision | AI | none | wait |
 | PR3 | PENDING | R1.1 | V15-CTRL-001, PR6a | H6/H8 | Push PoC | optional |
@@ -71,19 +73,21 @@ openPullRequests: PENDING_DRAFT_PR
 - completedPRs: #8, #9
 - openPRsAtStart: none
 - activeBranch: codex/v15-ctrl-001-rebaseline
-- taskCommit: PENDING_COMMIT_SHA
-- draftPR: PENDING
+- approvedDiff: `/mnt/data/V15-CTRL-001_v1.2_待确认完整diff.patch`
+- initialGeneratedCommit: 1938789dd0eea67ff09c3931c02cda5c2eb6cf1f
+- correctiveContentCommit: 28417e75c1d22182af3962e340cc52895ca889cb
+- draftPR: #10
 - latestCI: PENDING
 - staging: NOT_CREATED
 - production: NOT_DEPLOYED
 
 ## Last Verified
 
-- commands: GitHub checks; Node context checks on prepared set
-- tests: context script PASS on prepared set
-- CI: PENDING
-- knownSkips: complete npm quality unavailable before CI
-- workingTree: approved single task tree
+- commands: GitHub branch/PR/compare checks; Node context checks on prepared set
+- tests: context script syntax/function PASS on prepared set
+- CI: PENDING_FOR_PR_10
+- knownSkips: complete local `npm run quality` and repository `git diff --check` not run because full private checkout unavailable
+- workingTree: remote branch pushed; Draft PR #10 open; no merge
 
 ## Recovery Rules
 
@@ -94,3 +98,4 @@ openPullRequests: PENDING_DRAFT_PR
 5. PR2 等待 PR6a 和 AI-DECISION-001。
 6. 人工门禁不得自动关闭。
 7. DONE_PUSHED 不等于 DONE_INTEGRATION。
+8. PR #10 不得自动合并。

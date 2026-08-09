@@ -12,13 +12,16 @@ DONE_PUSHED / HUMAN_REVIEW
 - Branch: `codex/v15-ctrl-001-rebaseline`
 - Base: `codex/v15-integration-foundation`
 - Base HEAD: `bc747b7ba4232adf888d68243f30573f1ca7866f`
+- Draft PR: `#10`
 
 ## Current Progress
 
 - 启动核对完成；
-- 完整 diff 已确认；
-- 单一任务提交已/正在写入分支；
-- Draft PR 将创建到 integration；
+- 完整 diff 已获用户确认；
+- 任务分支已推送；
+- Draft PR #10 已创建；
+- 发现首个生成提交整文件替换过多后，使用非 force 的纠正提交恢复历史内容；
+- 当前以 PR #10 对 integration 的最终净 diff 为审阅依据；
 - 未 merge、未部署、未创建云资源。
 
 ## Decisions Applied
@@ -34,24 +37,28 @@ DONE_PUSHED / HUMAN_REVIEW
 ## Validation
 
 - Node syntax/context check on prepared set: PASS
+- GitHub net changed-file scope review: PASS（仅契约允许文件）
 - `npm run quality`: NOT_RUN
-- GitHub CI: PENDING
+- full-repository `git diff --check`: NOT_RUN
+- GitHub PR #10 CI: PENDING
 - merge/deploy: NOT_RUN
 
 ## Blockers
 
-- Draft PR CI；
+- PR #10 CI；
 - ADR-026、PLANS、execution state 人工审阅；
-- integration 合并。
+- integration 合并；
+- `.project/decisions.md` / `docs/decisions.md` 的 ADR-026 交叉索引可在完整仓库 checkout 中做最小追加，当前为保护历史未覆盖。
 
 ## Resume Instructions
 
-1. 核验 commit、Draft PR 和 CI；
+1. 核验 PR #10 最新 head 和 CI；
 2. CI 失败只在契约范围内修复；
-3. CI 通过后等待人工审阅；
-4. 不自动 merge；
-5. 合入后更新 DONE_INTEGRATION；
-6. 下一任务只能是 PR6a。
+3. 审阅 PR 最终净 diff，而不是单独查看首个生成提交；
+4. 人工确认 ADR-026、PLANS 和 execution state；
+5. 不自动 merge；
+6. 合入后更新 DONE_INTEGRATION；
+7. 下一任务只能是 PR6a。
 
 ## Last Updated
 
