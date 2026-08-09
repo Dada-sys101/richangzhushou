@@ -6,6 +6,7 @@ import { PrismaClient } from "../generated/prisma/client.js";
 const testDatabaseUrl = process.env.TEST_DATABASE_URL;
 const describeWithDb = testDatabaseUrl ? describe : describe.skip;
 
+// PR1 requires this suite to run against real MySQL in CI.
 describeWithDb("V1.5 PR1 parent Rule SET NULL", () => {
   let prisma: PrismaClient;
   const usernamePrefix = "v15_set_null_";
