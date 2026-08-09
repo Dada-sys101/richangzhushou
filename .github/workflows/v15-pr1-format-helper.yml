@@ -6,15 +6,17 @@ on:
       - codex/tmp-v15-pr1-format
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   format:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Check out repository
+      - name: Check out temporary formatter branch
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -25,18 +27,27 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Check out PR1 branch
+        run: |
+          git fetch origin codex/v15-pr1-expand-rrule
+          git checkout -B codex/v15-pr1-expand-rrule origin/codex/v15-pr1-expand-rrule
+
       - name: Format PR1 test files
         run: >-
           npx prettier --write
           apps/api/src/reminders/reminders.service.test.ts
           apps/api/src/integration/v15-rrule-expand.integration.test.ts
 
-      - name: Upload formatted files
-        uses: actions/upload-artifact@v4
-        with:
-          name: v15-pr1-formatted-tests
-          path: |
-            apps/api/src/reminders/reminders.service.test.ts
+      - name: Commit formatted files to PR1 branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            apps/api/src/reminders/reminders.service.test.ts \
             apps/api/src/integration/v15-rrule-expand.integration.test.ts
-          if-no-files-found: error
-          retention-days: 1
+          if git diff --cached --quiet; then
+            echo "No formatting changes required."
+          else
+            git commit -m "style: format PR1 RRULE tests"
+            git push origin HEAD:codex/v15-pr1-expand-rrule
+          fi
