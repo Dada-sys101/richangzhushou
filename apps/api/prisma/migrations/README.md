@@ -12,6 +12,20 @@ To verify migrations against a real empty MySQL 8 database, create an untracked
 npm run prisma:migrate:deploy --workspace @daily-assistant/api
 ```
 
+For the V1.5 PR6a disposable MySQL 8.4 workflow, point the explicit admin URL at
+the `mysql` system database on a temporary server and run:
+
+```powershell
+$env:PR6A_MYSQL_ADMIN_URL = "mysql://<temporary-admin>@127.0.0.1:3306/mysql"
+npm run validate:mysql84:temporary
+```
+
+This entry is loopback-only with no remote override. It creates a random target
+database, task-owned guard database, and scoped temporary user. The admin
+credential is never sent to migration or Vitest child processes. After all
+migrations, integration tests, and the isolation check, it drops the databases
+and user and verifies that both residual counts are zero.
+
 No production or shared database URL belongs in this repository.
 
 ## WP4 Shortcuts/OCR migration（20260805085724_wp4_shortcuts_ocr）

@@ -5,8 +5,8 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前任务：`V15-CTRL-001`
-下一 canonical 工程任务：`PR6a`（仅在 V15-CTRL-001 达到 `DONE_INTEGRATION` 后）
+当前任务：`PR6a`
+下一 canonical 工程任务：`PR6a`（V15-CTRL-001 已达到 `DONE_INTEGRATION`）
 
 ## 1. 版本目标与边界
 
@@ -328,8 +328,9 @@ REL-05 稳定窗口规则：
 11. 合入 `codex/v15-integration-foundation`；
 12. 核验 integration HEAD 与正式规划完全一致。
 
-当前人工批准覆盖第 1～5 项；第 6～7 项正在本地落地并待 diff 审查；第 8～12 项尚未完成。
-在全部十二项满足前，V15-CTRL-001 不得进入 `DONE_INTEGRATION`，PR6a 不得开始。
+截至 2026-08-10，PR #10 已在最终 head `9a12b4c...` 通过 CI，并经独立授权合入
+`codex/v15-integration-foundation`；合并后的 integration HEAD `371a43d...` 已核验与正式规划一致。
+十二项条件全部满足，V15-CTRL-001 已达到 `DONE / DONE_INTEGRATION`，PR6a 可以开始。
 
 ## 12. Task Selection Policy
 
@@ -348,8 +349,8 @@ REL-05 稳定窗口规则：
 8. R3。
 
 ```yaml
-currentTask: V15-CTRL-001
-nextCanonicalTaskAfterCompletion: PR6a
+currentTask: PR6a
+nextCanonicalTaskAfterCompletion: TBD_AFTER_PR6A_REVALIDATION
 ```
 
 PR6a 完成后必须重新核验实时依赖，由 PLANS/execution-state 写出唯一 `nextCanonicalTask`。

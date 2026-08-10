@@ -17,7 +17,8 @@
     "start": "node dist/main.js",
     "test": "vitest run",
     "test:integration": "vitest run src/integration",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "validate:mysql84:temporary": "tsx src/cli/validate-temporary-mysql84.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

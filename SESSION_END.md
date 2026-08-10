@@ -1,5 +1,18 @@
 # Session End
 
+## 2026-08-10 — PR6a 本地断点
+
+- 分支：`codex/v15-pr6a-mysql84-validation`，基于已核验 integration HEAD `371a43d...`；
+- V15-CTRL-001 已通过 PR #10 达到 `DONE_INTEGRATION`；
+- PR6a Round 1 已关闭 loopback、凭据隔离、child env、脱敏、测试/evidence、进程树和 partial-create
+  cleanup 七项缺口；focused tests 1 file / 26 tests PASS；
+- MySQL 8.4.9 两次 fresh DB/user 均通过 9 migrations、14 files / 105 DB tests 和权限隔离；
+  注入失败 exit 41、真实 SIGINT exit 60，四次均 DB/user residual 0，evidence SHA256 4/4 匹配；
+- `npm run quality`、`npm run check:context`、`git diff --check` 均通过；临时 MySQL 进程已停止，
+  临时数据目录已移入回收站；
+- 交付边界：停在 `DONE / DONE_LOCAL`，未 add、commit、push、创建 PR、合并或部署；下一任务
+  `TBD_AFTER_PR6A_REVALIDATION`。
+
 日期：2026-08-06<br>
 状态：WP0–WP8、WP9 与首页界面优化本地验收完成；正式 `main` 已建立并推送、GitHub 默认分支已切换为 main，远端 CI 通过；未部署
 

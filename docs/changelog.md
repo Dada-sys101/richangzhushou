@@ -4,6 +4,19 @@
 更新：2026-08-10
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-10 — PR6a 临时 MySQL 8.4 验证入口（本地）
+
+- 核验 PR #10 已合并，integration HEAD 为 `371a43d...`，同步 V15-CTRL-001
+  `DONE_INTEGRATION` 与 PR6a 开工快照。
+- Round 1 将 `npm run validate:mysql84:temporary` 收紧为 loopback-only；bootstrap 管理凭据与随机
+  scoped DB user 完全分离，并加入 guard isolation、child env allowlist、全流脱敏、partial-create
+  cleanup、Windows/POSIX 进程树终止、有界 readiness 和稳定退出码。
+- focused tests 1 file / 26 tests PASS；MySQL 8.4.9 两次 fresh DB/user 均通过 9 migrations、
+  14 files / 105 DB tests；failure exit 41、真实 SIGINT exit 60，四次 DB/user 残留均为 0。
+- 四个本地 JSON evidence 与 `.sha256` sidecar 4/4 匹配；quality/context/diff 均通过，临时实例
+  已停止且数据目录移入回收站。
+- 未修改业务功能、Prisma schema/migrations、依赖或正式 CI；未 add、commit、push、创建 PR 或部署。
+
 ## 2026-08-10 — V15-CTRL-001 v2.1.1 Final 本地落地（未提交）
 
 - 人工批准 V1.5 v2.1.1 Final、ADR-026 发布映射、REL-01/02 调整、PR18/20 范围、
