@@ -54,7 +54,7 @@
 
 1. `AGENTS.md`：项目约束与纪律。
 2. `PLANS.md`：V1.5 唯一执行总路线。
-3. `.project/v15-execution-state.md`：V1.5 实时任务、HEAD、PR、CI、门禁和证据。
+3. `.project/v15-execution-state.md`：V1.5 最近一次合法治理更新时的任务、HEAD、PR、CI、门禁和证据快照；GitHub、Git、CI 和实际部署环境为实时事实。
 4. `.project/context.md`：长期项目状态。
 5. `.project/session.md`：当前或最近一次未完成任务。
 6. 当前 `tasks/*.md`：当前任务执行契约。
@@ -213,7 +213,7 @@
 
 如果任务尚未完成：
 
-- `.project/v15-execution-state.md` 保留真实状态、分支、证据和 blocker；
+- `.project/v15-execution-state.md` 保留最近一次合法治理更新时的状态、分支、证据和 blocker 快照；
 - `.project/session.md` 保留当前任务；
 - 记录完成比例、已完成步骤、下一步操作、阻塞原因；
 - 不得将任务写入 Completed。
