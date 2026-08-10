@@ -56,6 +56,7 @@
 | DEC-137 | OPEN-009：Playwright 浏览器 QA 自动化——`tests/e2e` smoke（Chromium 桌面+移动）与完整矩阵（Firefox/WebKit/1440/375/430）、独立 CI `browser-qa` job、失败截图/trace/video 上传；web 客户端对 401 做单飞刷新重试 | `playwright.config.ts`、`tests/e2e/*`、`scripts/start-e2e-services.mjs`、`.github/workflows/ci.yml`、`apps/web/src/api/{client,session}.ts` | 核心冒烟不再依赖手工 playwright-cli |
 | DEC-138 | PR #3 合并：V1 发布决策（OPEN-001/005/011）与 OPEN-009 以 squash 合并到 main（`4fcc613`）；合并后 browser-qa 暴露 E2E 时间助手 12/24 小时制缺陷，以 24 小时制修复并经 PR #4 合并到 main（`47c40c9`），main CI 全绿 | `[Git] 4fcc613`、`47c40c9`、`tests/e2e/helpers/e2e.ts` | 测试确定性：结束时间跨正午边界时不得被格式化为 01:xx |
 | DEC-139 | OPEN-006 对象存储接入：新增 `AliyunOssStorageAdapter`（实现 `put/get/delete`，缺失对象删除幂等，错误不泄漏 AccessKey/正文）与 `STORAGE_PROVIDER=local|oss` 配置切换；`NODE_ENV=production` 禁止 local、缺失 OSS 配置启动失败；新附件键 `users/{userId}/attachments/{fileId}`，旧 `attachments/` 键保留兼容；上传仍由 API 代理，无需 OSS CORS | `[代码] apps/api/src/integrations/{aliyun-oss-storage.adapter,storage.config,storage-key.service}.ts`、`apps/api/src/attachments/attachments.service.ts` | 私有 Bucket + 最小权限；未配置时不得意外连接 OSS；staging 门禁阻止误用本地临时存储 |
+| DEC-140 | ADR-026 Accepted：V1.5 发布映射为 AI R1、Push R1.1、新 RRULE/Import R2、完整 IndexedDB 迁移/Shrink R3；H1/H2/H7 阻塞 R1，H6/H8 只阻塞 Push；REL-01 可提前设计但不建资源，REL-02 等待 R1 Quality Gate；Production 必须经 integration RC→main PR→main/tag | `PLANS.md` v2.1.1、`docs/adr/ADR-026-v15-release-scope-r1.md`、`docs/40-v15-final-development-baseline.md` V1.1 | 2026-08-10 人工批准；不构成 commit、资源、真实调用、merge 或部署授权 |
 
 ## 尚未确定的决策
 

@@ -1,8 +1,16 @@
 # 变更日志（Changelog）
 
 文档版本：1.0
-更新：2026-08-06
+更新：2026-08-10
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
+
+## 2026-08-10 — V15-CTRL-001 v2.1.1 Final 本地落地（未提交）
+
+- 人工批准 V1.5 v2.1.1 Final、ADR-026 发布映射、REL-01/02 调整、PR18/20 范围、
+  AI provisional/安全阈值、Task Selection Policy 和 main/tag 发布门禁。
+- 本地将 PLANS 更新为自包含 v2.1.1，ADR-026 标为 Accepted，docs/40 升级 V1.1，
+  execution-state 改为双维度状态与非实时快照语义，并同步必要派生文档。
+- 本条记录不表示已 commit、push、更新 PR #10、merge、创建资源、部署、迁移或调用真实 AI。
 
 ## 2026-08-07 — PR #6 合并到 main
 

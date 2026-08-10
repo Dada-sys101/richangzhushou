@@ -44,8 +44,10 @@ const EXECUTION_STATE_SECTIONS = [
 const EXECUTION_STATE_FIELDS = [
   "integrationHead",
   "currentTask",
-  "currentStatus",
-  "nextCandidate",
+  "executionStatus",
+  "deliveryStatus",
+  "nextCanonicalTask",
+  "nextCanonicalTaskAfterCompletion",
 ];
 
 const SENSITIVE_PATTERNS = [

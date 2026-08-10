@@ -1,17 +1,17 @@
 # Documentation Index
 
-版本：0.4
-状态：已核对至 V15-CTRL-001
+版本：0.5
+状态：已同步 v2.1.1 Final / docs/40 V1.1 / Accepted ADR-026
 更新：2026-08-10
 
-## V1.5 接手导航（实时/概要）
+## V1.5 接手与状态恢复导航
 
 1. `../AGENTS.md`：强制约束、恢复顺序和授权边界。
 2. `../PLANS.md`：V1.5 唯一执行总路线。
-3. `../.project/v15-execution-state.md`：实时任务、HEAD、PR、CI、门禁和证据。
+3. `../.project/v15-execution-state.md`：唯一仓库内执行状态快照，不是 GitHub/CI 实时镜像。
 4. `../tasks/V15-CTRL-001.md`：当前任务执行契约。
-5. `40-v15-final-development-baseline.md`：冻结技术与开发基线。
-6. `adr/ADR-026-v15-release-scope-r1.md`：首发分层 ADR（Proposed）。
+5. `40-v15-final-development-baseline.md`：V1.1 冻结技术与开发基线。
+6. `adr/ADR-026-v15-release-scope-r1.md`：发布范围与门禁增量修订（Accepted）。
 7. `../.project/context.md`：长期项目状态。
 8. `../.project/session.md`：当前或暂停任务。
 9. `project-overview.md`：项目概述。
@@ -24,9 +24,10 @@
 优先级：
 
 ```text
-GitHub 实际代码 / PR / CI
-> docs/40 冻结基线
-> PLANS.md / execution state / 当前任务契约
+GitHub / Git / CI / 实际部署环境
+> docs/40 核心技术基线 + Accepted ADR-026 发布/门禁修订
+> PLANS.md canonical 任务定义
+> execution-state 仓库内快照 / 当前任务契约
 > 完整需求与系统设计
 > 旧 V1 状态文档
 > 历史草案与 PoC

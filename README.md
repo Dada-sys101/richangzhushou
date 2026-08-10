@@ -9,7 +9,8 @@ Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基
 待确认 Proposal，不得直接写正式业务记录。
 
 > 当前阶段：V1 核心应用和 OSS Adapter 已进入 main；V1.5 计划任务 PR1（RRULE DB Expand）
-> 与执行规划已进入 integration。当前执行 V15-CTRL-001 状态归一与首发路线重基线。
+> 与执行规划已进入 integration。当前执行 V15-CTRL-001 状态归一与首发路线重基线；
+> v2.1.1 Final 已获人工批准并在本地落地，尚未 commit、push 或更新 Draft PR #10。
 > Staging 未创建，生产未部署。
 
 ## 工程结构
@@ -74,7 +75,7 @@ GitHub Actions 使用临时 MySQL 8.4 service，不接触生产资源。
 
 - `AGENTS.md`：强制恢复、执行、验证和授权纪律。
 - `PLANS.md`：V1.5 唯一执行总路线。
-- `.project/v15-execution-state.md`：实时任务、HEAD、PR、CI、门禁和证据。
+- `.project/v15-execution-state.md`：唯一仓库内执行状态快照，不是 GitHub/CI 实时镜像。
 - `.project/context.md`：长期状态；`.project/session.md`：当前/暂停任务；
   `.project/decisions.md`：ADR 索引。
 - 当前任务契约：`tasks/V15-CTRL-001.md`。
@@ -93,12 +94,13 @@ GitHub Actions 使用临时 MySQL 8.4 service，不接触生产资源。
 ## 文档入口
 
 - [执行总规划](PLANS.md)
-- [V1.5 实时状态](.project/v15-execution-state.md)
+- [V1.5 执行状态快照](.project/v15-execution-state.md)
 - [当前任务契约](tasks/V15-CTRL-001.md)
 - [文档索引](docs/README.md)
 - [总体计划](MASTER_PLAN.md)
 - [当前状态](PROJECT_STATUS.md)
-- [冻结基线](docs/40-v15-final-development-baseline.md)
+- [冻结基线 V1.1](docs/40-v15-final-development-baseline.md)
+- [Accepted ADR-026](docs/adr/ADR-026-v15-release-scope-r1.md)
 
 ## 仓库边界
 

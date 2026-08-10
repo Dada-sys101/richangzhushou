@@ -329,3 +329,16 @@
   mutation；冲突进入 `/sync/conflicts` 由用户选择。
 - Related Files: `apps/web/src/{api/client.ts,offline/*,stores/auth.ts}`
 - Related Commit: `479b0a9`、`c7a4fa1`
+
+## ADR-026: V1.5 发布范围、门禁映射与晋级策略
+
+- Date: 2026-08-10
+- Status: Accepted
+- Context: docs/40 V1.0 的 H1～H8 统一总门禁与 V1.5 分阶段交付目标冲突。
+- Decision: AI 为 R1、Push 为 R1.1、新 RRULE/Import 为 R2、完整 IndexedDB 迁移/Shrink 为 R3；
+  人工门禁按 blockingScope 生效；REL-01 可提前设计但不建资源；REL-02 等待 R1 Quality Gate；
+  Production 只能从经 main 发布 PR、main HEAD 核验和 release tag 的 commit 部署。
+- Consequences: docs/40 升级 V1.1 且保留核心技术架构；PLANS v2.1.1 成为唯一 canonical 任务定义。
+- Related Files: `PLANS.md`、`.project/v15-execution-state.md`、
+  `docs/adr/ADR-026-v15-release-scope-r1.md`、`docs/40-v15-final-development-baseline.md`
+- Related Commit: not created; local governance revision awaiting human diff review

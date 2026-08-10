@@ -6,46 +6,33 @@ mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 integrationHead: bc747b7ba4232adf888d68243f30573f1ca7866f
 activeBranch: codex/v15-ctrl-001-rebaseline
 activeTask: V15-CTRL-001
-activeStatus: DONE_PUSHED / HUMAN_REVIEW
-activeDraftPR: 10
-nextEngineeringTask: PR6a
+executionStatus: VERIFYING
+deliveryStatus: PR_OPEN
+nextCanonicalTask: V15-CTRL-001
+nextCanonicalTaskAfterCompletion: PR6a
+localRevision: MODIFIED_UNCOMMITTED
 staging: NOT_CREATED
 production: NOT_DEPLOYED
 
 ## Completed
 
-- V1 核心工作包；
-- OSS Adapter 代码进入 main；
-- 7 项 V1.5 PoC 证据；
-- PR #8 / 计划 PR1 合入 integration；
-- PR #9 / V15-CTRL-001a 合入 integration。
+- V1 核心；PR #8 / PR1；PR #9 / V15-CTRL-001a；
+- v2.1.1 Final 规划及 ADR-026 的业务/治理决策已获人工批准。
 
 ## Current
 
-V15-CTRL-001 已写入任务分支并创建 Draft PR #10。
-等待 CI、ADR/计划/状态审阅和人工合并。合入前不得开始 PR6a。
-
-## First Release
-
-- 约 10 名管理员建号用户；
-- AI 必须首发并经 Proposal 确认；
-- Push 可关闭；
-- R1 使用现有提醒路径；
-- R2/R3 后移但不取消；
-- 6 周目标，第 7 周只作风险缓冲。
+批准内容已在目标分支的独立本地工作树落地，等待校验和完整 diff 人工审查。
+ADR-026 已在文档中标为 Accepted，docs/40 已同步 V1.1；这些本地修改尚未 commit/push，
+GitHub PR #10 仍指向旧 head。V15-CTRL-001 尚未 `DONE_INTEGRATION`。
 
 ## Validation
 
-- prepared-set context validation: PASS
-- allowed-file scope review: PASS
-- complete local quality: NOT_RUN
-- PR #10 CI: PENDING
+- Remote PR #10 old-head CI: PASS
+- Local `npm run check:context`: PASS
+- Local `git diff --check` and checker syntax: PASS
+- Commit/push/PR update/merge/deploy: NOT_RUN
 
 ## Blocking
 
-- ADR-026、PLANS v1.2 和 execution state 人工审阅；
-- PR #10 CI 和 integration 合并；
-- AI-DECISION-001 阻塞 PR2；
-- H1/H2/H7 阻塞 R1；
-- Staging 和部署需要独立批准；
-- Draft PR 不得自动合并。
+- 十二项完成条件中的最终 diff 批准、updated-head CI、merge 授权、合并和 HEAD 核验未完成；
+- PR6a 不得开始；外部资源、真实服务和发布继续需要独立授权。

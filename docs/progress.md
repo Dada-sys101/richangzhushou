@@ -1,38 +1,25 @@
-# 项目进度（Progress）
+# 项目进度（派生摘要）
 
 updatedAt: 2026-08-10
 
 ## Current
 
-- V15-CTRL-001 已写入 `codex/v15-ctrl-001-rebaseline`；
-- 状态：DONE_PUSHED / HUMAN_REVIEW；
-- Draft PR、CI、人工审阅和合并待完成。
+- v2.1.1 Final 已获人工批准；ADR-026 文档已标为 Accepted；docs/40 已同步为 V1.1；
+- 当前任务 V15-CTRL-001：`VERIFYING / PR_OPEN`；
+- 批准内容仅在本地工作树修改，尚未 commit、push 或更新 PR #10；
+- PR6a 尚未开始且不得在 V15-CTRL-001 `DONE_INTEGRATION` 前开始。
 
 ## Evidence
 
-- V1 核心工作包完成；
-- PR #8 / 计划 PR1：DONE_INTEGRATION；
-- PR #9 / V15-CTRL-001a：DONE_INTEGRATION；
-- 7 项 PoC 有证据，生产门禁仍开放。
-
-## Release
-
-- R1：治理已推送，Foundation/AI/Release 待执行；
-- R1.1：Push 非阻塞；
-- R2/R3：后移，不取消。
-
-## Validation
-
-- GitHub 启动核验：PASS；
-- context script prepared-set check：PASS；
-- complete quality：NOT_RUN，等待 CI；
-- Staging/production：NOT_RUN。
+- PR #8 / PR1 和 PR #9 / V15-CTRL-001a：DONE_INTEGRATION；
+- PR #10 远端旧 head `06b11e15...` 为 Draft，旧 head CI 通过；
+- 本地 `npm run check:context`、`git diff --check` 和 checker syntax 均 PASS；完整 diff 等待人工审查。
 
 ## Open Gates
 
-ADR-026、PLANS、execution state 审阅；AI-DECISION-001；H1/H2/H7；
-Staging/部署批准；H6/H8（只影响 Push）。
+V15-CTRL-001 最终 diff/updated-head CI/merge/HEAD 核验；H1/H2/H7；
+云资源、migration、真实服务、Staging 和 Production 独立授权。
 
 ## Next
 
-合入 integration 后执行 PR6a。
+完成本地校验后停止等待 commit 授权。canonical 下一任务仍为 V15-CTRL-001；完成后才是 PR6a。
