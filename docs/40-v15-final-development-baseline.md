@@ -1,19 +1,23 @@
 # 日常助手 V1.5 最终开发需求与集成基线
 
 > 文档路径：`docs/40-v15-final-development-baseline.md`  
-> 文档版本：V1.0  
-> 当前状态：`FROZEN`  
+> 文档版本：V1.1
+> 当前状态：`FROZEN — AMENDED_BY_ACCEPTED_ADR_026`
 > 确认人：Dada  
 > 确认日期：2026-08-09  
+> 增量修订批准日期：2026-08-10
 > 生效分支：`codex/v15-integration-foundation`  
 > 取代文档：PoC 证据分支中的 `docs/30-v15-technology-selection-freeze-draft.md`  
 > PoC 证据分支：`codex/v15-tech-selection-poc`  
 > PoC 关闭提交：`abeaa6444c116a59f5c139b2f56488a2f97b53f4`
 
 > [!CAUTION]
-> **本文档为 V1.5 正式开发的唯一依据，取代旧版技术选型草案中的简化模型。**
+> **本文档冻结 V1.5 核心技术架构；Accepted ADR-026 正式增量修订发布范围和门禁映射。**
 >
-> **在门禁 1～8 全部关闭前，严禁：合并 main、部署生产、自动激活 IndexedDB v2、清理用户 v1 数据、发送真实 Web Push、接入真实或付费 AI API、将新 RRULE 调度器切为生产主引擎、向用户开放真实导入功能。**
+> **AI 属 R1，Push 属 R1.1，新 RRULE/Import 属 R2，完整 IndexedDB 迁移与 Shrink 属 R3。**
+> **各能力必须满足其 blockingScope；所有新能力默认关闭。Production 只能部署已通过
+> integration→main 发布 PR、main HEAD 核验和 release tag 的 commit。真实 AI/Push、云资源、
+> migration、数据清理和部署仍分别需要独立授权。**
 
 ## 0. 文档适用范围
 
@@ -37,16 +41,18 @@
 - 第三方许可证人工法律结论；
 - 门禁 1～8 已完成。
 
-出现冲突时，执行优先级为：
+本文档与 Accepted ADR-026 必须作为无冲突的组合基线。出现解释差异时，执行优先级为：
 
 ```text
-本文件
-→ 已批准的补充 ADR/变更记录
-→ V1.5 PR 验收标准
+实时 GitHub / Git / CI / 部署事实
+→ 本文件冻结的核心技术架构 + Accepted ADR-026 的发布/门禁增量修订
+→ PLANS.md 的 canonical 任务定义
+→ V1.5 PR 验收标准和仓库内 execution-state 快照
 → 旧版需求或技术选型文档
 ```
 
-旧文档与本文件冲突的内容一律失效。
+旧文档与组合基线冲突的内容一律失效。不得同时保留相互冲突的有效规则；后续变更必须
+先获批 ADR，再同步本文件、PLANS 和 execution-state。
 
 # 一、架构决策冻结清单
 
@@ -883,41 +889,55 @@ requiredColdStartCount >= 1
 
 ## 4.1 全局规则
 
-以下 PR 可以在隔离分支开发并创建 Draft PR。
+以下 PR 只有在 `PLANS.md` 的依赖、Task Selection Policy 和人工授权满足后，才可以在隔离分支开发。
+本表不构成 commit、push、PR、merge、真实调用、资源创建或部署授权。
 
-但在门禁 1～8 全部关闭前：
-
-- 不得合并到 `main`；
-- 不得部署生产；
-- 不得开启真实业务功能。
+各任务可否合入 integration、main 或启用真实行为，按 Accepted ADR-026 的 releaseTarget 和
+blockingScope 判断；不得再使用“H1～H8 全部关闭”作为所有版本和能力的统一门禁。
 
 “功能开关状态”表示代码默认运行状态，不表示允许上线。
 
 | PR编号 | 内容 | 前置依赖 | 依赖门禁 | 功能开关状态 |
 |---|---|---|---|---|
-| PR1 | 数据库 Expand：RRULE Rule/Exception 表 | 无 | 无专项门禁；全局禁止合并 main | 关闭，无运行时读写 |
-| PR2 | 数据库 Expand：AiRequest/Proposal/Operation/Attempt 表 | 无 | 无专项门禁；全局禁止合并 main | 关闭 |
-| PR3 | 数据库 Expand：PushSubscription/Delivery 表 | 无 | 引入 web-push 前依赖门禁8 | 关闭 |
-| PR4 | 数据库 Expand：ImportBatch/Item、ClientMigrationPolicy 和 SystemSetting 开关字段 | 无 | 无专项门禁；全局禁止合并 main | 关闭 |
-| PR5 | API Contracts、枚举、DTO 和分模块功能开关 | PR1～PR4 | 无专项门禁 | 全部关闭 |
-| PR6 | 依赖治理工具迁入正式 CI | 无 | web-push 最终许可依赖门禁8 | CI 强制；业务开关不适用 |
+| PR1 | 数据库 Expand：RRULE Rule/Exception 表 | 无（已通过 PR #8 合入 integration） | 不回填、不切换、不改变现有行为 | 关闭，无运行时读写 |
+| PR2 | 数据库 Expand：AiRequest/Proposal/Operation/Attempt 表 | V15-CTRL-001、PR6a、AI-DECISION-001 | 不允许真实 AI 调用 | 关闭 |
+| PR3 | 数据库 Expand：PushSubscription/Delivery 表 | V15-CTRL-001、PR6a | 引入 web-push 前依赖门禁8 | 关闭 |
+| PR4 | 数据库 Expand：ImportBatch/Item、ClientMigrationPolicy 和 SystemSetting 开关字段 | V15-CTRL-001、PR6a | R2；R1 不预建专属字段 | 关闭 |
+| PR5 | 共享 Flag、AI Contracts、枚举、DTO | PR1、PR2、PR6a | 不含 Push/Import 具体契约 | 全部关闭 |
+| PR6 | DB 验证接入 CI 和依赖治理 | V15-CTRL-001、PR6a | web-push 最终许可依赖门禁8 | CI 强制；业务开关不适用 |
 | PR7 | RRULE 核心封装、规范化、occurrence key、exception 计算 | PR1、PR5、PR6 | 无专项门禁 | RRULE 全部关闭 |
 | PR8 | RRULE Backfill 工具和 dual-read parity | PR7 | 不得切主引擎 | 仅测试/离线工具 |
 | PR9 | IndexedDB 统一 Repository 接口和 V1PlainRepository | PR5 | 门禁1～4影响后续切换 | 仍使用 v1 |
 | PR10 | V2EncryptedRepository、本地密钥与加密 metadata | PR9 | 门禁1～4 | v2 不激活 |
 | PR11 | IndexedDB MigrationCoordinator、journal、启动状态机和迁移 UI | PR4、PR10 | 门禁1、2、3、4 | 自动迁移关闭 |
 | PR12 | v2 dual-read/dual-write、动态保留和清理资格 | PR11 | 门禁1～5 | v2 主读与清理关闭 |
-| PR13 | RRULE 主读切换和调度器集成 | PR8 | 门禁1～5；生产切换仍依赖1～8 | 新调度器关闭 |
+| PR13 | RRULE 主读切换和调度器集成 | PR8 | R2 对应迁移门禁；独立启用授权 | 新调度器关闭 |
 | PR14 | Import Parser、CSV流式、XLSX单并发、dry-run | PR4、PR5、PR6 | 无真实用户开放 | 仅 dry-run，入口关闭 |
 | PR15 | FinanceImportWriter、正式批次写入和导入 UI | PR14 | 门禁1、2、4影响移动验收 | 写入与用户入口关闭 |
 | PR16 | Push 订阅 API、自定义 Service Worker 和权限 UI | PR3、PR5 | 门禁1、2、4 | 订阅与 SW 功能关闭 |
 | PR17 | 真实 Web Push Provider、重试和失效订阅处理 | PR16、PR6 | 门禁6、8；未关闭不得合并 | 真实发送强制关闭 |
 | PR18 | AiProposal/AiOperation Service、确认 UI、Fake Provider | PR2、PR5 | 无真实 AI 调用 | 仅 Fake，功能关闭 |
 | PR19 | AI Router、能力缓存、超时、熔断和 Stub Provider | PR18、PR6 | 无真实 AI 调用 | live provider 关闭 |
-| PR20 | 真实 AI Provider 配置与调用适配 | PR19 | 门禁7；未关闭不得合并 | 真实 Provider 强制关闭 |
+| PR20 | 真实 AI Provider 配置与调用适配 | developmentDependency：PR19 | humanValidationGate/mergeGate：门禁7；人工关闭前不得合并 | 真实 Provider 强制关闭 |
 | PR21 | Cutover 观测和管理页：parity、迁移、Import、Push、AI 指标 | PR12、PR13、PR15、PR17、PR20 | 继承各模块门禁 | 管理入口关闭 |
-| PR22 | Shrink 准备、清理资格检查和回滚演练，不删除结构 | PR21 | 门禁1～8 | 不执行 Shrink |
-| PR23 | 最终 Shrink：停止旧写入、清理合格 v1；旧数据库字段删除另行批准 | PR22 | 门禁1～8及单独清理批准 | 默认关闭，逐项批准 |
+| PR22 | Shrink 准备、清理资格检查和回滚演练，不删除结构 | PR21 | R3 对应迁移/清理门禁 | 不执行 Shrink |
+| PR23 | 最终 Shrink：停止旧写入、清理合格 v1；旧数据库字段删除另行批准 | PR22 | 全部清理资格及单独不可逆批准 | 默认关闭，逐项批准 |
+
+## 4.2 PR / Release 映射（ADR-026 增量修订）
+
+| 发布层级 | Canonical 任务 | 说明 |
+|---|---|---|
+| R1 | V15-CTRL-001、PR6a、AI-DECISION-001、PR2、PR5、PR6、PR9、PR18～PR20、REL-01～REL-06 | AI Proposal 与受控 Provider；H1/H2/H7 阻塞 |
+| R1.1 | PR3、PR16、PR17 | Push 可关闭；H6/H8 只阻塞 Push |
+| R2 | PR4、PR7、PR8、PR13、PR14、PR15、PR21 | 新 RRULE、Import、完整观测 |
+| R3 | PR10、PR11、PR12、PR22、PR23 | 完整 IndexedDB 迁移和 Shrink |
+
+PR18 的正式范围包括 Proposal/Operation、Fake Provider 和完整确认 UI：查看、不确定字段提示、
+编辑、接受/拒绝、最终确认、调用现有领域 Service，以及重复确认、网络失败、浏览器返回、输入恢复、
+用户隔离和幂等。AI 不得自动确认，Provider 输出不得直接写业务表或调用正式写接口。
+
+PR20 在 PR19 合入 integration 后可以开发 Adapter 并使用 Fake/Stub 测试；获得真实 AI 调用授权后
+才可受控验证。代码任务不得自动关闭 H7；只有人工确认 H7 关闭后，PR20 才允许合入 integration。
 
 # 五、人工门禁现状
 
@@ -986,18 +1006,25 @@ requiredColdStartCount >= 1
 
 ### AI
 
-真实 AI Provider PR20 依赖：
+PR20 的开发依赖与人工门禁分开记录：
 
 ```text
-门禁7
+developmentDependency: PR19
+humanValidationGate: 门禁7
+mergeGate: 门禁7
 ```
 
 门禁未关闭：
 
+- 可以实现 Adapter 并以 Fake/Stub 测试；
+- 未获独立授权不得执行真实 Provider 调用；
 - 只能使用 Fake/Stub；
 - 不允许配置生产密钥；
+- 不得合并为可启用状态或向真实用户开放；
 - `V15_LIVE_AI_ALLOWED=false`；
 - `v15.ai.liveProvider=false`。
+
+受控真实评测满足门禁7关闭标准后，必须由人工确认关闭；PR20 代码本身不得自动关闭门禁7。
 
 ### IndexedDB
 
@@ -1015,24 +1042,39 @@ requiredColdStartCount >= 1
 - 不得自动激活 v2；
 - 不得清理 v1。
 
-### 最终生产切换
+### main / Production 晋级与分模块门禁
 
-以下操作依赖门禁 1～8 全部关闭：
+R1 发布要求 H1、H2、H7 关闭；H6/H8 只影响 Push，H4 只影响 Android 正式支持声明，
+H3/H5 为必须记录的限制或观察项。后续能力仍须满足其自身门禁：
 
-- 合并至 main；
-- 部署生产；
-- RRULE 新引擎成为生产主引擎；
-- 用户可见真实导入；
-- IndexedDB v2 自动激活；
-- v1 清理；
-- 真实 Push；
-- 真实 AI Provider。
+- 真实 AI Provider：H7、受控调用授权、不可降低安全阈值和用户确认链；
+- 真实 Push：H6、H8 和受控发送授权；
+- RRULE 新引擎/Import：R2 对应迁移、验收和独立启用授权；
+- IndexedDB v2 自动激活、v1 清理和 Shrink：R3 迁移/保留/恢复证据及独立不可逆授权。
+
+Production 晋级固定为：
+
+```text
+integration RC HEAD
+→ integration → main 发布 PR
+→ 全量 CI
+→ 人工 Review
+→ 单独 merge 授权
+→ merge main
+→ 核验 main HEAD
+→ 创建 release tag
+→ 仅部署该 main/tag 对应 commit
+```
+
+不得从开发分支或未进入 main 的 integration commit 直接部署生产。
 
 # 六、第一批可开发范围
 
 ## 6.1 允许立即开始
 
-本文件已经 Dada 确认并正式冻结。可以在 `codex/v15-integration-foundation` 分支开始以下工作。
+本文件已由 Dada 确认并正式冻结，发布/门禁映射由 Accepted ADR-026 修订。
+以下清单只说明技术上允许的实现类型；实际下一任务必须由 `PLANS.md` 的 Task Selection Policy、
+依赖和人工授权共同决定，不构成立即开始全部工作的授权。
 
 ### 1. 本基线文档
 
@@ -1183,9 +1225,12 @@ main@13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 # 九、冻结确认
 
 ```text
-status: FROZEN
+version: V1.1
+status: FROZEN — AMENDED_BY_ACCEPTED_ADR_026
 confirmedBy: Dada
 confirmedAt: 2026-08-09
+amendmentAcceptedAt: 2026-08-10
 ```
 
-冻结后，Codex 的正式开发任务必须先读取本文件，不再以 PoC 证据分支中的 `docs/30-v15-technology-selection-freeze-draft.md` 作为实现依据。
+冻结后，Codex 的正式开发任务必须读取本文件、Accepted ADR-026 和 `PLANS.md`，不再以 PoC 证据分支中的
+`docs/30-v15-technology-selection-freeze-draft.md` 作为实现依据。本文件与 Accepted ADR 不得存在相互冲突的有效规则。

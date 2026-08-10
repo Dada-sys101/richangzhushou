@@ -1,16 +1,23 @@
 # 日常助手（Daily Assistant）
 
-面向 10–20 名受邀早期用户的个人日常助手。V1.0 聚焦记账、日程、待办、提醒、行程、Apple 快捷指令辅助记账，以及云端同步和本地离线能力。
+面向约 10 名管理员建号的首批用户。V1 已实现记账、日程、待办、提醒、行程、
+Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基础上增量加入受控 AI、
+可选 Web Push 和后续迁移能力。
 
-V1 提醒仅应用内查看（不承诺 Web Push/系统通知/短信/邮件，Web Push 与系统通知列为 V1.1 候选）。
+站内提醒是首发保底能力。Web Push 属 R1.1，若真机送达或许可证门禁未通过，
+保持 Feature Flag 关闭，不阻塞 R1 基础上线。AI 是 R1 首发硬门禁，只能生成
+待确认 Proposal，不得直接写正式业务记录。
 
-> 当前阶段：WP1–WP8 已完成本机验收；WP9 完成身份与录入简化（账号密码登录、管理员建号、首登强制改密、邮箱/邀请码/截图 OCR 下线）；对象存储接入代码已完成并随 PR #6 合并到 main（main CI 通过），真实云资源与 staging 待授权。没有生产环境。
+> 当前阶段：V1 核心应用和 OSS Adapter 已进入 main；V1.5 计划任务 PR1（RRULE DB Expand）
+> 与执行规划已进入 integration。当前执行 V15-CTRL-001 状态归一与首发路线重基线；
+> v2.1.1 Final 已获人工批准并在本地落地，尚未 commit、push 或更新 Draft PR #10。
+> Staging 未创建，生产未部署。
 
 ## 工程结构
 
-- `apps/web`：Vue 3 + TypeScript + Vite 用户端 PWA（注册/登录/账号/记账页面）。
-- `apps/admin`：Vue 3 + TypeScript + Vite + Element Plus 管理端（概览/邀请码/用户/设置/审计）。
-- `apps/api`：NestJS 单体 API 与 Prisma/MySQL（身份、容量、管理端、Finance API）。
+- `apps/web`：Vue 3 + TypeScript + Vite 用户端 PWA。
+- `apps/admin`：Vue 3 + TypeScript + Vite + Element Plus 管理端。
+- `apps/api`：NestJS 单体 API 与 Prisma/MySQL。
 - `packages/api-contracts`：OpenAPI 3.1、共享枚举、API 边界类型和契约测试。
 - `packages/config`：共享 TypeScript、ESLint 及安全的非秘密默认配置。
 
@@ -45,53 +52,56 @@ E2E 使用独立测试库，本地运行前设置 `E2E_DATABASE_URL`（专用 My
 - Staging/生产必须 `STORAGE_PROVIDER=oss`：`AliyunOssStorageAdapter` 使用私有 Bucket 与同 Region
   内网 Endpoint；`STORAGE_BUCKET`/`STORAGE_REGION`/`STORAGE_ENDPOINT`/`STORAGE_ACCESS_KEY_ID`/
   `STORAGE_ACCESS_KEY_SECRET` 缺失时启动失败，`NODE_ENV=production` 禁止 local。
-- 上传仍由 API 服务端代理（`PUT /api/v1/attachments/:id/content`），无需 OSS 浏览器 CORS；
-  新附件键为 `users/{userId}/attachments/{fileId}`，旧 `attachments/` 键兼容读取与删除。
-- 实现代码已随 PR #6 squash 合并到 main（merge commit `db5c5d3`）；
-  main quality/browser-qa 通过。
-- 尚未创建真实 OSS Bucket/RAM，尚未完成真实连通测试；staging 未创建、生产未部署。
-- 示例文件：`deploy/staging/.env.staging.example`（仅占位符，真实 `.env.staging` 已 gitignore）。
+- 上传仍由 API 服务端代理；新附件键为 `users/{userId}/attachments/{fileId}`，
+  旧 `attachments/` 键兼容读取与删除。
+- 实现代码已随 PR #6 合入 main，main quality/browser-qa 通过。
+- 尚未创建真实 OSS Bucket/RAM，尚未完成真实连通测试；Staging 未创建、生产未部署。
+- 仓库文档曾提及 `deploy/staging/.env.staging.example`；当前路径状态应在 Staging 任务中重新核验，
+  不得仅依赖旧文档判断文件存在。
 
 ## 质量门
 
 ```powershell
+npm run check:context
 npm run quality
 git diff --check
 ```
 
-`npm run quality` 依次验证格式、Lint、类型、单元/契约测试、全部 workspace 构建、Prisma schema、OpenAPI 3.1、离线 migration diff 和依赖审计。连接真实的空 MySQL 库后，额外运行：
+`npm run quality` 依次验证格式、Lint、类型、单元/契约测试、全部 workspace 构建、Prisma schema、OpenAPI 3.1、离线 migration diff 和依赖审计。连接真实空 MySQL 库后额外运行 migration deploy。
 
-```powershell
-npm run prisma:migrate:deploy --workspace @daily-assistant/api
-```
+GitHub Actions 使用临时 MySQL 8.4 service，不接触生产资源。
 
-GitHub Actions 使用临时 MySQL 8.4 service 执行同一质量门与空库 migration deploy，不接触生产资源。
+## V1.5 项目状态恢复机制
 
-## 项目状态恢复机制
-
-- `AGENTS.md` 强制每次任务开始前按 Project State Recovery / Required Workflow Before Every Task 恢复项目状态（context → session → progress → roadmap → changelog → Git 状态），任务结束前更新状态文件。
-- `.project/context.md`：长期项目状态；`.project/session.md`：当前或暂停任务；`.project/decisions.md`：技术决策（ADR）。
+- `AGENTS.md`：强制恢复、执行、验证和授权纪律。
+- `PLANS.md`：V1.5 唯一执行总路线。
+- `.project/v15-execution-state.md`：唯一仓库内执行状态快照，不是 GitHub/CI 实时镜像。
+- `.project/context.md`：长期状态；`.project/session.md`：当前/暂停任务；
+  `.project/decisions.md`：ADR 索引。
+- 当前任务契约：`tasks/V15-CTRL-001.md`。
 - 校验：`npm run check:context`（已并入 `npm run quality`）。
-- 可选 pre-commit Hook（不自动安装）：`git config core.hooksPath .githooks`；仓库提供 `.githooks/pre-commit` 调用 `node scripts/pre-commit-context-check.mjs`。Windows 下也可直接运行该命令。
 
-## 已确认边界
+## 当前首发边界
 
-- 早期用户规模为 10–20 人，可配置全局有效用户上限。
-- 采用邀请码注册；达到人数上限时邀请码也不能突破限制。
+- 账号仅由管理员创建；邮箱注册、邀请码注册和截图 OCR 已下线。
 - 正常账号占用名额，关闭账号释放名额，恢复账号重新检查容量。
-- 同时提供 iPhone 可安装网页（PWA）和电脑网页。
+- iPhone Safari/主屏幕 PWA 是主要验收端；Android 为响应式 Web/PWA。
 - 云端同步，同时保留本地缓存和离线写入能力。
-- V1.0 不包含家庭共享。
-- AI 低风险写操作经确认后执行；高风险操作二次确认并可审计。
-- 记账入口优先级：快捷指令/文本草稿 > 手动记账；语音文字与文件导入为后续版本。
+- R1 不包含家庭共享。
+- AI 正式写入必须经用户确认和审计；真实 Provider 未通过 H7 时不得上线 R1。
+- Import、新 RRULE 切换、完整 IndexedDB 加密迁移和 Shrink 在 R2/R3，后移不取消。
 
 ## 文档入口
 
+- [执行总规划](PLANS.md)
+- [V1.5 执行状态快照](.project/v15-execution-state.md)
+- [当前任务契约](tasks/V15-CTRL-001.md)
 - [文档索引](docs/README.md)
 - [总体计划](MASTER_PLAN.md)
 - [当前状态](PROJECT_STATUS.md)
-- [开发交接](docs/12-development-handoff.md)
+- [冻结基线 V1.1](docs/40-v15-final-development-baseline.md)
+- [Accepted ADR-026](docs/adr/ADR-026-v15-release-scope-r1.md)
 
 ## 仓库边界
 
-本项目是 `D:\daily-assistant` 中的独立 Git 仓库。不得把代码并入或修改 `D:\codex-worker` 的开封旅游助手仓库。
+本项目是独立 Git 仓库，不得并入或修改开封旅游助手仓库。

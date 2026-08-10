@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-// Project context validation script (no external dependencies).
-// Run: node scripts/check-project-context.mjs
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,8 +7,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const REQUIRED_FILES = [
   "AGENTS.md",
+  "PLANS.md",
   ".project/context.md",
   ".project/session.md",
+  ".project/v15-execution-state.md",
   "docs/progress.md",
   "docs/roadmap.md",
   "docs/changelog.md",
@@ -30,6 +30,24 @@ const SESSION_SECTIONS = [
   "Current Progress",
   "Resume Instructions",
   "Last Updated",
+];
+
+const EXECUTION_STATE_SECTIONS = [
+  "Active Task",
+  "Task Ledger",
+  "Human Gates",
+  "Evidence",
+  "Last Verified",
+  "Recovery Rules",
+];
+
+const EXECUTION_STATE_FIELDS = [
+  "integrationHead",
+  "currentTask",
+  "executionStatus",
+  "deliveryStatus",
+  "nextCanonicalTask",
+  "nextCanonicalTaskAfterCompletion",
 ];
 
 const SENSITIVE_PATTERNS = [
@@ -77,9 +95,7 @@ for (const file of REQUIRED_FILES) {
     continue;
   }
   const text = await readText(file);
-  if (text.trim().length === 0) {
-    errors.push(`${file}: 文件为空`);
-  }
+  if (text.trim().length === 0) errors.push(`${file}: 文件为空`);
 }
 
 if (await fileExists(".project/context.md")) {
@@ -102,10 +118,27 @@ if (await fileExists(".project/session.md")) {
   checkSensitive(text, ".project/session.md");
 }
 
-if (errors.length > 0) {
-  for (const error of errors) {
-    console.error(`[FAIL] ${error}`);
+if (await fileExists(".project/v15-execution-state.md")) {
+  const text = await readText(".project/v15-execution-state.md");
+  for (const section of EXECUTION_STATE_SECTIONS) {
+    if (!hasSection(text, section)) {
+      errors.push(`.project/v15-execution-state.md 缺少必填章节: ${section}`);
+    }
   }
+  for (const field of EXECUTION_STATE_FIELDS) {
+    if (!new RegExp(`^${escapeRegExp(field)}:\\s*\\S+`, "m").test(text)) {
+      errors.push(`.project/v15-execution-state.md 缺少或未填写字段: ${field}`);
+    }
+  }
+  checkSensitive(text, ".project/v15-execution-state.md");
+}
+
+if (await fileExists("PLANS.md")) {
+  checkSensitive(await readText("PLANS.md"), "PLANS.md");
+}
+
+if (errors.length) {
+  for (const error of errors) console.error(`[FAIL] ${error}`);
   console.error("Project context validation failed.");
   process.exit(1);
 }

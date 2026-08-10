@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-10 — V15-CTRL-001 v2.1.1 Final 本地落地（未提交）
+
+- 人工批准 V1.5 v2.1.1 Final、ADR-026 发布映射、REL-01/02 调整、PR18/20 范围、
+  AI provisional/安全阈值、Task Selection Policy 和 main/tag 发布门禁。
+- 本地将 PLANS 更新为自包含 v2.1.1，ADR-026 标为 Accepted，docs/40 升级 V1.1，
+  execution-state 改为双维度状态与非实时快照语义，并同步必要派生文档。
+- 本条记录不表示已 commit、push、更新 PR #10、merge、创建资源、部署、迁移或调用真实 AI。
+
 ## 2026-08-07 — PR #6 合并到 main
 - PR #6（feat: add Aliyun OSS storage adapter）已 squash 合并到 main（merge commit `db5c5d3`），
   远程任务分支 `codex/aliyun-oss-storage-adapter` 已删除。

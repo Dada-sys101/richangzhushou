@@ -1,20 +1,40 @@
 # Documentation Index
 
-版本：0.3
-状态：已核对
-更新：2026-08-06
+版本：0.5
+状态：已同步 v2.1.1 Final / docs/40 V1.1 / Accepted ADR-026
+更新：2026-08-10
 
-## 接手导航（实时/概要）
+## V1.5 接手与状态恢复导航
 
-1. `.project/context.md`：实时项目状态与下一步建议。
-2. `project-overview.md`：项目概述（目标、场景、功能、技术栈、运行方式）。
-3. `architecture.md`：当前实际架构与规划架构对照。
-4. `progress.md`：完成度与已知问题（含证据）。
-5. `roadmap.md`：P0/P1/P2 路线图。
-6. `decisions.md`：已确认与未决决策。
-7. `changelog.md`：变更历史。
+1. `../AGENTS.md`：强制约束、恢复顺序和授权边界。
+2. `../PLANS.md`：V1.5 唯一执行总路线。
+3. `../.project/v15-execution-state.md`：唯一仓库内执行状态快照，不是 GitHub/CI 实时镜像。
+4. `../tasks/V15-CTRL-001.md`：当前任务执行契约。
+5. `40-v15-final-development-baseline.md`：V1.1 冻结技术与开发基线。
+6. `adr/ADR-026-v15-release-scope-r1.md`：发布范围与门禁增量修订（Accepted）。
+7. `../.project/context.md`：长期项目状态。
+8. `../.project/session.md`：当前或暂停任务。
+9. `project-overview.md`：项目概述。
+10. `architecture.md`：当前实际架构与规划架构对照。
+11. `progress.md`：完成度与已知问题。
+12. `roadmap.md`：当前发布路线。
+13. `decisions.md`：已确认与未决决策。
+14. `changelog.md`：变更历史。
 
-以下编号文档为详细规划来源（事实来源）。
+优先级：
+
+```text
+GitHub / Git / CI / 实际部署环境
+> docs/40 核心技术基线 + Accepted ADR-026 发布/门禁修订
+> PLANS.md canonical 任务定义
+> execution-state 仓库内快照 / 当前任务契约
+> 完整需求与系统设计
+> 旧 V1 状态文档
+> 历史草案与 PoC
+```
+
+以下编号文档继续作为详细规划和历史事实来源。旧文档若仍提及邮箱、邀请码、
+截图 OCR 或 Playwright 未固化，必须结合 WP9 实现和当前仓库状态判断。
 
 ## 阅读顺序
 
@@ -48,5 +68,7 @@
 28. `27-wp8-staging-release-checklist.md`
 29. `28-wp9-identity-entry-simplification.md`
 30. `29-home-ui-optimization.md`
+31. `40-v15-final-development-baseline.md`
+32. `adr/ADR-026-v15-release-scope-r1.md`
 
 所有文档以稳定编号引用规则、功能、页面、数据、API 和验收项。未确认信息必须标记为 `[待确认]` 或 `[关键假设]`。

@@ -1,670 +1,376 @@
-# 日常助手 V1.5 · GPT 逐步执行总规划
+# Daily Assistant V1.5 唯一总执行规划
 
-版本：v1.1  
-日期：2026-08-09  
-项目：日常助手 / Daily Assistant  
-仓库：`Dada-sys101/richangzhushou`  
-计划状态：ACTIVE  
-当前执行任务：无  
-最近完成任务：`V15-CTRL-001a`（`DONE_COMMITTED`）  
-下一任务：`V15-CTRL-001`（`READY`，尚未开始）  
+版本：v2.1.1 Final
+批准日期：2026-08-10
+状态：`APPROVED / ACTIVE`
+仓库：`Dada-sys101/richangzhushou`
+集成分支：`codex/v15-integration-foundation`
+当前任务：`V15-CTRL-001`
+下一 canonical 工程任务：`PR6a`（仅在 V15-CTRL-001 达到 `DONE_INTEGRATION` 后）
 
-> 当前执行项目唯一指向：`Dada-sys101/richangzhushou`，
-> `codex/v15-integration-foundation`，日常助手 V1.5 正式集成阶段。
->
-> 历史名称“日常助手 V2”与本项目的关系记为 `NAME-001`，
-> 状态：待用户确认。在用户确认前，`NAME-001` 不得作为 GPT/Codex
-> 的执行依据，不影响 V1.5 其余任务的正常推进。
+## 1. 版本目标与边界
 
-## 1. 本计划的用途
+本规划服务于 **Daily Assistant V1.5**，不是 V2。目标是在稳定 V1 基础上增量完成：
 
-本文件是 GPT/Codex 接管日常助手 V1.5 后的唯一执行总计划。它解决以下问题：
+- AI Proposal 能力；
+- 项目治理与质量体系收口；
+- Staging 上线准备；
+- 3→5→约 10 人的小规模试用；
+- 经 integration、main 和 release tag 晋级后正式发布。
 
-- 每次任务开始时知道项目真实状态；
-- 自动选择下一项可以执行的任务；
-- 一次只处理一个明确范围；
-- 每一步都有依赖、输出、测试和完成标准；
-- 遇到人工门禁时不会擅自跨过；
-- 任务结束后同步代码、文档、计划和证据；
-- 新会话或更换模型后可以恢复，不依赖聊天历史。
+R1 不包含真实 Push、新 RRULE 切换、完整 IndexedDB 加密迁移、Import 正式开放或 Shrink。
+这些能力分别进入 R1.1、R2、R3；后移不等于取消。所有新能力默认关闭，未通过对应门禁不得启用。
 
-本计划不是“一次性把全部项目自动做完”的授权。提交、推送、创建 PR、合并、云资源创建、真实服务调用、Staging 和生产部署仍按各自授权边界执行。
+## 2. 唯一状态体系与事实优先级
 
-## 2. GPT 每次启动必须读取的文件
+### 2.1 三个事实层级
 
-按以下顺序恢复项目状态，任一文件不存在时先记录缺失，不得自行猜测内容：
+1. **实时事实源**：GitHub、Git、CI 和实际部署环境；
+2. **唯一任务定义**：`PLANS.md`；
+3. **唯一仓库内执行状态快照**：`.project/v15-execution-state.md`。
 
-1. `AGENTS.md`
-2. 本文件：`日常助手V1.5_GPT逐步执行总规划_v1.1.md`，后续入库时建议命名为 `PLANS.md`
-3. `docs/40-v15-final-development-baseline.md`
-4. `.project/context.md`
-5. `.project/session.md`
-6. `.project/v15-execution-state.md`（由 `V15-CTRL-001` 创建）
-7. `PROJECT_STATUS.md`
-8. `MASTER_PLAN.md`
-9. `docs/progress.md`
-10. `docs/roadmap.md`
-11. `docs/decisions.md`
-12. 最近相关提交、当前分支、工作树、现有 PR 和 CI
+`execution-state` 不是 GitHub CI 或部署环境的实时镜像。若仓库快照与实时事实不同，先以
+GitHub、实际代码、CI 和环境为准，再在下一个合法治理更新点同步快照。不得只为追逐 CI 状态
+而制造提交触发 CI、再同步 CI、再触发 CI 的无限循环。
 
-若文档与代码冲突，按以下优先级判断：
+`TODO.md`、`SESSION_END.md`、`MASTER_PLAN.md`、`docs/progress.md` 和 `docs/roadmap.md`
+均为派生说明或历史参考，不得成为平行任务源。发生冲突时必须停止执行并按上述层级归一。
 
-```text
-GitHub实际代码/PR/CI
-  > docs/40冻结基线
-  > 本计划及V1.5执行状态
-  > Library v1.5完整需求/SRS/Excel
-  > main中的旧V1状态文档
-  > v1.0～v1.4与PoC草案
+### 2.2 冻结基线与 ADR
+
+`docs/40-v15-final-development-baseline.md` V1.1 冻结核心技术架构；Accepted ADR-026 是对其
+发布范围和门禁映射的正式增量修订。两者共同生效且不得存在冲突规则：
+
+- docs/40 保留 RRULE 技术选型、AI Proposal 模型、Repository 架构、渐进式数据库迁移和
+  Feature Flag 安全边界；
+- ADR-026 决定 R1/R1.1/R2/R3 映射、门禁 blockingScope、Staging 和发布晋级规则；
+- 若未来再次改变上述有效规则，必须先形成 ADR、获得人工批准，再同步 PLANS、docs/40 和状态快照。
+
+## 3. 状态模型
+
+每个任务必须同时记录两个维度：
+
+```yaml
+executionStatus: PENDING | READY | IN_PROGRESS | BLOCKED | VERIFYING | DONE | CANCELLED
+deliveryStatus: NOT_STARTED | DONE_LOCAL | DONE_COMMITTED | DONE_PUSHED | PR_OPEN |
+  DONE_INTEGRATION | DONE_MAIN | STAGING_PASS | RELEASE_CANDIDATE | RELEASED
 ```
 
-## 3. 当前冻结事实
+- `executionStatus` 描述任务执行进程；`deliveryStatus` 描述交付物所在晋级层级；
+- 没有直接证据不得升级；`DONE_LOCAL` 不等于提交，`PR_OPEN` 不等于合并；
+- 同一时刻只执行一个 canonical 任务，不得因多个任务 READY 自动并行；
+- 人工门禁只能由人工依据证据关闭，代码任务不得自动关闭门禁。
 
-### 3.1 Git 状态
+## 4. V1.5 总体路线
 
-- `main`：稳定 V1 基线，当前核验为 `13bfad4d32157166fa6e8f5215ce5f813a1ad67c`。
-- `codex/v15-tech-selection-poc`：7 项 PoC 证据分支，只保留证据，不整体合并。
-- `codex/v15-integration-foundation`：V1.5 正式集成分支，当前比 `main` 领先 2 个提交。
-- PR #8：V1.5 PR1 RRULE 数据库 Expand 已合入集成分支。
-- PR1 未进入 `main`，未启用 RRULE 新读写、回填、dual-read 或新调度器。
-- Staging 未创建，生产未部署。
+| Phase | 目标 | Canonical 任务 | 退出条件 |
+|---|---|---|---|
+| 0 治理收口 | 状态源、发布范围、冻结基线一致 | V15-CTRL-001 | PR #10 经批准、CI、独立 merge 授权，合入并核验 integration HEAD |
+| 1 基础能力 | DB 验证、AI 决策、契约、CI、Repository 基础 | PR6a、AI-DECISION-001、PR2、PR5、PR6、PR9；REL-01 可提前 | 空库/CI/契约/Repository 证据齐全，REL-01 仅冻结方案 |
+| 2 R1 AI 核心 | Proposal、安全路由、受控真实 Provider | PR18、PR19、PR20 | Fake 全流程通过；H7 人工关闭后 PR20 才可合入 |
+| 3 质量安全 | E2E、安全、License/SBOM、恢复验证 | 由 PR6、REL-03/04 及各任务验收覆盖 | R1 Quality Gate 全绿且证据归档 |
+| 4 Staging | 资源、部署、监控、备份、回滚 | REL-01～REL-04 | REL-02 获独立授权后创建资源；Staging 全流程通过 |
+| 5 试用 | 3→5→约 10 人，累计至少 7 个有效日历日 | REL-05 | 每阶段版本可追溯，无未解决 P0/P1、数据丢失或串号 |
+| 6 发布 | RC 晋级 main/tag 并生产发布 | REL-06 | 仅部署已核验 main/tag commit，观察与回滚就绪 |
 
-### 3.2 产品范围
+## 5. 发布分层与 canonical 总账
 
-- iPhone Safari / 主屏幕 PWA 为主要验收端。
-- Android 仅支持响应式 Web/PWA。
-- 桌面和平板支持响应式 Web。
-- 核心范围：统一记录、快速记账、计划、提醒、行程、离线同步、受控 AI 解析。
-- 管理员建号、小规模邀请试用；首轮 3～5 人。
-
-当前明确禁止：
-
-- Android Capacitor/Kotlin 原生容器、NotificationListenerService 和 APK；
-- 支付后无感自动记账；
-- OCR、截图识别、后台静默读取剪贴板；
-- 模型直连数据库或直接写正式业务记录；
-- 未经人工门禁批准的真实 Push、真实 AI、自动 IndexedDB 迁移和旧数据清理。
-
-### 3.3 已冻结技术决策
-
-- RRULE：`rrule-temporal + Temporal`，通过项目自有 `RecurrenceEngine` 隔离。
-- 时间：用户计划默认 `WALL_CLOCK + TZID`；系统严格间隔任务可用 `ABSOLUTE_INSTANT`。
-- AI：独立 `AiProposal` / `AiOperation`，只能生成待确认提案。
-- 本地加密：Web Crypto AES-256-GCM、非导出设备密钥、按用户/设备/版本隔离。
-- IndexedDB：Expand → 影子迁移 → 验证 → dual-read/write → 切换 → 保留 → Shrink。
-- v1 本地数据最短保留 7 天，清理窗口 7～14 天且可配置；门禁未通过不清理。
-- Web Push：独立 Subscription/Delivery 记录和自定义 Service Worker。
-- 导入：CSV 服务端流式；XLSX 受控单并发。
-- 新功能全部默认关闭，不得改变当前用户行为。
-
-## 4. GPT 任务状态机
-
-每个任务只能处于以下一种状态：
-
-| 状态 | 含义 |
-|---|---|
-| `PENDING` | 尚未开始，依赖可能未满足 |
-| `READY` | 依赖和当前门禁满足，可以开始 |
-| `IN_PROGRESS` | 当前唯一正在执行的任务 |
-| `BLOCKED` | 被人工选择、权限、外部资源或失败阻塞 |
-| `VERIFYING` | 实现完成，正在执行测试和复核 |
-| `DONE_LOCAL` | 本地实现和验证通过，尚未提交 |
-| `DONE_COMMITTED` | 已按授权提交，尚未推送 |
-| `DONE_PUSHED` | 已按授权推送，尚未合并 |
-| `DONE_INTEGRATION` | 已合入 V1.5 集成分支 |
-| `DONE_MAIN` | 已满足全部条件并合入 `main` |
-| `STAGING_PASS` | Staging 真实验证通过 |
-| `RELEASED` | 已获人工批准并发布 |
-| `CANCELLED` | 经用户明确决定取消 |
-
-规则：
-
-- 同一时间最多一个任务为 `IN_PROGRESS`。
-- 没有测试证据不能进入 `DONE_LOCAL`。
-- 没有明确授权不能进入 `DONE_COMMITTED`、`DONE_PUSHED` 或创建 PR。
-- 未满足 9 项人工门禁不能进入 `DONE_MAIN`、Staging 用户启用或生产发布。
-- “文档写完”不等于“代码完成”，“代码完成”不等于“部署完成”。
-
-## 5. GPT 选择下一任务的算法
-
-每次完成或恢复任务时执行：
-
-1. 检查是否存在 `IN_PROGRESS` 或 `VERIFYING` 任务。
-2. 若存在，优先恢复该任务，不另开新任务。
-3. 若任务被阻塞，将阻塞原因、需要的用户输入和可恢复条件写入状态文件。
-4. 按本计划顺序查找第一个任务依赖已满足，并且其所需人工门禁全部为“已关闭”的 `PENDING` 任务。
-5. 将该任务切换为 `READY`，展示任务契约。
-6. 用户要求执行后才切换为 `IN_PROGRESS`。
-7. 若某任务依赖人工门禁但其他独立任务可执行，允许跳到下一个独立任务；不得把被跳过任务标为完成。
-8. 所有可执行项都被阻塞时，停止并输出唯一阻塞清单，不重复尝试破坏性操作。
-
-## 6. 每个任务的标准执行循环
-
-### 6.1 开始前
-
-GPT 必须输出：
-
-- 当前任务 ID 和名称；
-- 为什么现在可以执行；
-- 依赖是否满足；
-- 本次允许修改的文件/模块；
-- 明确不包含的范围；
-- 预计验证命令；
-- 是否需要用户批准外部操作。
-
-开始前检查：
-
-```text
-读取状态文件
-→ 核验当前分支/HEAD/工作树
-→ 检查未提交用户修改
-→ 核验依赖PR与人工门禁
-→ 更新session为IN_PROGRESS
-→ 再开始修改
-```
-
-### 6.2 实施中
-
-- 一次只实现当前任务契约。
-- 发现需求冲突时停止扩展，创建 ADR 建议，不在代码中暗自改变冻结决策。
-- 不修改无关文件，不覆盖用户已有改动。
-- 数据库变更必须有 Expand/回滚/兼容说明。
-- API 变更必须同步契约、类型、错误码和测试。
-- 用户可见行为必须有 E2E 或等价验收。
-- 安全或隐私功能必须增加反向测试。
-
-### 6.3 验证
-
-最少执行：
-
-```text
-npm run check:context
-npm run format:check
-npm run lint
-npm run typecheck
-npm run test
-npm run build
-npm run validate:prisma
-npm run validate:openapi
-npm run validate:migration
-npm run audit:dependencies
-git diff --check
-```
-
-跨端或用户流程变更追加：
-
-```text
-npm run test:e2e:smoke
-```
-
-数据库任务必须在临时 MySQL 8.4 空库执行完整 migration，并运行真实数据库专项测试。不得因为普通单元测试阶段显示 skip 就宣称数据库测试通过。
-
-自 PR6a 完成后，PR2、PR3、PR4 及后续数据库任务的临时 MySQL 8.4 空库创建、migration 执行、专项测试和数据库销毁，必须通过 PR6a 提供的统一入口完成，不得由每个数据库任务重复手动搭建。本规则不追溯改变已完成 PR1 的状态和证据。
-
-### 6.3.1 VERIFYING 失败回退规则
-
-若 `VERIFYING` 阶段任意验证命令失败：
-
-1. 不得修改任务范围外的文件、配置或依赖来绕过失败。
-2. 首次失败后，允许在同一任务契约范围内修复并重试，最多重试 2 次，即总计最多执行 3 次验证。
-3. 第 3 次仍失败时：
-   - 立即停止继续修复；
-   - 将任务状态改为 `BLOCKED`；
-   - 在 `.project/v15-execution-state.md` 的 `Active Task.blockers` 中记录失败命令、错误摘要、已尝试的修复方式和恢复条件；
-   - 不得进入 `DONE_LOCAL`，不得扩大修改范围。
-4. 不得为了通过验证而放宽测试断言、删除测试用例、跳过必须执行的测试或把失败改为允许失败。
-5. 只有用户明确确认测试用例本身错误后，才能修改该测试。
-
-### 6.4 完成前
-
-GPT 必须：
-
-1. 审查完整 diff；
-2. 检查是否超出任务范围；
-3. 记录测试命令、结果、失败和跳过项；
-4. 更新 `.project/session.md`；
-5. 更新 `.project/context.md`；
-6. 更新 `.project/v15-execution-state.md`；
-7. 更新相关计划、进度、决策和 changelog；
-8. 明确区分“本地完成、已提交、已推送、已合并、已部署”；
-9. 停在授权边界前，等待用户决定提交、推送或 PR。
-
-## 7. 总体阶段与里程碑
-
-Excel 管理排期保留为 2026-08-10 至 2026-11-27、74 个计划工作日。实际推进以依赖、门禁和证据为准。
-
-| 阶段 | 目标 | 默认退出条件 |
+| 层级 | Canonical 任务 | 是否阻塞 R1 |
 |---|---|---|
-| A | 项目状态归一 | GPT 可从单一状态恢复并选择下一任务 |
-| B | Foundation Expand 和契约 | PR1、PR6a、PR2、PR3、PR4、PR6、PR5 完成，全部新功能默认关闭 |
-| C1 | RRULE 集成 | 核心、回填、parity 和调度切换代码完成 |
-| C2 | IndexedDB 与加密 | Repository、加密、迁移、dual-read/write 完成 |
-| C3 | 导入 | dry-run、正式写入、UI 和样本验收完成 |
-| C4 | Web Push | 订阅、发送、重试、真机和许可门禁完成 |
-| C5 | AI | Proposal、Router、真实 Provider 门禁完成 |
-| D | 观测和 Cutover | 指标、清理资格、回滚和 Shrink 批准完成 |
-| E | Staging 和发布 | 真机、备份恢复、3～5 人试用、受控发布完成 |
-
-## 8. 逐步执行任务清单
-
-### A. 项目治理
-
-#### V15-CTRL-001a：执行总规划文档一致性修补 v1.1
-
-状态：`DONE_COMMITTED`  
-依赖：无。  
-范围：只修改执行总规划文档。  
-禁止：修改代码、迁移、CI 配置及 `.project/*` 状态文件；不得提交、推送或创建 PR。  
-完成：v1.1 完整 diff 已输出并经用户确认。  
-证据：`PLANS.md` 已由提交 `a8845626af90a35bfe3ae961217b36d944fe8006` 写入计划分支。
-
-#### V15-CTRL-001：V1.5 状态归一
-
-状态：`READY`  
-依赖：已满足——V15-CTRL-001a 已完成、用户已确认 v1.1，且 PR1 已合入 integration。  
-目标：建立 GPT 后续可自动恢复的唯一状态源。
-
-交付：
-
-- 创建 `.project/v15-execution-state.md`；
-- 更新 `.project/context.md`、`PROJECT_STATUS.md`、`MASTER_PLAN.md`、`docs/README.md`；
-- 记录 main、PoC、integration、Staging 四条线；
-- 写入 PR1～PR23 的状态、依赖、门禁和证据位置；
-- 标明旧文档仅供历史追溯；
-- 将当前任务指针设置为 PR2。
-
-完成标准：
-
-- 新会话只读仓库文件即可准确回答当前进度和下一任务；
-- `npm run check:context` 与 `npm run quality` 通过；
-- 文档不再把 PoC、代码完成、合并和部署混为一谈。
-
-### B. Foundation
-
-本小节任务按 PR6a → PR2 → PR3 → PR4 → PR6 → PR5 顺序执行。此顺序与各任务依赖字段一致；若两者出现不一致，以依赖字段为准。
-
-本节中的 PR1～PR23、PR6a 是开发计划任务编号，不等同于 GitHub 自动分配的 Pull Request 编号。实际 GitHub PR 编号应记录在任务证据字段中。
-
-#### PR1：RRULE 数据库 Expand
-
-状态：`DONE_INTEGRATION`  
-证据：GitHub PR #8。  
-限制：不回填、不 dual-read、不切换引擎、不修改当前行为。
-
-#### PR6a：本地数据库验证脚本
-
-状态：`PENDING`  
-依赖：V15-CTRL-001。  
-目标：提供可重复执行的临时 MySQL 8.4 空库验证脚本，建议命名为 `scripts/db-validate.sh`，也可以提供语义等价的 npm script。
-
-范围：
-
-1. 创建隔离的临时 MySQL 8.4 空库；
-2. 执行完整 migration 链；
-3. 运行调用任务指定的真实数据库专项测试；
-4. 无论成功或失败都销毁临时数据库；
-5. 输出可读结果并返回正确退出码。
-
-禁止：
-
-- 修改业务 Schema 或已有 migration 的语义；
-- 连接 Staging 或生产数据库；
-- 写入真实环境凭据；
-- 在本任务中修改正式 CI；CI 接入属于 PR6；
-- 通过跳过测试或放宽断言获得成功结果。
-
-完成：
-
-- 脚本可通过单一命令重复运行；
-- 成功和失败路径均能正确销毁临时数据库；
-- 日志不泄露数据库密码或其他敏感信息；
-- PR2、PR3、PR4 可以直接调用该脚本执行各自专项验证；
-- PR6 可以直接调用该脚本，将同一验证入口接入正式 CI。
-
-#### PR2：AI 数据库 Expand
-
-状态：`PENDING`  
-依赖：V15-CTRL-001、PR6a。  
-范围：`AiRequest`、`AiProposal`、`AiOperation`、`AiProviderAttempt` 及索引、外键、审计字段。  
-禁止：真实 Provider、API Key、真实模型调用、业务表写入。  
-完成：通过 PR6a 提供的验证入口，在临时 MySQL 8.4 空库完成完整迁移，并通过关系、级联和非法状态专项测试；默认无运行时读写。
-
-#### PR3：Push 数据库 Expand
-
-状态：`PENDING`  
-依赖：V15-CTRL-001、PR6a。  
-范围：`PushSubscription`、`NotificationDelivery`、唯一键、租约、状态和失效订阅字段。  
-禁止：真实 VAPID、真实订阅、网络投递。  
-完成：通过 PR6a 提供的验证入口，在临时 MySQL 8.4 空库完成完整迁移和真实数据库约束测试；运行时开关关闭。
-
-#### PR4：Import 与迁移策略数据库 Expand
-
-状态：`PENDING`  
-依赖：V15-CTRL-001、PR6a。  
-范围：`ImportBatch`、`ImportItem`、`ClientMigrationPolicy`、SystemSetting 功能开关字段。  
-禁止：真实导入、自动迁移、v1 清理。  
-完成：通过 PR6a 提供的验证入口，在临时 MySQL 8.4 空库完成完整迁移、策略硬校验和回滚兼容测试；功能默认关闭。
-
-#### PR6：依赖治理迁入正式 CI
-
-状态：`PENDING`  
-依赖：V15-CTRL-001、PR6a。  
-范围：将 PR6a 产出的本地数据库验证入口接入正式 CI，同时完成许可证矩阵、SBOM、npm audit、异常规则和证据卫生。  
-禁止：自动批准 MPL-2.0、为清洁报告擅自换依赖版本。  
-完成：正式 CI 能调用 PR6a 的验证入口，数据库验证失败时正确阻断；依赖治理检查强制执行；`web-push` 保持人工 `REVIEW`。
-
-#### PR5：Contracts、DTO 与功能开关
-
-状态：`PENDING`  
-依赖：PR1、PR2、PR3、PR4。  
-范围：新枚举、DTO、OpenAPI、FeatureFlag、环境总闸、管理员开关、审计。  
-完成：所有新功能默认关闭；旧 API 默认行为不变；契约测试和反向测试通过。
-
-### C1. RRULE
-
-#### PR7：RRULE 核心封装
-
-状态：`PENDING`  
-依赖：PR1、PR5、PR6。  
-范围：规范化、occurrence key、例外计算、`RecurrenceEngine`。  
-强制前置：冻结 `dtstartLocal` 编码/持久化/反序列化约定和非法状态校验。  
-完成：DST、跨时区、无 DST、CANCEL、REPLACE、仅本次/以后/全系列测试通过；功能关闭。
-
-#### PR8：RRULE Backfill 与 dual-read parity
-
-状态：`PENDING`  
-依赖：PR7。  
-范围：离线 backfill、parity、差异报告、可恢复状态。  
-禁止：自动生产回填、切换主引擎。  
-完成：重复运行、失败恢复、差异审计、零破坏旧字段测试通过。
-
-#### PR13：RRULE 主读切换与调度器集成
-
-状态：`PENDING`  
-依赖：PR8；人工门禁 1～5。  
-禁止：门禁未通过时启用。  
-完成：默认关闭的新调度器、回退旧引擎、parity 阈值和切换演练通过。
-
-### C2. IndexedDB 与本地加密
-
-#### PR9：统一 Repository 与 V1PlainRepository
-
-状态：`PENDING`  
-依赖：PR5。  
-完成：业务代码不再写死 v1/v2 store；实际仍使用 v1。
-
-#### PR10：V2EncryptedRepository
-
-状态：`PENDING`  
-依赖：PR9；人工门禁 1～4影响启用。  
-完成：AES-GCM、非导出密钥、多账号隔离、AAD、密钥丢失和退出清理测试通过；v2 不激活。
-
-#### PR11：MigrationCoordinator
-
-状态：`PENDING`  
-依赖：PR4、PR10；人工门禁 1～4。  
-完成：journal、容量预检、Web Locks、中断恢复、回滚和迁移 UI 通过；自动迁移关闭。
-
-#### PR12：dual-read/write 与清理资格
-
-状态：`PENDING`  
-依赖：PR11；人工门禁 1～5。  
-完成：动态保留、parity、回滚、清理资格测试通过；v2 主读和 v1 清理仍关闭。
-
-### C3. CSV/XLSX 导入
-
-#### PR14：Import Parser 与 dry-run
-
-状态：`PENDING`  
-依赖：PR4、PR5、PR6。  
-完成：CSV 流式、XLSX 单并发、编码、映射、重复检测、文件/行数/内存门禁、dry-run 通过；入口关闭。
-
-#### PR15：FinanceImportWriter 与导入 UI
-
-状态：`PENDING`  
-依赖：PR14。  
-完成：批次幂等、部分成功、取消、重试、预览、正式确认和审计通过；真实用户入口仍受门禁控制。
-
-### C4. Web Push
-
-#### PR16：订阅 API、权限 UI 与 Service Worker
-
-状态：`PENDING`  
-依赖：PR3、PR5。  
-完成：订阅生命周期、当前设备退出、endpoint 跨账号迁移、深链安全、Fake Push 测试通过；真实发送关闭。
-
-#### PR17：真实 Web Push Provider
-
-状态：`BLOCKED`  
-依赖：PR16、PR6、人工门禁 6、人工门禁 8。  
-完成：真实真机送达、重试、404/410、去重、隐私和许可证评审证据通过。  
-门禁未关闭：不得合并、不得发送真实 Push。
-
-### C5. AI
-
-#### PR18：AI Proposal/Operation 与 Fake Provider
-
-状态：`PENDING`  
-依赖：PR2、PR5。  
-完成：Proposal 状态机、确认/拒绝、幂等、晚到结果、无业务表直写测试通过。
-
-#### PR19：AI Router 与 Stub Provider
-
-状态：`PENDING`  
-依赖：PR18、PR6。  
-完成：能力缓存、超时、故障转移、熔断、Schema、审计和全失败降级通过；真实调用关闭。
-
-#### PR20：真实 AI Provider
-
-状态：`BLOCKED`  
-依赖：PR19、人工门禁 7。  
-完成：授权 Provider 的能力、额度、费用上限、延迟、错误和结构化输出证据通过。  
-门禁未关闭：只能使用 Fake/Stub，不得配置真实密钥。
-
-### D. 观测、Cutover 与 Shrink
-
-#### PR21：Cutover 观测和管理页
-
-状态：`PENDING`  
-依赖：PR12、PR13、PR15、PR17、PR20。  
-完成：RRULE parity、IndexedDB 迁移、Import、Push、AI 指标和告警可审计。
-
-#### PR22：Shrink 准备与回滚演练
-
-状态：`PENDING`  
-依赖：PR21、人工门禁 1～9。  
-完成：清理资格、dry-run、冷启动计数、回滚演练通过；不删除结构和数据。
-
-#### PR23：最终 Shrink
-
-状态：`BLOCKED`  
-依赖：PR22、人工门禁 1～9、单独清理批准。  
-完成：逐项停止旧写入，只清理满足资格的数据；旧数据库字段删除需再次单独批准。
-
-### E. Staging 与发布
-
-#### REL-01：Staging 决策冻结
-
-状态：`BLOCKED`  
-依赖：用户确认服务器、MySQL、OSS、域名/隧道、首批测试账号。  
-完成：资源表、费用、权限、回滚和不触碰现有站点的边界确认。
-
-#### REL-02：Staging 基础设施
-
-状态：`PENDING`  
-依赖：REL-01 和逐项授权。  
-范围：Node 24、MySQL 8.4、独立库/账号、私有 OSS、RAM、HTTPS、隔离目录和服务。  
-禁止：未授权创建资源、真实密钥入库、公开 3306。
-
-#### REL-03：部署流水线与恢复演练
-
-状态：`PENDING`  
-依赖：REL-02。  
-完成：手动 `workflow_dispatch`、不可变 release、health、Smoke、自动回退、加密备份和隔离恢复通过。
-
-#### REL-04：真机和真实服务门禁
-
-状态：`PENDING`  
-依赖：REL-03 和相应功能 PR。  
-完成：人工门禁 1～8 全部归档。
-
-#### REL-05：3～5 人封闭试用
-
-状态：`PENDING`  
-依赖：REL-04。  
-完成：至少 7～14 天试用，无 P0/P1 阻断，问题和指标归档。
-
-#### REL-06：受控灰度发布
-
-状态：`BLOCKED`  
-依赖：REL-05、PR23、人工批准。  
-完成：Smoke、监控、回滚点、发布记录和用户影响确认。
-
-## 9. 九项人工门禁
-
-| 门禁 | 内容 | 当前状态 |
-|---|---|---|
-| H1 | iPhone Safari 普通网页正式验收记录 | 部分完成 |
-| H2 | iPhone 主屏幕 PWA、关闭/强制关闭、离线重开 | 部分完成 |
-| H3 | Safari 无痕浏览行为独立记录 | 已观察，未归档 |
-| H4 | Android Chrome 网页/PWA/离线/IndexedDB | 未关闭 |
-| H5 | iOS 长时间存储保留观察 | 未关闭 |
-| H6 | iPhone/Android/桌面真实 Web Push 送达 | 未关闭 |
-| H7 | 授权真实 AI Provider 的额度、延迟、格式 | 未关闭 |
-| H8 | `web-push@3.6.7` MPL-2.0 人工评审 | 未关闭 |
-| H9 | PoC 到生产集成评审 | 已关闭 |
-
-规则：H1～H9 全部关闭前，不合并 V1.5 到 `main`、不部署生产、不发送真实 Push、不调用真实/付费 AI、不自动迁移真实用户数据、不清理 v1。
-
-### 人工门禁中间状态处理规则
-
-- 人工门禁只有状态为“已关闭”时，才视为依赖满足。
-- “部分完成”“已观察，未归档”和“未关闭”均视为依赖未满足。
-- 依赖上述门禁的任务不得进入 `READY`。
-- 例如，H1～H5 中任意一项不是“已关闭”时，PR13 不得进入 `READY`。
-- “部分完成”和“已观察，未归档”只允许作为临时状态。
-- 下一次涉及该门禁的验收活动结束后，必须由用户明确归档为“已关闭”或“未关闭”，不得长期停留在中间状态。
-- GPT/Codex 不得根据测试、截图、历史描述或推测自动关闭人工门禁。
-
-## 10. `.project/v15-execution-state.md` 模板
-
-`V15-CTRL-001` 应创建以下格式：
-
-```markdown
-# V1.5 Execution State
-
-updatedAt: YYYY-MM-DDTHH:mm:ss+08:00
-mainHead: <sha>
-integrationHead: <sha>
-pocHead: <sha>
-currentTask: V15-CTRL-001
-currentStatus: IN_PROGRESS
-nextCandidate: PR2
-
-## Active Task
-- id:
-- scope:
-- branch:
-- startedAt:
-- dependencies:
-- allowedFiles:
-- forbiddenScope:
-- validation:
-- blockers:
-
-## Task Ledger
-| ID | Status | Dependencies | Gate | Branch/PR | Evidence | Next action |
-|---|---|---|---|---|---|---|
-
-## Human Gates
-| Gate | Status | Evidence | Owner | Next action |
+| R1 | V15-CTRL-001、PR6a、AI-DECISION-001、PR2、PR5、PR6、PR9、PR18、PR19、PR20、REL-01～REL-06 | 是 |
+| R1.1 | PR3、PR16、PR17 | 否；仅阻塞真实 Push |
+| R2 | PR4、PR7、PR8、PR13、PR14、PR15、PR21 | 否 |
+| R3 | PR10、PR11、PR12、PR22、PR23 | 否 |
+
+历史治理任务 `V15-CTRL-001a` 已通过 PR #9 达到 `DONE_INTEGRATION`，仅作证据，不是新任务 ID。
+
+### 5.1 当前依赖基线
+
+| ID | displayName | releaseTarget | 冻结依赖/门禁 |
+|---|---|---|---|
+| V15-CTRL-001 | 治理重基线 | R1 | PR #8/#9 已合入；十二项完成条件 |
+| PR1 | RRULE DB Expand | Foundation | 已通过 PR #8 合入 integration |
+| PR6a | 临时 MySQL 8.4 验证入口 | R1 | V15-CTRL-001 `DONE_INTEGRATION` |
+| AI-DECISION-001 | AI 接入与评测方法冻结 | R1 | V15-CTRL-001；必须在 PR2 前完成首层决策 |
+| PR2 | AI DB Expand | R1 | V15-CTRL-001、PR6a、AI-DECISION-001 首层决策 |
+| PR3 | Push DB Expand | R1.1 | V15-CTRL-001、PR6a |
+| PR4 | Import/迁移策略 DB Expand | R2 | V15-CTRL-001、PR6a |
+| PR5 | 共享 Flag 与 AI Contracts | R1 | PR1、PR2、PR6a |
+| PR6 | DB 验证接入 CI 与依赖治理 | R1 | V15-CTRL-001、PR6a |
+| PR7 | RRULE 核心封装 | R2 | PR1、PR5、PR6 |
+| PR8 | RRULE Backfill/parity | R2 | PR7 |
+| PR9 | Repository 抽象与 V1PlainRepository | R1 | PR5 |
+| PR10 | V2EncryptedRepository | R3 | PR9 |
+| PR11 | MigrationCoordinator | R3 | PR4、PR10 |
+| PR12 | dual-read/write 与清理资格 | R3 | PR11；H1～H5 影响启用/清理 |
+| PR13 | RRULE 主读与调度切换 | R2 | PR8；对应迁移门禁 |
+| PR14 | Import Parser/dry-run | R2 | PR4、PR5、PR6 |
+| PR15 | Import Writer/UI | R2 | PR14；移动端验收门禁 |
+| PR16 | Push 契约、订阅 API、权限 UI、SW | R1.1 | PR3、PR5 |
+| PR17 | 真实 Push Provider | R1.1 | PR16、PR6；H6、H8 merge/enable gate |
+| PR18 | AI Proposal / Operation、确认 UI 与 Fake Provider | R1 | PR2、PR5 |
+| PR19 | AI Router、Stub 与安全降级 | R1 | PR18、PR6 |
+| PR20 | 真实 AI Provider Adapter | R1 | `developmentDependency: PR19`；`humanValidationGate/mergeGate: H7` |
+| PR21 | Cutover 观测与管理页 | R2 | PR12、PR13、PR15、PR17、PR20 |
+| PR22 | Shrink 准备与回滚演练 | R3 | PR21；对应迁移/清理门禁 |
+| PR23 | 最终 Shrink | R3 | PR22；全部清理资格和独立不可逆授权 |
+| REL-01 | Staging 架构/资源决策冻结 | R1 | V15-CTRL-001；可在基础阶段提前，仅设计不建资源 |
+| REL-02 | 创建 Staging 资源 | R1 | REL-01、R1 Quality Gate、独立资源授权 |
+| REL-03 | 部署、备份、恢复与回滚演练 | R1 | REL-02 |
+| REL-04 | Staging 真机与真实服务验收 | R1 | REL-03、PR20、H1/H2/H7；真实调用另行授权 |
+| REL-05 | 分阶段封闭试用 | R1 | REL-04 |
+| REL-06 | RC、main/tag 与生产发布 | R1 | REL-05、H1/H2/H7、发布门禁和独立生产授权；不依赖 PR23 |
+
+上述依赖已随 v2.1.1 获人工批准。相对 PLANS v1.2 的 REL-01 提前和 REL-02 Quality Gate
+调整不再是待定提案；未来依赖变更仍须标记 `DEPENDENCY_CHANGE_PROPOSED`，列出原依赖、
+新依赖、理由、关键路径影响和是否需要 ADR，在批准前不得当作冻结依赖。
+
+## 6. 人工门禁与决策
+
+| Gate | 内容 | 当前状态 | blockingScope |
+|---|---|---|---|
+| H1 | iPhone Safari 正式记录 | PARTIAL | R1 |
+| H2 | iPhone PWA/离线重开正式记录 | PARTIAL | R1 |
+| H3 | Safari 无痕模式归档 | OBSERVED_NOT_ARCHIVED | 非阻塞限制 |
+| H4 | Android Chrome Smoke | OPEN | Android 正式支持声明 |
+| H5 | iOS 长期存储观察 | OPEN | 非阻塞观察/后续迁移策略 |
+| H6 | 真实 Push 送达 | OPEN | Push merge/enable |
+| H7 | 真实 AI Provider 受控验证 | OPEN | PR20 merge、R1 |
+| H8 | MPL-2.0 人工评审 | OPEN | Push merge/enable |
+| H9 | PoC 集成评审 | CLOSED | 已满足 |
+
+H1/H2/H7 阻塞 R1；H6/H8 只阻塞 Push；H4 只阻塞 Android 支持声明；H3/H5 必须记录，
+但不自动阻塞 R1。任何门禁都不得由代码任务自行关闭。
+
+### 6.1 AI-DECISION-001 两层冻结
+
+PR2 前必须人工冻结：Provider 候选、模型候选、网络方式、凭据来源、数据字段白名单、日志规则、
+数据保留、单用户预算、总预算、超时、重试、熔断、评测方法、评测样本集和 provisional thresholds。
+
+provisional targets：Schema success ≥99%；无需完全重录 ≥85%。
+
+从项目开始即不可降低的安全阈值：
+
+- 失败必须保留原输入；
+- 正式业务写入 100% 经用户确认；
+- Provider 输出不得直接写业务表；
+- 敏感字段不得越过白名单。
+
+PR20 完成受控真实评测后，依据真实 Provider 结果提出最终效果阈值，经人工批准写入 AI ADR，
+再关闭效果门禁。最终效果阈值的校准不得降低上述安全阈值。
+
+## 7. 关键任务卡
+
+### V15-CTRL-001 — 治理重基线
+
+- **目标**：形成唯一、可恢复、无冲突的 V1.5 执行控制体系。
+- **背景/输入**：PR #10、ADR-026、docs/40、PLANS、execution-state、GitHub/CI 实时事实。
+- **依赖**：PR #8、PR #9 已合入 integration。
+- **允许修改**：治理/规划/状态/索引文档和必要的 context 校验脚本。
+- **禁止修改**：业务代码、数据库、依赖、正式 CI、云资源、环境和部署。
+- **步骤**：落地批准文本 → 本地校验 → 人工审查最终 diff → 独立 commit/push/PR 更新授权 →
+  CI → 独立 merge 授权 → integration HEAD 核验。
+- **验证**：`npm run check:context`、`git diff --check`、PR #10 全量 CI、合并后 HEAD/内容核验。
+- **完成标准**：见第 11 节十二项条件；证据、文档、状态快照必须同步。
+- **风险**：提前标记完成会使 PR6a 在错误基线上启动。
+
+### PR6a — 临时 MySQL 8.4 验证入口
+
+- **目标**：提供可重复的空库 migration 与数据库专项测试入口。
+- **输入/依赖**：V15-CTRL-001 `DONE_INTEGRATION`；现有 migrations 与测试。
+- **允许修改**：测试/脚本/治理配置及对应文档；**禁止**业务功能、生产数据库和云资源。
+- **步骤**：设计临时库生命周期 → 空库全迁移 → 专项测试 → 销毁 → 脱敏日志/退出码。
+- **验证**：本地临时 MySQL 8.4、失败路径、清理路径和 CI 可复现性。
+- **完成标准**：代码、测试、文档、状态证据齐全；未获授权不 commit/push/开 PR。
+- **风险**：误连非临时数据库；必须强校验连接目标和销毁边界。
+
+### AI-DECISION-001 — AI 接入与评测方法冻结
+
+- **目标**：在 PR2 前冻结第 6.1 节首层决策，并为 PR20 后最终阈值保留校准点。
+- **输入/依赖**：ADR-026、预算/隐私边界、评测样本；不需要真实调用即可完成首层决策。
+- **允许修改**：ADR、评测方案、脱敏样本说明和规划状态；**禁止**写密钥或发起真实调用。
+- **步骤**：形成候选与成本表 → 字段白名单/日志/保留 → 预算与韧性参数 → 样本和 provisional threshold → 人工批准。
+- **验证/完成标准**：决策字段完整、不可降低安全阈值明确、人工批准证据和状态更新齐全。
+- **风险**：将 provisional 目标误当最终效果承诺。
+
+### PR2 / PR5 / PR6 / PR9 — R1 Foundation 工程卡
+
+| ID | 目标 | 允许修改 | 禁止项 | 验证与完成标准 |
 |---|---|---|---|---|
+| PR2 | Expand AI 四表，不改变现有行为 | Prisma/schema、migration、DB 测试、数据字典 | 真实 Provider/密钥/正式业务写入 | 空库迁移、回滚策略、隔离/索引测试；代码/测试/文档/状态证据 |
+| PR5 | 共享 Flag、AI DTO/OpenAPI/错误码/审计契约 | contracts/config/对应测试文档 | Push/Import 具体契约、默认启用 | 契约兼容、默认关闭、OpenAPI/类型/审计测试和证据 |
+| PR6 | DB 验证正式接入 CI、依赖治理、安全/License/SBOM 基线 | CI/工具/测试/治理文档 | 自动批准许可证、业务代码扩张 | lint/type/test/build/空库迁移/扫描；失败可诊断且不泄密 |
+| PR9 | Repository 接口与 V1PlainRepository | web repository 层/测试/文档 | 激活 v2、迁移/清理用户数据 | 现有读写行为等价、离线/隔离/Back/恢复测试和证据 |
 
-## Last Verified
-- commands:
-- tests:
-- CI:
-- known skips:
-- workingTree:
+每项执行步骤均为：核验依赖 → 明确 diff 范围 → 实现单一职责 → 聚焦测试 → 全量质量检查 →
+更新契约/文档/状态 → 等待各 Git 动作独立授权。不得把其中一项完成自动扩展为下一项授权。
+
+### PR18 — AI Proposal / Operation、确认 UI 与 Fake Provider
+
+- **目标**：实现完整且仅由用户最终确认的 Proposal 流程。
+- **依赖/输入**：PR2、PR5 `DONE_INTEGRATION`；现有正式领域 Service；AI 合同。
+- **允许修改**：AI Proposal/Operation 服务、Fake Provider、确认 UI、测试和相关文档。
+- **禁止修改/行为**：AI 自动确认；AI 直接写业务表；Provider 输出直接调用正式写接口；真实 AI 调用。
+- **执行流程**：用户输入 → Fake Provider → Proposal → 查看 Proposal → 不确定字段提示 →
+  编辑/补充字段 → 接受或拒绝 → 用户最终确认 → 调用现有正式领域 Service → 正式业务记录。
+- **必须覆盖**：Proposal 展示、用户编辑、接受、拒绝、重复确认、网络失败、浏览器返回、输入恢复、
+  用户隔离和幂等。
+- **验证/完成标准**：正反向 UI/E2E、隔离/幂等/失败恢复测试通过；代码、测试、文档、状态证据齐全。
+- **风险**：把“接受 Proposal”和“最终业务写入确认”错误合并。
+
+### PR19 — AI Router、Stub 与安全降级
+
+- **目标**：在无真实调用条件下实现 Provider 路由、Schema 校验、超时、重试、熔断和降级。
+- **依赖/输入**：PR18、PR6；AI 合同和 Fake/Stub。
+- **允许修改**：AI Router/Provider adapter 接口、缓存、Stub、可观测性和测试。
+- **禁止项**：真实凭据、真实调用、默认启用、绕过 Proposal/确认链。
+- **步骤/验证**：成功、超时、格式错误、熔断、降级、输入恢复、预算拒绝场景；敏感日志检查。
+- **完成标准**：代码、测试、文档、状态证据齐全并合入 integration。
+
+### PR20 — 真实 AI Provider Adapter
+
+```yaml
+developmentDependency:
+  - PR19
+humanValidationGate:
+  - H7
+mergeGate:
+  - H7
 ```
 
-## 11. 直接交给 GPT/Codex 的启动指令
+- **目标**：实现一个默认关闭、可受控验证的真实 Provider Adapter。
+- **允许修改**：Provider Adapter、凭据引用配置、受控测试与脱敏观测；**禁止**提交密钥、默认启用、
+  向真实用户开放或 Provider 直接写正式业务。
+- **状态语义**：PR19 `DONE_INTEGRATION` 后可开发 Adapter 并以 Fake/Stub 测试；真实调用必须获得独立授权。
+  受控真实评测满足 H7 关闭标准后，由人工确认关闭 H7，PR20 才允许 merge integration。
+- **验证/完成标准**：真实结果用于提出最终效果阈值；人工批准 AI ADR；安全阈值不变；代码/测试/文档/状态证据齐全。
+- **风险**：把代码完成误当 H7 关闭，形成循环依赖或未授权真实调用。
+
+## 8. 其余 canonical 任务卡
+
+以下卡片与第 5.1 节依赖共同构成完整任务定义。每项均只允许修改其模块实现、测试、契约和文档；
+禁止无关重构、默认启用、真实数据/资源操作。通用步骤为“核验依赖→实现单一范围→聚焦测试→质量检查→
+更新文档/状态→等待独立 Git/外部动作授权”；通用完成标准为代码证据、测试证据、文档更新和状态更新齐全。
+
+| ID | 目标/输入 | 专项验证与风险 |
+|---|---|---|
+| PR1 | RRULE Rule/Exception Expand（已合入） | 证据 PR #8；不得回填、切换或改变现有行为 |
+| PR3 | PushSubscription/Delivery Expand | 空库迁移、用户隔离；不得引入真实发送或启用 |
+| PR4 | ImportBatch/Item、ClientMigrationPolicy 与基础契约 | R2 空库/兼容测试；R1 不预建其专属字段 |
+| PR7 | RecurrenceEngine、规范化、occurrence key、exception | DST/TZ/边界性质测试；不得切主引擎 |
+| PR8 | RRULE Backfill 与 dual-read parity | 可恢复、幂等、差异报告；不得写生产数据 |
+| PR10 | V2EncryptedRepository 与本地密钥 | 加密/隔离/失败恢复；不得激活 v2 |
+| PR11 | MigrationCoordinator、journal、迁移 UI | 崩溃恢复/幂等/Back；不得自动迁移真实用户 |
+| PR12 | dual-read/write、保留与清理资格 | parity/回滚/保留期；不得清理 v1 |
+| PR13 | RRULE 主读与调度切换 | shadow/parity/回滚；R2 门禁前保持关闭 |
+| PR14 | CSV 流式、XLSX 单并发、dry-run | 文件限制、恶意输入、资源上限；不得正式写入 |
+| PR15 | Import Writer 与确认 UI | dry-run→确认→幂等写入、隔离/回滚；不得默认开放 |
+| PR16 | Push 契约、订阅 API、权限 UI、自定义 SW | 权限拒绝/重复订阅/隔离；不得真实发送 |
+| PR17 | 真实 Push Provider、重试和失效订阅 | H6/H8 人工关闭前不得 merge/enable；真实发送另行授权 |
+| PR21 | parity、迁移、Import、Push、AI 观测页 | 指标正确、脱敏、权限；不扩大模块启用范围 |
+| PR22 | Shrink 资格检查和回滚演练 | 备份/恢复/阻断条件；不得删除结构/数据 |
+| PR23 | 最终 Shrink | 独立不可逆授权、备份恢复证据；逐项执行，不得批量假定合格 |
+
+## 9. REL 任务卡
+
+| ID | 目标与范围 | 依赖/授权 | 验证与完成标准 |
+|---|---|---|---|
+| REL-01 | 冻结环境设计、资源选择、成本/权限边界、MySQL/OSS/域名、RPO/RTO、部署拓扑 | V15-CTRL-001；仅方案设计，不创建资源 | ADR/拓扑/成本/权限/RPO-RTO 人工批准并更新状态 |
+| REL-02 | 按已批方案创建实际 Staging 资源 | REL-01 + R1 Quality Gate + 独立云资源授权 | 资源清单、最小权限、费用告警、销毁/回收说明；不得触及生产 |
+| REL-03 | 部署 Staging，完成监控、日志、备份、恢复和回滚演练 | REL-02；部署、迁移分别独立授权 | 可重复部署、备份恢复、回滚目标、告警证据 |
+| REL-04 | 真机与受控真实服务验收 | REL-03、PR20、H1/H2/H7；真实调用独立授权 | 核心 E2E、隔离、失败恢复、安全和真机记录 |
+| REL-05 | 3→5→约 10 人封闭试用，累计至少 7 个有效日历日 | REL-04；用户/数据范围人工批准 | 每阶段记录明确 commit/版本、人数、问题和退出结论 |
+| REL-06 | 形成 RC，晋级 main/tag，生产发布并观察 | REL-05 + 发布门禁 + 独立生产授权 | main/tag/生产 commit 一致，监控/备份/回滚就绪 |
+
+REL-05 稳定窗口规则：
+
+- 每阶段必须记录明确 commit/版本；
+- 用户可感知核心功能或数据行为变化时，重新计算受影响阶段的观察窗口；
+- P0/P1 修复必须重新进入对应试用阶段；
+- 最终 RC 必须能追溯到有效试用版本；
+- 不得把完全不同 HEAD 的运行时间机械累计为 7 天。
+
+## 10. 发布门禁
 
 ```text
-请接管“日常助手 / Daily Assistant V1.5”项目，并严格按照仓库中的执行总规划逐步推进。
-
-开始前必须：
-1. 读取 AGENTS.md。
-2. 读取 PLANS.md（若尚未入库，则读取《日常助手V1.5_GPT逐步执行总规划_v1.1.md》）。
-3. 读取 docs/40-v15-final-development-baseline.md。
-4. 读取 .project/context.md、.project/session.md、.project/v15-execution-state.md、PROJECT_STATUS.md 和 MASTER_PLAN.md。
-5. 核验当前分支、HEAD、工作树、最近提交、相关 PR 与 CI；不得只相信旧文档。
-6. 如果存在 IN_PROGRESS 或 VERIFYING 任务，先恢复它；否则按计划的依赖和门禁算法选择第一个 READY 任务。
-7. 在修改前输出本次任务契约：目标、依赖、范围、不包含项、修改文件、验证方法和授权边界。
-8. 一次只执行一个任务，不得跨 PR 扩展范围。
-9. 完成实现后运行相关测试、npm run quality、git diff --check，并审查完整 diff。
-10. 更新所有项目状态文件，明确区分本地完成、提交、推送、PR、合并、Staging 和发布。
-
-强制限制：
-- 未获得明确授权，不提交、不推送、不创建 PR、不合并、不部署、不创建云资源。
-- 九项人工门禁全部关闭前，不合并 V1.5 到 main，不部署生产，不发送真实 Push，不调用真实/付费 AI，不自动迁移或清理真实用户数据。
-- PoC 分支只作为证据，不得整体合并；需要的逻辑必须按正式架构重新实现并保留等价测试。
-- 新功能必须默认关闭，不得改变当前用户行为。
-- 文档中的“已完成”不能覆盖代码、测试、CI 或部署的真实状态。
-
-当前已知状态：
-- main = 13bfad4d32157166fa6e8f5215ce5f813a1ad67c。
-- codex/v15-integration-foundation 比 main 领先 2 个提交。
-- PR #8（V1.5 PR1 RRULE 数据库 Expand）已合入 integration，未进入 main、未启用。
-- V15-CTRL-001a 已完成，v1.1 完整 diff 已获用户确认，`PLANS.md` 已提交。
-- 当前下一任务为 V15-CTRL-001：V1.5 状态归一，状态为 READY，但尚未开始。
-
-先只恢复状态并输出 V15-CTRL-001 的详细执行计划；确认范围后再实施。
+开发完成
+→ Integration 通过
+→ Staging 部署
+→ 分阶段试用
+→ Release Candidate
+→ integration → main 发布 PR
+→ Production
 ```
 
-## 12. 用户日常使用方式
+| 晋级 | 必须证据 |
+|---|---|
+| 开发完成→Integration | 任务依赖满足；聚焦测试与全量质量检查；契约/文档/状态更新；人工 Review；独立 merge 授权；合并 HEAD 核验 |
+| Integration→Staging | R1 Quality Gate；安全/License/SBOM；迁移/恢复/回滚方案；REL-01 批准；REL-02 独立资源授权 |
+| Staging→试用 | 部署 commit 可追溯；核心 E2E/真机/隔离/备份恢复/监控通过；无开放 P0/P1 |
+| 试用→RC | 3→5→约 10 人有效窗口；无 P0/P1、丢失、串号；RC 可追溯至有效试用版本 |
+| RC→main/tag | 固定 integration RC HEAD；创建 integration→main 发布 PR；全量 CI；人工 Review；单独 merge 授权；merge main；核验 main HEAD；创建 release tag |
+| tag→Production | 独立生产授权；只能部署该 main/tag commit；迁移/备份/回滚/监控/值守清单通过 |
 
-第一次把本计划交给 GPT 时，发送第 11 节启动指令。
+不得直接从开发分支或未进入 main 的 integration commit 部署生产。
 
-以后只需要使用以下短指令：
+## 11. V15-CTRL-001 十二项完成条件
 
-```text
-读取项目执行总规划和当前状态，恢复上次任务。若上次任务已完成，则选择下一项满足依赖与门禁的任务。先报告任务契约，再继续执行；未经我明确授权不要提交、推送、创建PR、合并或部署。
+1. v2.1.1 Final 人工批准；
+2. ADR-026 人工批准并 Accepted；
+3. REL-01 依赖调整批准；
+4. REL-02 Quality Gate 调整批准；
+5. main/tag 发布门禁批准；
+6. docs/40 必要章节完成 V1.1 同步；
+7. PLANS、execution-state、ADR、docs/40 不存在有效冲突；
+8. PR #10 最终 diff 经人工批准；
+9. PR #10 CI 成功；
+10. 获得独立 merge 授权；
+11. 合入 `codex/v15-integration-foundation`；
+12. 核验 integration HEAD 与正式规划完全一致。
+
+当前人工批准覆盖第 1～5 项；第 6～7 项正在本地落地并待 diff 审查；第 8～12 项尚未完成。
+在全部十二项满足前，V15-CTRL-001 不得进入 `DONE_INTEGRATION`，PR6a 不得开始。
+
+## 12. Task Selection Policy
+
+只要 `PLANS.md` 明确存在 `nextCanonicalTask`，GPT/Codex 在核验依赖和门禁后必须执行该任务，
+不得自行重新排序；若该任务被阻塞，不得随机改做其他 READY 任务，除非计划明确 fallback 或人工改序。
+
+优先级：
+
+1. 当前 `IN_PROGRESS` / `VERIFYING` 任务；
+2. 阻塞当前 R1 关键路径的人工决策；
+3. 当前 R1 关键路径工程任务；
+4. R1 CI / 安全 / 治理任务；
+5. REL-01 等允许提前的非资源决策任务；
+6. R1.1；
+7. R2；
+8. R3。
+
+```yaml
+currentTask: V15-CTRL-001
+nextCanonicalTaskAfterCompletion: PR6a
 ```
 
-当 GPT 请求外部授权时，只批准当前明确动作，不把一次授权扩展到提交、推送、PR、合并或部署的其他步骤。
+PR6a 完成后必须重新核验实时依赖，由 PLANS/execution-state 写出唯一 `nextCanonicalTask`。
+多个任务同时 READY 时仍不得自动并行：先比较 R1 关键路径影响，再遵循明确 next 指针，
+决策阻塞优先于非阻塞工程；仍无法唯一确定时停止并请求人工选择。
 
-## 13. 本计划的维护规则
+## 13. 人工授权点
 
-- 产品范围、技术路线、数据生命周期或人工门禁变化时，先写 ADR，再更新本计划版本。
-- 每个 PR 合并到 integration 后更新任务状态和证据。
-- 每周更新一次 Excel 管理进度；GitHub 和 execution state 保持实时。
-- 状态冲突时先修复状态，不继续开发。
-- GPT 连续两次出现同类错误时，将对应约束加入 `AGENTS.md`。
-- 本计划过长时，`AGENTS.md` 只保留强制规则并引用本文件，不复制整份内容。
+以下动作均需各自独立批准，一个动作的授权不自动扩展到后续动作：
 
-## 14. 证据入口
+- commit；push；创建或更新 PR；将 Draft 转 Ready；merge；
+- 创建、修改或删除云资源；执行数据库 migration；
+- 配置或使用真实 AI/Push/OCR/邮件等第三方凭据；
+- 真实 AI 调用、真实 Push、真实用户试用；
+- Staging 部署、main 发布 PR、release tag、Production 部署；
+- 不可逆数据清理、Shrink、备份恢复影响真实数据的操作。
 
-- Repository: https://github.com/Dada-sys101/richangzhushou
-- Frozen baseline: https://github.com/Dada-sys101/richangzhushou/blob/codex/v15-integration-foundation/docs/40-v15-final-development-baseline.md
-- RRULE PR1: https://github.com/Dada-sys101/richangzhushou/pull/8
-- Integration compare: https://github.com/Dada-sys101/richangzhushou/compare/main...codex/v15-integration-foundation
-- PoC final status: https://github.com/Dada-sys101/richangzhushou/blob/codex/v15-tech-selection-poc/pocs/v15-tech-selection/TECH-SELECTION-FINAL-STATUS.md
-- OpenAI Codex best practices: https://learn.chatgpt.com/guides/best-practices
-- OpenAI AGENTS.md guidance: https://learn.chatgpt.com/docs/agent-configuration/agents-md
+## 14. 执行与恢复规则
 
-## 15. 待用户确认
+每次只执行一个任务。开始时读取本规划和 execution-state，再核验 GitHub/Git/CI/环境实时事实；
+输出目标、依赖、允许/禁止范围、涉及文件、验证方式和授权边界。结束时更新实现、测试、文档、状态和证据，
+并明确区分本地完成、提交、推送、PR、integration、main、Staging、RC 和发布。
 
-### NAME-001：日常助手 V1.5 与历史名称“日常助手 V2”的关系
-
-状态：`PENDING_USER_CONFIRMATION`  
-阻塞性：非阻塞。
-
-当前仓库文件未明确证明“日常助手 V2”与当前 V1.5 正式集成阶段的对应关系。
-
-处理规则：
-
-- 当前所有开发任务只以 `Dada-sys101/richangzhushou`、`codex/v15-integration-foundation` 和 V1.5 冻结基线为执行依据；
-- GPT/Codex 不得自行推断、补写或传播 V2 与 V1.5 的对应关系；
-- NAME-001 未确认不影响 V1.5 其他任务进入 `READY`；
-- 用户确认后，再更新版本命名说明和相关状态文档。
+任何结论缺少证据时标记 `待验证`。计划声明不得覆盖代码、测试、CI、PR 或部署事实。
