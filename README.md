@@ -8,10 +8,10 @@ Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基
 保持 Feature Flag 关闭，不阻塞 R1 基础上线。AI 是 R1 首发硬门禁，只能生成
 待确认 Proposal，不得直接写正式业务记录。
 
-> 当前阶段：V1 核心应用和 OSS Adapter 已进入 main；V1.5 计划任务 PR1（RRULE DB Expand）
-> 与执行规划已进入 integration。当前执行 V15-CTRL-001 状态归一与首发路线重基线；
-> v2.1.1 Final 已获人工批准并在本地落地，尚未 commit、push 或更新 Draft PR #10。
-> Staging 未创建，生产未部署。
+> 当前阶段：V1 核心应用和 OSS Adapter 已进入 main；V1.5 PR1 与治理基线已进入 integration。
+> PR #10 已合并并核验 integration HEAD `371a43d...`。PR6a 临时 MySQL 8.4 验证入口已完成
+> Round 1 安全复验，状态为 `DONE / DONE_LOCAL`；尚未 add、commit、push 或创建 PR。Staging
+> 未创建，生产未部署。
 
 ## 工程结构
 
@@ -71,6 +71,19 @@ git diff --check
 
 GitHub Actions 使用临时 MySQL 8.4 service，不接触生产资源。
 
+### PR6a 临时 MySQL 8.4 验证
+
+对显式指定的本机 loopback MySQL 8.4 实例创建随机目标库、guard database 和 scoped user，运行
+全部 migration 与 DB tests，并验证权限隔离及 DB/user 清理：
+
+```powershell
+$env:PR6A_MYSQL_ADMIN_URL = "mysql://<temporary-admin>@127.0.0.1:3306/mysql"
+npm run validate:mysql84:temporary
+```
+
+只允许 `127.0.0.1`、`::1`、`localhost`，不存在远程 override；管理员凭据不进入 migration 或
+Vitest 子进程。完整安全边界和验收证据见 `docs/41-pr6a-mysql84-validation.md`。
+
 ## V1.5 项目状态恢复机制
 
 - `AGENTS.md`：强制恢复、执行、验证和授权纪律。
@@ -78,7 +91,7 @@ GitHub Actions 使用临时 MySQL 8.4 service，不接触生产资源。
 - `.project/v15-execution-state.md`：唯一仓库内执行状态快照，不是 GitHub/CI 实时镜像。
 - `.project/context.md`：长期状态；`.project/session.md`：当前/暂停任务；
   `.project/decisions.md`：ADR 索引。
-- 当前任务契约：`tasks/V15-CTRL-001.md`。
+- 当前任务契约：`tasks/PR6a.md`。
 - 校验：`npm run check:context`（已并入 `npm run quality`）。
 
 ## 当前首发边界
@@ -95,7 +108,8 @@ GitHub Actions 使用临时 MySQL 8.4 service，不接触生产资源。
 
 - [执行总规划](PLANS.md)
 - [V1.5 执行状态快照](.project/v15-execution-state.md)
-- [当前任务契约](tasks/V15-CTRL-001.md)
+- [当前任务契约](tasks/PR6a.md)
+- [PR6a MySQL 8.4 验收](docs/41-pr6a-mysql84-validation.md)
 - [文档索引](docs/README.md)
 - [总体计划](MASTER_PLAN.md)
 - [当前状态](PROJECT_STATUS.md)

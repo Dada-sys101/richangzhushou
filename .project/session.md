@@ -2,43 +2,43 @@
 
 ## Session Status
 
-VERIFYING / PR_OPEN / LOCAL_UNCOMMITTED
+DONE / DONE_LOCAL / LOCAL_UNCOMMITTED
 
 ## Task
 
-- ID: `V15-CTRL-001`
-- Name: V1.5 唯一总执行规划与治理基线落地
-- Branch: `codex/v15-ctrl-001-rebaseline`
-- Base: `codex/v15-integration-foundation@bc747b7...`
-- Draft PR: `#10`（远端尚未更新本地修订）
+- ID: `PR6a`
+- Name: 临时 MySQL 8.4 验证入口
+- Branch: `codex/v15-pr6a-mysql84-validation`
+- Base: `codex/v15-integration-foundation@371a43d...`
+- Delivery target: `DONE_LOCAL`
 
 ## Current Progress
 
-- v2.1.1 Final、ADR-026 发布映射、REL-01/02、main/tag 门禁、PR18/20、AI thresholds、
-  Task Selection Policy 和 docs/40 V1.1 同步已获人工批准；
-- 批准内容正在独立工作树落地；
-- 未修改业务代码、数据库、依赖、正式 CI、资源或环境；
-- 未 commit、push、更新 PR、merge、部署或执行真实 AI。
+- PR #10 已合并，integration HEAD `371a43d...` 已与正式规划核验；
+- 用户已授权创建 PR6a 本地分支、同步合法状态、实现并运行临时 MySQL 8.4 验证；
+- Round 1 已关闭临时入口的最小权限、环境隔离、输出脱敏、进程树终止、部分创建清理与独立证据缺口；
+- 四组本地 evidence 及 SHA256 已生成并独立复核；
+- 未修改业务功能、Prisma schema/migrations、正式 CI、云资源或生产环境。
 
 ## Validation
 
-- `npm run check:context`: PASS
-- `git diff --check`: PASS
-- checker syntax: PASS
-- remote PR #10 old-head CI: PASS（不等同本地修订已验证）
+- PR #10 final-head CI / merge / integration HEAD：PASS / VERIFIED
+- Round 1 focused unit/lifecycle tests：PASS（1 file / 26 tests）
+- MySQL 8.4 success ×2：PASS（每次 9 migrations / 14 files / 105 tests / isolation / cleanup）
+- Failure / SIGINT signal：EXPECTED NONZERO / cleanup PASS / DB-user-process residual 0
+- evidence SHA256：4/4 与 sidecar 匹配
+- `npm run quality` / `npm run check:context` / `git diff --check`：PASS
 
 ## Blockers
 
-- 本地 diff 尚待人工审查和 commit 授权；
-- 后续 push、PR 更新、updated-head CI、merge 仍分别需要授权/证据；
-- PR6a 被 V15-CTRL-001 `DONE_INTEGRATION` 阻塞。
+- 当前无已知外部阻塞；
+- commit、push、PR、merge、部署均未获授权，完成后必须停在 `DONE_LOCAL`。
 
 ## Resume Instructions
 
-1. 完成本地校验并审查完整 diff；
-2. 向人工报告文件、原因、diff stat、范围和工作树；
-3. 停止等待 commit 授权；
-4. 不提前执行 PR6a。
+1. 保持 PR6a `DONE / DONE_LOCAL`，等待独立 re-audit；
+2. evidence 保留在本地忽略目录 `output/pr6a/evidence/` 供复核；
+3. 未获授权不得 add、commit、push、建 PR、merge、部署或开始下一 canonical 任务。
 
 ## Last Updated
 

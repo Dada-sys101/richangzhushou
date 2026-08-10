@@ -4,22 +4,25 @@ updatedAt: 2026-08-10
 
 ## Current
 
-- v2.1.1 Final 已获人工批准；ADR-026 文档已标为 Accepted；docs/40 已同步为 V1.1；
-- 当前任务 V15-CTRL-001：`VERIFYING / PR_OPEN`；
-- 批准内容仅在本地工作树修改，尚未 commit、push 或更新 PR #10；
-- PR6a 尚未开始且不得在 V15-CTRL-001 `DONE_INTEGRATION` 前开始。
+- V15-CTRL-001 已通过 PR #10 合入 integration，十二项条件完成，integration HEAD 为 `371a43d...`；
+- 当前任务 PR6a：`DONE / DONE_LOCAL`；Round 1 七项安全/验证缺口、本地复验、全量质量门和状态收口完成；
+- 临时入口已强制 loopback、bootstrap/临时用户分离、child env allowlist、统一脱敏、partial-create cleanup、进程树终止和独立 evidence；
+- 未修改业务功能、Prisma schema/migrations 或正式 CI，未 commit、push 或创建 PR。
 
 ## Evidence
 
-- PR #8 / PR1 和 PR #9 / V15-CTRL-001a：DONE_INTEGRATION；
-- PR #10 远端旧 head `06b11e15...` 为 Draft，旧 head CI 通过；
-- 本地 `npm run check:context`、`git diff --check` 和 checker syntax 均 PASS；完整 diff 等待人工审查。
+- PR #8 / PR1、PR #9 / V15-CTRL-001a、PR #10 / V15-CTRL-001：DONE_INTEGRATION；
+- focused tests 1 file / 26 tests PASS；PR6a MySQL 8.4.9 两次连续完整执行 2/2 PASS，
+  每次 9 migrations、DB tests 14 files / 105 tests、权限隔离和 cleanup verified；
+- migration 后 failure 与真实 SIGINT tree termination 均预期非零并 cleanup，DB/user/process 残留 0；
+  四个 evidence SHA256 4/4 匹配；`npm run quality`、`npm run check:context`、
+  `git diff --check` 均 PASS；临时实例已回收。
 
 ## Open Gates
 
-V15-CTRL-001 最终 diff/updated-head CI/merge/HEAD 核验；H1/H2/H7；
-云资源、migration、真实服务、Staging 和 Production 独立授权。
+H1/H2/H7；云资源、非临时/生产 migration、真实服务、Staging 和 Production 独立授权。
 
 ## Next
 
-完成本地校验后停止等待 commit 授权。canonical 下一任务仍为 V15-CTRL-001；完成后才是 PR6a。
+PR6a 已固定为 `DONE / DONE_LOCAL` 并停止，下一任务为 `TBD_AFTER_PR6A_REVALIDATION`。后续
+canonical 任务须重新核验，add、commit、push、PR 与 integration 晋级均需独立授权。

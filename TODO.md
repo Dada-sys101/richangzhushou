@@ -86,3 +86,5 @@
 | DA-1301 | OPEN-006 对象存储接入代码（OSS 适配器/STORAGE_PROVIDER 切换/键服务/测试/示例） | DONE（已随 PR #6 squash 合并到 main，`db5c5d3`） | RELEASE |
 | DA-1302 | 真实私有 OSS Bucket + 最小权限 RAM + 真实连通/备份上传验证（需授权） | NOT_STARTED | RELEASE |
 | DA-1303 | 状态文档记录 PR #6 合并与 OSS 就绪（`codex/post-pr6-merge-status`） | IN_PROGRESS（PR 待合并） | RELEASE |
+| DA-1501 | V15-CTRL-001 治理重基线经 PR #10 合入并核验 integration HEAD | DONE | V1.5 |
+| DA-1502 | PR6a 临时 MySQL 8.4 安全入口、scoped user、失败/信号 cleanup、重复执行与 evidence | DONE | V1.5 |
