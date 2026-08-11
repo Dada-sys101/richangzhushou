@@ -94,8 +94,8 @@ deliveryStatus: NOT_STARTED | DONE_LOCAL | DONE_COMMITTED | DONE_PUSHED | PR_OPE
 | V15-CTRL-001 | 治理重基线 | R1 | PR #8/#9 已合入；十二项完成条件 |
 | PR1 | RRULE DB Expand | Foundation | 已通过 PR #8 合入 integration |
 | PR6a | 临时 MySQL 8.4 验证入口 | R1 | V15-CTRL-001 `DONE_INTEGRATION` |
-| AI-DECISION-001 | AI 接入与评测方法冻结 | R1 | V15-CTRL-001、PR6a `DONE_INTEGRATION`、ADR-026 Accepted；必须在 PR2 前达到 `DONE_INTEGRATION` |
-| PR2 | AI DB Expand | R1 | V15-CTRL-001、PR6a、AI-DECISION-001 `DONE_INTEGRATION` |
+| AI-DECISION-001 | AI 接入与评测方法冻结 | R1 | V15-CTRL-001；必须在 PR2 前完成首层决策 |
+| PR2 | AI DB Expand | R1 | V15-CTRL-001、PR6a、AI-DECISION-001 首层决策 |
 | PR3 | Push DB Expand | R1.1 | V15-CTRL-001、PR6a |
 | PR4 | Import/迁移策略 DB Expand | R2 | V15-CTRL-001、PR6a |
 | PR5 | 共享 Flag 与 AI Contracts | R1 | PR1、PR2、PR6a |
@@ -212,13 +212,15 @@ thresholds，经再次人工批准写入 AI ADR，再关闭效果门禁。最终
 
 - **目标**：在 PR2 前冻结第 6.1 节首层决策，并为 PR20 后最终阈值保留校准点。
 - **状态**：`DONE / DONE_LOCAL`；ADR-027 v1.0 Final 已人工批准，尚未 commit/push/PR/merge。
-- **输入/依赖**：V15-CTRL-001、PR6a `DONE_INTEGRATION`、ADR-026 Accepted；不需要真实调用即可完成首层决策。
+- **冻结依赖/门禁（PLANS v2.1.1）**：V15-CTRL-001；必须在 PR2 前完成首层决策；不需要真实调用即可完成首层决策。
+- **已核验决策输入**：PR6a = `DONE / DONE_INTEGRATION`；ADR-026 = `Accepted`。
+- **当前交付/执行门禁**：PR2 保持 `BLOCKED / NOT_STARTED`，直至本任务达到 `DONE_INTEGRATION`；该门禁不改写 PLANS v2.1.1 冻结依赖图。
 - **允许修改**：ADR、评测方案、脱敏样本说明和规划状态；**禁止**写密钥或发起真实调用。
 - **结果**：Provider/模型候选、服务端接入与 credential 边界、唯一 whitelist、日志/保留（数据保留
   期限矩阵已人工批准并冻结）、预算、timeout/retry/breaker、200 条非真实数据规范、provisional 和
   immutable safety thresholds 已冻结。
 - **验证/完成标准**：决策字段完整、数值不变、不可降低安全阈值明确、人工批准证据和状态更新齐全；
-  达到 `DONE_INTEGRATION` 前 PR2 保持 `BLOCKED / NOT_STARTED`。
+  当前交付/执行门禁：达到 `DONE_INTEGRATION` 前 PR2 保持 `BLOCKED / NOT_STARTED`。
 - **风险**：将 provisional 目标误当最终效果承诺。
 
 ### PR2 / PR5 / PR6 / PR9 — R1 Foundation 工程卡
@@ -382,8 +384,9 @@ nextCanonicalTask: AI-DECISION-001
 nextCanonicalTaskAfterCompletion: PR2
 ```
 
-AI-DECISION-001 达到 `DONE_INTEGRATION` 前仍是唯一 `nextCanonicalTask`，PR2 保持
-`BLOCKED / NOT_STARTED`；达到 `DONE_INTEGRATION` 并重新核验实时依赖后，才可在独立授权下选择 PR2。
+当前交付/执行门禁：AI-DECISION-001 达到 `DONE_INTEGRATION` 前仍是唯一 `nextCanonicalTask`，
+PR2 保持 `BLOCKED / NOT_STARTED`；达到 `DONE_INTEGRATION` 并重新核验实时事实后，才可在
+独立授权下选择 PR2。该门禁仅为当前交付/执行门禁，不改写 PLANS v2.1.1 冻结依赖图。
 多个任务同时 READY 时仍不得自动并行：先比较 R1 关键路径影响，再遵循明确 next 指针，
 决策阻塞优先于非阻塞工程；仍无法唯一确定时停止并请求人工选择。
 

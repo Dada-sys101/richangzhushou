@@ -6,7 +6,7 @@
 - Accepted by: Dada（人工批准，2026-08-11）
 - Related plan: `PLANS.md` v2.1.1 Final
 - Related task: `AI-DECISION-001`
-- Prerequisites: `V15-CTRL-001`、`PR6a`、ADR-026
+- Verified inputs: `V15-CTRL-001`；`PR6a` `DONE / DONE_INTEGRATION`；ADR-026 `Accepted`（仅为决策启动时已核验的输入事实，不改写 PLANS.md v2.1.1 frozen dependency graph）
 - Stage: Stage 1 policy freeze before PR2
 
 ## Context

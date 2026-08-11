@@ -37,8 +37,8 @@ openPullRequests: []
 | V15-CTRL-001 | DONE | DONE_INTEGRATION | R1 | twelve completion conditions | PR #10 / `371a43d...` verified |
 | PR1 | DONE | DONE_INTEGRATION | Foundation | baseline | PR #8 |
 | PR6a | DONE | DONE_INTEGRATION | R1 | V15-CTRL-001 DONE_INTEGRATION | PR #11 merged; integration `01292ef...` verified |
-| AI-DECISION-001 | DONE | DONE_LOCAL | R1 | V15-CTRL-001 + PR6a DONE_INTEGRATION + ADR-026 Accepted | ADR-027 v1.0 Final accepted; local documentation only |
-| PR2 | BLOCKED | NOT_STARTED | R1 | PR6a DONE_INTEGRATION + AI-DECISION-001 DONE_INTEGRATION | wait; do not start from DONE_LOCAL |
+| AI-DECISION-001 | DONE | DONE_LOCAL | R1 | V15-CTRL-001; before PR2 first-layer decision | verified inputs: PR6a DONE_INTEGRATION, ADR-026 Accepted; ADR-027 v1.0 Final accepted; local documentation only |
+| PR2 | BLOCKED | NOT_STARTED | R1 | V15-CTRL-001 + PR6a + AI-DECISION-001 first-layer decision | current delivery/execution gate: BLOCKED / NOT_STARTED until AI-DECISION-001 integration delivery completes; not a frozen dependency rewrite |
 | PR3 | PENDING | NOT_STARTED | R1.1 | PR6a | later |
 | PR4 | PENDING | NOT_STARTED | R2 | PR6a | later |
 | PR5 | BLOCKED | NOT_STARTED | R1 | PR1 + PR2 + PR6a | wait |
@@ -111,5 +111,5 @@ openPullRequests: []
 4. AI-DECISION-001 is the sole canonical task at `DONE / DONE_LOCAL`; ADR-027 freezes policy only and contains no real evaluation or implementation.
 5. At most one canonical task may be IN_PROGRESS; do not auto-parallelize.
 6. Human gates may only be closed by a human based on evidence.
-7. AI-DECISION-001 must reach `DONE_INTEGRATION` before PR2 may start; commit, push, PR and merge each require separate authorization.
+7. Under the current delivery/execution gate, AI-DECISION-001 must reach `DONE_INTEGRATION` before PR2 may start; this gate does not rewrite the PLANS v2.1.1 frozen dependency graph; commit, push, PR and merge each require separate authorization.
 8. Snapshot/live-fact mismatch is reconciled at the next legal governance update; never create an infinite CI synchronization loop.

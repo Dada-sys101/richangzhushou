@@ -30,7 +30,7 @@ DONE / DONE_LOCAL / LOCAL_UNCOMMITTED
 
 ## Blockers
 
-- PR2 仍被 AI-DECISION-001 `DONE_INTEGRATION` 依赖阻塞；H7 仍 OPEN；
+- PR2 保持 `BLOCKED / NOT_STARTED`：当前交付/执行门禁要求 AI-DECISION-001 达到 `DONE_INTEGRATION` 后才可开始 PR2；该门禁不改写冻结依赖图；H7 仍 OPEN；
 - commit、push、PR、merge、部署均未获授权，完成后必须停在 `DONE_LOCAL`。
 
 ## Resume Instructions

@@ -5,11 +5,12 @@ approvedDate: 2026-08-11
 ID: AI-DECISION-001
 displayName: AI 接入与评测方法冻结
 goal: 在 PR2 前冻结 AI Provider 接入、安全、预算、韧性、评测方法与 provisional thresholds，并保留 PR20 后再次人工批准 final provider/model/effect thresholds 的边界。
-dependencies: V15-CTRL-001 `DONE / DONE_INTEGRATION`；PR6a `DONE / DONE_INTEGRATION`；ADR-026 `Accepted`。
+dependencies: 依 PLANS.md v2.1.1：V15-CTRL-001；本任务必须在 PR2 前完成首层决策。
+verifiedInputs: PR6a = DONE / DONE_INTEGRATION；ADR-026 = Accepted。
 approvedDecision: ADR-027 v1.0 Final `Accepted`；Stage 1 决策已由人工批准；数据保留期限矩阵已由人工批准并冻结（ADR-027 6.1/6.2），数值与分类不得自行调整。
 executionStatus: DONE
 deliveryStatus: DONE_LOCAL
-nextTaskRule: 本任务达到 `DONE_INTEGRATION` 前，`nextCanonicalTask` 仍为 AI-DECISION-001，PR2 必须保持 `BLOCKED / NOT_STARTED`；达到 `DONE_INTEGRATION` 并重新核验实时依赖后，下一 canonical task 为 PR2。
+nextTaskRule: 当前交付/执行门禁：本任务达到 `DONE_INTEGRATION` 前，`nextCanonicalTask` 仍为 AI-DECISION-001，PR2 必须保持 `BLOCKED / NOT_STARTED`；达到 `DONE_INTEGRATION` 并重新核验实时事实后，下一 canonical task 为 PR2。该门禁不改写 PLANS.md v2.1.1 冻结依赖图。
 
 ## allowedScope
 
