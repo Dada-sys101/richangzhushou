@@ -1,5 +1,21 @@
 # Session End
 
+## 2026-08-11 — AI-DECISION-001 本地断点
+
+- 分支：`codex/v15-ai-decision-001`，基于已核验 integration HEAD
+  `01292ef7a6bcf97addfd139fe39a3576fc05f9c9`；PR6a 已通过 PR #11 达到
+  `DONE / DONE_INTEGRATION`；
+- ADR-027 v1.0 Final 已人工批准并本地落地，冻结 Provider/模型候选、服务端网络和 credential
+  边界、唯一 whitelist、日志/保留、预算、timeout/retry/breaker、200 条非真实数据规范、
+  provisional thresholds 和四项 immutable safety thresholds；
+- 当前不冻结唯一 Provider；本任务不执行真实评测/实现，PR20 后 final provider/model/effect
+  thresholds 仍需再次人工批准且不得降低安全阈值；
+- 当前状态：AI-DECISION-001 `DONE / DONE_LOCAL`，PR2 `BLOCKED / NOT_STARTED`；达到
+  `DONE_INTEGRATION` 前唯一 next 指针仍为 AI-DECISION-001，之后下一 canonical task 为 PR2；
+- 主代理已独立审查完整 diff，`npm run check:context`、`npm run quality`、`git diff --check` 均 PASS；
+  本轮未 add、commit、push、创建 PR、merge、访问 credential、调用真实 AI、
+  创建云资源或部署。
+
 ## 2026-08-10 — PR6a 本地断点
 
 - 分支：`codex/v15-pr6a-mysql84-validation`，基于已核验 integration HEAD `371a43d...`；

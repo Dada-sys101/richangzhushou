@@ -5,8 +5,8 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前任务：`PR6a`
-下一 canonical 工程任务：`PR6a`（V15-CTRL-001 已达到 `DONE_INTEGRATION`）
+当前任务：`AI-DECISION-001`（`DONE / DONE_LOCAL`）
+下一 canonical 工程任务：`AI-DECISION-001`（达到 `DONE_INTEGRATION` 后才可转入 `PR2`）
 
 ## 1. 版本目标与边界
 
@@ -39,11 +39,14 @@ GitHub、实际代码、CI 和环境为准，再在下一个合法治理更新�
 ### 2.2 冻结基线与 ADR
 
 `docs/40-v15-final-development-baseline.md` V1.1 冻结核心技术架构；Accepted ADR-026 是对其
-发布范围和门禁映射的正式增量修订。两者共同生效且不得存在冲突规则：
+发布范围和门禁映射的正式增量修订；Accepted ADR-027 冻结 AI Stage 1 接入、安全与评测策略。
+三者共同生效且不得存在冲突规则：
 
 - docs/40 保留 RRULE 技术选型、AI Proposal 模型、Repository 架构、渐进式数据库迁移和
   Feature Flag 安全边界；
 - ADR-026 决定 R1/R1.1/R2/R3 映射、门禁 blockingScope、Staging 和发布晋级规则；
+- ADR-027 决定 AI Provider/模型候选、服务端接入、credential/字段/日志/保留边界、预算与
+  韧性参数、200 条非真实评测数据规范、provisional thresholds 和不可降低安全阈值；
 - 若未来再次改变上述有效规则，必须先形成 ADR、获得人工批准，再同步 PLANS、docs/40 和状态快照。
 
 ## 3. 状态模型
@@ -91,8 +94,8 @@ deliveryStatus: NOT_STARTED | DONE_LOCAL | DONE_COMMITTED | DONE_PUSHED | PR_OPE
 | V15-CTRL-001 | 治理重基线 | R1 | PR #8/#9 已合入；十二项完成条件 |
 | PR1 | RRULE DB Expand | Foundation | 已通过 PR #8 合入 integration |
 | PR6a | 临时 MySQL 8.4 验证入口 | R1 | V15-CTRL-001 `DONE_INTEGRATION` |
-| AI-DECISION-001 | AI 接入与评测方法冻结 | R1 | V15-CTRL-001；必须在 PR2 前完成首层决策 |
-| PR2 | AI DB Expand | R1 | V15-CTRL-001、PR6a、AI-DECISION-001 首层决策 |
+| AI-DECISION-001 | AI 接入与评测方法冻结 | R1 | V15-CTRL-001、PR6a `DONE_INTEGRATION`、ADR-026 Accepted；必须在 PR2 前达到 `DONE_INTEGRATION` |
+| PR2 | AI DB Expand | R1 | V15-CTRL-001、PR6a、AI-DECISION-001 `DONE_INTEGRATION` |
 | PR3 | Push DB Expand | R1.1 | V15-CTRL-001、PR6a |
 | PR4 | Import/迁移策略 DB Expand | R2 | V15-CTRL-001、PR6a |
 | PR5 | 共享 Flag 与 AI Contracts | R1 | PR1、PR2、PR6a |
@@ -144,10 +147,24 @@ H1/H2/H7 阻塞 R1；H6/H8 只阻塞 Push；H4 只阻塞 Android 支持声明；
 
 ### 6.1 AI-DECISION-001 两层冻结
 
-PR2 前必须人工冻结：Provider 候选、模型候选、网络方式、凭据来源、数据字段白名单、日志规则、
-数据保留、单用户预算、总预算、超时、重试、熔断、评测方法、评测样本集和 provisional thresholds。
+Stage 1 已由 ADR-027 v1.0 Final 人工批准并在本任务本地冻结：
 
-provisional targets：Schema success ≥99%；无需完全重录 ≥85%。
+- Provider 顺序：P1 DeepSeek、P2 阿里云百炼 / Qwen、P3 OpenAI（仅对照）；模型候选为
+  DeepSeek V4 Flash（默认 non-thinking）、DeepSeek V4 Pro、Qwen 3.7 Plus、GPT-5.4 nano、
+  GPT-5.4 mini；当前不冻结唯一 Provider；
+- 网络固定为 `Browser/PWA -> Daily Assistant API -> AiProviderAdapter -> Provider HTTPS`；浏览器
+  不直连、不持 credential，R1 禁止自动跨 Provider fallback，仅允许服务端受控配置切换；
+- credential 仅允许 server secret/env reference 或未来经批准的 secret manager；唯一字段白名单、
+  raw response 不持久化、正文不入普通日志及 metadata/pseudonymous id 边界见 ADR-027；
+- timeout 15 seconds、最多 retry 1 次且仅限 network/timeout/HTTP 429/HTTP 5xx；rolling 20 requests，
+  technical failure rate `>=50%` 且 count `>=5` 时 OPEN，60 seconds 后单 probe HALF_OPEN；
+- 每用户 warning `¥3/month`、hard `¥5/month`；总体 warning `¥30/month`、hard `¥50/month`；
+- 200 条人工构造/脱敏合成非真实数据：Finance/Transaction 60、Task 40、Calendar 35、Reminder 30、
+  Trip 20、Ambiguous/missing/failure 15；本任务不执行评测。
+
+provisional targets：Schema success `>=99%`（parse success AND JSON Schema valid AND field types valid
+AND no non-whitelisted fields）；无需完全重录 `>=85%`（直接接受、少量字段编辑或回答补充问题后
+完成 Proposal，无需重新输入完整请求）。
 
 从项目开始即不可降低的安全阈值：
 
@@ -156,8 +173,9 @@ provisional targets：Schema success ≥99%；无需完全重录 ≥85%。
 - Provider 输出不得直接写业务表；
 - 敏感字段不得越过白名单。
 
-PR20 完成受控真实评测后，依据真实 Provider 结果提出最终效果阈值，经人工批准写入 AI ADR，
-再关闭效果门禁。最终效果阈值的校准不得降低上述安全阈值。
+PR20 完成受控真实评测后，依据真实 Provider 结果提出 final provider、final model 和 final effect
+thresholds，经再次人工批准写入 AI ADR，再关闭效果门禁。最终效果阈值的校准不得降低上述安全阈值。
+本任务只冻结策略，不执行真实评测、实现、credential 或云资源。
 
 ## 7. 关键任务卡
 
@@ -187,10 +205,13 @@ PR20 完成受控真实评测后，依据真实 Provider 结果提出最终效�
 ### AI-DECISION-001 — AI 接入与评测方法冻结
 
 - **目标**：在 PR2 前冻结第 6.1 节首层决策，并为 PR20 后最终阈值保留校准点。
-- **输入/依赖**：ADR-026、预算/隐私边界、评测样本；不需要真实调用即可完成首层决策。
+- **状态**：`DONE / DONE_LOCAL`；ADR-027 v1.0 Final 已人工批准，尚未 commit/push/PR/merge。
+- **输入/依赖**：V15-CTRL-001、PR6a `DONE_INTEGRATION`、ADR-026 Accepted；不需要真实调用即可完成首层决策。
 - **允许修改**：ADR、评测方案、脱敏样本说明和规划状态；**禁止**写密钥或发起真实调用。
-- **步骤**：形成候选与成本表 → 字段白名单/日志/保留 → 预算与韧性参数 → 样本和 provisional threshold → 人工批准。
-- **验证/完成标准**：决策字段完整、不可降低安全阈值明确、人工批准证据和状态更新齐全。
+- **结果**：Provider/模型候选、服务端接入与 credential 边界、唯一 whitelist、日志/保留、预算、
+  timeout/retry/breaker、200 条非真实数据规范、provisional 和 immutable safety thresholds 已冻结。
+- **验证/完成标准**：决策字段完整、数值不变、不可降低安全阈值明确、人工批准证据和状态更新齐全；
+  达到 `DONE_INTEGRATION` 前 PR2 保持 `BLOCKED / NOT_STARTED`。
 - **风险**：将 provisional 目标误当最终效果承诺。
 
 ### PR2 / PR5 / PR6 / PR9 — R1 Foundation 工程卡
@@ -328,9 +349,9 @@ REL-05 稳定窗口规则：
 11. 合入 `codex/v15-integration-foundation`；
 12. 核验 integration HEAD 与正式规划完全一致。
 
-截至 2026-08-10，PR #10 已在最终 head `9a12b4c...` 通过 CI，并经独立授权合入
-`codex/v15-integration-foundation`；合并后的 integration HEAD `371a43d...` 已核验与正式规划一致。
-十二项条件全部满足，V15-CTRL-001 已达到 `DONE / DONE_INTEGRATION`，PR6a 可以开始。
+截至 2026-08-11，PR #11 已合并，PR6a 达到 `DONE / DONE_INTEGRATION`；
+`codex/v15-integration-foundation` HEAD `01292ef7a6bcf97addfd139fe39a3576fc05f9c9` 已核验。
+AI-DECISION-001 已完成 ADR-027 v1.0 Final 本地落地，当前为 `DONE / DONE_LOCAL`。
 
 ## 12. Task Selection Policy
 
@@ -349,11 +370,13 @@ REL-05 稳定窗口规则：
 8. R3。
 
 ```yaml
-currentTask: PR6a
-nextCanonicalTaskAfterCompletion: TBD_AFTER_PR6A_REVALIDATION
+currentTask: AI-DECISION-001
+nextCanonicalTask: AI-DECISION-001
+nextCanonicalTaskAfterCompletion: PR2
 ```
 
-PR6a 完成后必须重新核验实时依赖，由 PLANS/execution-state 写出唯一 `nextCanonicalTask`。
+AI-DECISION-001 达到 `DONE_INTEGRATION` 前仍是唯一 `nextCanonicalTask`，PR2 保持
+`BLOCKED / NOT_STARTED`；达到 `DONE_INTEGRATION` 并重新核验实时依赖后，才可在独立授权下选择 PR2。
 多个任务同时 READY 时仍不得自动并行：先比较 R1 关键路径影响，再遵循明确 next 指针，
 决策阻塞优先于非阻塞工程；仍无法唯一确定时停止并请求人工选择。
 

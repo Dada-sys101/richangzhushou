@@ -1,8 +1,23 @@
 # 变更日志（Changelog）
 
 文档版本：1.0
-更新：2026-08-10
+更新：2026-08-11
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
+
+## 2026-08-11 — AI-DECISION-001 v1.0 Final 本地落地
+
+- PR6a 已通过 PR #11 达到 `DONE / DONE_INTEGRATION`，integration HEAD 已核验为
+  `01292ef7a6bcf97addfd139fe39a3576fc05f9c9`；当前任务切换为 AI-DECISION-001。
+- 新增 Accepted ADR-027 与任务契约，冻结 DeepSeek→阿里云百炼 / Qwen→OpenAI（仅对照）的
+  候选顺序、五个模型候选、服务端 AiProviderAdapter 调用路径、credential/唯一 whitelist/
+  logging/retention 边界、失败保留输入和 Proposal 最终确认链。
+- 冻结 timeout 15 seconds、最多 retry 1 次、rolling 20 requests 熔断策略、每用户
+  ¥3/¥5 monthly warning/hard 与总体 ¥30/¥50 monthly warning/hard，以及 200 条非真实评测数据规范。
+- provisional thresholds 为 Schema success `>=99%`、无需完全重录 `>=85%`；四项 immutable
+  safety thresholds 不得被 PR20 降低。当前不冻结唯一 Provider，PR20 后 final provider/model/
+  effect thresholds 仍需再次人工批准。
+- 本任务只落地策略，状态为 `DONE / DONE_LOCAL`；未修改代码、Prisma/migration、正式 CI、依赖或
+  lockfile，未访问 credential、执行真实评测/调用、创建云资源、add、commit、push、PR、merge 或部署。
 
 ## 2026-08-10 — PR6a 临时 MySQL 8.4 验证入口（本地）
 

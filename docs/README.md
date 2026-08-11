@@ -1,32 +1,33 @@
 # Documentation Index
 
-版本：0.5
-状态：已同步 PR6a Round 1 `DONE / DONE_LOCAL` / v2.1.1 Final / docs/40 V1.1 / Accepted ADR-026
-更新：2026-08-10
+版本：0.6
+状态：已同步 AI-DECISION-001 `DONE / DONE_LOCAL` / v2.1.1 Final / docs/40 V1.1 / Accepted ADR-026/027
+更新：2026-08-11
 
 ## V1.5 接手与状态恢复导航
 
 1. `../AGENTS.md`：强制约束、恢复顺序和授权边界。
 2. `../PLANS.md`：V1.5 唯一执行总路线。
 3. `../.project/v15-execution-state.md`：唯一仓库内执行状态快照，不是 GitHub/CI 实时镜像。
-4. `../tasks/PR6a.md`：当前任务执行契约。
-5. `41-pr6a-mysql84-validation.md`：临时 MySQL 8.4 入口、边界与本地验收。
-6. `40-v15-final-development-baseline.md`：V1.1 冻结技术与开发基线。
-7. `adr/ADR-026-v15-release-scope-r1.md`：发布范围与门禁增量修订（Accepted）。
-8. `../.project/context.md`：长期项目状态。
-9. `../.project/session.md`：当前或暂停任务。
-10. `project-overview.md`：项目概述。
-11. `architecture.md`：当前实际架构与规划架构对照。
-12. `progress.md`：完成度与已知问题。
-13. `roadmap.md`：当前发布路线。
-14. `decisions.md`：已确认与未决决策。
-15. `changelog.md`：变更历史。
+4. `../tasks/AI-DECISION-001.md`：当前任务执行契约。
+5. `adr/ADR-027-ai-provider-evaluation-policy.md`：AI Stage 1 接入、安全与评测策略（Accepted）。
+6. `41-pr6a-mysql84-validation.md`：临时 MySQL 8.4 入口、边界与已集成验收。
+7. `40-v15-final-development-baseline.md`：V1.1 冻结技术与开发基线。
+8. `adr/ADR-026-v15-release-scope-r1.md`：发布范围与门禁增量修订（Accepted）。
+9. `../.project/context.md`：长期项目状态。
+10. `../.project/session.md`：当前或暂停任务。
+11. `project-overview.md`：项目概述。
+12. `architecture.md`：当前实际架构与规划架构对照。
+13. `progress.md`：完成度与已知问题。
+14. `roadmap.md`：当前发布路线。
+15. `decisions.md`：已确认与未决决策。
+16. `changelog.md`：变更历史。
 
 优先级：
 
 ```text
 GitHub / Git / CI / 实际部署环境
-> docs/40 核心技术基线 + Accepted ADR-026 发布/门禁修订
+> docs/40 核心技术基线 + Accepted ADR-026 发布/门禁修订 + Accepted ADR-027 AI 策略
 > PLANS.md canonical 任务定义
 > execution-state 仓库内快照 / 当前任务契约
 > 完整需求与系统设计
@@ -72,5 +73,6 @@ GitHub / Git / CI / 实际部署环境
 31. `40-v15-final-development-baseline.md`
 32. `41-pr6a-mysql84-validation.md`
 33. `adr/ADR-026-v15-release-scope-r1.md`
+34. `adr/ADR-027-ai-provider-evaluation-policy.md`
 
 所有文档以稳定编号引用规则、功能、页面、数据、API 和验收项。未确认信息必须标记为 `[待确认]` 或 `[关键假设]`。

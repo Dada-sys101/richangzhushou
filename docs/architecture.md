@@ -2,7 +2,7 @@
 
 文档版本：1.1
 状态：已与代码、Git 历史和 V1.5 集成线交叉核对
-更新：2026-08-10
+更新：2026-08-11
 说明：本文件描述“当前实际架构”；目标/规划架构见 `docs/07-technical-architecture-and-security.md`、根目录 `ARCHITECTURE.md`、`docs/40-v15-final-development-baseline.md` 与 `PLANS.md`。规划但未实现的组件均明确标注。
 
 ## 1. 前端架构
@@ -104,19 +104,27 @@ apps/api ──► Prisma / StorageAdapter / NotificationAdapter / 后续 AiProv
 ### V1.5 规划
 
 ```text
-自然语言 → AiRequest → AiProvider → Schema 校验 → AiProposal
-→ 用户编辑/确认 → AiOperation → 业务服务 → 正式记录
+Browser/PWA → Daily Assistant API → AiProviderAdapter → Provider HTTPS
+Provider response → parse → JSON Schema validation → domain validation → AiProposal
+→ 用户检查/编辑/补充 → 最终确认 → 正式 domain service → business tables
 ```
 
 ```text
 Reminder → Delivery/Job → InApp 或 WebPushChannel
 ```
 
+以上 AI 流程是 ADR-027 已冻结但尚未实现的目标架构。浏览器不得直连 Provider 或持有 credential；
+R1 禁止自动跨 Provider fallback，只允许服务端受控配置切换。Provider output 不得直接写业务表、
+直接调用业务写 API 或绕过正式 domain service，正式写入必须 100% 经用户最终确认。
+
 AI 和 Push 均不得绕过 Feature Flag、审计、幂等和人工门禁。
 
 ## 8. V1.5 扩展边界
 
-- `AiProvider`：R1 一个真实 Provider；业务层只消费统一结果和 Proposal/Operation。
+- `AiProviderAdapter`：候选顺序为 DeepSeek、阿里云百炼 / Qwen、OpenAI（仅对照）；当前不冻结
+  唯一 Provider。PR20 受控真实评测后 final provider/model/effect thresholds 仍需人工批准。
+- AI credential 仅允许 server secret/env reference 或未来经批准的 secret manager；唯一字段白名单、
+  raw response 不持久化、正文不入普通日志、预算与 timeout/retry/breaker 见 ADR-027。
 - Notification：站内提醒为保底；Web Push 为 R1.1，可关闭。
 - `RecurrenceEngine`：PR1 已 DB Expand；R2 才完成新引擎和切换。
 - Repository：R1 统一现有访问；完整加密迁移在 R3。

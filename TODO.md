@@ -88,3 +88,4 @@
 | DA-1303 | 状态文档记录 PR #6 合并与 OSS 就绪（`codex/post-pr6-merge-status`） | IN_PROGRESS（PR 待合并） | RELEASE |
 | DA-1501 | V15-CTRL-001 治理重基线经 PR #10 合入并核验 integration HEAD | DONE | V1.5 |
 | DA-1502 | PR6a 临时 MySQL 8.4 安全入口、scoped user、失败/信号 cleanup、重复执行与 evidence | DONE | V1.5 |
+| DA-1503 | AI-DECISION-001：ADR-027 v1.0 Final 接入、安全、预算、韧性与评测策略本地落地 | DONE | V1.5 |
