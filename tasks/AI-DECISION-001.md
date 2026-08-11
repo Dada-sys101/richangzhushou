@@ -6,7 +6,7 @@ ID: AI-DECISION-001
 displayName: AI 接入与评测方法冻结
 goal: 在 PR2 前冻结 AI Provider 接入、安全、预算、韧性、评测方法与 provisional thresholds，并保留 PR20 后再次人工批准 final provider/model/effect thresholds 的边界。
 dependencies: V15-CTRL-001 `DONE / DONE_INTEGRATION`；PR6a `DONE / DONE_INTEGRATION`；ADR-026 `Accepted`。
-approvedDecision: ADR-027 v1.0 Final `Accepted`；Stage 1 决策已由人工批准。
+approvedDecision: ADR-027 v1.0 Final `Accepted`；Stage 1 决策已由人工批准；数据保留期限矩阵已由人工批准并冻结（ADR-027 6.1/6.2），数值与分类不得自行调整。
 executionStatus: DONE
 deliveryStatus: DONE_LOCAL
 nextTaskRule: 本任务达到 `DONE_INTEGRATION` 前，`nextCanonicalTask` 仍为 AI-DECISION-001，PR2 必须保持 `BLOCKED / NOT_STARTED`；达到 `DONE_INTEGRATION` 并重新核验实时依赖后，下一 canonical task 为 PR2。
@@ -36,8 +36,12 @@ nextTaskRule: 本任务达到 `DONE_INTEGRATION` 前，`nextCanonicalTask` 仍�
 4. 状态文档统一记录 integration HEAD `01292ef7a6bcf97addfd139fe39a3576fc05f9c9`、PR6a
    `DONE / DONE_INTEGRATION`、本任务 `DONE / DONE_LOCAL`、PR2 `BLOCKED / NOT_STARTED`；
 5. ADR-027 已进入 `.project/decisions.md`、`docs/decisions.md` 和 `docs/README.md`；
-6. 运行 `npm run check:context`、`npm run quality` 和 `git diff --check`，结果由主代理独立复核；
-7. 完整 diff 不含代码、依赖、secret、真实数据或其他超范围文件。
+6. 数据保留期限矩阵已人工批准并冻结，至少可验证：raw body 无 durable persistence、普通日志
+   retention 0；unresolved/failed AiRequest 最长 30 days；AiProposal 最长 30 days；AiProviderAttempt
+   仅 metadata、90 days；operational metadata logs 30 days；正式业务记录遵循 domain retention；
+   Provider 侧 retention 必须在 PR20 真实调用前重新核验；
+7. 运行 `npm run check:context`、`npm run quality` 和 `git diff --check`，结果由主代理独立复核；
+8. 完整 diff 不含代码、依赖、secret、真实数据或其他超范围文件。
 
 ## authorizationBoundary
 
@@ -49,6 +53,7 @@ merge、PR2 开工、真实 Provider/credential/评测、数据库、云资源�
 
 - [x] ADR-027 v1.0 Final 已完整落地并标记 Accepted；
 - [x] 两阶段冻结、provisional thresholds 和四项 immutable safety thresholds 已明确；
+- [x] 数据保留期限矩阵已获得人工批准并冻结，未新增未经批准的分类或期限；
 - [x] 任务契约和必要状态/恢复/索引/架构/进度/路线/变更文档已同步；
 - [x] 未执行真实评测或实现，未创建 credential、数据库或云资源；
 - [x] executionStatus 为 `DONE`，deliveryStatus 为 `DONE_LOCAL`；

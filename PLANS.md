@@ -156,6 +156,12 @@ Stage 1 已由 ADR-027 v1.0 Final 人工批准并在本任务本地冻结：
   不直连、不持 credential，R1 禁止自动跨 Provider fallback，仅允许服务端受控配置切换；
 - credential 仅允许 server secret/env reference 或未来经批准的 secret manager；唯一字段白名单、
   raw response 不持久化、正文不入普通日志及 metadata/pseudonymous id 边界见 ADR-027；
+- 数据保留（canonical summary，权威细节见 ADR-027 6.1/6.2）：Raw body 不做 durable persistence、
+  普通日志 retention 0；AiRequest unresolved/failed 输入最长 30 days 或用户提前删除；AiProposal
+  最长 30 days；AiProviderAttempt 仅 redacted/normalized metadata、90 days；AI operational logs
+  仅 metadata、30 days；正式业务记录遵循各自 domain retention；Provider 侧 retention 不冻结，
+  PR20 真实调用前必须重新核验 privacy terms、data retention、processing region、model/API
+  availability、credential mechanism 与 contractual/data-processing capability。
 - timeout 15 seconds、最多 retry 1 次且仅限 network/timeout/HTTP 429/HTTP 5xx；rolling 20 requests，
   technical failure rate `>=50%` 且 count `>=5` 时 OPEN，60 seconds 后单 probe HALF_OPEN；
 - 每用户 warning `¥3/month`、hard `¥5/month`；总体 warning `¥30/month`、hard `¥50/month`；
@@ -208,8 +214,9 @@ thresholds，经再次人工批准写入 AI ADR，再关闭效果门禁。最终
 - **状态**：`DONE / DONE_LOCAL`；ADR-027 v1.0 Final 已人工批准，尚未 commit/push/PR/merge。
 - **输入/依赖**：V15-CTRL-001、PR6a `DONE_INTEGRATION`、ADR-026 Accepted；不需要真实调用即可完成首层决策。
 - **允许修改**：ADR、评测方案、脱敏样本说明和规划状态；**禁止**写密钥或发起真实调用。
-- **结果**：Provider/模型候选、服务端接入与 credential 边界、唯一 whitelist、日志/保留、预算、
-  timeout/retry/breaker、200 条非真实数据规范、provisional 和 immutable safety thresholds 已冻结。
+- **结果**：Provider/模型候选、服务端接入与 credential 边界、唯一 whitelist、日志/保留（数据保留
+  期限矩阵已人工批准并冻结）、预算、timeout/retry/breaker、200 条非真实数据规范、provisional 和
+  immutable safety thresholds 已冻结。
 - **验证/完成标准**：决策字段完整、数值不变、不可降低安全阈值明确、人工批准证据和状态更新齐全；
   达到 `DONE_INTEGRATION` 前 PR2 保持 `BLOCKED / NOT_STARTED`。
 - **风险**：将 provisional 目标误当最终效果承诺。

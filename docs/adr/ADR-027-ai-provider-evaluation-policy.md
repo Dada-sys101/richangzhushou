@@ -105,6 +105,28 @@ Raw Provider response 不持久化；request/response 正文不得进入普通�
 metadata 不得包含 raw input/output、secret、token、cookie 或 credential。传给 Provider 的用户标识
 仅允许随机或哈希 pseudonymous id，默认不得使用 email、phone 或真实数据库 `userId`。
 
+### 6.1 Application-side retention
+
+以下 retention matrix 已由人工批准并冻结，不得自行调整数值或新增未经批准的分类：
+
+| Data | Retention | Body allowed? | Notes |
+| --- | --- | --- | --- |
+| Raw Provider body | No durable persistence；普通日志 retention 0 | No | prompt / raw input / raw response 不得写入普通 application logs |
+| AiRequest unresolved/failed 输入 | 最长 30 days，或用户主动删除，以较早发生者为准 | Yes | 仅为 failure recovery 保留；不得因 AI 审计需要无限期保存 |
+| AiProposal（未处理） | 最长 30 days | Yes | 不得因 AI 审计无限保存 |
+| AiProposal（accepted / rejected 后） | 内容最长 30 days；30 days 后仅保留必要 audit metadata | Yes（正文仅限 30 days 内） | 不得因 AI 审计无限保存 Proposal 正文 |
+| AiProviderAttempt | 90 days | No（仅 redacted / normalized metadata） | 禁止保存 prompt、raw request body、raw Provider response body、secret、credential |
+| AI operational logs | 30 days | No（仅 metadata） | 不得保存 raw user input、raw Provider response、credential、token、cookie |
+| Formal business records | 遵循各自 domain 的正常保留规则 | Yes | Transaction、Task、CalendarEvent、Reminder、Trip 等正式业务记录不受 AI retention 控制；AI retention 不得自动删除正式业务记录 |
+
+### 6.2 Provider-side retention
+
+Stage 1 不假设任何 Provider 具有固定的 provider-side retention period。PR20 开始任何真实 Provider
+调用之前，必须重新核验当时真实 Provider 的 privacy terms、data retention policy、processing region、
+model/API availability、credential mechanism 和 contractual/data-processing capability。如果 Provider
+当时的数据处理政策不能满足本 ADR 的安全要求，该 Provider 不得进入真实评测；不得为了使用某个
+Provider 降低 immutable safety thresholds。
+
 ### 7. 失败时保留输入
 
 所有 timeout、network、provider、schema、domain、circuit、budget、malformed failure 都必须保留
