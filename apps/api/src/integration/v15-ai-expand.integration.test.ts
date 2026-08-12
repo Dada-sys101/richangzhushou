@@ -455,16 +455,12 @@ describeWithDb("V1.5 PR2 AI DB expand schema", () => {
   it("lets exactly one concurrent duplicate idempotency key win", async () => {
     const user = await createUser();
     const idempotencyKey = "concurrent-idem-key";
-    const [first, second] = await Promise.allSettled([
+    const results = await Promise.allSettled([
       createRequest(user.id, "concurrent-req-a", "CLAIMED", idempotencyKey),
       createRequest(user.id, "concurrent-req-b", "CLAIMED", idempotencyKey),
     ]);
 
-    expect(first.status).toBe("fulfilled");
-    expect(second.status).toBe("rejected");
-    expect((second as PromiseRejectedResult).reason).toMatchObject({
-      code: "P2002",
-    });
+    expectExactlyOneUniqueConstraintFailure(results);
     expect(await prisma.aiRequest.count({ where: { userId: user.id } })).toBe(
       1,
     );
@@ -478,16 +474,12 @@ describeWithDb("V1.5 PR2 AI DB expand schema", () => {
       "SUCCEEDED",
     );
     const proposal = await createProposal(user.id, request.id, null);
-    const [first, second] = await Promise.allSettled([
+    const results = await Promise.allSettled([
       createOperation(proposal.id, 0),
       createOperation(proposal.id, 0),
     ]);
 
-    expect(first.status).toBe("fulfilled");
-    expect(second.status).toBe("rejected");
-    expect((second as PromiseRejectedResult).reason).toMatchObject({
-      code: "P2002",
-    });
+    expectExactlyOneUniqueConstraintFailure(results);
     expect(
       await prisma.aiOperation.count({ where: { proposalId: proposal.id } }),
     ).toBe(1);
@@ -500,16 +492,12 @@ describeWithDb("V1.5 PR2 AI DB expand schema", () => {
       "concurrent-att-req-1",
       "RUNNING",
     );
-    const [first, second] = await Promise.allSettled([
+    const results = await Promise.allSettled([
       createAttempt(request.id, 1),
       createAttempt(request.id, 1),
     ]);
 
-    expect(first.status).toBe("fulfilled");
-    expect(second.status).toBe("rejected");
-    expect((second as PromiseRejectedResult).reason).toMatchObject({
-      code: "P2002",
-    });
+    expectExactlyOneUniqueConstraintFailure(results);
     expect(
       await prisma.aiProviderAttempt.count({
         where: { aiRequestId: request.id },
@@ -718,5 +706,19 @@ describeWithDb("V1.5 PR2 AI DB expand schema", () => {
         status: "SUCCEEDED" satisfies AiProviderAttemptStatus,
       },
     });
+  }
+
+  function expectExactlyOneUniqueConstraintFailure(
+    results: PromiseSettledResult<unknown>[],
+  ) {
+    expect(results).toHaveLength(2);
+    expect(
+      results.filter((result) => result.status === "fulfilled"),
+    ).toHaveLength(1);
+    const rejected = results.filter(
+      (result): result is PromiseRejectedResult => result.status === "rejected",
+    );
+    expect(rejected).toHaveLength(1);
+    expect(rejected[0]?.reason).toMatchObject({ code: "P2002" });
   }
 });
