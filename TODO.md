@@ -89,3 +89,4 @@
 | DA-1501 | V15-CTRL-001 治理重基线经 PR #10 合入并核验 integration HEAD | DONE | V1.5 |
 | DA-1502 | PR6a 临时 MySQL 8.4 安全入口、scoped user、失败/信号 cleanup、重复执行与 evidence | DONE | V1.5 |
 | DA-1503 | AI-DECISION-001：ADR-027 v1.0 Final 接入、安全、预算、韧性与评测策略本地落地 | DONE | V1.5 |
+| DA-1504 | PR2 AI DB Expand：schema 五枚举+四表、additive migration、MySQL 8.4.9 专项测试、account deletion 适配 | DONE | V1.5 |

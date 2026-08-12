@@ -183,6 +183,10 @@ describeWithDb("OPEN-007 expired account deletion cleanup", () => {
     expect(await prisma.reminder.count({ where: { userId } })).toBe(0);
     expect(await prisma.trip.count({ where: { userId } })).toBe(0);
     expect(await prisma.syncMutation.count({ where: { userId } })).toBe(0);
+    expect(await prisma.aiRequest.count({ where: { userId } })).toBe(0);
+    expect(await prisma.aiProposal.count({ where: { userId } })).toBe(0);
+    expect(await prisma.aiOperation.count()).toBe(0);
+    expect(await prisma.aiProviderAttempt.count()).toBe(0);
     expect(storage.has(`attachments/${userId}/test.png`)).toBe(false);
 
     const tombstone = await prisma.user.findUniqueOrThrow({
@@ -417,6 +421,10 @@ describeWithDb("OPEN-007 expired account deletion cleanup", () => {
     await prisma.reminder.deleteMany();
     await prisma.task.deleteMany();
     await prisma.calendarEvent.deleteMany();
+    await prisma.aiProviderAttempt.deleteMany();
+    await prisma.aiOperation.deleteMany();
+    await prisma.aiProposal.deleteMany();
+    await prisma.aiRequest.deleteMany();
     await prisma.draftRecord.deleteMany();
     await prisma.attachment.deleteMany();
     await prisma.budget.deleteMany();
@@ -508,13 +516,57 @@ describeWithDb("OPEN-007 expired account deletion cleanup", () => {
         userId,
       },
     });
-    await prisma.draftRecord.create({
+    const draft = await prisma.draftRecord.create({
       data: {
         payloadJson: { amount: "1.00", type: "EXPENSE" },
         source: "MANUAL",
         status: "PENDING",
         targetType: "TRANSACTION",
         userId,
+      },
+    });
+    const aiRequest = await prisma.aiRequest.create({
+      data: {
+        idempotencyKey: `ai-idem-${userId}`,
+        inputFingerprint: "0".repeat(64),
+        locale: "zh-CN",
+        requestId: `ai-request-${userId}`,
+        status: "SUCCEEDED",
+        timeZoneId: "Asia/Shanghai",
+        userId,
+      },
+    });
+    const aiProposal = await prisma.aiProposal.create({
+      data: {
+        aiRequestId: aiRequest.id,
+        modelId: "deepseek-v4-flash",
+        providerId: "deepseek",
+        responseFingerprint: "a".repeat(64),
+        schemaVersion: 1,
+        sourceDraftId: draft.id,
+        status: "PENDING_REVIEW",
+        userId,
+      },
+    });
+    await prisma.aiOperation.create({
+      data: {
+        confidence: "0.9",
+        fieldsFingerprint: "b".repeat(64),
+        fieldsJson: { amount: "1.00", type: "EXPENSE" },
+        operationType: "TRANSACTION",
+        ordinal: 0,
+        proposalId: aiProposal.id,
+        resultDraftId: draft.id,
+        status: "PENDING",
+      },
+    });
+    await prisma.aiProviderAttempt.create({
+      data: {
+        aiRequestId: aiRequest.id,
+        attemptNo: 1,
+        providerId: "deepseek",
+        startedAt: new Date(),
+        status: "SUCCEEDED",
       },
     });
     await prisma.attachment.create({

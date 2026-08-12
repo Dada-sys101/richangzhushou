@@ -6,10 +6,11 @@
 
 ## 范围
 
-PR6a 在不修改业务功能、Prisma schema/migrations、依赖或正式 CI 的前提下，提供一个只连接
-本机 loopback 临时 Oracle MySQL 8.4 的验证入口。入口以管理员凭据完成 bootstrap，以独立随机
-用户执行现有 9 个 migration 和 14 files / 105 DB tests，最后删除目标库、guard database 和用户，
-并查询确认无残留。
+PR6a 在不修改业务功能、依赖或正式 CI 的前提下，提供一个只连接本机 loopback 临时 Oracle
+MySQL 8.4 的验证入口。入口以管理员凭据完成 bootstrap，以独立随机用户执行全部 migrations 和
+`src/integration` 下的 DB tests（Round 1 为 9 个 migration、14 files / 105 tests；PR2 落地后
+预期为 10 个 migration、15 files，测试数待真实运行确认），最后删除目标库、guard database 和
+用户，并查询确认无残留。
 
 ## 强制安全边界
 
@@ -103,3 +104,15 @@ Failure Run 使用 `PR6A_INJECT_FAILURE_STEP=after-migration`。Signal Run 使�
 
 当前交付状态保持 `DONE_LOCAL`。未 add、未 commit、未 push、未创建 PR、未合入 integration，
 未创建云资源，未部署 Staging 或 Production；不得自动开始其他 canonical task。
+
+## PR2 落地后的验证状态（2026-08-12）
+
+- 使用仓库外全新 datadir 启动 Oracle MySQL Community Server 8.4.9，仅绑定 loopback，
+  为本次验证创建随机独立数据库和 scoped user；未连接任何已有、远程、Staging 或 Production 数据库。
+- fresh empty DB 从 0 连续应用全部 10 migrations，重复 deploy 显示无 pending migration。
+- PR2 AI focused tests：1 file / 12 tests PASS；account deletion focused tests：1 file / 11 tests PASS；
+  `AiRequest`、`AiProposal`、`AiOperation`、`AiProviderAttempt` residual 均为 0，User tombstone 仍为 `DELETED`。
+- 全量 DB integration：15 files / 117 tests PASS，0 failed，0 skipped。最终 `npm run quality`、
+  `npm run check:context` 与 `git diff --check` PASS；临时 database/user/实例/datadir residual 为 0。
+- 首次 focused 运行暴露 schema test 漏写三个 `created_at DEFAULT CURRENT_TIMESTAMP(3)` 预期；
+  仅修复 `v15-ai-expand.integration.test.ts` 后从全新 empty DB 重跑上述完整验收链并通过。

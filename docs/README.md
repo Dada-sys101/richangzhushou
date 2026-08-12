@@ -1,15 +1,15 @@
 # Documentation Index
 
 版本：0.6
-状态：已同步 AI-DECISION-001 `DONE / DONE_LOCAL` / v2.1.1 Final / docs/40 V1.1 / Accepted ADR-026/027
-更新：2026-08-11
+状态：已同步 PR2 `DONE / DONE_LOCAL / UNCOMMITTED`（AI-DECISION-001 `DONE_INTEGRATION`）/ v2.1.1 Final / docs/40 V1.1 / Accepted ADR-026/027
+更新：2026-08-12
 
 ## V1.5 接手与状态恢复导航
 
 1. `../AGENTS.md`：强制约束、恢复顺序和授权边界。
 2. `../PLANS.md`：V1.5 唯一执行总路线。
 3. `../.project/v15-execution-state.md`：唯一仓库内执行状态快照，不是 GitHub/CI 实时镜像。
-4. `../tasks/AI-DECISION-001.md`：当前任务执行契约。
+4. `../tasks/PR2.md`：当前任务执行契约。
 5. `adr/ADR-027-ai-provider-evaluation-policy.md`：AI Stage 1 接入、安全与评测策略（Accepted）。
 6. `41-pr6a-mysql84-validation.md`：临时 MySQL 8.4 入口、边界与已集成验收。
 7. `40-v15-final-development-baseline.md`：V1.1 冻结技术与开发基线。

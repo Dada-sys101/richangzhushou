@@ -1,5 +1,20 @@
 # Session End
 
+## 2026-08-12 — PR2 AI DB Expand 最终本地验收
+
+- 分支：`codex/v15-pr2-ai-db-expand`，基于已核验 integration HEAD
+  `c4cca65bcd2ba71d93f948bf1c8731179fbb7fad`（PR #12 merge，AI-DECISION-001
+  `DONE_INTEGRATION`，CI 218 SUCCESS）。
+- 本地完成：schema 五枚举 + 冻结四表、单一 additive migration
+  `20260812120000_v15_expand_ai`、`v15-ai-expand.integration.test.ts`、account-deletion
+  service/test 最小适配、`tasks/PR2.md`（DEC-PR2-01..04）与必要文档/状态同步。
+- 验证：Oracle MySQL 8.4.9 fresh empty DB 10 migrations PASS；focused AI 12/12、
+  account deletion 11/11、full DB integration 15 files / 117 tests PASS，0 skipped；
+  `quality`、`check:context`、`git diff --check` 与最终 diff review PASS，临时资源 residual 0。
+- 验证中仅最小修复 focused schema test 对三个 `created_at DEFAULT CURRENT_TIMESTAMP(3)` 的漏断言；
+  当前 `DONE / DONE_LOCAL / UNCOMMITTED`，下一建议任务 PR5 未启动。
+- 未 add/commit/push/创建 PR/merge/访问 credential/真实 AI/部署。
+
 ## 2026-08-11 — AI-DECISION-001 本地断点
 
 - 分支：`codex/v15-ai-decision-001`，基于已核验 integration HEAD

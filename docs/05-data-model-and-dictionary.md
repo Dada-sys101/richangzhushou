@@ -34,6 +34,13 @@ erDiagram
     USER ||--o{ ATTACHMENT : owns
     USER ||--o{ SYNC_MUTATION : submits
     USER ||--o{ DRAFT_RECORD : reviews
+    USER ||--o{ AI_REQUEST : submits
+    USER ||--o{ AI_PROPOSAL : owns
+    AI_REQUEST ||--o{ AI_PROPOSAL : produces
+    AI_REQUEST ||--o{ AI_PROVIDER_ATTEMPT : traces
+    AI_PROPOSAL ||--o{ AI_OPERATION : contains
+    DRAFT_RECORD ||--o{ AI_PROPOSAL : source
+    DRAFT_RECORD ||--o{ AI_OPERATION : result
     ADMIN_AUDIT }o--|| USER : targets
 ```
 
@@ -59,6 +66,10 @@ erDiagram
 | `DraftRecord` | userId, source, targetType, payloadJson, confidenceJson, status, clientMutationId（唯一）, attachmentId, failureReason, version, confirmedAt, discardedAt, resultId | 幂等键唯一；确认后 resultId 指向正式记录 |
 | `SyncMutation` | userId, clientMutationId, entityType, entityId?, action, requestHash, resultRef, status, errorCode?, errorMessage? | userId+clientMutationId 唯一；requestHash 保存幂等请求摘要 |
 | `AdminAudit` | actorId, action, targetType, targetId, beforeJson, afterJson, reason | createdAt；不可从产品 API 删除 |
+| `AiRequest` | userId, requestId, idempotencyKey（唯一）, inputFingerprint, locale, timeZoneId, status, proposalId?（逻辑标量）, failureCategory?, failureCode?, startedAt?, completedAt? | userId+status+createdAt；idempotencyKey 唯一；无 raw 输入正文 |
+| `AiProposal` | userId, aiRequestId（唯一）, sourceDraftId?, providerId, modelId, status, schemaVersion, responseFingerprint, usageJson?, expiresAt?, reviewedAt?, completedAt?, version | aiRequestId 唯一；userId+status+createdAt；expiresAt；AiProposal 不依赖 Draft |
+| `AiOperation` | proposalId, ordinal, operationType, status, confidence, fieldsJson, fieldsFingerprint, clarification?, resultEntityType?, resultEntityId?, resultDraftId?, errorCode?, errorMessage?, acceptedAt?, rejectedAt?, appliedAt? | proposalId+ordinal 唯一；fieldsJson 非空（Proposal content） |
+| `AiProviderAttempt` | aiRequestId, attemptNo, providerId, modelId?, status, failureCategory?, httpStatus?, latencyMs?, inputTokens?, outputTokens?, startedAt, completedAt? | aiRequestId+attemptNo 唯一；startedAt 索引；仅 metadata，无正文 |
 
 ## 枚举
 
@@ -86,6 +97,11 @@ erDiagram
 | `SyncEntityType` | `TRANSACTION`, `CATEGORY`, `FINANCIAL_ACCOUNT`, `BUDGET`, `CALENDAR_EVENT`, `TASK`, `REMINDER`, `TRIP`, `TRIP_ITEM`, `PACKING_ITEM`, `DRAFT_RECORD` |
 | `SyncAction` | `CREATE`, `UPDATE`, `DELETE`, `RESTORE` |
 | `SyncMutationStatus` | `APPLIED`, `CONFLICTED`, `FAILED` |
+| `AiRequestStatus` | `CLAIMED`, `RUNNING`, `SUCCEEDED`, `FAILED`, `CANCELLED` |
+| `AiProposalStatus` | `PENDING_REVIEW`, `PARTIALLY_APPLIED`, `APPLIED`, `REJECTED`, `EXPIRED`, `FAILED`, `CANCELLED` |
+| `AiOperationType` | `TRANSACTION`, `CALENDAR_EVENT`, `TASK`, `REMINDER`, `TRIP` |
+| `AiOperationStatus` | `PENDING`, `ACCEPTED`, `REJECTED`, `APPLIED`, `FAILED`, `EXPIRED` |
+| `AiProviderAttemptStatus` | `RUNNING`, `SUCCEEDED`, `FAILED`, `CANCELLED` |
 
 ## 容量计算
 
@@ -197,3 +213,20 @@ erDiagram
   `deleted_at`，以 `status=DISCARDED` 作为墓碑语义。
 - 附件二进制不进入离线同步队列：V1 仅同步元数据/引用，上传仍走在线接口
   （`[待确认]`，见 `docs/23`）。
+
+## PR2 AI 表补充说明（2026-08-12）
+
+- 新增 `ai_requests`/`ai_proposals`/`ai_operations`/`ai_provider_attempts` 与五个
+  枚举（migration `20260812120000_v15_expand_ai`），字段/长度/nullability/default
+  完全按 `docs/40` §3.2 冻结规格；不改动任何旧表/旧列。
+- `AiRequest.proposalId` 为 nullable 逻辑标量，无 FK，避免循环外键；
+  `AiProposal.aiRequestId` UNIQUE + Cascade；`AiOperation(proposalId, ordinal)` 唯一；
+  `AiProviderAttempt(aiRequestId, attemptNo)` 唯一。
+- `AiProposal.sourceDraftId` 与 `AiOperation.resultDraftId` 均引用 `draft_records`
+  且 ON DELETE SET NULL；`AiProposal` 不依赖 DraftRecord 即可存在。
+- 原始 userInput 由客户端保留（DEC-PR2-03）：服务端四表只存指纹/元数据/状态，
+  无 raw input/prompt/request/response body/credential 字段。
+- `AiOperation.fieldsJson`（非空）与 `clarification` 属 Proposal content
+  （DEC-PR2-02）；正文最长 30 天为应用层 retention 策略，本任务不实现 scheduler。
+- 账户删除在 DraftRecord 删除前显式删除该用户 `AiRequest` roots，四表依赖级联
+  （DEC-PR2-04）；User tombstone 与状态机/审计语义不变。
