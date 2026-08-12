@@ -1,33 +1,33 @@
 # V1.5 Execution State
 
-updatedAt: 2026-08-10T16:05:42+08:00
+updatedAt: 2026-08-11T10:44:32+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 integrationBranch: codex/v15-integration-foundation
-integrationHead: 371a43dc5ecd2e067d2a8a186acc0797b18b5052
+integrationHead: 01292ef7a6bcf97addfd139fe39a3576fc05f9c9
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: PR6a
+currentTask: AI-DECISION-001
 executionStatus: DONE
 deliveryStatus: DONE_LOCAL
-nextCanonicalTask: PR6a
-nextCanonicalTaskAfterCompletion: TBD_AFTER_PR6A_REVALIDATION
+nextCanonicalTask: AI-DECISION-001
+nextCanonicalTaskAfterCompletion: PR2
 openPullRequests: []
 
 ## Active Task
 
-- id: PR6a
-- displayName: 临时 MySQL 8.4 验证入口
-- branch: codex/v15-pr6a-mysql84-validation
+- id: AI-DECISION-001
+- displayName: AI 接入与评测方法冻结
+- branch: codex/v15-ai-decision-001
 - baseBranch: codex/v15-integration-foundation
-- baseHead: 371a43dc5ecd2e067d2a8a186acc0797b18b5052
+- baseHead: 01292ef7a6bcf97addfd139fe39a3576fc05f9c9
 - executionStatus: DONE
 - deliveryStatus: DONE_LOCAL
 - localWorkingTree: MODIFIED_UNCOMMITTED
-- allowedScope: temporary database validation scripts, tests, governance configuration, documentation, state evidence
-- forbiddenScope: business features, production database, Prisma schema/migrations, formal CI, cloud, staging, production
-- validation: MySQL 8.4 version guard; empty migration; DB tests; injected failure; cleanup; two consecutive runs; quality; check:context; git diff --check
-- remaining: independent PR6a re-audit and separately authorized delivery actions; do not select the next canonical task yet
+- allowedScope: ADR-027, AI decision task contract, minimal planning/state/index/architecture/progress/roadmap/changelog synchronization
+- forbiddenScope: code, Prisma/migration/database, formal CI, dependencies/lockfile, real AI/evaluation/credential, cloud, staging, production
+- validation: approved fields and immutable numeric parameters; index/state consistency; check:context; quality; git diff --check
+- remaining: independent diff and validation review, then separately authorized commit/push/PR/merge; PR2 remains blocked before DONE_INTEGRATION
 
 ## Task Ledger
 
@@ -36,9 +36,9 @@ openPullRequests: []
 | V15-CTRL-001a | DONE | DONE_INTEGRATION | R1 | none | PR #9 / `bc747b7...` |
 | V15-CTRL-001 | DONE | DONE_INTEGRATION | R1 | twelve completion conditions | PR #10 / `371a43d...` verified |
 | PR1 | DONE | DONE_INTEGRATION | Foundation | baseline | PR #8 |
-| PR6a | DONE | DONE_LOCAL | R1 | V15-CTRL-001 DONE_INTEGRATION | Round 1: 26 focused tests; success 2/2; failure/signal cleanup; evidence hashes verified |
-| AI-DECISION-001 | PENDING | NOT_STARTED | R1 | before PR2 | method/threshold decision pending |
-| PR2 | BLOCKED | NOT_STARTED | R1 | PR6a + AI-DECISION-001 | wait |
+| PR6a | DONE | DONE_INTEGRATION | R1 | V15-CTRL-001 DONE_INTEGRATION | PR #11 merged; integration `01292ef...` verified |
+| AI-DECISION-001 | DONE | DONE_LOCAL | R1 | V15-CTRL-001; before PR2 first-layer decision | verified inputs: PR6a DONE_INTEGRATION, ADR-026 Accepted; ADR-027 v1.0 Final accepted; local documentation only |
+| PR2 | BLOCKED | NOT_STARTED | R1 | V15-CTRL-001 + PR6a + AI-DECISION-001 first-layer decision | current delivery/execution gate: BLOCKED / NOT_STARTED until AI-DECISION-001 integration delivery completes; not a frozen dependency rewrite |
 | PR3 | PENDING | NOT_STARTED | R1.1 | PR6a | later |
 | PR4 | PENDING | NOT_STARTED | R2 | PR6a | later |
 | PR5 | BLOCKED | NOT_STARTED | R1 | PR1 + PR2 + PR6a | wait |
@@ -53,7 +53,7 @@ openPullRequests: []
 | PR20 | BLOCKED | NOT_STARTED | R1 | dev: PR19; validation/merge: H7 | Adapter may be built later; human gate |
 | PR21 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
 | PR22/PR23 | PENDING | NOT_STARTED | R3 | PLANS dependencies + cleanup authorization | later |
-| REL-01 | READY | NOT_STARTED | R1 | V15-CTRL-001 satisfied | design only; no resources; not selected while PR6a active |
+| REL-01 | READY | NOT_STARTED | R1 | V15-CTRL-001 satisfied | design only; no resources; not selected while AI-DECISION-001 active |
 | REL-02 | BLOCKED | NOT_STARTED | R1 | REL-01 + R1 Quality Gate + authorization | no resources yet |
 | REL-03/REL-04 | BLOCKED | NOT_STARTED | R1 | REL-02 and PLANS gates | no staging |
 | REL-05 | BLOCKED | NOT_STARTED | R1 | REL-04 | no pilot |
@@ -76,7 +76,7 @@ openPullRequests: []
 ## Evidence
 
 - repository: Dada-sys101/richangzhushou
-- completedPRs: #8, #9, #10
+- completedPRs: #8, #9, #10, #11
 - pr10FinalHead: 9a12b4cba3fd63a23a128a66fc17989c642a3cdb
 - pr10State: MERGED
 - pr10MergeCommit: 371a43dc5ecd2e067d2a8a186acc0797b18b5052
@@ -84,7 +84,11 @@ openPullRequests: []
 - approvedPlanDecision: v2.1.1 Final approved by Dada on 2026-08-10
 - acceptedADR: docs/adr/ADR-026-v15-release-scope-r1.md
 - baseline: docs/40-v15-final-development-baseline.md V1.1
-- localRevision: PR6A_ROUND1_DONE_LOCAL_UNCOMMITTED_NOT_PUSHED
+- pr11State: MERGED
+- pr11MergeCommit: 01292ef7a6bcf97addfd139fe39a3576fc05f9c9
+- pr6aState: DONE / DONE_INTEGRATION
+- acceptedAIDecision: docs/adr/ADR-027-ai-provider-evaluation-policy.md v1.0 Final
+- localRevision: AI_DECISION_001_DONE_LOCAL_UNCOMMITTED_NOT_PUSHED
 - pr6aEnvironment: Node 24.16.0; npm 11.13.0; Oracle MySQL 8.4.9 loopback disposable instance
 - pr6aValidation: 26 focused tests; 9 migrations; 14 files / 105 DB tests; scoped-user isolation; injected failure cleanup; SIGINT tree termination cleanup; DB/user/process residual 0; consecutive runs 2/2; evidence SHA256 verified; quality PASS
 - pr6aCleanup: MySQL process stopped; temporary data directory moved to Recycle Bin
@@ -93,19 +97,19 @@ openPullRequests: []
 
 ## Last Verified
 
-- liveFactsChecked: PR #10 MERGED; final head `9a12b4c...`; merge commit/integration HEAD `371a43d...`; final-head CI SUCCESS
-- localBaseChecked: clean branch created from `origin/codex/v15-integration-foundation@371a43d...`
-- currentLocalValidation: PASS (Round 1 focused/lifecycle tests; two MySQL 8.4 successes; failure and signal paths; evidence hashes; quality; check:context; git diff --check)
-- notPerformed: commit, push, PR, merge, cloud resource creation, staging, production, real AI
+- liveFactsChecked: PR #11 MERGED; merge commit/integration HEAD `01292ef7a6bcf97addfd139fe39a3576fc05f9c9`; no open PR
+- localBaseChecked: clean branch `codex/v15-ai-decision-001` created from approved integration HEAD `01292ef...`
+- currentLocalValidation: PASS (independent ADR/task/state diff, approved numeric fields, check:context, quality, and git diff --check review)
+- notPerformed: add, commit, push, PR, merge, code/database/migration/CI/dependency change, credential access, real AI/evaluation, cloud resource creation, staging, production
 - snapshotRule: GitHub/Git/CI/environment facts override this snapshot; synchronize only at the next legal governance update point without creating a CI loop
 
 ## Recovery Rules
 
 1. Read `PLANS.md`, then this snapshot; verify GitHub/Git/CI/environment before action.
 2. Obey explicit `nextCanonicalTask` after dependency/gate validation; do not choose a random READY task.
-3. V15-CTRL-001 is complete at integration HEAD `371a43d...`; PR6a remains the sole canonical task at `DONE / DONE_LOCAL` after Round 1 revalidation.
-4. PR6a must use only validated MySQL 8.4 temporary targets and must always verify cleanup.
+3. V15-CTRL-001 and PR6a are `DONE / DONE_INTEGRATION`; integration HEAD is `01292ef7a6bcf97addfd139fe39a3576fc05f9c9`.
+4. AI-DECISION-001 is the sole canonical task at `DONE / DONE_LOCAL`; ADR-027 freezes policy only and contains no real evaluation or implementation.
 5. At most one canonical task may be IN_PROGRESS; do not auto-parallelize.
 6. Human gates may only be closed by a human based on evidence.
-7. PR6a delivery remains stopped at `DONE_LOCAL`; commit, push, PR and merge each require separate authorization.
+7. Under the current delivery/execution gate, AI-DECISION-001 must reach `DONE_INTEGRATION` before PR2 may start; this gate does not rewrite the PLANS v2.1.1 frozen dependency graph; commit, push, PR and merge each require separate authorization.
 8. Snapshot/live-fact mismatch is reconciled at the next legal governance update; never create an infinite CI synchronization loop.

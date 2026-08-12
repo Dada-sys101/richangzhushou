@@ -342,3 +342,19 @@
 - Related Files: `PLANS.md`、`.project/v15-execution-state.md`、
   `docs/adr/ADR-026-v15-release-scope-r1.md`、`docs/40-v15-final-development-baseline.md`
 - Related Commit: not created; local governance revision awaiting human diff review
+
+## ADR-027: AI Provider 接入、安全与评测策略
+
+- Date: 2026-08-11
+- Status: Accepted
+- Context: AI-DECISION-001 必须在 PR2 前冻结 Stage 1 接入、安全、预算、韧性和评测策略，
+  同时避免把 provisional targets 或候选顺序误写成最终 Provider/效果承诺。
+- Decision: Provider 顺序为 DeepSeek、阿里云百炼 / Qwen、OpenAI（仅对照）；浏览器只调用
+  Daily Assistant API，由服务端 AiProviderAdapter 访问 Provider HTTPS；R1 禁止自动跨 Provider
+  fallback；credential、唯一字段白名单、日志/保留、预算、timeout/retry/breaker、200 条非真实
+  数据规范、`>=99%` Schema success、`>=85%` 无需完全重录及四项不可降低安全阈值按 v1.0 Final 冻结。
+- Consequences: 当前不冻结唯一 Provider；本任务不做真实评测/实现；PR20 受控真实评测后才可提出
+  final provider/model/effect thresholds，并再次人工批准且不得降低安全阈值。
+- Related Files: `docs/adr/ADR-027-ai-provider-evaluation-policy.md`、
+  `tasks/AI-DECISION-001.md`、`PLANS.md`
+- Related Commit: not created; AI-DECISION-001 is `DONE / DONE_LOCAL`
