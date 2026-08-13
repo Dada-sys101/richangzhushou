@@ -110,6 +110,7 @@ export class AccountDeletionService {
       await tx.reminder.deleteMany({ where: { userId } });
       await tx.task.deleteMany({ where: { userId } });
       await tx.calendarEvent.deleteMany({ where: { userId } });
+      await tx.aiRequest.deleteMany({ where: { userId } });
       await tx.draftRecord.deleteMany({ where: { userId } });
       await tx.attachment.deleteMany({ where: { userId } });
       await tx.budget.deleteMany({ where: { userId } });

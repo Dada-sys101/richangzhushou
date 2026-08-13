@@ -172,49 +172,93 @@ enum RecurrenceExceptionType {
   REPLACE
 }
 
+enum AiRequestStatus {
+  CLAIMED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum AiProposalStatus {
+  PENDING_REVIEW
+  PARTIALLY_APPLIED
+  APPLIED
+  REJECTED
+  EXPIRED
+  FAILED
+  CANCELLED
+}
+
+enum AiOperationType {
+  TRANSACTION
+  CALENDAR_EVENT
+  TASK
+  REMINDER
+  TRIP
+}
+
+enum AiOperationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  APPLIED
+  FAILED
+  EXPIRED
+}
+
+enum AiProviderAttemptStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
 model SystemSetting {
-  id                  String   @id @default("singleton")
-  maxActiveUsers      Int      @default(20) @map("max_active_users")
-  updatedAt           DateTime @updatedAt @map("updated_at")
-  updatedBy           String?  @map("updated_by")
+  id             String   @id @default("singleton")
+  maxActiveUsers Int      @default(20) @map("max_active_users")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  updatedBy      String?  @map("updated_by")
 
   @@map("system_settings")
 }
 
 model User {
-  id                  String             @id @default(cuid())
-  username            String             @unique
-  normalizedUsername  String             @unique @map("normalized_username")
-  displayName         String             @map("display_name")
-  passwordHash        String             @map("password_hash")
-  mustChangePassword  Boolean            @default(false) @map("must_change_password")
-  role                UserRole           @default(USER)
-  status              UserStatus         @default(ACTIVE)
-  createdAt           DateTime           @default(now()) @map("created_at")
-  updatedAt           DateTime           @updatedAt @map("updated_at")
-  closedAt            DateTime?          @map("closed_at")
-  deletionRequestedAt DateTime?          @map("deletion_requested_at")
-  deletionScheduledAt DateTime?          @map("deletion_scheduled_at")
-  deletionStartedAt   DateTime?          @map("deletion_started_at")
-  deletionCompletedAt DateTime?          @map("deletion_completed_at")
-  deletionAttemptCount Int               @default(0) @map("deletion_attempt_count")
-  deletionLastError   String?            @map("deletion_last_error") @db.VarChar(500)
-  deletionLeaseExpiresAt DateTime?       @map("deletion_lease_expires_at")
-  lastLoginAt         DateTime?          @map("last_login_at")
-  sessions            Session[]
-  adminAudits         AdminAudit[]
-  categories          Category[]
-  financialAccounts   FinancialAccount[]
-  transactions        Transaction[]
-  budgets             Budget[]
-  deviceCredentials   DeviceCredential[]
-  drafts              DraftRecord[]
-  attachments         Attachment[]
-  calendarEvents      CalendarEvent[]
-  tasks               Task[]
-  reminders           Reminder[]
-  trips               Trip[]
-  syncMutations       SyncMutation[]
+  id                     String             @id @default(cuid())
+  username               String             @unique
+  normalizedUsername     String             @unique @map("normalized_username")
+  displayName            String             @map("display_name")
+  passwordHash           String             @map("password_hash")
+  mustChangePassword     Boolean            @default(false) @map("must_change_password")
+  role                   UserRole           @default(USER)
+  status                 UserStatus         @default(ACTIVE)
+  createdAt              DateTime           @default(now()) @map("created_at")
+  updatedAt              DateTime           @updatedAt @map("updated_at")
+  closedAt               DateTime?          @map("closed_at")
+  deletionRequestedAt    DateTime?          @map("deletion_requested_at")
+  deletionScheduledAt    DateTime?          @map("deletion_scheduled_at")
+  deletionStartedAt      DateTime?          @map("deletion_started_at")
+  deletionCompletedAt    DateTime?          @map("deletion_completed_at")
+  deletionAttemptCount   Int                @default(0) @map("deletion_attempt_count")
+  deletionLastError      String?            @map("deletion_last_error") @db.VarChar(500)
+  deletionLeaseExpiresAt DateTime?          @map("deletion_lease_expires_at")
+  lastLoginAt            DateTime?          @map("last_login_at")
+  sessions               Session[]
+  adminAudits            AdminAudit[]
+  categories             Category[]
+  financialAccounts      FinancialAccount[]
+  transactions           Transaction[]
+  budgets                Budget[]
+  deviceCredentials      DeviceCredential[]
+  drafts                 DraftRecord[]
+  attachments            Attachment[]
+  calendarEvents         CalendarEvent[]
+  tasks                  Task[]
+  reminders              Reminder[]
+  trips                  Trip[]
+  syncMutations          SyncMutation[]
+  aiRequests             AiRequest[]
+  aiProposals            AiProposal[]
 
   @@index([status])
   @@index([createdAt])
@@ -255,20 +299,20 @@ model AdminAudit {
 }
 
 model Category {
-  id           String        @id @default(cuid())
-  userId       String        @map("user_id")
-  kind         CategoryKind
-  name         String        @db.VarChar(40)
-  color        String        @default("#64748B") @db.VarChar(7)
-  isArchived   Boolean       @default(false) @map("is_archived")
-  clientMutationId String?   @unique @map("client_mutation_id")
-  version      Int           @default(1)
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
-  deletedAt    DateTime?     @map("deleted_at")
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
-  budgets      Budget[]
+  id               String        @id @default(cuid())
+  userId           String        @map("user_id")
+  kind             CategoryKind
+  name             String        @db.VarChar(40)
+  color            String        @default("#64748B") @db.VarChar(7)
+  isArchived       Boolean       @default(false) @map("is_archived")
+  clientMutationId String?       @unique @map("client_mutation_id")
+  version          Int           @default(1)
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  deletedAt        DateTime?     @map("deleted_at")
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions     Transaction[]
+  budgets          Budget[]
 
   @@unique([userId, kind, name])
   @@index([userId, isArchived])
@@ -277,18 +321,18 @@ model Category {
 }
 
 model FinancialAccount {
-  id           String               @id @default(cuid())
-  userId       String               @map("user_id")
-  name         String               @db.VarChar(40)
-  kind         FinancialAccountKind
-  isArchived   Boolean              @default(false) @map("is_archived")
-  clientMutationId String?          @unique @map("client_mutation_id")
-  version      Int                  @default(1)
-  createdAt    DateTime             @default(now()) @map("created_at")
-  updatedAt    DateTime             @updatedAt @map("updated_at")
-  deletedAt    DateTime?            @map("deleted_at")
-  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
+  id               String               @id @default(cuid())
+  userId           String               @map("user_id")
+  name             String               @db.VarChar(40)
+  kind             FinancialAccountKind
+  isArchived       Boolean              @default(false) @map("is_archived")
+  clientMutationId String?              @unique @map("client_mutation_id")
+  version          Int                  @default(1)
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+  deletedAt        DateTime?            @map("deleted_at")
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions     Transaction[]
 
   @@unique([userId, name])
   @@index([userId, isArchived])
@@ -335,19 +379,19 @@ model Transaction {
 }
 
 model Budget {
-  id         String    @id @default(cuid())
-  userId     String    @map("user_id")
-  categoryId String?   @map("category_id")
-  month      String    @db.VarChar(7)
-  amount     Decimal   @db.Decimal(18, 2)
-  currency   String    @default("CNY") @db.VarChar(3)
-  clientMutationId String? @unique @map("client_mutation_id")
-  version    Int       @default(1)
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
-  deletedAt  DateTime? @map("deleted_at")
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  id               String    @id @default(cuid())
+  userId           String    @map("user_id")
+  categoryId       String?   @map("category_id")
+  month            String    @db.VarChar(7)
+  amount           Decimal   @db.Decimal(18, 2)
+  currency         String    @default("CNY") @db.VarChar(3)
+  clientMutationId String?   @unique @map("client_mutation_id")
+  version          Int       @default(1)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category         Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@unique([userId, month, categoryId])
   @@index([userId, month])
@@ -357,16 +401,16 @@ model Budget {
 }
 
 model DeviceCredential {
-  id         String   @id @default(cuid())
-  userId     String   @map("user_id")
-  name       String   @db.VarChar(60)
-  tokenHash  String   @unique @map("token_hash")
-  tokenPrefix String  @map("token_prefix") @db.VarChar(8)
-  scopes     Json     @map("scopes")
-  lastUsedAt DateTime? @map("last_used_at")
-  revokedAt  DateTime? @map("revoked_at")
-  createdAt  DateTime @default(now()) @map("created_at")
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id")
+  name        String    @db.VarChar(60)
+  tokenHash   String    @unique @map("token_hash")
+  tokenPrefix String    @map("token_prefix") @db.VarChar(8)
+  scopes      Json      @map("scopes")
+  lastUsedAt  DateTime? @map("last_used_at")
+  revokedAt   DateTime? @map("revoked_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, revokedAt])
   @@index([userId, createdAt])
@@ -374,22 +418,22 @@ model DeviceCredential {
 }
 
 model Attachment {
-  id                   String              @id @default(cuid())
-  userId               String              @map("user_id")
-  ownerType            AttachmentOwnerType @map("owner_type")
-  ownerId              String?             @map("owner_id")
-  objectKey            String              @unique @map("object_key")
-  mimeType             String              @map("mime_type") @db.VarChar(100)
-  size                 Int                 @map("size")
-  sha256               String?             @map("sha256") @db.VarChar(64)
-  uploadTokenHash      String?             @unique @map("upload_token_hash") @db.VarChar(64)
-  uploadIntentExpiresAt DateTime?          @map("upload_intent_expires_at")
-  contentStoredAt      DateTime?           @map("content_stored_at")
-  createdAt            DateTime            @default(now()) @map("created_at")
-  updatedAt            DateTime            @updatedAt @map("updated_at")
-  deletedAt            DateTime?           @map("deleted_at")
-  user                 User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  drafts               DraftRecord[]
+  id                    String              @id @default(cuid())
+  userId                String              @map("user_id")
+  ownerType             AttachmentOwnerType @map("owner_type")
+  ownerId               String?             @map("owner_id")
+  objectKey             String              @unique @map("object_key")
+  mimeType              String              @map("mime_type") @db.VarChar(100)
+  size                  Int                 @map("size")
+  sha256                String?             @map("sha256") @db.VarChar(64)
+  uploadTokenHash       String?             @unique @map("upload_token_hash") @db.VarChar(64)
+  uploadIntentExpiresAt DateTime?           @map("upload_intent_expires_at")
+  contentStoredAt       DateTime?           @map("content_stored_at")
+  createdAt             DateTime            @default(now()) @map("created_at")
+  updatedAt             DateTime            @updatedAt @map("updated_at")
+  deletedAt             DateTime?           @map("deleted_at")
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  drafts                DraftRecord[]
 
   @@index([userId, ownerType, ownerId])
   @@index([userId, createdAt])
@@ -397,24 +441,26 @@ model Attachment {
 }
 
 model DraftRecord {
-  id               String          @id @default(cuid())
-  userId           String          @map("user_id")
-  source           RecordSource    @map("source")
-  targetType       DraftTargetType @map("target_type")
-  payloadJson      Json            @map("payload_json")
-  confidenceJson   Json?           @map("confidence_json")
-  status           DraftStatus     @default(PENDING)
-  clientMutationId String?         @unique @map("client_mutation_id")
-  attachmentId     String?         @map("attachment_id")
-  failureReason    String?         @map("failure_reason") @db.VarChar(200)
-  version          Int             @default(1)
-  createdAt        DateTime        @default(now()) @map("created_at")
-  updatedAt        DateTime        @updatedAt @map("updated_at")
-  confirmedAt      DateTime?       @map("confirmed_at")
-  discardedAt      DateTime?       @map("discarded_at")
-  resultId         String?         @map("result_id")
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  attachment       Attachment?     @relation(fields: [attachmentId], references: [id], onDelete: SetNull)
+  id                    String          @id @default(cuid())
+  userId                String          @map("user_id")
+  source                RecordSource    @map("source")
+  targetType            DraftTargetType @map("target_type")
+  payloadJson           Json            @map("payload_json")
+  confidenceJson        Json?           @map("confidence_json")
+  status                DraftStatus     @default(PENDING)
+  clientMutationId      String?         @unique @map("client_mutation_id")
+  attachmentId          String?         @map("attachment_id")
+  failureReason         String?         @map("failure_reason") @db.VarChar(200)
+  version               Int             @default(1)
+  createdAt             DateTime        @default(now()) @map("created_at")
+  updatedAt             DateTime        @updatedAt @map("updated_at")
+  confirmedAt           DateTime?       @map("confirmed_at")
+  discardedAt           DateTime?       @map("discarded_at")
+  resultId              String?         @map("result_id")
+  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attachment            Attachment?     @relation(fields: [attachmentId], references: [id], onDelete: SetNull)
+  proposalSources       AiProposal[]    @relation("AiProposalSourceDraft")
+  operationResultDrafts AiOperation[]   @relation("AiOperationResultDraft")
 
   @@index([userId, status, createdAt])
   @@index([userId, createdAt])
@@ -467,30 +513,30 @@ model Task {
 }
 
 model Reminder {
-  id               String               @id @default(cuid())
-  userId           String               @map("user_id")
-  title            String               @db.VarChar(200)
-  note             String?              @db.VarChar(500)
-  targetType       ReminderTargetType   @default(STANDALONE) @map("target_type")
-  targetId         String?              @map("target_id")
-  scheduleType     ReminderScheduleType @map("schedule_type")
-  startsAt         DateTime             @map("starts_at")
-  scheduledAt      DateTime             @map("scheduled_at")
-  recurrenceJson   Json?                @map("recurrence_json")
-  status           ReminderStatus       @default(SCHEDULED)
-  attemptCount     Int                  @default(0) @map("attempt_count")
-  nextAttemptAt    DateTime?            @map("next_attempt_at")
-  lastAttemptAt    DateTime?            @map("last_attempt_at")
-  sentAt           DateTime?            @map("sent_at")
-  suppressedAt     DateTime?            @map("suppressed_at")
-  failureReason    String?              @map("failure_reason") @db.VarChar(200)
-  lastErrorCode    String?              @map("last_error_code") @db.VarChar(50)
-  clientMutationId String?              @unique @map("client_mutation_id")
-  version          Int                  @default(1)
-  createdAt        DateTime             @default(now()) @map("created_at")
-  updatedAt        DateTime             @updatedAt @map("updated_at")
-  deletedAt        DateTime?            @map("deleted_at")
-  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String                  @id @default(cuid())
+  userId           String                  @map("user_id")
+  title            String                  @db.VarChar(200)
+  note             String?                 @db.VarChar(500)
+  targetType       ReminderTargetType      @default(STANDALONE) @map("target_type")
+  targetId         String?                 @map("target_id")
+  scheduleType     ReminderScheduleType    @map("schedule_type")
+  startsAt         DateTime                @map("starts_at")
+  scheduledAt      DateTime                @map("scheduled_at")
+  recurrenceJson   Json?                   @map("recurrence_json")
+  status           ReminderStatus          @default(SCHEDULED)
+  attemptCount     Int                     @default(0) @map("attempt_count")
+  nextAttemptAt    DateTime?               @map("next_attempt_at")
+  lastAttemptAt    DateTime?               @map("last_attempt_at")
+  sentAt           DateTime?               @map("sent_at")
+  suppressedAt     DateTime?               @map("suppressed_at")
+  failureReason    String?                 @map("failure_reason") @db.VarChar(200)
+  lastErrorCode    String?                 @map("last_error_code") @db.VarChar(50)
+  clientMutationId String?                 @unique @map("client_mutation_id")
+  version          Int                     @default(1)
+  createdAt        DateTime                @default(now()) @map("created_at")
+  updatedAt        DateTime                @updatedAt @map("updated_at")
+  deletedAt        DateTime?               @map("deleted_at")
+  user             User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   recurrenceRule   ReminderRecurrenceRule?
 
   @@index([userId, status, scheduledAt])
@@ -501,28 +547,28 @@ model Reminder {
 }
 
 model ReminderRecurrenceRule {
-  id                     String                   @id @default(cuid())
-  reminderId             String                   @map("reminder_id")
-  engine                 RecurrenceEngine         @default(RRULE_TEMPORAL)
-  schemaVersion          Int                      @default(1) @map("schema_version") @db.SmallInt
-  rruleText              String                   @map("rrule_text") @db.Text
-  timeZoneId             String                   @map("time_zone_id") @db.VarChar(64)
-  timeMode               RecurrenceTimeMode       @default(WALL_CLOCK) @map("time_mode")
-  dtstartLocal           DateTime?                @map("dtstart_local")
-  dtstartInstant         DateTime                 @map("dtstart_instant")
-  canonicalHash          String                   @map("canonical_hash") @db.Char(64)
-  parentRuleId           String?                  @map("parent_rule_id")
-  splitFromOccurrenceKey String?                  @map("split_from_occurrence_key") @db.VarChar(128)
-  backfillStatus         RecurrenceBackfillStatus @default(PENDING) @map("backfill_status")
-  backfilledAt           DateTime?                @map("backfilled_at")
-  dualReadVerifiedAt     DateTime?                @map("dual_read_verified_at")
-  parityMismatchCount    Int                      @default(0) @map("parity_mismatch_count")
-  version                Int                      @default(1)
-  createdAt              DateTime                 @default(now()) @map("created_at")
-  updatedAt              DateTime                 @updatedAt @map("updated_at")
-  reminder               Reminder                 @relation(fields: [reminderId], references: [id], onDelete: Cascade, map: "rrule_reminder_id_fkey")
-  parentRule             ReminderRecurrenceRule?  @relation("ReminderRecurrenceRuleParent", fields: [parentRuleId], references: [id], onDelete: SetNull, map: "rrule_parent_rule_id_fkey")
-  childRules             ReminderRecurrenceRule[] @relation("ReminderRecurrenceRuleParent")
+  id                     String                        @id @default(cuid())
+  reminderId             String                        @map("reminder_id")
+  engine                 RecurrenceEngine              @default(RRULE_TEMPORAL)
+  schemaVersion          Int                           @default(1) @map("schema_version") @db.SmallInt
+  rruleText              String                        @map("rrule_text") @db.Text
+  timeZoneId             String                        @map("time_zone_id") @db.VarChar(64)
+  timeMode               RecurrenceTimeMode            @default(WALL_CLOCK) @map("time_mode")
+  dtstartLocal           DateTime?                     @map("dtstart_local")
+  dtstartInstant         DateTime                      @map("dtstart_instant")
+  canonicalHash          String                        @map("canonical_hash") @db.Char(64)
+  parentRuleId           String?                       @map("parent_rule_id")
+  splitFromOccurrenceKey String?                       @map("split_from_occurrence_key") @db.VarChar(128)
+  backfillStatus         RecurrenceBackfillStatus      @default(PENDING) @map("backfill_status")
+  backfilledAt           DateTime?                     @map("backfilled_at")
+  dualReadVerifiedAt     DateTime?                     @map("dual_read_verified_at")
+  parityMismatchCount    Int                           @default(0) @map("parity_mismatch_count")
+  version                Int                           @default(1)
+  createdAt              DateTime                      @default(now()) @map("created_at")
+  updatedAt              DateTime                      @updatedAt @map("updated_at")
+  reminder               Reminder                      @relation(fields: [reminderId], references: [id], onDelete: Cascade, map: "rrule_reminder_id_fkey")
+  parentRule             ReminderRecurrenceRule?       @relation("ReminderRecurrenceRuleParent", fields: [parentRuleId], references: [id], onDelete: SetNull, map: "rrule_parent_rule_id_fkey")
+  childRules             ReminderRecurrenceRule[]      @relation("ReminderRecurrenceRuleParent")
   exceptions             ReminderRecurrenceException[]
 
   @@unique([reminderId], map: "rrule_reminder_id_key")
@@ -534,22 +580,121 @@ model ReminderRecurrenceRule {
 }
 
 model ReminderRecurrenceException {
-  id                       String                  @id @default(cuid())
-  recurrenceRuleId         String                  @map("recurrence_rule_id")
-  occurrenceKey            String                  @map("occurrence_key") @db.VarChar(128)
-  originalOccurrenceAt     DateTime                @map("original_occurrence_at")
-  exceptionType            RecurrenceExceptionType @map("exception_type")
-  replacementLocalAt       DateTime?               @map("replacement_local_at")
-  replacementInstantAt     DateTime?               @map("replacement_instant_at")
-  replacementTimeZoneId    String?                 @map("replacement_time_zone_id") @db.VarChar(64)
-  replacementPayloadJson   Json?                   @map("replacement_payload_json")
-  createdAt                DateTime                @default(now()) @map("created_at")
-  updatedAt                DateTime                @updatedAt @map("updated_at")
-  recurrenceRule           ReminderRecurrenceRule  @relation(fields: [recurrenceRuleId], references: [id], onDelete: Cascade, map: "rrule_exception_rule_id_fkey")
+  id                     String                  @id @default(cuid())
+  recurrenceRuleId       String                  @map("recurrence_rule_id")
+  occurrenceKey          String                  @map("occurrence_key") @db.VarChar(128)
+  originalOccurrenceAt   DateTime                @map("original_occurrence_at")
+  exceptionType          RecurrenceExceptionType @map("exception_type")
+  replacementLocalAt     DateTime?               @map("replacement_local_at")
+  replacementInstantAt   DateTime?               @map("replacement_instant_at")
+  replacementTimeZoneId  String?                 @map("replacement_time_zone_id") @db.VarChar(64)
+  replacementPayloadJson Json?                   @map("replacement_payload_json")
+  createdAt              DateTime                @default(now()) @map("created_at")
+  updatedAt              DateTime                @updatedAt @map("updated_at")
+  recurrenceRule         ReminderRecurrenceRule  @relation(fields: [recurrenceRuleId], references: [id], onDelete: Cascade, map: "rrule_exception_rule_id_fkey")
 
   @@unique([recurrenceRuleId, occurrenceKey], map: "rrule_exception_occurrence_key")
   @@index([recurrenceRuleId, originalOccurrenceAt], map: "rrule_exception_original_at_idx")
   @@map("reminder_recurrence_exceptions")
+}
+
+model AiRequest {
+  id               String              @id @default(cuid())
+  userId           String              @map("user_id")
+  requestId        String              @map("request_id") @db.VarChar(100)
+  idempotencyKey   String              @unique @map("idempotency_key") @db.VarChar(200)
+  inputFingerprint String              @map("input_fingerprint") @db.Char(64)
+  locale           String              @db.VarChar(20)
+  timeZoneId       String              @map("time_zone_id") @db.VarChar(64)
+  status           AiRequestStatus
+  proposalId       String?             @map("proposal_id")
+  failureCategory  String?             @map("failure_category") @db.VarChar(50)
+  failureCode      String?             @map("failure_code") @db.VarChar(100)
+  startedAt        DateTime?           @map("started_at")
+  completedAt      DateTime?           @map("completed_at")
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedAt        DateTime            @updatedAt @map("updated_at")
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiProposal       AiProposal?
+  providerAttempts AiProviderAttempt[]
+
+  @@index([userId, status, createdAt])
+  @@map("ai_requests")
+}
+
+model AiProposal {
+  id                  String           @id @default(cuid())
+  userId              String           @map("user_id")
+  aiRequestId         String           @unique @map("ai_request_id")
+  sourceDraftId       String?          @map("source_draft_id")
+  providerId          String           @map("provider_id") @db.VarChar(80)
+  modelId             String           @map("model_id") @db.VarChar(120)
+  status              AiProposalStatus
+  schemaVersion       Int              @map("schema_version") @db.SmallInt
+  responseFingerprint String           @map("response_fingerprint") @db.Char(64)
+  usageJson           Json?            @map("usage_json")
+  expiresAt           DateTime?        @map("expires_at")
+  reviewedAt          DateTime?        @map("reviewed_at")
+  completedAt         DateTime?        @map("completed_at")
+  version             Int              @default(1)
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiRequest           AiRequest        @relation(fields: [aiRequestId], references: [id], onDelete: Cascade)
+  sourceDraft         DraftRecord?     @relation("AiProposalSourceDraft", fields: [sourceDraftId], references: [id], onDelete: SetNull)
+  operations          AiOperation[]
+
+  @@index([userId, status, createdAt])
+  @@index([expiresAt])
+  @@map("ai_proposals")
+}
+
+model AiOperation {
+  id                String            @id @default(cuid())
+  proposalId        String            @map("proposal_id")
+  ordinal           Int               @map("ordinal") @db.SmallInt
+  operationType     AiOperationType   @map("operation_type")
+  status            AiOperationStatus
+  confidence        Decimal           @db.Decimal(5, 4)
+  fieldsJson        Json              @map("fields_json")
+  fieldsFingerprint String            @map("fields_fingerprint") @db.Char(64)
+  clarification     String?           @db.VarChar(500)
+  resultEntityType  String?           @map("result_entity_type") @db.VarChar(50)
+  resultEntityId    String?           @map("result_entity_id")
+  resultDraftId     String?           @map("result_draft_id")
+  errorCode         String?           @map("error_code") @db.VarChar(100)
+  errorMessage      String?           @map("error_message") @db.VarChar(500)
+  acceptedAt        DateTime?         @map("accepted_at")
+  rejectedAt        DateTime?         @map("rejected_at")
+  appliedAt         DateTime?         @map("applied_at")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  proposal          AiProposal        @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  resultDraft       DraftRecord?      @relation("AiOperationResultDraft", fields: [resultDraftId], references: [id], onDelete: SetNull)
+
+  @@unique([proposalId, ordinal])
+  @@map("ai_operations")
+}
+
+model AiProviderAttempt {
+  id              String                  @id @default(cuid())
+  aiRequestId     String                  @map("ai_request_id")
+  attemptNo       Int                     @map("attempt_no") @db.SmallInt
+  providerId      String                  @map("provider_id") @db.VarChar(80)
+  modelId         String?                 @map("model_id") @db.VarChar(120)
+  status          AiProviderAttemptStatus
+  failureCategory String?                 @map("failure_category") @db.VarChar(50)
+  httpStatus      Int?                    @map("http_status") @db.SmallInt
+  latencyMs       Int?                    @map("latency_ms")
+  inputTokens     Int?                    @map("input_tokens")
+  outputTokens    Int?                    @map("output_tokens")
+  startedAt       DateTime                @map("started_at")
+  completedAt     DateTime?               @map("completed_at")
+  aiRequest       AiRequest               @relation(fields: [aiRequestId], references: [id], onDelete: Cascade)
+
+  @@unique([aiRequestId, attemptNo])
+  @@index([startedAt])
+  @@map("ai_provider_attempts")
 }
 
 model Trip {
@@ -577,19 +722,19 @@ model Trip {
 }
 
 model TripItem {
-  id               String        @id @default(cuid())
-  tripId           String        @map("trip_id")
+  id               String       @id @default(cuid())
+  tripId           String       @map("trip_id")
   type             TripItemType
-  startsAt         DateTime      @map("starts_at")
-  endsAt           DateTime      @map("ends_at")
-  location         String?       @db.VarChar(200)
+  startsAt         DateTime     @map("starts_at")
+  endsAt           DateTime     @map("ends_at")
+  location         String?      @db.VarChar(200)
   position         Int
-  clientMutationId String?       @unique @map("client_mutation_id")
-  version          Int           @default(1)
-  createdAt        DateTime      @default(now()) @map("created_at")
-  updatedAt        DateTime      @updatedAt @map("updated_at")
-  deletedAt        DateTime?     @map("deleted_at")
-  trip             Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  clientMutationId String?      @unique @map("client_mutation_id")
+  version          Int          @default(1)
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  deletedAt        DateTime?    @map("deleted_at")
+  trip             Trip         @relation(fields: [tripId], references: [id], onDelete: Cascade)
 
   @@index([tripId, position])
   @@index([tripId, deletedAt])
@@ -598,17 +743,17 @@ model TripItem {
 }
 
 model PackingItem {
-  id               String        @id @default(cuid())
-  tripId           String        @map("trip_id")
-  text             String        @db.VarChar(200)
-  checked          Boolean       @default(false)
+  id               String    @id @default(cuid())
+  tripId           String    @map("trip_id")
+  text             String    @db.VarChar(200)
+  checked          Boolean   @default(false)
   position         Int
-  clientMutationId String?       @unique @map("client_mutation_id")
-  version          Int           @default(1)
-  createdAt        DateTime      @default(now()) @map("created_at")
-  updatedAt        DateTime      @updatedAt @map("updated_at")
-  deletedAt        DateTime?     @map("deleted_at")
-  trip             Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  clientMutationId String?   @unique @map("client_mutation_id")
+  version          Int       @default(1)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+  trip             Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
 
   @@index([tripId, position])
   @@index([tripId, deletedAt])

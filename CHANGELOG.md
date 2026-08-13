@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-12 — PR2 AI DB Expand 最终本地验收
+
+- Oracle MySQL 8.4.9 fresh empty DB 完整应用 10 migrations；focused AI 12/12、account deletion 11/11、全量 DB integration 15 files / 117 tests 全部通过，无 skip。
+- 永久删除后四张 AI 表 residual 均为 0，User `DELETED` tombstone 保持；`quality`、`check:context`、`git diff --check` 和最终 diff review 通过。
+- 验证中最小修复 AI schema focused test 对三个 `created_at DEFAULT CURRENT_TIMESTAMP(3)` 的漏断言；状态为 `DONE / DONE_LOCAL / UNCOMMITTED`。
+
 ## 2026-08-11 — AI-DECISION-001 v1.0 Final 本地落地
 
 - PR6a 已通过 PR #11 达到 `DONE / DONE_INTEGRATION`，integration HEAD 已核验为

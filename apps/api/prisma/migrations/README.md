@@ -146,3 +146,28 @@ No production or shared database URL belongs in this repository.
   deletion_completed_at, DROP COLUMN deletion_started_at, DROP COLUMN
   deletion_scheduled_at` 并将 `status` 恢复为不含 `DELETION_PROCESSING` 的
   ENUM（注意先把 `DELETION_PROCESSING` 行重置为 `DELETION_PENDING`）。
+
+## V1.5 PR2 AI DB Expand（20260812120000_v15_expand_ai）
+
+- 变更：仅新增五个枚举与四个 AI 表；不改动任何旧表/旧列。
+  - 枚举：`AiRequestStatus`（CLAIMED/RUNNING/SUCCEEDED/FAILED/CANCELLED）、
+    `AiProposalStatus`（PENDING_REVIEW/PARTIALLY_APPLIED/APPLIED/REJECTED/EXPIRED/
+    FAILED/CANCELLED）、`AiOperationType`（TRANSACTION/CALENDAR_EVENT/TASK/REMINDER/TRIP）、
+    `AiOperationStatus`（PENDING/ACCEPTED/REJECTED/APPLIED/FAILED/EXPIRED）、
+    `AiProviderAttemptStatus`（RUNNING/SUCCEEDED/FAILED/CANCELLED）。
+  - 表：`ai_requests`、`ai_proposals`、`ai_operations`、`ai_provider_attempts`。
+- 关系：`AiRequest.userId` → users Cascade；`AiProposal.aiRequestId`（UNIQUE）→
+  ai_requests Cascade；`AiProposal.sourceDraftId` → draft_records SetNull；
+  `AiOperation.proposalId` → ai_proposals Cascade；`AiOperation.resultDraftId` →
+  draft_records SetNull；`AiProviderAttempt.aiRequestId` → ai_requests Cascade。
+  `AiRequest.proposalId` 为逻辑标量，无 FK（避免循环引用）。无 raw
+  input/prompt/request/response body/credential 字段。
+- 唯一约束：`ai_requests.idempotency_key`；`ai_proposals.ai_request_id`；
+  `ai_operations.(proposal_id, ordinal)`；`ai_provider_attempts.(ai_request_id, attempt_no)`。
+- 索引：`ai_requests.(user_id, status, created_at)`；
+  `ai_proposals.(user_id, status, created_at)` 与 `(expires_at)`；
+  `ai_provider_attempts.started_at`。不建重复 FK 索引。
+- 回滚（破坏性，先备份）：`prisma migrate resolve --rolled-back
+  20260812120000_v15_expand_ai` 后删除该 migration 目录，再 `prisma migrate
+  deploy` 到上一版本；或对非生产库按 FK 顺序执行
+  `DROP TABLE ai_provider_attempts, ai_operations, ai_proposals, ai_requests`。

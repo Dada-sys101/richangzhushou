@@ -1,32 +1,31 @@
 # 项目进度（派生摘要）
 
-updatedAt: 2026-08-11
+updatedAt: 2026-08-12
 
 ## Current
 
-- PR6a 已通过 PR #11 达到 `DONE / DONE_INTEGRATION`，integration HEAD 为 `01292ef7a6bcf97addfd139fe39a3576fc05f9c9`；
-- 当前任务 AI-DECISION-001：`DONE / DONE_LOCAL`；ADR-027 v1.0 Final 已人工批准并本地落地；
-- Stage 1 已冻结 Provider/模型候选、服务端网络/credential/唯一 whitelist/日志/保留边界、预算与
-  timeout/retry/breaker、200 条非真实数据规范、provisional thresholds 和 immutable safety thresholds；
-- 本任务只落地策略，未修改代码、Prisma/migrations、正式 CI 或依赖，未执行真实评测/调用，
-  未 add、commit、push 或创建 PR。
+- AI-DECISION-001 已通过 PR #12 达到 `DONE / DONE_INTEGRATION`，integration HEAD 为
+  `c4cca65bcd2ba71d93f948bf1c8731179fbb7fad`；CI 218 SUCCESS。
+- PR2（AI DB Expand）：`DONE / DONE_LOCAL`（UNCOMMITTED）。schema 五枚举 + 冻结四表、
+  单一 additive migration `20260812120000_v15_expand_ai`、`v15-ai-expand.integration.test.ts`
+  与 account-deletion service/test 最小适配已落地，Oracle MySQL 8.4.9 最终验收通过。
+- PR2 未 add/commit/push/创建 PR/merge/部署。
 
 ## Evidence
 
-- PR #8 / PR1、PR #9 / V15-CTRL-001a、PR #10 / V15-CTRL-001、PR #11 / PR6a：DONE_INTEGRATION；
-- focused tests 1 file / 26 tests PASS；PR6a MySQL 8.4.9 两次连续完整执行 2/2 PASS，
-  每次 9 migrations、DB tests 14 files / 105 tests、权限隔离和 cleanup verified；
-- migration 后 failure 与真实 SIGINT tree termination 均预期非零并 cleanup，DB/user/process 残留 0；
-  四个 evidence SHA256 4/4 匹配；`npm run quality`、`npm run check:context`、
-  `git diff --check` 均 PASS；临时实例已回收；
-- AI-DECISION-001 文档 diff、`check:context`、quality 和 diff check 均由主代理独立复核 PASS。
+- PR #8 / PR1、PR #9 / V15-CTRL-001a、PR #10 / V15-CTRL-001、PR #11 / PR6a、
+  PR #12 / AI-DECISION-001：`DONE_INTEGRATION`。
+- PR6a MySQL 8.4.9 两轮 9 migrations、14 files / 105 DB tests、权限隔离与 cleanup verified；
+  evidence SHA256 4/4 匹配；临时实例已回收。
+- PR2：fresh empty DB 10 migrations PASS；focused AI 12/12、account deletion 11/11、
+  full DB integration 15 files / 117 tests PASS，0 skipped；四表 residual 0，tombstone `DELETED`。
+- `quality`、`check:context`、`git diff --check`、final net diff review PASS；临时资源 residual 0。
 
 ## Open Gates
 
-H1/H2/H7；云资源、非临时/生产 migration、真实服务、Staging 和 Production 独立授权。
+H1/H2/H7；云资源、非临时/生产 migration、真实服务、Staging 和 Production 独立授权；
+PR2 无本地验证 blocker；commit/push/PR/merge 仍需独立授权。
 
 ## Next
 
-AI-DECISION-001 已固定为 `DONE / DONE_LOCAL` 并停止；达到 `DONE_INTEGRATION` 前仍是唯一
-`nextCanonicalTask`，PR2 保持 `BLOCKED / NOT_STARTED`。达到 integration 并重新核验后，下一任务
-为 PR2；add、commit、push、PR、merge 与 PR2 开工均需独立授权。
+等待 PR2 独立 commit 授权。下一 canonical task 为 PR5，但不得自动开始；commit、push、PR、merge 均需独立授权。

@@ -45,7 +45,9 @@
 
 ### V1.5 尚未正式实现
 
-- AI 正式数据库、Proposal/Operation API/UI、Router 和真实 Provider；
+- AI 正式数据库 schema/migration 已随 PR2 落地（`ai_requests`/`ai_proposals`/
+  `ai_operations`/`ai_provider_attempts`），Proposal/Operation API/UI、Router 和真实
+  Provider 尚未实现；
 - Push 正式数据库、订阅 API、自定义 Service Worker 和真实投递；
 - 新 RRULE 引擎的正式读写、backfill/parity 和调度切换；
 - CSV/XLSX 正式导入；

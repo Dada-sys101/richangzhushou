@@ -2,63 +2,66 @@
 
 ## Last Updated
 
-2026-08-11 +08:00（AI-DECISION-001 v1.0 Final 策略已本地落地，停在 DONE_LOCAL）
+2026-08-12 15:20 +08:00：PR2（AI DB Expand）完成真实 MySQL 8.4.9 最终验收，状态为 `DONE / DONE_LOCAL`（UNCOMMITTED）。
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `13bfad4d32157166fa6e8f5215ce5f813a1ad67c`
-- Integration: `01292ef7a6bcf97addfd139fe39a3576fc05f9c9`
-- Active branch: `codex/v15-ai-decision-001`
-- Base: `origin/codex/v15-integration-foundation@01292ef7a6bcf97addfd139fe39a3576fc05f9c9`
-- Remote PR #11: merged; merge commit `01292ef7a6bcf97addfd139fe39a3576fc05f9c9`; no open PR
-- Local target worktree: AI governance/documentation modified and uncommitted; no code changes
+- Integration: `c4cca65bcd2ba71d93f948bf1c8731179fbb7fad`（PR #12 merge，AI-DECISION-001 `DONE_INTEGRATION`）
+- Active branch: `codex/v15-pr2-ai-db-expand`
+- Base: integration HEAD `c4cca65bcd2ba71d93f948bf1c8731179fbb7fad`
+- Remote PR #12: merged；CI 218 SUCCESS；no open PR
+- Local target worktree: PR2 implementation modified and uncommitted（schema/migration/test/service/docs/state）
 - Staging: not created; Production: not deployed
 
 ## Project Summary
 
-V1 核心已在 main。V1.5 是增量交付：AI 为 R1，Push 为 R1.1，新 RRULE/Import 为 R2，
-完整本地迁移和 Shrink 为 R3。PLANS 是唯一任务定义，execution-state 是仓库内快照，
-GitHub/Git/CI/环境是实时事实。
+V1 核心已在 main。V1.5 是增量交付：AI 属 R1，Push 属 R1.1，新 RRULE/Import 属 R2，完整本地迁移和 Shrink 属 R3。PLANS 是唯一任务定义，execution-state 是仓库内快照；GitHub/Git/CI/环境是实时事实。
 
 ## Last Completed Task
 
-- `PR6a`: `DONE / DONE_INTEGRATION`，证据 PR #11 / integration HEAD `01292ef...`。
+- `PR2`：`DONE / DONE_LOCAL`（UNCOMMITTED）；Oracle MySQL 8.4.9 全迁移、focused/account deletion/full DB tests 与最终质量、diff 审查全部通过。
 
 ## Current Task
 
-- ID: `AI-DECISION-001`
-- Status: `DONE / DONE_LOCAL`
-- Branch: `codex/v15-ai-decision-001`
-- Contract: `tasks/AI-DECISION-001.md`
-- Result: ADR-027 v1.0 Final 已冻结 Provider/模型候选、服务端网络/credential/字段/日志/保留边界、
-  预算与韧性、200 条非真实数据规范、provisional thresholds 和四项 immutable safety thresholds；
-  未执行真实评测或实现
+- ID: `PR2`
+- Status: `DONE / DONE_LOCAL`（UNCOMMITTED）
+- Branch: `codex/v15-pr2-ai-db-expand`
+- Contract: `tasks/PR2.md`
+- Result: schema 五枚举 + 冻结四表 + User/DraftRecord 关系、单一 additive migration、focused/account deletion tests 按 DEC-PR2-01..04 落地；Oracle MySQL 8.4.9 最终验收通过，临时资源 residual 0。
 
 ## Blockers
 
-- H1/H2/H7 阻塞 R1；H6/H8 仅阻塞 Push；
-- 云资源、非临时/生产 migration、真实 AI、Staging 和 Production 均需独立授权。
+- PR2 无本地实现或验证 blocker；仅缺 commit/push/PR 等独立授权。
+- H1/H2/H7 阻塞 R1；H6/H8 仅阻塞 Push；云资源、非临时/生产 migration、真实 AI、Staging 和 Production 均需独立授权。
 
 ## Verification Status
 
-- PR #11 merged；PR6a `DONE / DONE_INTEGRATION`；integration HEAD `01292ef...` 已核验；
-- PR6a focused tests：1 file / 26 tests PASS；
-- MySQL 8.4.9 success 2/2：每次 9 migrations、14 files / 105 DB tests、隔离与 cleanup PASS；
-- failure / SIGINT：预期非零、完整 cleanup、DB/user/process 残留 0；四个 evidence SHA256 匹配；
-- AI-DECISION-001 文档 diff、`npm run check:context`、`npm run quality`、`git diff --check`：
-  PASS（主代理独立复核）；
+- PR #12 merged；integration HEAD `c4cca65...` 已核验；CI 218 SUCCESS。
+- `prisma format` / `prisma validate` / `prisma generate`：PASS。
+- Focused AI：12/12 PASS；account deletion：11/11 PASS，四表 residual 0、User tombstone `DELETED`。
+- Full DB integration：15 files / 117 tests PASS，0 failed，0 skipped；fresh empty DB 10 migrations PASS。
+- API workspace typecheck：PASS。
+- `npm run quality`、`npm run check:context`、`git diff --check` 与最终 net diff review：PASS。
 - commit/push/PR/deploy：NOT_RUN。
+
+## Recent Changes
+
+- `apps/api/prisma/schema.prisma`：新增 5 枚举 + 4 模型 + User/DraftRecord 反向关系。
+- `apps/api/prisma/migrations/20260812120000_v15_expand_ai/migration.sql`：仅 additive DDL。
+- `apps/api/src/integration/v15-ai-expand.integration.test.ts`：MySQL 8.4 专项（新建）。
+- `apps/api/src/account-deletion/account-deletion.service.ts`：transaction 内 DraftRecord 前增加 `tx.aiRequest.deleteMany`。
+- `apps/api/src/integration/open007-account-deletion.integration.test.ts`：reset 与 seed 四表 + 断言。
+- `tasks/PR2.md`、`docs/05`、`docs/41`、migrations README 与状态/进度/变更文件。
 
 ## Next Recommended Task
 
-当前唯一任务仍为 `AI-DECISION-001`，状态为 `DONE / DONE_LOCAL`。达到 `DONE_INTEGRATION` 前
-`nextCanonicalTask` 保持 AI-DECISION-001；之后下一 canonical 任务为 `PR2`。不得自动 commit、
-晋级交付或启动 PR2。
+等待 PR2 的独立 commit 授权；下一 canonical task 为 `PR5`，但不得自动开始。
 
 ## Handoff Instructions
 
-1. 读取 PLANS v2.1.1、execution-state、`tasks/AI-DECISION-001.md` 与 ADR-027；
-2. 审查当前完整 diff 和工作树范围；
-3. 保持 `DONE_LOCAL`，不得自动开始 PR2、PR6 或其他 READY 任务；
-4. commit、push、创建 PR、merge 或部署均需各自独立授权。
+1. 读取 PLANS v2.1.1、execution-state、`tasks/PR2.md`、docs/40 §3.2、ADR-V15-006、ADR-027、当前 schema/migrations 与本任务 diff。
+2. 复用本次真实证据：MySQL 8.4.9、10 migrations、focused 12/12 + 11/11、15 files / 117 DB tests、quality/context/diff PASS、residual 0。
+3. PR2 完整 diff 已审查通过：仅允许范围、单一 additive migration、无 destructive DDL、无 raw/credential 字段、无依赖/lockfile/CI 变化。
+4. commit、push、创建/更新 PR、merge 或部署均需各自独立授权；不得自动开始其他 READY 任务。

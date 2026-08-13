@@ -4,6 +4,24 @@
 更新：2026-08-11
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-12 — PR2 AI DB Expand 最终本地验收（DONE / DONE_LOCAL / UNCOMMITTED）
+
+- AI-DECISION-001 已通过 PR #12 合入 integration（`c4cca65bcd2ba71d93f948bf1c8731179fbb7fad`，
+  CI 218 SUCCESS），PR2 获准开工。
+- schema 新增 `AiRequestStatus`/`AiProposalStatus`/`AiOperationType`/`AiOperationStatus`/
+  `AiProviderAttemptStatus` 五枚举与 `ai_requests`/`ai_proposals`/`ai_operations`/
+  `ai_provider_attempts` 四表（User/DraftRecord 反向关系、两处 Draft SetNull、逻辑 proposalId 无 FK）。
+- 新增单一 additive migration `20260812120000_v15_expand_ai`（无 destructive DDL、无 backfill）。
+- 新增 `v15-ai-expand.integration.test.ts`（MySQL 8.4 专项：列类型/enum、四 unique、级联、
+  Draft SetNull 与独立、事务回滚、并发重复、禁用字段/循环 FK、startedAt anchor、旧表结构未变）。
+- account-deletion service 在 DraftRecord 前显式删除 `AiRequest` roots（DEC-PR2-04），
+  open007 测试 seed 四表并断言清理后四表 0、tombstone 仍 DELETED。
+- `tasks/PR2.md` 记录 DEC-PR2-01..04、logical invariant、范围、验证与授权边界。
+- Oracle MySQL 8.4.9 fresh empty DB 从 0 应用 10 migrations；focused AI 12/12、account deletion 11/11、
+  full DB integration 15 files / 117 tests PASS，0 skipped；四表 residual 0，User tombstone 保持 `DELETED`。
+- 验证中最小修复 `v15-ai-expand.integration.test.ts` 三个 `created_at DEFAULT CURRENT_TIMESTAMP(3)` 漏断言；
+  `quality`、`check:context`、`git diff --check`、final review PASS，临时资源 residual 0；未 add/commit/push/PR/merge/部署。
+
 ## 2026-08-11 — AI-DECISION-001 v1.0 Final 本地落地
 
 - PR6a 已通过 PR #11 达到 `DONE / DONE_INTEGRATION`，integration HEAD 已核验为
