@@ -1871,6 +1871,20 @@ components:
         - MUTATION_UNSUPPORTED
         - RESOURCE_NOT_FOUND
         - INTERNAL_ERROR
+        - AI_DISABLED
+        - AI_REQUEST_NOT_FOUND
+        - AI_PROPOSAL_NOT_FOUND
+        - AI_PROPOSAL_INVALID_STATE
+        - AI_OPERATION_INVALID_STATE
+        - AI_INPUT_VALIDATION_ERROR
+        - AI_SCHEMA_VALIDATION_ERROR
+        - AI_DOMAIN_VALIDATION_ERROR
+        - AI_PROVIDER_ERROR
+        - AI_PROVIDER_TIMEOUT
+        - AI_PROVIDER_NETWORK_ERROR
+        - AI_BUDGET_BLOCKED
+        - AI_CIRCUIT_BREAKER_BLOCKED
+        - AI_MALFORMED_OUTPUT
     Month:
       type: string
       pattern: "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
@@ -3609,3 +3623,328 @@ components:
         calendarEvents:
           type: array
           items: { $ref: "#/components/schemas/CalendarEventSummary" }
+    AiRequestStatus:
+      type: string
+      enum: [CLAIMED, RUNNING, SUCCEEDED, FAILED, CANCELLED]
+    AiProposalStatus:
+      type: string
+      enum:
+        [
+          PENDING_REVIEW,
+          PARTIALLY_APPLIED,
+          APPLIED,
+          REJECTED,
+          EXPIRED,
+          FAILED,
+          CANCELLED,
+        ]
+    AiOperationType:
+      type: string
+      enum: [TRANSACTION, CALENDAR_EVENT, TASK, REMINDER, TRIP]
+    AiOperationStatus:
+      type: string
+      enum: [PENDING, ACCEPTED, REJECTED, APPLIED, FAILED, EXPIRED]
+    AiProviderAttemptStatus:
+      type: string
+      enum: [RUNNING, SUCCEEDED, FAILED, CANCELLED]
+    AiSchemaValidationStatus:
+      type: string
+      enum: [VALID, INVALID, SKIPPED]
+    AiCircuitBreakerState:
+      type: string
+      enum: [CLOSED, OPEN, HALF_OPEN]
+    AiConfidence:
+      type: string
+      pattern: '^(?:0\.\d{4}|1\.0000)$'
+      examples: ["0.9500"]
+    AiSelectedContext:
+      type: object
+      additionalProperties: false
+      required: [id, entityType, summary]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        entityType: { type: string, minLength: 1, maxLength: 50 }
+        summary: { type: string, minLength: 1, maxLength: 500 }
+    AiProviderInput:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          userInput,
+          requestType,
+          locale,
+          timeZoneId,
+          currentDateTime,
+          currency,
+          allowedCategoryLabels,
+          explicitSelectedContext,
+        ]
+      properties:
+        userInput: { type: string, minLength: 1, maxLength: 2000 }
+        requestType: { type: string, minLength: 1, maxLength: 80 }
+        locale: { type: string, minLength: 1, maxLength: 20 }
+        timeZoneId: { type: string, minLength: 1, maxLength: 64 }
+        currentDateTime: { $ref: "#/components/schemas/IsoDateTime" }
+        currency: { type: string, minLength: 3, maxLength: 3 }
+        allowedCategoryLabels:
+          type: array
+          items: { type: string, minLength: 1, maxLength: 100 }
+        explicitSelectedContext:
+          type: array
+          description: >-
+            Required even when no context is selected; an empty array means
+            "none". This makes the absence of an explicit selection explicit
+            instead of relying on an omitted field.
+          items: { $ref: "#/components/schemas/AiSelectedContext" }
+    AiRequestSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          requestId,
+          locale,
+          timeZoneId,
+          status,
+          proposalId,
+          failureCategory,
+          failureCode,
+          createdAt,
+          startedAt,
+          completedAt,
+          updatedAt,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        requestId: { type: string, minLength: 1, maxLength: 100 }
+        locale: { type: string, minLength: 1, maxLength: 20 }
+        timeZoneId: { type: string, minLength: 1, maxLength: 64 }
+        status: { $ref: "#/components/schemas/AiRequestStatus" }
+        proposalId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        failureCategory:
+          anyOf:
+            - { type: string, minLength: 1, maxLength: 50 }
+            - { type: "null" }
+        failureCode:
+          anyOf:
+            - { type: string, minLength: 1, maxLength: 100 }
+            - { type: "null" }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        startedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        completedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+    AiProposalSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          providerId,
+          modelId,
+          status,
+          schemaVersion,
+          version,
+          createdAt,
+          updatedAt,
+          reviewedAt,
+          completedAt,
+          expiresAt,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        providerId: { type: string, minLength: 1, maxLength: 80 }
+        modelId: { type: string, minLength: 1, maxLength: 120 }
+        status: { $ref: "#/components/schemas/AiProposalStatus" }
+        schemaVersion: { type: integer, minimum: 1 }
+        version: { type: integer, minimum: 1 }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        reviewedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        completedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        expiresAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+    AiOperation:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          ordinal,
+          operationType,
+          status,
+          confidence,
+          fields,
+          clarification,
+          resultEntityType,
+          resultEntityId,
+          resultDraftId,
+          errorCode,
+          errorMessage,
+          acceptedAt,
+          rejectedAt,
+          appliedAt,
+          createdAt,
+          updatedAt,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        ordinal: { type: integer, minimum: 1 }
+        operationType: { $ref: "#/components/schemas/AiOperationType" }
+        status: { $ref: "#/components/schemas/AiOperationStatus" }
+        confidence: { $ref: "#/components/schemas/AiConfidence" }
+        fields: { type: object, additionalProperties: true }
+        clarification:
+          anyOf:
+            - { type: string, minLength: 1, maxLength: 500 }
+            - { type: "null" }
+        resultEntityType:
+          anyOf:
+            - { type: string, minLength: 1, maxLength: 50 }
+            - { type: "null" }
+        resultEntityId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        resultDraftId:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
+        errorCode:
+          anyOf:
+            - { $ref: "#/components/schemas/ApiErrorCode" }
+            - { type: "null" }
+        errorMessage:
+          anyOf:
+            - { type: string, minLength: 1, maxLength: 500 }
+            - { type: "null" }
+        acceptedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        rejectedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        appliedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+    AiProposalDetail:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          providerId,
+          modelId,
+          status,
+          schemaVersion,
+          version,
+          createdAt,
+          updatedAt,
+          reviewedAt,
+          completedAt,
+          expiresAt,
+          operations,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Identifier" }
+        providerId: { type: string, minLength: 1, maxLength: 80 }
+        modelId: { type: string, minLength: 1, maxLength: 120 }
+        status: { $ref: "#/components/schemas/AiProposalStatus" }
+        schemaVersion: { type: integer, minimum: 1 }
+        version: { type: integer, minimum: 1 }
+        createdAt: { $ref: "#/components/schemas/IsoDateTime" }
+        updatedAt: { $ref: "#/components/schemas/IsoDateTime" }
+        reviewedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        completedAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        expiresAt:
+          anyOf:
+            - { $ref: "#/components/schemas/IsoDateTime" }
+            - { type: "null" }
+        operations:
+          type: array
+          items: { $ref: "#/components/schemas/AiOperation" }
+    AiAuditCostMetadata:
+      type: object
+      additionalProperties: false
+      required: [amount, currency]
+      properties:
+        amount: { $ref: "#/components/schemas/Money" }
+        currency: { type: string, minLength: 3, maxLength: 3 }
+    AiAuditMetadata:
+      type: object
+      additionalProperties: false
+      required: [requestId, retryCount]
+      properties:
+        requestId: { type: string, minLength: 1, maxLength: 100 }
+        providerId:
+          anyOf:
+            - { type: string, minLength: 1, maxLength: 80 }
+            - { type: "null" }
+        modelId:
+          anyOf:
+            - { type: string, minLength: 1, maxLength: 120 }
+            - { type: "null" }
+        latencyMs:
+          anyOf:
+            - { type: integer, minimum: 0 }
+            - { type: "null" }
+        inputTokens:
+          anyOf:
+            - { type: integer, minimum: 0 }
+            - { type: "null" }
+        outputTokens:
+          anyOf:
+            - { type: integer, minimum: 0 }
+            - { type: "null" }
+        resultType:
+          anyOf:
+            - { type: string, minLength: 1, maxLength: 50 }
+            - { type: "null" }
+        schemaValidationStatus:
+          anyOf:
+            - { $ref: "#/components/schemas/AiSchemaValidationStatus" }
+            - { type: "null" }
+        errorCategory:
+          anyOf:
+            - { type: string, minLength: 1, maxLength: 50 }
+            - { type: "null" }
+        retryCount: { type: integer, minimum: 0 }
+        circuitBreakerState:
+          anyOf:
+            - { $ref: "#/components/schemas/AiCircuitBreakerState" }
+            - { type: "null" }
+        costMetadata:
+          anyOf:
+            - { $ref: "#/components/schemas/AiAuditCostMetadata" }
+            - { type: "null" }
+        pseudonymousIdentifier:
+          anyOf:
+            - { type: string, minLength: 1, maxLength: 128 }
+            - { type: "null" }

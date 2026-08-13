@@ -133,6 +133,54 @@ export const TRIP_ITEM_TYPES = [
 ] as const;
 export type TripItemType = (typeof TRIP_ITEM_TYPES)[number];
 
+export const AI_REQUEST_STATUSES = [
+  "CLAIMED",
+  "RUNNING",
+  "SUCCEEDED",
+  "FAILED",
+  "CANCELLED",
+] as const;
+export type AiRequestStatus = (typeof AI_REQUEST_STATUSES)[number];
+
+export const AI_PROPOSAL_STATUSES = [
+  "PENDING_REVIEW",
+  "PARTIALLY_APPLIED",
+  "APPLIED",
+  "REJECTED",
+  "EXPIRED",
+  "FAILED",
+  "CANCELLED",
+] as const;
+export type AiProposalStatus = (typeof AI_PROPOSAL_STATUSES)[number];
+
+export const AI_OPERATION_TYPES = [
+  "TRANSACTION",
+  "CALENDAR_EVENT",
+  "TASK",
+  "REMINDER",
+  "TRIP",
+] as const;
+export type AiOperationType = (typeof AI_OPERATION_TYPES)[number];
+
+export const AI_OPERATION_STATUSES = [
+  "PENDING",
+  "ACCEPTED",
+  "REJECTED",
+  "APPLIED",
+  "FAILED",
+  "EXPIRED",
+] as const;
+export type AiOperationStatus = (typeof AI_OPERATION_STATUSES)[number];
+
+export const AI_PROVIDER_ATTEMPT_STATUSES = [
+  "RUNNING",
+  "SUCCEEDED",
+  "FAILED",
+  "CANCELLED",
+] as const;
+export type AiProviderAttemptStatus =
+  (typeof AI_PROVIDER_ATTEMPT_STATUSES)[number];
+
 export const API_ERROR_CODES = [
   "VALIDATION_ERROR",
   "UNAUTHORIZED",
@@ -166,6 +214,20 @@ export const API_ERROR_CODES = [
   "MUTATION_UNSUPPORTED",
   "RESOURCE_NOT_FOUND",
   "INTERNAL_ERROR",
+  "AI_DISABLED",
+  "AI_REQUEST_NOT_FOUND",
+  "AI_PROPOSAL_NOT_FOUND",
+  "AI_PROPOSAL_INVALID_STATE",
+  "AI_OPERATION_INVALID_STATE",
+  "AI_INPUT_VALIDATION_ERROR",
+  "AI_SCHEMA_VALIDATION_ERROR",
+  "AI_DOMAIN_VALIDATION_ERROR",
+  "AI_PROVIDER_ERROR",
+  "AI_PROVIDER_TIMEOUT",
+  "AI_PROVIDER_NETWORK_ERROR",
+  "AI_BUDGET_BLOCKED",
+  "AI_CIRCUIT_BREAKER_BLOCKED",
+  "AI_MALFORMED_OUTPUT",
 ] as const;
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
 
