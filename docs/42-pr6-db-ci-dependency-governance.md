@@ -5,16 +5,21 @@
 本文档描述 PR6 中数据库 CI 分离、许可证清单和 CycloneDX SBOM 生成/校验的实现基线。实现范围仅限以下路径：
 
 - `.github/workflows/ci.yml`
-- `package.json`
 - `.gitignore`
+- `.project/v15-execution-state.md`
+- `apps/api/src/cli/validate-temporary-mysql84.ts`
+- `apps/api/src/cli/validate-temporary-mysql84.test.ts`
+- `docs/42-pr6-db-ci-dependency-governance.md`
+- `package.json`
 - `scripts/license-inventory.mjs`
 - `scripts/license-inventory.test.mjs`
 - `scripts/sbom-generate.mjs`
 - `scripts/sbom-validate.mjs`
 - `scripts/sbom-validate.test.mjs`
-- `docs/42-pr6-db-ci-dependency-governance.md`
 
-本实现不修改业务代码、Prisma schema、迁移、`apps/api` 校验器或项目状态文档。
+本实现不修改业务代码、Prisma schema 或迁移。`apps/api` 验证器的两处变更仅修正 CI evidence parsing 兼容性，`.project/v15-execution-state.md` 则属于 PR6 当时合法的最小状态同步范围。
+
+`.project/v15-execution-state.md` 是仓库内 execution snapshot，不是 GitHub、CI 或实际环境的实时事实来源。发生差异时继续遵循以下优先级：Git / GitHub / CI / environment > repository execution snapshot。
 
 ## 2. 审计与人工门禁高阈值
 
@@ -105,6 +110,28 @@ npm run sbom:validate
 4. `npm run sbom:validate`
 
 新增 `db-validation` 作业，仅使用 `mysql:8.4` service 和 `MYSQL_ROOT_PASSWORD`，在单一验证步骤中通过 `PR6A_MYSQL_ADMIN_URL` 与 `PR6A_EVIDENCE_LABEL` 调用 `npm run validate:mysql84:ci`。该别名指向现有临时 MySQL 8.4 验证器，负责 migrations、真实数据库测试、隔离、清理和残余检查。
+
+### 5.1 Vitest CI evidence parsing correction
+
+CI #226 暴露了 Vitest 在 GitHub CI 中输出 ANSI control sequences 时，测试摘要 evidence parsing 无法稳定提取计数的问题。修正提交 `a407291388a0f35de8a337a2378ce4ebea3550ba` 在 `apps/api/src/cli/validate-temporary-mysql84.ts` 中新增 ANSI control-sequence normalization，使既有的 fail-closed evidence validation 能正确处理 GitHub CI 输出；同时在 `apps/api/src/cli/validate-temporary-mysql84.test.ts` 中补充 ANSI summary 成功解析场景，以及不可解析 summary 继续保持 fail-closed 的回归测试。该提交没有新增或重新设计 fail-closed mechanism。
+
+该兼容性修正不是对 PR6a validator 的重新设计，没有改变：
+
+- temporary database lifecycle；
+- scoped database user semantics；
+- credential boundary；
+- database isolation；
+- cleanup semantics；
+- residual-resource checks；
+- migration semantics。
+
+修正后的实时 CI 证据如下：
+
+- CI #226：historical failure，暴露 Vitest CI evidence parsing 问题；
+- correction commit：`a407291388a0f35de8a337a2378ce4ebea3550ba`；
+- CI #227：`SUCCESS`；
+- PR-triggered CI #228：`SUCCESS`；
+- CI #228 jobs：`quality = success`、`db-validation = success`、`browser-qa = success`。
 
 ## 6. 工件保留路径
 
