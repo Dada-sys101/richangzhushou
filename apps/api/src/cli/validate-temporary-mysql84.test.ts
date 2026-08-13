@@ -40,6 +40,9 @@ const GRANTS = [
   "GRANT ALL PRIVILEGES ON `daily_assistant_pr6a_testdb`.* TO `daily_assistant_pr6a_u_test`@`%`",
 ];
 const TEST_SUMMARY = "Test Files  14 passed (14)\nTests  105 passed (105)\n";
+const ANSI_TEST_SUMMARY =
+  "\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m15 passed\u001b[39m\u001b[22m\u001b[90m (15)\u001b[39m\n" +
+  "\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m117 passed\u001b[39m\u001b[22m\u001b[90m (117)\u001b[39m\n";
 
 class FakeBootstrapDatabase implements BootstrapDatabase {
   calls: string[] = [];
@@ -330,6 +333,50 @@ describe("validation lifecycle", () => {
     }
   });
 
+  it("passes when the Vitest summary contains GitHub CI ANSI formatting", async () => {
+    const harness = createHarness(undefined, async (request) => {
+      if (request.exitCode === ExitCode.TESTS) {
+        return { output: ANSI_TEST_SUMMARY };
+      }
+      return { output: "" };
+    });
+    const result = await runValidationLifecycle(
+      TARGET,
+      "ansi-success",
+      new RuntimeController(),
+      harness.dependencies,
+      undefined,
+    );
+    expect(result.exitCode).toBe(ExitCode.SUCCESS);
+    expect(harness.evidence[0]).toMatchObject({
+      dbTestFileCount: 15,
+      dbTestCount: 117,
+      result: "PASS",
+    });
+  });
+
+  it("fails closed when the Vitest summary is unparseable", async () => {
+    const harness = createHarness(undefined, async (request) => {
+      if (request.exitCode === ExitCode.TESTS) {
+        return { output: "Vitest finished successfully\n" };
+      }
+      return { output: "" };
+    });
+    const result = await runValidationLifecycle(
+      TARGET,
+      "unparseable-summary",
+      new RuntimeController(),
+      harness.dependencies,
+      undefined,
+    );
+    expect(result.exitCode).toBe(ExitCode.TESTS);
+    expect(result.primaryFailure?.kind).toBe("TEST_EVIDENCE");
+    expect(harness.evidence[0]).toMatchObject({
+      dbTestFileCount: 0,
+      dbTestCount: 0,
+    });
+  });
+
   it("attempts database, guard, and user cleanup when CREATE DATABASE throws", async () => {
     const admin = new FakeBootstrapDatabase();
     admin.fail.add("createDatabase");
@@ -544,6 +591,20 @@ describe("evidence parsing", () => {
     expect(parseVitestCounts(TEST_SUMMARY)).toEqual({
       fileCount: 14,
       testCount: 105,
+    });
+  });
+
+  it("parses Vitest totals wrapped in GitHub CI ANSI formatting", () => {
+    expect(parseVitestCounts(ANSI_TEST_SUMMARY)).toEqual({
+      fileCount: 15,
+      testCount: 117,
+    });
+  });
+
+  it("returns zero counts for an unparseable summary", () => {
+    expect(parseVitestCounts("Vitest finished successfully\n")).toEqual({
+      fileCount: 0,
+      testCount: 0,
     });
   });
 });

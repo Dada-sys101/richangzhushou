@@ -989,14 +989,24 @@ export async function terminateProcessTree(child: ChildProcess): Promise<void> {
   }
 }
 
+const ANSI_ESCAPE = String.fromCharCode(27);
+const ANSI_CSI_SEQUENCE = new RegExp(`${ANSI_ESCAPE}\\[[0-?]*[ -/]*[@-~]`, "g");
+
+function normalizeAnsiControlSequences(value: string): string {
+  return value.replace(ANSI_CSI_SEQUENCE, "");
+}
+
 export function parseVitestCounts(output: string): {
   fileCount: number;
   testCount: number;
 } {
+  const normalized = normalizeAnsiControlSequences(output);
   const fileCount = Number(
-    /Test Files\s+(\d+)\s+passed/i.exec(output)?.[1] ?? 0,
+    /Test Files\s+(\d+)\s+passed/i.exec(normalized)?.[1] ?? 0,
   );
-  const testCount = Number(/Tests\s+(\d+)\s+passed/i.exec(output)?.[1] ?? 0);
+  const testCount = Number(
+    /Tests\s+(\d+)\s+passed/i.exec(normalized)?.[1] ?? 0,
+  );
   return { fileCount, testCount };
 }
 
