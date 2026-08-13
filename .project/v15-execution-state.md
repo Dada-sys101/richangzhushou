@@ -1,33 +1,33 @@
 # V1.5 Execution State
 
-updatedAt: 2026-08-13T11:13:25+08:00
+updatedAt: 2026-08-13T14:05:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 integrationBranch: codex/v15-integration-foundation
-integrationHead: 042b2bc9fb8fcb1ed4527888eb7e4489af316673
+integrationHead: 9b4b685d3eaa5ad2951e84a132e1c3bd39d60e9c
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: PR5
+currentTask: PR6
 executionStatus: DONE
 deliveryStatus: DONE_LOCAL
-nextCanonicalTask: PR5
-nextCanonicalTaskAfterCompletion: PR5
+nextCanonicalTask: PR6
+nextCanonicalTaskAfterCompletion: PR6
 openPullRequests: []
 
 ## Active Task
 
-- id: PR5
-- displayName: 共享 Feature Flag 与 AI Contracts
-- branch: codex/v15-pr5-shared-ai-contracts
+- id: PR6
+- displayName: DB 验证接入 CI 与依赖治理
+- branch: codex/v15-pr6-db-ci-dependency-governance
 - baseBranch: codex/v15-integration-foundation
-- baseHead: 042b2bc9fb8fcb1ed4527888eb7e4489af316673（PR #13 squash merge，PR2 `DONE_INTEGRATION`）
+- baseHead: 9b4b685d3eaa5ad2951e84a132e1c3bd39d60e9c（PR #14 squash merge，PR5 `DONE_INTEGRATION`）
 - executionStatus: DONE
 - deliveryStatus: DONE_LOCAL
 - localWorkingTree: MODIFIED_UNCOMMITTED
-- allowedScope: packages/api-contracts、packages/config、对应测试/OpenAPI 与本状态文件最小同步
-- forbiddenScope: apps/Prisma/migrations、真实 Provider/credential/Router/Service/UI、Push/Import 具体契约、dependency/lockfile、PLANS/ADR/baseline、Git 交付与部署
-- validation: initial Codex final review found 1 MEDIUM AiConfidence range defect；human froze normalized four-decimal range `0.0000..1.0000`；correction completed；api-contracts 144/144；config 8/8；focused typecheck/build/OpenAPI lint PASS；full quality PASS（API 92 passed / DB-gated 95 skipped）；check:context + git diff --check PASS
-- remaining: 等待独立 commit 授权；不得自动开始 PR6、PR9 或 PR18
+- allowedScope: CI workflow、root scripts、License/SBOM governance tests、单一治理文档与本状态文件最小同步
+- forbiddenScope: dependency/lockfile、PR6a validator safety core、业务代码、Prisma/migrations、自动许可证批准、Dependabot、Feature Flag persistence、PR9/PR18、Git 交付与部署
+- validation: DeepSeek V4-Pro primary implementation；governance 14/14；PR6a validator safety 26/26；License inventory 1163 packages / 17 expressions / 9 missing-unresolved / 25 manual-review；CycloneDX 1044 components；full quality PASS（audit 0 vulnerabilities）；Codex independent review 2 MEDIUM corrected；local MySQL 8.4 runtime unavailable；new GitHub CI not run
+- remaining: 等待独立 final diff review/commit 授权；不得自动 push、创建 PR、启动 PR9 或 PR18；FEATURE_FLAG_PERSISTENCE_GAP remains OBSERVED
 
 ## Task Ledger
 
@@ -41,8 +41,8 @@ openPullRequests: []
 | PR2 | DONE | DONE_INTEGRATION | R1 | V15-CTRL-001 + PR6a + AI-DECISION-001 first-layer decision | PR #13 squash merged; integration `042b2bc9...`; CI #222 SUCCESS |
 | PR3 | PENDING | NOT_STARTED | R1.1 | PR6a | later |
 | PR4 | PENDING | NOT_STARTED | R2 | PR6a | later |
-| PR5 | DONE | DONE_LOCAL | R1 | PR1 + PR2 + PR6a | shared flags + AI contracts/OpenAPI/tests；AiConfidence MEDIUM corrected after human range decision；quality/diff PASS；uncommitted |
-| PR6 | PENDING | NOT_STARTED | R1 | PR6a | after PR6a |
+| PR5 | DONE | DONE_INTEGRATION | R1 | PR1 + PR2 + PR6a | PR #14 squash merged；integration `9b4b685...`；CI #225 SUCCESS |
+| PR6 | DONE | DONE_LOCAL | R1 | PR6a | DB validator CI gate + dependency/security/License/SBOM baseline；quality/focused PASS；uncommitted；new GitHub CI not run |
 | PR7/PR8/PR13 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
 | PR9 | BLOCKED | NOT_STARTED | R1 | PR5 | wait for PR5 integration and explicit authorization |
 | PR10/PR11/PR12 | PENDING | NOT_STARTED | R3 | PLANS dependencies | later |
@@ -76,10 +76,10 @@ openPullRequests: []
 ## Evidence
 
 - repository: Dada-sys101/richangzhushou
-- completedPRs: #8, #9, #10, #11, #12, #13
+- completedPRs: #8, #9, #10, #11, #12, #13, #14
 - pr12State: MERGED
 - pr12MergeCommit: c4cca65bcd2ba71d93f948bf1c8731179fbb7fad（AI-DECISION-001）
-- integrationHead: 042b2bc9fb8fcb1ed4527888eb7e4489af316673
+- integrationHead: 9b4b685d3eaa5ad2951e84a132e1c3bd39d60e9c
 - pr13State: MERGED
 - pr13MergeCommit: 042b2bc9fb8fcb1ed4527888eb7e4489af316673（PR2）
 - pr13CI: 222 SUCCESS
@@ -90,24 +90,25 @@ openPullRequests: []
 - pr6aEnvironment: Node 24.16.0; npm 11.13.0; Oracle MySQL 8.4.9 loopback disposable instance
 - pr6aValidation: 26 focused tests; 9 migrations; 14 files / 105 DB tests; scoped-user isolation; cleanup residual 0; evidence SHA256 verified; quality PASS
 - pr2Integration: DONE_INTEGRATION；PR #13 squash merge `042b2bc9...`；CI #222 SUCCESS；schema + single migration + tests + account deletion minimal adaptation
-- pr5LocalImplementation: DONE_LOCAL / UNCOMMITTED；21 canonical flags + 8 environment gates；AI enums/DTO/error/audit/OpenAPI contracts；initial independent final review found AiConfidence above-one range defect；human froze `0.0000..1.0000` four-decimal string；correction and boundary tests completed；api-contracts 144/144；config 8/8；quality/context/diff PASS；feature-flag persistence gap observed；AI endpoint paths deferred to PR18
+- pr5Integration: DONE_INTEGRATION；PR #14 squash merge `9b4b685...`；CI #225 SUCCESS；shared flags + AI contracts/OpenAPI/tests
+- pr6LocalImplementation: DONE_LOCAL / UNCOMMITTED；formal `validate:mysql84:ci` gate reuses PR6a validator；dependency audit remains high；deterministic License inventory + CycloneDX SBOM baseline；governance 14/14；validator safety 26/26；quality/audit PASS；local MySQL 8.4 runtime unavailable；FEATURE_FLAG_PERSISTENCE_GAP remains OBSERVED
 - staging: NOT_CREATED
 - production: NOT_DEPLOYED
 
 ## Last Verified
 
-- liveFactsChecked: PR #13 MERGED; squash merge/integration HEAD `042b2bc9fb8fcb1ed4527888eb7e4489af316673`; CI 222 success
-- localBaseChecked: branch `codex/v15-pr5-shared-ai-contracts` created from approved integration HEAD `042b2bc9...`
-- currentLocalValidation: post-correction api-contracts 144/144；config 8/8；focused typecheck/build/OpenAPI lint PASS；quality、check:context、git diff --check PASS；API 92 passed / DB-gated 95 skipped without DB environment；original AiConfidence MEDIUM finding CLOSED
-- notPerformed: add/commit/push/PR/Ready/merge/deploy、credential access、real AI/evaluation、Provider implementation、cloud resource creation、staging、production
+- liveFactsChecked: PR #14 MERGED; squash merge/integration HEAD `9b4b685d3eaa5ad2951e84a132e1c3bd39d60e9c`; CI 225 success
+- localBaseChecked: branch `codex/v15-pr6-db-ci-dependency-governance` created from approved integration HEAD `9b4b685...`
+- currentLocalValidation: governance 14/14；PR6a validator safety 26/26；License inventory 1163 packages / 25 manual review；CycloneDX 1044 components；quality、check:context、git diff --check PASS；audit 0 vulnerabilities；API 92 passed / DB-gated 95 skipped without DB environment；local MySQL 8.4 runtime unavailable
+- notPerformed: real MySQL 8.4 lifecycle、new GitHub CI、add/commit/push/PR/Ready/merge/deploy、dependency update、automatic license approval、Feature Flag persistence、PR9/PR18、cloud resource creation、staging、production
 - snapshotRule: GitHub/Git/CI/environment facts override this snapshot; synchronize only at the next legal governance update point without creating a CI loop
 
 ## Recovery Rules
 
 1. Read `PLANS.md`, then this snapshot; verify GitHub/Git/CI/environment before action.
 2. Obey explicit `nextCanonicalTask` after dependency/gate validation; do not choose a random READY task.
-3. V15-CTRL-001、PR6a、AI-DECISION-001、PR2 均为 `DONE_INTEGRATION`；integration HEAD 为 `042b2bc9fb8fcb1ed4527888eb7e4489af316673`。
-4. PR5 已达到 `DONE / DONE_LOCAL`（UNCOMMITTED）；不得在未获新任务授权时自动开始 PR6、PR9 或 PR18。
+3. V15-CTRL-001、PR6a、AI-DECISION-001、PR2、PR5 均为 `DONE_INTEGRATION`；integration HEAD 为 `9b4b685d3eaa5ad2951e84a132e1c3bd39d60e9c`。
+4. PR6 已达到 `DONE / DONE_LOCAL`（UNCOMMITTED）；不得在未获新任务授权时自动 push、创建 PR、启动 PR9 或 PR18。
 5. At most one canonical task may be IN_PROGRESS; do not auto-parallelize.
 6. Human gates may only be closed by a human based on evidence.
 7. commit、push、PR、merge 各需独立授权；本快照不构成提交、推送、PR 或部署授权。

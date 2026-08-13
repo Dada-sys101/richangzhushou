@@ -14,23 +14,6 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    services:
-      mysql:
-        image: mysql:8.4
-        env:
-          MYSQL_DATABASE: daily_assistant_ci
-          MYSQL_PASSWORD: ci-only-password
-          MYSQL_ROOT_PASSWORD: ci-only-root-password
-          MYSQL_USER: daily_assistant_ci
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -pci-only-root-password"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-    env:
-      DATABASE_URL: mysql://daily_assistant_ci:ci-only-password@127.0.0.1:3306/daily_assistant_ci
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -56,13 +39,80 @@ jobs:
       - name: Run quality gates
         run: npm run quality
 
-      - name: Apply migrations to an empty MySQL database
-        run: npm run prisma:migrate:deploy --workspace @daily-assistant/api
+      - name: Run supply-chain governance tests
+        run: npm run test:governance
 
-      - name: Run WP2 database integration tests
-        run: npm run test:integration --workspace @daily-assistant/api
+      - name: Generate license inventory
+        run: npm run inventory:licenses
+
+      - name: Generate CycloneDX SBOM
+        run: npm run sbom:generate
+
+      - name: Validate CycloneDX SBOM
+        run: npm run sbom:validate
+
+      - name: Upload supply-chain artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: supply-chain-governance
+          path: |
+            output/pr6/license-inventory.json
+            output/pr6/sbom.cdx.json
+          if-no-files-found: warn
+          retention-days: 7
+
+  db-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.4
         env:
-          TEST_DATABASE_URL: mysql://daily_assistant_ci:ci-only-password@127.0.0.1:3306/daily_assistant_ci
+          MYSQL_ROOT_PASSWORD: ci-only-root-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -pci-only-root-password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate --workspace @daily-assistant/api
+
+      - name: Build shared API contracts
+        run: npm run build --workspace @daily-assistant/api-contracts
+
+      - name: Build shared config
+        run: npm run build --workspace @daily-assistant/config
+
+      - name: Validate MySQL 8.4
+        run: npm run validate:mysql84:ci
+        env:
+          PR6A_MYSQL_ADMIN_URL: mysql://root:ci-only-root-password@127.0.0.1:3306/mysql
+          PR6A_EVIDENCE_LABEL: pr6a-ci
+
+      - name: Upload database validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr6a-mysql84-evidence
+          path: output/pr6a/evidence/
+          if-no-files-found: warn
+          retention-days: 7
 
   browser-qa:
     runs-on: ubuntu-latest

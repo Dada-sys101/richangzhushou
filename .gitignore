@@ -3,6 +3,7 @@ node_modules/
 output/playwright/
 output/browser-qa/
 output/e2e/
+output/pr6/
 output/pr6a/evidence/
 dist/
 coverage/
