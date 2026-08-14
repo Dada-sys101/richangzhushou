@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-08-14T10:21:41+08:00
+updatedAt: 2026-08-14T14:28:52+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 integrationBranch: codex/v15-integration-foundation
@@ -8,11 +8,11 @@ integrationHead: 24b6a3928a45d64947749491c40cd0e3a890c683
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: PR9
-executionStatus: VERIFYING
-deliveryStatus: NOT_STARTED
+executionStatus: VERIFIED
+deliveryStatus: PR_OPEN
 nextCanonicalTask: PR9
 nextCanonicalTaskAfterCompletion: PR9
-openPullRequests: []
+openPullRequests: [16]
 
 ## Active Task
 
@@ -20,14 +20,14 @@ openPullRequests: []
 - displayName: Repository Abstraction + V1PlainRepository
 - branch: codex/v15-pr9-v1plain-repository
 - baseBranch: codex/v15-integration-foundation
-- baseHead: 24b6a3928a45d64947749491c40cd0e3a890c683（PR #15 squash merge，PR6 `DONE_INTEGRATION`）
-- executionStatus: VERIFYING
-- deliveryStatus: NOT_STARTED
-- localWorkingTree: MODIFIED_UNCOMMITTED
+- baseHead: 24b6a3928a45d64947749491c40cd0e3a890c683
+- executionStatus: VERIFIED
+- deliveryStatus: PR_OPEN
+- localWorkingTree: MODIFIED_UNCOMMITTED_GOVERNANCE_ONLY
 - allowedScope: web offline repository abstraction、V1 adapter、minimal handler/sync injection、focused/browser tests、PR9 task contract and recovery state
-- forbiddenScope: dependency/lockfile、stores/views/components、IndexedDB schema/version migration、V2 encryption、Feature Flag switching、API/Prisma/contracts、PR18、Git delivery and deploy
-- validation: implementation COMPLETE；full quality PASS（format/lint/type/test/build/Prisma/OpenAPI/migration/audit 0 vulnerabilities）；Web Vitest 11 files / 25 tests PASS；real Chromium/Vite repository parity + Back/reload PASS；static direct-access gate PASS；reconnect E2E assertions COMPLETE and Playwright discovery PASS；existing GitHub browser-qa/MySQL 8.4 CI path CONFIRMED；reconnect runtime PENDING_CI；check:context/diff PASS
-- remaining: independent governance-correction review；independent commit authorization；push；Draft PR；browser-qa reconnect runtime evidence；Ready and merge remain separate gates；不得自动启动 PR18
+- forbiddenScope: dependency/lockfile（PR9 默认范围；已完成的 nanoid lockfile correction 是一次性独立授权例外）、stores/views/components、IndexedDB schema/version migration、V2 encryption、Feature Flag switching、API/Prisma/contracts、PR18、未经授权的 Git delivery 和 deploy
+- validation: implementation COMPLETE；full quality PASS（format/lint/type/test/build/Prisma/OpenAPI/migration/audit 0 vulnerabilities）；Web Vitest 11 files / 25 tests PASS；real Chromium/Vite repository parity + Back/reload PASS；static direct-access gate PASS；push CI #233 SUCCESS；PR CI #234 SUCCESS（quality/db-validation/browser-qa）；24 Playwright tests PASS；desktop/mobile repository parity and reconnect convergence PASS；check:context/diff PASS
+- remaining: governance-close review；independent governance commit authorization；separate push；final CI verification；merge-readiness review；independent merge authorization；不得自动启动 PR10 或 PR18
 
 ## Task Ledger
 
@@ -44,7 +44,7 @@ openPullRequests: []
 | PR5 | DONE | DONE_INTEGRATION | R1 | PR1 + PR2 + PR6a | PR #14 squash merged；integration `9b4b685...`；CI #225 SUCCESS |
 | PR6 | DONE | DONE_INTEGRATION | R1 | PR6a | PR #15 squash merged；integration `24b6a392...`；final CI #230 SUCCESS |
 | PR7/PR8/PR13 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
-| PR9 | VERIFYING | NOT_STARTED | R1 | PR5 DONE_INTEGRATION | implementation/quality complete；reconnect E2E implemented/discovered；runtime evidence PENDING_CI |
+| PR9 | VERIFIED | PR_OPEN | R1 | PR5 DONE_INTEGRATION | PR #16 OPEN/DRAFT；CI #233/#234 SUCCESS；desktop/mobile reconnect runtime PASS；governance close pending commit authorization |
 | PR10/PR11/PR12 | PENDING | NOT_STARTED | R3 | PLANS dependencies | later |
 | PR14/PR15 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
 | PR16/PR17 | PENDING | NOT_STARTED | R1.1 | H6/H8 affect PR17 | later |
@@ -93,16 +93,18 @@ openPullRequests: []
 - pr5Integration: DONE_INTEGRATION；PR #14 squash merge `9b4b685...`；CI #225 SUCCESS；shared flags + AI contracts/OpenAPI/tests
 - pr6LocalImplementation: DONE_LOCAL / UNCOMMITTED；formal `validate:mysql84:ci` gate reuses PR6a validator；dependency audit remains high；deterministic License inventory + CycloneDX SBOM baseline；governance 14/14；validator safety 26/26；quality/audit PASS；local MySQL 8.4 runtime unavailable；FEATURE_FLAG_PERSISTENCE_GAP remains OBSERVED
 - pr6Integration: DONE_INTEGRATION；PR #15 squash merge `24b6a392...`；final CI #230 SUCCESS
-- pr9LocalImplementation: IMPLEMENTATION_COMPLETE / VERIFYING / MODIFIED_UNCOMMITTED；strict LocalRepository + V1PlainRepository + handler/sync injection complete；full quality + Web 25/25 + real Chromium parity/Back/reload PASS；reconnect E2E implemented and discovered；GitHub CI execution path available；runtime result PENDING_CI
+- pr9Delivery: VERIFIED / PR_OPEN / DRAFT；remote head `91912de05abdf3ef5851b181697476392de79a1e`；PR #16 OPEN；base `24b6a3928a45d64947749491c40cd0e3a890c683`；2 commits；push CI #233 SUCCESS；PR CI #234 SUCCESS
+- pr9ReconnectRuntime: PASS；CI #234 run ID `31775740446`；browser-qa 24 tests PASS；`V1PlainRepository preserves IndexedDB v1 parity across reload` and `offline task create reconnects once and converges local and server state` PASS on chromium-desktop and chromium-mobile
+- pr9SecurityCorrection: one-time explicitly authorized lockfile-only exception；`nanoid` 3.3.17 -> 3.3.18；commit `91912de05abdf3ef5851b181697476392de79a1e`；CI #233/#234 SUCCESS；audit vulnerabilities 0；does not expand future dependency authorization
 - staging: NOT_CREATED
 - production: NOT_DEPLOYED
 
 ## Last Verified
 
-- liveFactsChecked: PR #15 MERGED；integration HEAD `24b6a3928a45d64947749491c40cd0e3a890c683`；main unchanged；no remote PR9 branch
-- localBaseChecked: branch `codex/v15-pr9-v1plain-repository` at approved integration HEAD `24b6a392...`
-- currentLocalValidation: full quality PASS；Web 11 files / 25 tests PASS；real Chromium/Vite actual V1 repository parity + Back/reload PASS；static raw DB import gate、check:context、git diff --check PASS
-- notPerformed: local standard Playwright runtime without disposable MySQL、reconnect runtime execution、new GitHub CI、add/commit/push/PR/Ready/merge/deploy、dependency update、Feature Flag persistence、PR18、cloud/staging/production
+- liveFactsChecked: PR #16 OPEN/DRAFT；remote PR9 head `91912de05abdf3ef5851b181697476392de79a1e`；integration HEAD `24b6a3928a45d64947749491c40cd0e3a890c683`；ahead 2 / behind 0；CI #233/#234 SUCCESS
+- localBaseChecked: branch `codex/v15-pr9-v1plain-repository` at `91912de05abdf3ef5851b181697476392de79a1e`；implementation worktree CLEAN before the authorized four-file governance close
+- currentLocalValidation: full quality PASS；Web 11 files / 25 tests PASS；real Chromium/Vite actual V1 repository parity + Back/reload PASS；CI #234 desktop/mobile reconnect runtime PASS；governance check:context and git diff --check PASS
+- notPerformed: governance add/commit/push、Ready、merge、deploy、Feature Flag persistence、PR10、PR18、cloud/staging/production
 - snapshotRule: GitHub/Git/CI/environment facts override this snapshot; synchronize only at the next legal governance update point without creating a CI loop
 
 ## Recovery Rules
@@ -110,8 +112,13 @@ openPullRequests: []
 1. Read `PLANS.md`, then this snapshot; verify GitHub/Git/CI/environment before action.
 2. Obey explicit `nextCanonicalTask` after dependency/gate validation; do not choose a random READY task.
 3. V15-CTRL-001、PR6a、AI-DECISION-001、PR2、PR5、PR6 均为 `DONE_INTEGRATION`；integration HEAD 为 `24b6a3928a45d64947749491c40cd0e3a890c683`。
-4. PR9 is the only active canonical task and is `IMPLEMENTATION_COMPLETE / VERIFYING`；reconnect runtime remains `PENDING_CI`；不得自动 push、创建 PR、启动 PR18。
+4. PR9 is the only active canonical task and is `VERIFIED / PR_OPEN / DRAFT`.
+   PR #16 and CI #233/#234 are green. Governance-close delivery, Ready and merge
+   remain separate gates. Do not automatically start PR10 or PR18.
 5. At most one canonical task may be IN_PROGRESS; do not auto-parallelize.
 6. Human gates may only be closed by a human based on evidence.
-7. commit、push、PR、merge 各需独立授权；本快照不构成提交、推送、PR 或部署授权。
+7. Completed history: implementation commit DONE; security correction commit DONE;
+   push DONE; Draft PR #16 creation DONE. This snapshot does not authorize a
+   governance commit, governance push, Ready, merge or deploy; each remains an
+   independent authorization gate.
 8. Snapshot/live-fact mismatch is reconciled at the next legal governance update; never create an infinite CI synchronization loop.

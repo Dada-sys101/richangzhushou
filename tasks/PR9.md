@@ -29,6 +29,26 @@
   feature-flag switching, V2 encryption, migration coordination, dual read/write,
   database version/schema changes, cloud/deployment and PR18.
 
+## One-time security exception
+
+- Package and lockfile changes were not part of the original PR9 feature scope;
+  the default prohibition above remains in force.
+- CI #232 exposed an actual PR9 security blocker: the committed lockfile resolved
+  `nanoid` 3.3.17, which triggered a HIGH-severity dependency advisory.
+- A one-time, minimum-scope and explicitly authorized exception allowed only
+  `package-lock.json` to update the `node_modules/nanoid` lock entry from 3.3.17
+  to 3.3.18. Only its `version`, `resolved` and `integrity` values changed.
+- Package manifest change: NO. Parent dependency upgrade: NO. Audit suppression:
+  NO. Dependency override: NO. `--force`: NO. Manual lockfile edit: NO. Global npm
+  modification: NO.
+- Git evidence: security correction commit
+  `91912de05abdf3ef5851b181697476392de79a1e`.
+- Verification: push CI #233 SUCCESS; pull-request CI #234 SUCCESS; dependency
+  audit vulnerabilities = 0.
+- This exception exists solely to resolve PR9's observed CI security blocker. It
+  does not permanently broaden PR9 dependency/lockfile scope and cannot be
+  inherited as authorization for dependency changes in any later task.
+
 ## Repository contract
 
 - Metadata: `metadataGet`, `metadataSet`, `metadataDelete`.
@@ -59,31 +79,34 @@
 - Reconnect E2E assertions: COMPLETE for offline TASK creation, pending state, no
   offline server write, reconnect flush/convergence, exact server count, duplicate
   protection, ID rewrite, second-user isolation and post-reload convergence.
-- Reconnect Playwright discovery: PASS; existing GitHub browser-qa with MySQL 8.4
-  and `E2E_DATABASE_URL` can execute the test.
-- Reconnect runtime: PENDING_CI. Do not record reconnect PASS before CI execution.
-- Final diff review: production implementation review passed; governance lifecycle
-  correction applied locally and pending independent read-only review.
+- Reconnect runtime: PASS in pull-request CI #234 (run ID `31775740446`, event
+  `pull_request`, conclusion SUCCESS); browser-qa completed 24 Playwright tests.
+- `V1PlainRepository preserves IndexedDB v1 parity across reload`: PASS on
+  chromium-desktop and chromium-mobile.
+- `offline task create reconnects once and converges local and server state`: PASS
+  on chromium-desktop and chromium-mobile.
+- Push CI #233 and pull-request CI #234: quality, db-validation and browser-qa PASS.
+- Final implementation diff review: PASS. Governance-close correction is applied
+  locally and pending independent review.
 
 ## DeepSeek usage
 
-- Policy: conditionally allowed for mechanical implementation.
-- One `deepseek-v4-flash` workspace-write attempt was started with exact path
-  restrictions, produced no output or filesystem changes, and was terminated.
-- DeepSeek made no Git mutation and no accepted implementation change.
+- Governance-close policy: PROHIBITED; DeepSeek was not called for this task.
+- Historical implementation record: one `deepseek-v4-flash` workspace-write
+  attempt produced no output or filesystem changes and was terminated. It made no
+  Git mutation and no accepted implementation change.
 
 ## Remaining work
 
-- Full repository quality/context/diff checks PASS.
-- Complete independent governance-correction review.
-- Obtain independent commit authorization, then separately authorize push and
-  Draft PR creation.
-- Use browser-qa CI for reconnect runtime evidence, followed by independent Ready
-  and merge gates.
-- Do not start PR18 automatically.
+- Complete governance-close review.
+- Obtain independent commit authorization for these governance-only changes.
+- Separately push the governance close and verify final CI.
+- Perform final merge-readiness review and request independent merge authorization.
+- Do not start PR10 or PR18 automatically.
 
 ## Git authorization boundary
 
-- File modification and test execution are authorized for this implementation.
-- Staging, commit, push, remote branch creation, PR creation/update, Ready, merge
-  and deploy are not authorized.
+- Completed facts: implementation commit DONE; security correction commit DONE;
+  push DONE; Draft PR #16 creation DONE.
+- Current authorization: governance file modification YES; governance staging and
+  commit NO; push NO; PR update NO; Ready NO; merge NO; deploy NO.
