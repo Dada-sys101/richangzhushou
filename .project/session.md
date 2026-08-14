@@ -2,60 +2,57 @@
 
 ## Session Status
 
-VERIFYING / GOVERNANCE_CLOSE / PR_OPEN
+PHASE_2_R1_AI_CORE / CONTROL_BOOTSTRAP / TASK_CONTRACT / MODIFY_ONLY
 
 ## Task
 
-- ID: `PR9`
-- Name: Repository Abstraction + V1PlainRepository
-- Branch: `codex/v15-pr9-v1plain-repository`
-- Base: `codex/v15-integration-foundation@24b6a3928a45d64947749491c40cd0e3a890c683`
-- Delivery: `PR_OPEN / DRAFT`; head `91912de05abdf3ef5851b181697476392de79a1e`
+- ID: `PR18`
+- Name: AI Proposal / Operation + Confirmation UI + Fake Provider
+- Phase: Phase 2 / R1 AI Core
+- Canonical task: PR18
+- Execution: `READY`
+- Delivery: `NOT_STARTED`
+- Implementation: `NOT_STARTED`
+- Branch: `codex/v15-pr18-ai-proposal-fake-provider`
+- Base: `codex/v15-integration-foundation@3caa93bbc9127c9fee42da9c440f9db9b37436d3`
 
 ## Current Progress
 
-- Implementation and local validation are complete.
-- Added the strict user-scoped `LocalRepository` contract.
-- Added `V1PlainRepository` over unchanged IndexedDB v1 primitives and a default
-  composition root with no Feature Flag.
-- Adapted handler/sync through dependency injection; stores and views unchanged.
-- Added contract, adapter, handler, sync and real-browser parity tests.
-- Two commits are pushed; Draft PR #16 is `OPEN` against the frozen integration base.
-- Push CI #233 and pull-request CI #234 completed successfully.
-- Reconnect E2E runtime is PASS for desktop and mobile, including offline TASK
-  creation, pending state, reconnect flush, duplicate protection, ID rewrite,
-  second-user isolation and reload convergence.
-- Governance-close DeepSeek policy is `PROHIBITED`; DeepSeek was not called.
+- PR9 is `DONE / DONE_INTEGRATION`; PR #16 is merged/closed.
+- Integration CI #237 is SUCCESS.
+- PR18 local branch exists at the exact Integration HEAD; no remote branch exists.
+- `tasks/PR18.md` freezes the Proposal/Operation/Fake Provider control contract.
+- No PR18 implementation has started.
+
+## Git Permissions
+
+- File modification: exact six governance/task-contract files only.
+- Staging: NO.
+- Commit: NO.
+- Push / remote branch creation: NO.
+- PR creation/update, Ready, merge and deploy: NO.
 
 ## Validation
 
-- Web typecheck PASS.
-- Web Vitest 11 files / 25 tests PASS.
-- Web production build PASS.
-- Real Chromium + Vite actual repository parity PASS for entities, pending queue,
-  isolation, reload, cleanup and global availability.
-- CI #233 SUCCESS: quality, db-validation and browser-qa PASS.
-- CI #234 SUCCESS: quality, db-validation and browser-qa PASS; 24 Playwright tests
-  passed. Both PR9 repository parity and reconnect convergence tests passed on
-  Chromium desktop and mobile.
-- Full quality, check:context, git diff check and static scope review PASS.
+- Live Integration/PR9/CI/open-PR/remote-branch facts: VERIFIED.
+- Existing AI contracts, statuses and whitelist: VERIFIED.
+- Final `git diff --check`, `npm run check:context` and six-file scope gate: PASS.
 
 ## Blockers
 
-- No implementation or CI blocker.
-- Remaining gate is governance-close delivery followed by final merge-readiness
-  review.
-- Governance commit/push, Ready, merge and deploy are not authorized; the next
-  canonical task has not started.
+- No control-bootstrap blocker.
+- Implementation requires a separate explicit authorization.
+- Contract or whitelist insufficiency requires a separate GPT review; it must not
+  be repaired implicitly during implementation.
 
 ## Resume Instructions
 
-1. Review the four-file governance-close diff.
-2. If it passes, request independent governance commit authorization.
-3. Separately authorize push, verify final CI and perform merge-readiness review.
-4. Ready and merge remain independent gates.
-5. Keep PR9 as the only canonical task; do not start PR10 or PR18.
+1. Review the exact six-file control-contract diff.
+2. Keep execution `READY`, delivery `NOT_STARTED` and implementation `NOT_STARTED`.
+3. If review passes, request independent commit authorization.
+4. Separately authorize push/remote branch creation and later implementation.
+5. Do not start PR19, PR10, real AI or deployment automatically.
 
 ## Last Updated
 
-2026-08-14 14:28 +08:00
+2026-08-14 16:10 +08:00

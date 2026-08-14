@@ -86,8 +86,10 @@
 - `offline task create reconnects once and converges local and server state`: PASS
   on chromium-desktop and chromium-mobile.
 - Push CI #233 and pull-request CI #234: quality, db-validation and browser-qa PASS.
-- Final implementation diff review: PASS. Governance-close correction is applied
-  locally and pending independent review.
+- Final push CI #235 and pull-request CI #236: SUCCESS.
+- Integration CI #237 at squash merge `3caa93bbc9127c9fee42da9c440f9db9b37436d3`:
+  SUCCESS.
+- Final implementation and governance reviews: PASS.
 
 ## DeepSeek usage
 
@@ -98,15 +100,21 @@
 
 ## Remaining work
 
-- Complete governance-close review.
-- Obtain independent commit authorization for these governance-only changes.
-- Separately push the governance close and verify final CI.
-- Perform final merge-readiness review and request independent merge authorization.
-- Do not start PR10 or PR18 automatically.
+- PR9 executionStatus: `DONE`.
+- PR9 deliveryStatus: `DONE_INTEGRATION`.
+- PR #16: `MERGED / CLOSED`.
+- Source head: `4017218ae76d19c9dbe423aac2848e20fee36490`.
+- Squash merge: `3caa93bbc9127c9fee42da9c440f9db9b37436d3`.
+- Final PR CI: #235 SUCCESS; #236 SUCCESS.
+- Final Integration CI: #237 SUCCESS.
+- PR9 remaining engineering work: NONE.
+- PR10: NOT STARTED. PR18 was selected separately after PR9 completion.
 
 ## Git authorization boundary
 
 - Completed facts: implementation commit DONE; security correction commit DONE;
-  push DONE; Draft PR #16 creation DONE.
-- Current authorization: governance file modification YES; governance staging and
-  commit NO; push NO; PR update NO; Ready NO; merge NO; deploy NO.
+  governance-close commit DONE; push DONE; PR #16 creation/Ready/squash merge DONE;
+  integration CI #237 SUCCESS.
+- Branch deletion: NOT AUTHORIZED / NOT DONE.
+- The one-time `nanoid` lockfile correction remains historical PR9-only evidence;
+  it does not grant PR18 package or lockfile modification authority.
