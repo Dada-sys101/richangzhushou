@@ -1,54 +1,20 @@
-export type SyncEntityType =
-  | "TRANSACTION"
-  | "CATEGORY"
-  | "FINANCIAL_ACCOUNT"
-  | "BUDGET"
-  | "CALENDAR_EVENT"
-  | "TASK"
-  | "REMINDER"
-  | "TRIP"
-  | "TRIP_ITEM"
-  | "PACKING_ITEM"
-  | "DRAFT_RECORD";
+import type {
+  PendingMutation,
+  PendingStatus,
+  StoredEntity,
+  SyncEntityType,
+} from "./repository";
+import { cursorKey, idMapKey, stateKey } from "./repository";
 
-export type SyncAction = "CREATE" | "UPDATE" | "DELETE" | "RESTORE";
-export type PendingStatus = "PENDING" | "FAILED" | "CONFLICT";
-
-export interface StoredEntity {
-  id: string;
-  userId: string;
-  entityType: SyncEntityType;
-  data: Record<string, unknown>;
-  pending: boolean;
-  updatedAt: string;
-}
-
-export interface SyncCurrentEntity {
-  entityType: SyncEntityType;
-  entityId: string;
-  data: Record<string, unknown>;
-}
-
-export interface PendingMutation {
-  id: string;
-  userId: string;
-  entityType: SyncEntityType;
-  action: SyncAction;
-  entityId: string | null;
-  localId: string | null;
-  payload: Record<string, unknown>;
-  version: number | null;
-  status: PendingStatus;
-  errorCode: string | null;
-  errorMessage: string | null;
-  current: SyncCurrentEntity | null;
-  createdAt: number;
-}
-
-export interface UserSyncState {
-  status: "SYNCED" | "PENDING_SYNC" | "SYNC_FAILED" | "CONFLICT";
-  lastSyncedAt: string | null;
-}
+export type {
+  PendingMutation,
+  PendingStatus,
+  StoredEntity,
+  SyncAction,
+  SyncCurrentEntity,
+  SyncEntityType,
+  UserSyncState,
+} from "./repository";
 
 const DB_NAME = "daily-assistant-sync";
 const DB_VERSION = 1;
@@ -325,16 +291,4 @@ export async function hasAnyStoredData(): Promise<boolean> {
     transaction.onerror = () => reject(transaction.error);
     transaction.onabort = () => reject(transaction.error);
   });
-}
-
-export function cursorKey(userId: string): string {
-  return `cursor:${userId}`;
-}
-
-export function stateKey(userId: string): string {
-  return `state:${userId}`;
-}
-
-export function idMapKey(userId: string): string {
-  return `idmap:${userId}`;
 }

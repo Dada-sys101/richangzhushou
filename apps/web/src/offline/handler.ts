@@ -1,14 +1,10 @@
+import { defaultRepository } from "./repository-instance";
 import {
-  deleteEntityRecord,
-  deletePending,
-  getEntity,
-  listPending,
-  putEntity,
-  updatePending,
+  type LocalRepository,
   type StoredEntity,
   type SyncAction,
   type SyncEntityType,
-} from "./db";
+} from "./repository";
 import {
   currentUser,
   enqueueChange,
@@ -279,6 +275,7 @@ export async function handleOffline(
   route: OfflineRoute,
   path: string,
   body: unknown,
+  repository: LocalRepository = defaultRepository,
 ): Promise<unknown> {
   const userId = currentUser();
   if (!userId) {
@@ -301,7 +298,7 @@ export async function handleOffline(
       localId,
       parentId,
     );
-    await putEntity({
+    await repository.entityPut(userId, route.entityType, {
       data: entity,
       entityType: route.entityType,
       id: localId,
@@ -309,18 +306,24 @@ export async function handleOffline(
       updatedAt: entity.updatedAt as string,
       userId,
     });
-    await enqueueCreate(userId, route.entityType, queuedPayload, localId);
+    await enqueueCreate(
+      userId,
+      route.entityType,
+      queuedPayload,
+      localId,
+      repository,
+    );
     return route.wrap ? route.wrap(entity) : entity;
   }
 
   const targetId = pathEntityId ?? String(payload.id ?? "");
-  const local = await getEntity(userId, route.entityType, targetId);
+  const local = await repository.entityGet(userId, route.entityType, targetId);
   const now = new Date().toISOString();
 
   if (local?.pending) {
     if (route.action === "DELETE") {
-      await deleteEntityRecord(userId, route.entityType, targetId);
-      const pending = await listPending(userId);
+      await repository.entityDelete(userId, route.entityType, targetId);
+      const pending = await repository.pendingList(userId);
       const create = pending.find(
         (item) =>
           item.action === "CREATE" &&
@@ -328,7 +331,7 @@ export async function handleOffline(
           item.entityType === route.entityType,
       );
       if (create) {
-        await deletePending(create.id);
+        await repository.pendingDelete(userId, create.id);
       }
       return undefined;
     }
@@ -338,13 +341,13 @@ export async function handleOffline(
       route.action,
       now,
     );
-    await putEntity({
+    await repository.entityPut(userId, route.entityType, {
       ...local,
       data: merged,
       pending: true,
       updatedAt: now,
     });
-    const pending = await listPending(userId);
+    const pending = await repository.pendingList(userId);
     const create = pending.find(
       (item) =>
         item.action === "CREATE" &&
@@ -352,7 +355,7 @@ export async function handleOffline(
         item.entityType === route.entityType,
     );
     if (create) {
-      await updatePending(create.id, {
+      await repository.pendingUpdate(userId, create.id, {
         payload: { ...create.payload, ...payload },
       });
     }
@@ -371,10 +374,11 @@ export async function handleOffline(
     targetId,
     version,
     changePayload,
+    repository,
   );
   if (route.action === "DELETE") {
     const tombstone = mergeEntity(local?.data ?? {}, {}, "DELETE", now);
-    await putEntity({
+    await repository.entityPut(userId, route.entityType, {
       data: tombstone,
       entityType: route.entityType,
       id: targetId,
@@ -390,7 +394,7 @@ export async function handleOffline(
     route.action,
     now,
   );
-  await putEntity({
+  await repository.entityPut(userId, route.entityType, {
     data: merged,
     entityType: route.entityType,
     id: targetId,
