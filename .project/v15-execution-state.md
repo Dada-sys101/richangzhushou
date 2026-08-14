@@ -1,33 +1,33 @@
 # V1.5 Execution State
 
-updatedAt: 2026-08-13T14:05:00+08:00
+updatedAt: 2026-08-14T10:21:41+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 integrationBranch: codex/v15-integration-foundation
-integrationHead: 9b4b685d3eaa5ad2951e84a132e1c3bd39d60e9c
+integrationHead: 24b6a3928a45d64947749491c40cd0e3a890c683
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: PR6
-executionStatus: DONE
-deliveryStatus: DONE_LOCAL
-nextCanonicalTask: PR6
-nextCanonicalTaskAfterCompletion: PR6
+currentTask: PR9
+executionStatus: VERIFYING
+deliveryStatus: NOT_STARTED
+nextCanonicalTask: PR9
+nextCanonicalTaskAfterCompletion: PR9
 openPullRequests: []
 
 ## Active Task
 
-- id: PR6
-- displayName: DB 验证接入 CI 与依赖治理
-- branch: codex/v15-pr6-db-ci-dependency-governance
+- id: PR9
+- displayName: Repository Abstraction + V1PlainRepository
+- branch: codex/v15-pr9-v1plain-repository
 - baseBranch: codex/v15-integration-foundation
-- baseHead: 9b4b685d3eaa5ad2951e84a132e1c3bd39d60e9c（PR #14 squash merge，PR5 `DONE_INTEGRATION`）
-- executionStatus: DONE
-- deliveryStatus: DONE_LOCAL
+- baseHead: 24b6a3928a45d64947749491c40cd0e3a890c683（PR #15 squash merge，PR6 `DONE_INTEGRATION`）
+- executionStatus: VERIFYING
+- deliveryStatus: NOT_STARTED
 - localWorkingTree: MODIFIED_UNCOMMITTED
-- allowedScope: CI workflow、root scripts、License/SBOM governance tests、单一治理文档与本状态文件最小同步
-- forbiddenScope: dependency/lockfile、PR6a validator safety core、业务代码、Prisma/migrations、自动许可证批准、Dependabot、Feature Flag persistence、PR9/PR18、Git 交付与部署
-- validation: DeepSeek V4-Pro primary implementation；governance 14/14；PR6a validator safety 26/26；License inventory 1163 packages / 17 expressions / 9 missing-unresolved / 25 manual-review；CycloneDX 1044 components；full quality PASS（audit 0 vulnerabilities）；Codex independent review 2 MEDIUM corrected；local MySQL 8.4 runtime unavailable；new GitHub CI not run
-- remaining: 等待独立 final diff review/commit 授权；不得自动 push、创建 PR、启动 PR9 或 PR18；FEATURE_FLAG_PERSISTENCE_GAP remains OBSERVED
+- allowedScope: web offline repository abstraction、V1 adapter、minimal handler/sync injection、focused/browser tests、PR9 task contract and recovery state
+- forbiddenScope: dependency/lockfile、stores/views/components、IndexedDB schema/version migration、V2 encryption、Feature Flag switching、API/Prisma/contracts、PR18、Git delivery and deploy
+- validation: implementation COMPLETE；full quality PASS（format/lint/type/test/build/Prisma/OpenAPI/migration/audit 0 vulnerabilities）；Web Vitest 11 files / 25 tests PASS；real Chromium/Vite repository parity + Back/reload PASS；static direct-access gate PASS；reconnect E2E assertions COMPLETE and Playwright discovery PASS；existing GitHub browser-qa/MySQL 8.4 CI path CONFIRMED；reconnect runtime PENDING_CI；check:context/diff PASS
+- remaining: independent governance-correction review；independent commit authorization；push；Draft PR；browser-qa reconnect runtime evidence；Ready and merge remain separate gates；不得自动启动 PR18
 
 ## Task Ledger
 
@@ -42,9 +42,9 @@ openPullRequests: []
 | PR3 | PENDING | NOT_STARTED | R1.1 | PR6a | later |
 | PR4 | PENDING | NOT_STARTED | R2 | PR6a | later |
 | PR5 | DONE | DONE_INTEGRATION | R1 | PR1 + PR2 + PR6a | PR #14 squash merged；integration `9b4b685...`；CI #225 SUCCESS |
-| PR6 | DONE | DONE_LOCAL | R1 | PR6a | DB validator CI gate + dependency/security/License/SBOM baseline；quality/focused PASS；uncommitted；new GitHub CI not run |
+| PR6 | DONE | DONE_INTEGRATION | R1 | PR6a | PR #15 squash merged；integration `24b6a392...`；final CI #230 SUCCESS |
 | PR7/PR8/PR13 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
-| PR9 | BLOCKED | NOT_STARTED | R1 | PR5 | wait for PR5 integration and explicit authorization |
+| PR9 | VERIFYING | NOT_STARTED | R1 | PR5 DONE_INTEGRATION | implementation/quality complete；reconnect E2E implemented/discovered；runtime evidence PENDING_CI |
 | PR10/PR11/PR12 | PENDING | NOT_STARTED | R3 | PLANS dependencies | later |
 | PR14/PR15 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
 | PR16/PR17 | PENDING | NOT_STARTED | R1.1 | H6/H8 affect PR17 | later |
@@ -76,10 +76,10 @@ openPullRequests: []
 ## Evidence
 
 - repository: Dada-sys101/richangzhushou
-- completedPRs: #8, #9, #10, #11, #12, #13, #14
+- completedPRs: #8, #9, #10, #11, #12, #13, #14, #15
 - pr12State: MERGED
 - pr12MergeCommit: c4cca65bcd2ba71d93f948bf1c8731179fbb7fad（AI-DECISION-001）
-- integrationHead: 9b4b685d3eaa5ad2951e84a132e1c3bd39d60e9c
+- integrationHead: 24b6a3928a45d64947749491c40cd0e3a890c683
 - pr13State: MERGED
 - pr13MergeCommit: 042b2bc9fb8fcb1ed4527888eb7e4489af316673（PR2）
 - pr13CI: 222 SUCCESS
@@ -92,23 +92,25 @@ openPullRequests: []
 - pr2Integration: DONE_INTEGRATION；PR #13 squash merge `042b2bc9...`；CI #222 SUCCESS；schema + single migration + tests + account deletion minimal adaptation
 - pr5Integration: DONE_INTEGRATION；PR #14 squash merge `9b4b685...`；CI #225 SUCCESS；shared flags + AI contracts/OpenAPI/tests
 - pr6LocalImplementation: DONE_LOCAL / UNCOMMITTED；formal `validate:mysql84:ci` gate reuses PR6a validator；dependency audit remains high；deterministic License inventory + CycloneDX SBOM baseline；governance 14/14；validator safety 26/26；quality/audit PASS；local MySQL 8.4 runtime unavailable；FEATURE_FLAG_PERSISTENCE_GAP remains OBSERVED
+- pr6Integration: DONE_INTEGRATION；PR #15 squash merge `24b6a392...`；final CI #230 SUCCESS
+- pr9LocalImplementation: IMPLEMENTATION_COMPLETE / VERIFYING / MODIFIED_UNCOMMITTED；strict LocalRepository + V1PlainRepository + handler/sync injection complete；full quality + Web 25/25 + real Chromium parity/Back/reload PASS；reconnect E2E implemented and discovered；GitHub CI execution path available；runtime result PENDING_CI
 - staging: NOT_CREATED
 - production: NOT_DEPLOYED
 
 ## Last Verified
 
-- liveFactsChecked: PR #14 MERGED; squash merge/integration HEAD `9b4b685d3eaa5ad2951e84a132e1c3bd39d60e9c`; CI 225 success
-- localBaseChecked: branch `codex/v15-pr6-db-ci-dependency-governance` created from approved integration HEAD `9b4b685...`
-- currentLocalValidation: governance 14/14；PR6a validator safety 26/26；License inventory 1163 packages / 25 manual review；CycloneDX 1044 components；quality、check:context、git diff --check PASS；audit 0 vulnerabilities；API 92 passed / DB-gated 95 skipped without DB environment；local MySQL 8.4 runtime unavailable
-- notPerformed: real MySQL 8.4 lifecycle、new GitHub CI、add/commit/push/PR/Ready/merge/deploy、dependency update、automatic license approval、Feature Flag persistence、PR9/PR18、cloud resource creation、staging、production
+- liveFactsChecked: PR #15 MERGED；integration HEAD `24b6a3928a45d64947749491c40cd0e3a890c683`；main unchanged；no remote PR9 branch
+- localBaseChecked: branch `codex/v15-pr9-v1plain-repository` at approved integration HEAD `24b6a392...`
+- currentLocalValidation: full quality PASS；Web 11 files / 25 tests PASS；real Chromium/Vite actual V1 repository parity + Back/reload PASS；static raw DB import gate、check:context、git diff --check PASS
+- notPerformed: local standard Playwright runtime without disposable MySQL、reconnect runtime execution、new GitHub CI、add/commit/push/PR/Ready/merge/deploy、dependency update、Feature Flag persistence、PR18、cloud/staging/production
 - snapshotRule: GitHub/Git/CI/environment facts override this snapshot; synchronize only at the next legal governance update point without creating a CI loop
 
 ## Recovery Rules
 
 1. Read `PLANS.md`, then this snapshot; verify GitHub/Git/CI/environment before action.
 2. Obey explicit `nextCanonicalTask` after dependency/gate validation; do not choose a random READY task.
-3. V15-CTRL-001、PR6a、AI-DECISION-001、PR2、PR5 均为 `DONE_INTEGRATION`；integration HEAD 为 `9b4b685d3eaa5ad2951e84a132e1c3bd39d60e9c`。
-4. PR6 已达到 `DONE / DONE_LOCAL`（UNCOMMITTED）；不得在未获新任务授权时自动 push、创建 PR、启动 PR9 或 PR18。
+3. V15-CTRL-001、PR6a、AI-DECISION-001、PR2、PR5、PR6 均为 `DONE_INTEGRATION`；integration HEAD 为 `24b6a3928a45d64947749491c40cd0e3a890c683`。
+4. PR9 is the only active canonical task and is `IMPLEMENTATION_COMPLETE / VERIFYING`；reconnect runtime remains `PENDING_CI`；不得自动 push、创建 PR、启动 PR18。
 5. At most one canonical task may be IN_PROGRESS; do not auto-parallelize.
 6. Human gates may only be closed by a human based on evidence.
 7. commit、push、PR、merge 各需独立授权；本快照不构成提交、推送、PR 或部署授权。

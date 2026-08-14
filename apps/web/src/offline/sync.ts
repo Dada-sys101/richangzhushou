@@ -3,36 +3,25 @@ import {
   getAccessToken,
   refreshSessionOnce,
 } from "../api/session";
+import { defaultRepository } from "./repository-instance";
 import {
-  clearUserData,
   cursorKey,
-  deleteEntityRecord,
-  deletePending,
-  getEntity,
-  getPending,
-  hasAnyStoredData,
   idMapKey,
-  kvGet,
-  kvSet,
-  listEntities,
-  listPending,
-  putEntity,
-  putPending,
   stateKey,
-  updatePending,
+  type LocalRepository,
   type PendingMutation,
   type StoredEntity,
   type SyncAction,
   type SyncCurrentEntity,
   type SyncEntityType,
-} from "./db";
+} from "./repository";
 
 export type {
   PendingMutation,
   SyncAction,
   SyncCurrentEntity,
   SyncEntityType,
-} from "./db";
+} from "./repository";
 
 export interface SyncChange {
   changeType: "CREATE" | "UPDATE" | "DELETE";
@@ -90,19 +79,22 @@ export function isSyncing(): boolean {
   return syncing;
 }
 
-export async function initSync(userId: string): Promise<void> {
+export async function initSync(
+  userId: string,
+  repository: LocalRepository = defaultRepository,
+): Promise<void> {
   if (currentUserId === userId) {
     return;
   }
   currentUserId = userId;
-  await kvSet(LAST_USER_KEY, { id: userId });
+  await repository.metadataSet(LAST_USER_KEY, { id: userId });
   backoffMs = 2_000;
-  await pullChanges(userId);
-  await flushPending(userId);
-  scheduleFlush(userId);
+  await pullChanges(userId, repository);
+  await flushPending(userId, repository);
+  scheduleFlush(userId, repository);
   window.addEventListener("online", () => {
     if (currentUserId === userId) {
-      void flushPending(userId);
+      void flushPending(userId, repository);
     }
   });
 }
@@ -115,8 +107,11 @@ export function stopSync(): void {
   }
 }
 
-export async function pullChanges(userId: string): Promise<void> {
-  let cursor = await kvGet<string | null>(cursorKey(userId));
+export async function pullChanges(
+  userId: string,
+  repository: LocalRepository = defaultRepository,
+): Promise<void> {
+  let cursor = await repository.metadataGet<string | null>(cursorKey(userId));
   for (let page = 0; page < 100; page += 1) {
     let response: SyncChangesResponse;
     try {
@@ -129,14 +124,14 @@ export async function pullChanges(userId: string): Promise<void> {
       return;
     }
     if (response.changes.length === 0) {
-      await kvSet(cursorKey(userId), cursor);
+      await repository.metadataSet(cursorKey(userId), cursor);
       return;
     }
     for (const change of response.changes) {
-      await applyChange(userId, change);
+      await applyChange(userId, change, repository);
     }
     cursor = response.nextCursor;
-    await kvSet(cursorKey(userId), cursor);
+    await repository.metadataSet(cursorKey(userId), cursor);
     if (!cursor) {
       return;
     }
@@ -146,6 +141,7 @@ export async function pullChanges(userId: string): Promise<void> {
 export async function applyChange(
   userId: string,
   change: SyncChange,
+  repository: LocalRepository = defaultRepository,
 ): Promise<void> {
   const entity: StoredEntity = {
     data: change.data,
@@ -155,10 +151,13 @@ export async function applyChange(
     updatedAt: change.updatedAt,
     userId,
   };
-  await putEntity(entity);
+  await repository.entityPut(userId, change.entityType, entity);
 }
 
-export async function flushPending(userId: string): Promise<void> {
+export async function flushPending(
+  userId: string,
+  repository: LocalRepository = defaultRepository,
+): Promise<void> {
   if (flushing || !navigator.onLine) {
     return;
   }
@@ -166,13 +165,17 @@ export async function flushPending(userId: string): Promise<void> {
   syncing = true;
   notifyChanged();
   try {
-    const pending = await listPending(userId, ["PENDING", "FAILED"]);
+    const pending = await repository.pendingList(userId, ["PENDING", "FAILED"]);
     if (pending.length === 0) {
-      const conflicts = await listPending(userId, ["CONFLICT"]);
-      await setState(userId, conflicts.length > 0 ? "CONFLICT" : "SYNCED");
+      const conflicts = await repository.pendingList(userId, ["CONFLICT"]);
+      await setState(
+        userId,
+        conflicts.length > 0 ? "CONFLICT" : "SYNCED",
+        repository,
+      );
       return;
     }
-    const batch = await buildBatch(userId, pending);
+    const batch = await buildBatch(userId, pending, repository);
     const response = await syncRequest<{
       results: SyncMutationResult[];
     }>("/sync/mutations", {
@@ -189,10 +192,15 @@ export async function flushPending(userId: string): Promise<void> {
       if (result.status === "OK" && result.result) {
         const serverId = String(result.result.id ?? mutation.entityId ?? "");
         if (mutation.localId && mutation.localId !== serverId) {
-          await addIdMap(userId, mutation.localId, serverId);
-          await rewritePendingIds(userId, mutation.localId, serverId);
+          await addIdMap(userId, mutation.localId, serverId, repository);
+          await rewritePendingIds(
+            userId,
+            mutation.localId,
+            serverId,
+            repository,
+          );
         }
-        await putEntity({
+        await repository.entityPut(userId, mutation.entityType, {
           data: result.result,
           entityType: mutation.entityType,
           id: serverId,
@@ -201,18 +209,18 @@ export async function flushPending(userId: string): Promise<void> {
           userId,
         });
         if (mutation.localId && mutation.localId !== serverId) {
-          await deleteEntityRecord(
+          await repository.entityDelete(
             userId,
             mutation.entityType,
             mutation.localId,
           );
         }
-        await deletePending(mutation.id);
+        await repository.pendingDelete(userId, mutation.id);
       } else if (result.error) {
         const conflicted =
           result.error.code === "VERSION_CONFLICT" ||
           result.error.code === "IDEMPOTENCY_CONFLICT";
-        await updatePending(mutation.id, {
+        await repository.pendingUpdate(userId, mutation.id, {
           current: result.error.current ?? null,
           errorCode: result.error.code,
           errorMessage: result.error.message,
@@ -220,9 +228,12 @@ export async function flushPending(userId: string): Promise<void> {
         });
       }
     }
-    await pullChanges(userId);
-    const remaining = await listPending(userId, ["PENDING", "FAILED"]);
-    const conflicts = await listPending(userId, ["CONFLICT"]);
+    await pullChanges(userId, repository);
+    const remaining = await repository.pendingList(userId, [
+      "PENDING",
+      "FAILED",
+    ]);
+    const conflicts = await repository.pendingList(userId, ["CONFLICT"]);
     await setState(
       userId,
       conflicts.length > 0
@@ -230,15 +241,16 @@ export async function flushPending(userId: string): Promise<void> {
         : remaining.length > 0
           ? "PENDING_SYNC"
           : "SYNCED",
+      repository,
     );
     if (remaining.length > 0) {
-      scheduleFlush(userId);
+      scheduleFlush(userId, repository);
     } else {
       backoffMs = 2_000;
     }
   } catch {
-    await setState(userId, "SYNC_FAILED");
-    scheduleFlush(userId);
+    await setState(userId, "SYNC_FAILED", repository);
+    scheduleFlush(userId, repository);
   } finally {
     flushing = false;
     syncing = false;
@@ -251,6 +263,7 @@ export async function enqueueCreate(
   entityType: SyncEntityType,
   payload: Record<string, unknown>,
   localId: string,
+  repository: LocalRepository = defaultRepository,
 ): Promise<void> {
   const mutation: PendingMutation = {
     action: "CREATE",
@@ -267,10 +280,10 @@ export async function enqueueCreate(
     userId,
     version: null,
   };
-  await putPending(mutation);
-  await setState(userId, "PENDING_SYNC");
+  await repository.pendingPut(userId, mutation);
+  await setState(userId, "PENDING_SYNC", repository);
   notifyChanged();
-  scheduleFlush(userId);
+  scheduleFlush(userId, repository);
 }
 
 export async function enqueueChange(
@@ -280,6 +293,7 @@ export async function enqueueChange(
   entityId: string,
   version: number,
   payload: Record<string, unknown> = {},
+  repository: LocalRepository = defaultRepository,
 ): Promise<void> {
   const mutation: PendingMutation = {
     action,
@@ -296,17 +310,18 @@ export async function enqueueChange(
     userId,
     version,
   };
-  await putPending(mutation);
-  await setState(userId, "PENDING_SYNC");
+  await repository.pendingPut(userId, mutation);
+  await setState(userId, "PENDING_SYNC", repository);
   notifyChanged();
-  scheduleFlush(userId);
+  scheduleFlush(userId, repository);
 }
 
 export async function listLocal(
   userId: string,
   entityType: SyncEntityType,
+  repository: LocalRepository = defaultRepository,
 ): Promise<Record<string, unknown>[]> {
-  const rows = await listEntities(userId, entityType);
+  const rows = await repository.entityList(userId, entityType);
   return rows.map((row) => row.data);
 }
 
@@ -314,30 +329,33 @@ export async function getLocal(
   userId: string,
   entityType: SyncEntityType,
   id: string,
+  repository: LocalRepository = defaultRepository,
 ): Promise<Record<string, unknown> | null> {
-  const row = await getEntity(userId, entityType, id);
+  const row = await repository.entityGet(userId, entityType, id);
   return row?.data ?? null;
 }
 
 export async function listPendingForUser(
   userId: string,
+  repository: LocalRepository = defaultRepository,
 ): Promise<PendingMutation[]> {
-  return listPending(userId);
+  return repository.pendingList(userId);
 }
 
 export async function resolveConflict(
   userId: string,
   mutationId: string,
   choice: "local" | "server",
+  repository: LocalRepository = defaultRepository,
 ): Promise<void> {
-  const mutation = await getPending(mutationId);
-  if (!mutation || mutation.userId !== userId) {
+  const mutation = await repository.pendingGet(userId, mutationId);
+  if (!mutation) {
     return;
   }
   if (choice === "server" || mutation.errorCode === "IDEMPOTENCY_CONFLICT") {
-    await deletePending(mutationId);
-    await pullChanges(userId);
-    await refreshState(userId);
+    await repository.pendingDelete(userId, mutationId);
+    await pullChanges(userId, repository);
+    await refreshState(userId, repository);
     return;
   }
   const current = mutation.current;
@@ -359,23 +377,27 @@ export async function resolveConflict(
     userId,
     version: serverVersion,
   };
-  await deletePending(mutationId);
-  await putPending(replacement);
-  await flushPending(userId);
-  await refreshState(userId);
+  await repository.pendingDelete(userId, mutationId);
+  await repository.pendingPut(userId, replacement);
+  await flushPending(userId, repository);
+  await refreshState(userId, repository);
 }
 
 export async function getSyncStatusForUser(
   userId: string,
+  repository: LocalRepository = defaultRepository,
 ): Promise<SyncStatus> {
-  const state = await kvGet<{ status: SyncStatus }>(stateKey(userId));
+  const state = await repository.metadataGet<{ status: SyncStatus }>(
+    stateKey(userId),
+  );
   return state?.status ?? "SYNCED";
 }
 
 export async function getPendingCounts(
   userId: string,
+  repository: LocalRepository = defaultRepository,
 ): Promise<{ pending: number; conflict: number }> {
-  const all = await listPending(userId);
+  const all = await repository.pendingList(userId);
   return {
     conflict: all.filter((item) => item.status === "CONFLICT").length,
     pending: all.filter(
@@ -384,33 +406,41 @@ export async function getPendingCounts(
   };
 }
 
-export async function resetUserData(userId: string): Promise<void> {
-  await clearUserData(userId);
+export async function resetUserData(
+  userId: string,
+  repository: LocalRepository = defaultRepository,
+): Promise<void> {
+  await repository.clearUserData(userId);
 }
 
 export function isNetworkOffline(): boolean {
   return !navigator.onLine;
 }
 
-export async function getLastUserId(): Promise<string | null> {
-  const last = await kvGet<{ id: string }>(LAST_USER_KEY);
+export async function getLastUserId(
+  repository: LocalRepository = defaultRepository,
+): Promise<string | null> {
+  const last = await repository.metadataGet<{ id: string }>(LAST_USER_KEY);
   return last?.id ?? null;
 }
 
-export async function hasAnyLocalData(): Promise<boolean> {
-  return hasAnyStoredData();
+export async function hasAnyLocalData(
+  repository: LocalRepository = defaultRepository,
+): Promise<boolean> {
+  return repository.hasAnyStoredData();
 }
 
 async function buildBatch(
   userId: string,
   pending: PendingMutation[],
+  repository: LocalRepository,
 ): Promise<PendingMutation[]> {
   const batch: PendingMutation[] = [];
   for (const mutation of pending) {
     if (batch.length >= MAX_BATCH) {
       break;
     }
-    if (!(await referencesResolved(userId, mutation))) {
+    if (!(await referencesResolved(userId, mutation, repository))) {
       break;
     }
     batch.push(mutation);
@@ -421,6 +451,7 @@ async function buildBatch(
 async function referencesResolved(
   userId: string,
   mutation: PendingMutation,
+  repository: LocalRepository,
 ): Promise<boolean> {
   const referenceFields = [
     "categoryId",
@@ -430,7 +461,7 @@ async function referencesResolved(
     "targetId",
     "attachmentId",
   ] as const;
-  const idMap = await getIdMap(userId);
+  const idMap = await getIdMap(userId, repository);
   for (const field of referenceFields) {
     const value = mutation.payload[field];
     if (typeof value === "string" && value.startsWith("local-")) {
@@ -460,15 +491,22 @@ function toMutationRequest(mutation: PendingMutation): {
   };
 }
 
-async function setState(userId: string, status: SyncStatus): Promise<void> {
-  await kvSet(stateKey(userId), {
+async function setState(
+  userId: string,
+  status: SyncStatus,
+  repository: LocalRepository,
+): Promise<void> {
+  await repository.metadataSet(stateKey(userId), {
     lastSyncedAt: new Date().toISOString(),
     status,
   });
 }
 
-async function refreshState(userId: string): Promise<void> {
-  const pending = await listPending(userId);
+async function refreshState(
+  userId: string,
+  repository: LocalRepository,
+): Promise<void> {
+  const pending = await repository.pendingList(userId);
   const conflicted = pending.some((item) => item.status === "CONFLICT");
   const waiting = pending.some(
     (item) => item.status === "PENDING" || item.status === "FAILED",
@@ -476,43 +514,54 @@ async function refreshState(userId: string): Promise<void> {
   await setState(
     userId,
     conflicted ? "CONFLICT" : waiting ? "PENDING_SYNC" : "SYNCED",
+    repository,
   );
 }
 
-async function getIdMap(userId: string): Promise<Record<string, string>> {
-  return (await kvGet<Record<string, string>>(idMapKey(userId))) ?? {};
+async function getIdMap(
+  userId: string,
+  repository: LocalRepository,
+): Promise<Record<string, string>> {
+  return (
+    (await repository.metadataGet<Record<string, string>>(idMapKey(userId))) ??
+    {}
+  );
 }
 
 async function addIdMap(
   userId: string,
   localId: string,
   serverId: string,
+  repository: LocalRepository,
 ): Promise<void> {
-  const map = await getIdMap(userId);
+  const map = await getIdMap(userId, repository);
   map[localId] = serverId;
-  await kvSet(idMapKey(userId), map);
+  await repository.metadataSet(idMapKey(userId), map);
 }
 
 async function rewritePendingIds(
   userId: string,
   localId: string,
   serverId: string,
+  repository: LocalRepository,
 ): Promise<void> {
-  const pending = await listPending(userId);
+  const pending = await repository.pendingList(userId);
   for (const mutation of pending) {
     if (mutation.entityId === localId) {
-      await updatePending(mutation.id, { entityId: serverId });
+      await repository.pendingUpdate(userId, mutation.id, {
+        entityId: serverId,
+      });
     }
   }
 }
 
-function scheduleFlush(userId: string): void {
+function scheduleFlush(userId: string, repository: LocalRepository): void {
   if (flushTimer !== null) {
     clearTimeout(flushTimer);
   }
   flushTimer = setTimeout(() => {
     flushTimer = null;
-    void flushPending(userId);
+    void flushPending(userId, repository);
   }, backoffMs);
   backoffMs = Math.min(backoffMs * 2, 60_000);
 }
