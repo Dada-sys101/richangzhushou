@@ -104,6 +104,72 @@ describe("PR18 AI Proposal controller", () => {
     expect(port.create).not.toHaveBeenCalled();
   });
 
+  it("CTRL-03a: create throws VALIDATION_ERROR for a 15-character Idempotency-Key", () => {
+    const port = new MockApplicationPort();
+    const controller = new AiProposalController(port);
+    const shortKey = "req-key-1234567"; // length 15 < 16
+
+    try {
+      controller.create(buildRequest(), shortKey, buildCreateDto());
+      expect.unreachable("expected a VALIDATION_ERROR to be thrown");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiException);
+      const apiError = error as ApiException;
+      expect(apiError.code).toBe("VALIDATION_ERROR");
+      expect(apiError.statusCode).toBe(400);
+    }
+
+    expect(port.create).not.toHaveBeenCalled();
+  });
+
+  it("CTRL-03b: create throws VALIDATION_ERROR for a 129-character Idempotency-Key", () => {
+    const port = new MockApplicationPort();
+    const controller = new AiProposalController(port);
+    const longKey = "k".repeat(129); // length 129 > 128
+
+    try {
+      controller.create(buildRequest(), longKey, buildCreateDto());
+      expect.unreachable("expected a VALIDATION_ERROR to be thrown");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiException);
+      const apiError = error as ApiException;
+      expect(apiError.code).toBe("VALIDATION_ERROR");
+      expect(apiError.statusCode).toBe(400);
+    }
+
+    expect(port.create).not.toHaveBeenCalled();
+  });
+
+  it("CTRL-03c: accepts a 16-character Idempotency-Key and delegates", () => {
+    const port = new MockApplicationPort();
+    const controller = new AiProposalController(port);
+    const key16 = "req-key-12345678"; // length 16 == minLength
+
+    controller.create(buildRequest(), key16, buildCreateDto());
+
+    expect(port.create).toHaveBeenCalledTimes(1);
+    expect(port.create).toHaveBeenCalledWith(
+      "user_1",
+      key16,
+      expect.any(AiProposalCreateDto),
+    );
+  });
+
+  it("CTRL-03d: accepts a 128-character Idempotency-Key and delegates", () => {
+    const port = new MockApplicationPort();
+    const controller = new AiProposalController(port);
+    const key128 = "k".repeat(128); // length 128 == maxLength
+
+    controller.create(buildRequest(), key128, buildCreateDto());
+
+    expect(port.create).toHaveBeenCalledTimes(1);
+    expect(port.create).toHaveBeenCalledWith(
+      "user_1",
+      key128,
+      expect.any(AiProposalCreateDto),
+    );
+  });
+
   it("CTRL-04: idempotencyKey never appears in the request body", () => {
     const port = new MockApplicationPort();
     const controller = new AiProposalController(port);

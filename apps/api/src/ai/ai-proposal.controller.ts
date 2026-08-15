@@ -28,6 +28,10 @@ import {
   AiProposalRejectDto,
 } from "./dto/ai-proposal.dto.js";
 
+/** Frozen by the shared OpenAPI contract: minLength 16, maxLength 128. */
+const IDEMPOTENCY_KEY_MIN_LENGTH = 16;
+const IDEMPOTENCY_KEY_MAX_LENGTH = 128;
+
 /**
  * PR18 AI Proposal HTTP adapter.
  *
@@ -55,6 +59,22 @@ export class AiProposalController {
         HttpStatus.BAD_REQUEST,
         "Idempotency-Key header is required",
         [{ field: "Idempotency-Key", message: "缺少幂等键" }],
+      );
+    }
+    if (
+      idempotencyKey.length < IDEMPOTENCY_KEY_MIN_LENGTH ||
+      idempotencyKey.length > IDEMPOTENCY_KEY_MAX_LENGTH
+    ) {
+      throw new ApiException(
+        "VALIDATION_ERROR",
+        HttpStatus.BAD_REQUEST,
+        "Idempotency-Key header must be between 16 and 128 characters",
+        [
+          {
+            field: "Idempotency-Key",
+            message: "幂等键长度必须在 16 到 128 之间",
+          },
+        ],
       );
     }
     return this.applicationPort.create(
