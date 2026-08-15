@@ -9,10 +9,7 @@ import {
   type AiOperationType,
 } from "@daily-assistant/api-contracts";
 
-import {
-  FakeAiProvider,
-  FakeAiProviderError,
-} from "./fake-ai-provider.js";
+import { FakeAiProvider, FakeAiProviderError } from "./fake-ai-provider.js";
 import {
   FAKE_AI_MODEL_ID,
   FAKE_AI_PROVIDER_ID,
@@ -163,11 +160,9 @@ describe("PR18 Fake AI Provider", () => {
   });
 
   it("TEST-07: performs no network access", () => {
-    const fetchSpy = vi
-      .spyOn(globalThis, "fetch")
-      .mockImplementation(() => {
-        throw new Error("network access attempted");
-      });
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(() => {
+      throw new Error("network access attempted");
+    });
     const httpSpy = vi.spyOn(http, "request");
     const httpsSpy = vi.spyOn(https, "request");
 

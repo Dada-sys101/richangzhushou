@@ -66,8 +66,7 @@ export interface FakeAiProviderUncertainResult {
 }
 
 export type FakeAiProviderResult =
-  | FakeAiProviderSuccessResult
-  | FakeAiProviderUncertainResult;
+  FakeAiProviderSuccessResult | FakeAiProviderUncertainResult;
 
 export interface FakeAiProviderErrorDetails {
   providerId: string;

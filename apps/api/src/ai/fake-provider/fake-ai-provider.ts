@@ -1,4 +1,7 @@
-import type { AiProviderInput, ApiErrorCode } from "@daily-assistant/api-contracts";
+import type {
+  AiProviderInput,
+  ApiErrorCode,
+} from "@daily-assistant/api-contracts";
 
 import {
   buildCalendarEventCandidate,
