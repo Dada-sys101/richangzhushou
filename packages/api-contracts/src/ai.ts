@@ -177,3 +177,58 @@ export interface AiOperation {
 export interface AiProposalDetail extends AiProposalSummary {
   operations: AiOperation[];
 }
+
+/**
+ * The create body is exactly the frozen provider input. HTTP idempotency stays
+ * in the Idempotency-Key header and must never be copied into this body.
+ */
+export type AiProposalCreateRequest = AiProviderInput;
+
+export interface AiProposalCreateResponse {
+  request: AiRequestSummary;
+  proposal: AiProposalDetail;
+}
+
+/**
+ * Editing changes only the reviewed operation fields. The server owns the
+ * operation type, status, confidence, result metadata, and timestamps.
+ */
+export interface AiOperationEditRequest {
+  version: number;
+  fields: Record<string, unknown>;
+}
+
+export interface AiOperationAcceptRequest {
+  version: number;
+}
+
+export interface AiOperationRejectRequest {
+  version: number;
+}
+
+export interface AiProposalRejectRequest {
+  version: number;
+}
+
+/**
+ * The operation IDs are the exact scope covered by the separate final user
+ * confirmation. State validation remains server authoritative.
+ */
+export interface AiFinalConfirmRequest {
+  version: number;
+  operationIds: [Identifier, ...Identifier[]];
+}
+
+/** The authoritative proposal detail also carries every operation result. */
+export type AiFinalConfirmResponse = AiProposalDetail;
+
+export interface AiProposalListQuery {
+  unfinished: true;
+  cursor?: string;
+  limit?: number;
+}
+
+export interface AiProposalListResponse {
+  items: AiProposalSummary[];
+  nextCursor: Identifier | null;
+}

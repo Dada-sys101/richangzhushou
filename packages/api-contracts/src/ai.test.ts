@@ -7,8 +7,18 @@ import {
 import type {
   AiAuditMetadata,
   AiConfidence,
+  AiFinalConfirmRequest,
+  AiFinalConfirmResponse,
   AiOperation,
+  AiOperationAcceptRequest,
+  AiOperationEditRequest,
+  AiOperationRejectRequest,
+  AiProposalCreateRequest,
+  AiProposalCreateResponse,
   AiProposalDetail,
+  AiProposalListQuery,
+  AiProposalListResponse,
+  AiProposalRejectRequest,
   AiProposalSummary,
   AiProviderInput,
   AiRequestSummary,
@@ -174,6 +184,61 @@ describe("PR5 AI shared contracts", () => {
     expect(requestSummaryFixture.proposalId).toBe("proposal_1");
     expect(proposalDetailFixture.operations[0]?.resultDraftId).toBeNull();
   });
+
+  it("defines the PR18 mutation and unfinished-list contracts", () => {
+    expect(createResponseFixture.request.id).toBe("request_1");
+    expect(editRequestFixture).toEqual({
+      fields: { title: "Updated" },
+      version: 2,
+    });
+    expect(acceptRequestFixture).toEqual({ version: 2 });
+    expect(rejectRequestFixture).toEqual({ version: 2 });
+    expect(proposalRejectRequestFixture).toEqual({ version: 2 });
+    expect(finalConfirmRequestFixture).toEqual({
+      operationIds: ["operation_1"],
+      version: 2,
+    });
+    expect(unfinishedQueryFixture.unfinished).toBe(true);
+    expect(listResponseFixture.items).toEqual([proposalSummaryFixture]);
+    expect(finalConfirmResponseFixture.operations).toEqual([operationFixture]);
+  });
+
+  it("keeps client-owned state and result metadata out of mutation requests", () => {
+    const invalidEdit: AiOperationEditRequest = {
+      fields: {},
+      version: 1,
+      // @ts-expect-error operation status is server-owned
+      status: "ACCEPTED",
+    };
+    const invalidAccept: AiOperationAcceptRequest = {
+      version: 1,
+      // @ts-expect-error next status is server-owned
+      status: "ACCEPTED",
+    };
+    const invalidOperationReject: AiOperationRejectRequest = {
+      version: 1,
+      // @ts-expect-error next status is server-owned
+      status: "REJECTED",
+    };
+    const invalidProposalReject: AiProposalRejectRequest = {
+      version: 1,
+      // @ts-expect-error next status is server-owned
+      status: "REJECTED",
+    };
+    const emptyFinalConfirm: AiFinalConfirmRequest = {
+      // @ts-expect-error final confirmation requires at least one operation ID
+      operationIds: [],
+      version: 1,
+    };
+
+    void [
+      invalidEdit,
+      invalidAccept,
+      invalidOperationReject,
+      invalidProposalReject,
+      emptyFinalConfirm,
+    ];
+  });
 });
 
 const requestSummaryFixture = {
@@ -229,6 +294,54 @@ const proposalDetailFixture = {
   ...proposalSummaryFixture,
   operations: [operationFixture],
 } satisfies AiProposalDetail;
+
+const createRequestFixture = {
+  userInput: "明天下午三点开会",
+  requestType: "CALENDAR_EVENT",
+  locale: "zh-CN",
+  timeZoneId: "Asia/Shanghai",
+  currentDateTime: "2026-08-14T00:00:00.000Z",
+  currency: "CNY",
+  allowedCategoryLabels: [],
+  explicitSelectedContext: [],
+} satisfies AiProposalCreateRequest;
+
+const createResponseFixture = {
+  request: requestSummaryFixture,
+  proposal: proposalDetailFixture,
+} satisfies AiProposalCreateResponse;
+
+const editRequestFixture = {
+  fields: { title: "Updated" },
+  version: 2,
+} satisfies AiOperationEditRequest;
+
+const acceptRequestFixture = { version: 2 } satisfies AiOperationAcceptRequest;
+const rejectRequestFixture = { version: 2 } satisfies AiOperationRejectRequest;
+const proposalRejectRequestFixture = {
+  version: 2,
+} satisfies AiProposalRejectRequest;
+
+const finalConfirmRequestFixture = {
+  operationIds: ["operation_1"],
+  version: 2,
+} satisfies AiFinalConfirmRequest;
+
+const finalConfirmResponseFixture =
+  proposalDetailFixture satisfies AiFinalConfirmResponse;
+
+const unfinishedQueryFixture = {
+  unfinished: true,
+  cursor: "proposal_0",
+  limit: 20,
+} satisfies AiProposalListQuery;
+
+const listResponseFixture = {
+  items: [proposalSummaryFixture],
+  nextCursor: null,
+} satisfies AiProposalListResponse;
+
+void createRequestFixture;
 
 type BaseForbiddenPublicKey =
   | "userId"
@@ -328,3 +441,62 @@ type _ProposalDetailForbiddenKeysAbsent = AssertTrue<
 >;
 export type ProposalDetailForbiddenKeysAbsent =
   _ProposalDetailForbiddenKeysAbsent;
+
+type MutationForbiddenKeys =
+  | BaseForbiddenPublicKey
+  | "providerId"
+  | "modelId"
+  | "credential"
+  | "rawProviderBody"
+  | "status";
+
+type _CreateRequestKeysMatchProviderInput = AssertTrue<
+  [Exclude<keyof AiProposalCreateRequest, keyof AiProviderInput>] extends [
+    never,
+  ]
+    ? [Exclude<keyof AiProviderInput, keyof AiProposalCreateRequest>] extends [
+        never,
+      ]
+      ? true
+      : false
+    : false
+>;
+type _CreateRequestForbiddenKeysAbsent = AssertTrue<
+  IsForbiddenAbsent<AiProposalCreateRequest, MutationForbiddenKeys>
+>;
+type _EditRequestForbiddenKeysAbsent = AssertTrue<
+  IsForbiddenAbsent<AiOperationEditRequest, MutationForbiddenKeys>
+>;
+type _AcceptRequestForbiddenKeysAbsent = AssertTrue<
+  IsForbiddenAbsent<AiOperationAcceptRequest, MutationForbiddenKeys>
+>;
+type _OperationRejectRequestForbiddenKeysAbsent = AssertTrue<
+  IsForbiddenAbsent<AiOperationRejectRequest, MutationForbiddenKeys>
+>;
+type _ProposalRejectRequestForbiddenKeysAbsent = AssertTrue<
+  IsForbiddenAbsent<AiProposalRejectRequest, MutationForbiddenKeys>
+>;
+type _FinalConfirmRequestForbiddenKeysAbsent = AssertTrue<
+  IsForbiddenAbsent<AiFinalConfirmRequest, MutationForbiddenKeys>
+>;
+type _CreateResponseForbiddenKeysAbsent = AssertTrue<
+  IsForbiddenAbsent<AiProposalCreateResponse, BaseForbiddenPublicKey>
+>;
+type _FinalConfirmResponseForbiddenKeysAbsent = AssertTrue<
+  IsForbiddenAbsent<AiFinalConfirmResponse, BaseForbiddenPublicKey>
+>;
+type _ListResponseForbiddenKeysAbsent = AssertTrue<
+  IsForbiddenAbsent<AiProposalListResponse, BaseForbiddenPublicKey>
+>;
+
+export type Pr18MutationBoundaryAssertions =
+  _CreateRequestKeysMatchProviderInput &
+    _CreateRequestForbiddenKeysAbsent &
+    _EditRequestForbiddenKeysAbsent &
+    _AcceptRequestForbiddenKeysAbsent &
+    _OperationRejectRequestForbiddenKeysAbsent &
+    _ProposalRejectRequestForbiddenKeysAbsent &
+    _FinalConfirmRequestForbiddenKeysAbsent &
+    _CreateResponseForbiddenKeysAbsent &
+    _FinalConfirmResponseForbiddenKeysAbsent &
+    _ListResponseForbiddenKeysAbsent;

@@ -233,18 +233,6 @@ describe("PR5 OpenAPI AI contracts", () => {
     ]);
   });
 
-  it("does not add AI endpoint paths in PR5", () => {
-    const aiPaths = Object.keys(document.paths).filter(
-      (path) =>
-        path.includes("/ai") ||
-        path.includes("/proposal") ||
-        path.includes("/proposals") ||
-        path.includes("/operation") ||
-        path.includes("/operations"),
-    );
-    expect(aiPaths).toEqual([]);
-  });
-
   it("extends ApiErrorCode with provider-neutral AI codes", () => {
     const openApiCodes = document.components.schemas.ApiErrorCode?.enum ?? [];
     expect(openApiCodes).toEqual([...API_ERROR_CODES]);

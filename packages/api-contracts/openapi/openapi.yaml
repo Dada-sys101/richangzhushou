@@ -39,6 +39,8 @@ tags:
     description: Safe upload-intent and attachment lifecycle contracts.
   - name: Sync
     description: Offline mutation, cursor, idempotency, and conflict contracts.
+  - name: AI Proposals
+    description: User-reviewed AI Proposal and explicit final-confirmation contracts.
   - name: Admin
     description: Metadata-only administration and redacted audit contracts.
 paths:
@@ -1494,6 +1496,257 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/SyncStatusResponse" }
+  /ai/proposals:
+    post:
+      operationId: createAiProposal
+      summary: Create an AI Proposal for review in the current user scope
+      tags: [AI Proposals]
+      description: >-
+        Sends exactly the frozen AiProviderInput to the configured fake provider.
+        The Idempotency-Key remains an HTTP header. Creating a Proposal never
+        creates or modifies a formal business record.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AiProposalCreateRequest" }
+      x-error-codes:
+        [
+          AI_DISABLED,
+          AI_INPUT_VALIDATION_ERROR,
+          AI_SCHEMA_VALIDATION_ERROR,
+          AI_PROVIDER_ERROR,
+          AI_PROVIDER_TIMEOUT,
+          AI_PROVIDER_NETWORK_ERROR,
+          IDEMPOTENCY_CONFLICT,
+        ]
+      responses:
+        "201":
+          description: Request completed and its authoritative Proposal returned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiProposalCreateResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "409": { $ref: "#/components/responses/ApiError" }
+        "429": { $ref: "#/components/responses/ApiError" }
+        "502": { $ref: "#/components/responses/ApiError" }
+        "504": { $ref: "#/components/responses/ApiError" }
+    get:
+      operationId: listUnfinishedAiProposals
+      summary: List unfinished AI Proposals in the current user scope
+      tags: [AI Proposals]
+      description: >-
+        Returns safe Proposal summaries for recovery. The client retrieves a
+        selected Proposal detail separately and receives no internal request,
+        provider body, idempotency, fingerprint, credential, or user fields.
+      parameters:
+        - $ref: "#/components/parameters/AiProposalUnfinished"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      x-error-codes: [AI_DISABLED]
+      responses:
+        "200":
+          description: Unfinished Proposal summaries owned by the current user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiProposalListResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+  /ai/proposals/{proposalId}:
+    get:
+      operationId: getAiProposal
+      summary: Get an AI Proposal in the current user scope
+      tags: [AI Proposals]
+      parameters:
+        - $ref: "#/components/parameters/ProposalId"
+      x-error-codes: [AI_DISABLED, AI_PROPOSAL_NOT_FOUND]
+      responses:
+        "200":
+          description: Authoritative Proposal and Operation state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiProposalDetail" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /ai/proposals/{proposalId}/operations/{operationId}:
+    patch:
+      operationId: editAiProposalOperation
+      summary: Edit reviewed fields without changing server-owned Operation state
+      tags: [AI Proposals]
+      parameters:
+        - $ref: "#/components/parameters/ProposalId"
+        - $ref: "#/components/parameters/OperationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AiOperationEditRequest" }
+      x-error-codes:
+        [
+          AI_DISABLED,
+          AI_PROPOSAL_NOT_FOUND,
+          AI_PROPOSAL_INVALID_STATE,
+          AI_OPERATION_INVALID_STATE,
+          AI_DOMAIN_VALIDATION_ERROR,
+          VERSION_CONFLICT,
+        ]
+      responses:
+        "200":
+          description: Updated authoritative Proposal detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiProposalDetail" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
+  /ai/proposals/{proposalId}/operations/{operationId}/accept:
+    post:
+      operationId: acceptAiProposalOperation
+      summary: Accept an Operation for later separate final confirmation
+      tags: [AI Proposals]
+      description: >-
+        Acceptance changes only review state. It never invokes a formal Domain
+        Service and is not final confirmation of a business write.
+      parameters:
+        - $ref: "#/components/parameters/ProposalId"
+        - $ref: "#/components/parameters/OperationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AiOperationAcceptRequest" }
+      x-error-codes:
+        [
+          AI_DISABLED,
+          AI_PROPOSAL_NOT_FOUND,
+          AI_PROPOSAL_INVALID_STATE,
+          AI_OPERATION_INVALID_STATE,
+          VERSION_CONFLICT,
+        ]
+      responses:
+        "200":
+          description: Authoritative Proposal detail after Operation acceptance
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiProposalDetail" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
+  /ai/proposals/{proposalId}/operations/{operationId}/reject:
+    post:
+      operationId: rejectAiProposalOperation
+      summary: Reject one Operation without a formal business write
+      tags: [AI Proposals]
+      parameters:
+        - $ref: "#/components/parameters/ProposalId"
+        - $ref: "#/components/parameters/OperationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AiOperationRejectRequest" }
+      x-error-codes:
+        [
+          AI_DISABLED,
+          AI_PROPOSAL_NOT_FOUND,
+          AI_PROPOSAL_INVALID_STATE,
+          AI_OPERATION_INVALID_STATE,
+          VERSION_CONFLICT,
+        ]
+      responses:
+        "200":
+          description: Authoritative Proposal detail after Operation rejection
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiProposalDetail" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
+  /ai/proposals/{proposalId}/reject:
+    post:
+      operationId: rejectAiProposal
+      summary: Reject an entire Proposal without a formal business write
+      tags: [AI Proposals]
+      parameters:
+        - $ref: "#/components/parameters/ProposalId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AiProposalRejectRequest" }
+      x-error-codes:
+        [
+          AI_DISABLED,
+          AI_PROPOSAL_NOT_FOUND,
+          AI_PROPOSAL_INVALID_STATE,
+          VERSION_CONFLICT,
+        ]
+      responses:
+        "200":
+          description: Authoritative terminal Proposal detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiProposalDetail" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
+  /ai/proposals/{proposalId}/final-confirm:
+    post:
+      operationId: finalConfirmAiProposal
+      summary: Explicitly confirm the exact accepted Operation scope for business write
+      tags: [AI Proposals]
+      description: >-
+        The operationIds are the exact user-authorized scope. IDs do not make a
+        PENDING or REJECTED Operation eligible. The server maps persisted,
+        reviewed fields to existing formal Domain Services. Repeated requests
+        return the same authoritative result and must not duplicate formal data.
+      parameters:
+        - $ref: "#/components/parameters/ProposalId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AiFinalConfirmRequest" }
+      x-error-codes:
+        [
+          AI_DISABLED,
+          AI_PROPOSAL_NOT_FOUND,
+          AI_PROPOSAL_INVALID_STATE,
+          AI_OPERATION_INVALID_STATE,
+          AI_DOMAIN_VALIDATION_ERROR,
+          IDEMPOTENCY_CONFLICT,
+          VERSION_CONFLICT,
+        ]
+      responses:
+        "200":
+          description: Prior identical final confirmation replayed without a second write
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiFinalConfirmResponse" }
+        "201":
+          description: Accepted Operations applied through formal Domain Services
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiFinalConfirmResponse" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/ApiError" }
   /admin/dashboard:
     get:
       operationId: getAdminDashboard
@@ -1757,6 +2010,22 @@ components:
       in: header
       required: true
       schema: { type: string, minLength: 16, maxLength: 128 }
+    ProposalId:
+      name: proposalId
+      in: path
+      required: true
+      schema: { $ref: "#/components/schemas/Identifier" }
+    OperationId:
+      name: operationId
+      in: path
+      required: true
+      schema: { $ref: "#/components/schemas/Identifier" }
+    AiProposalUnfinished:
+      name: unfinished
+      in: query
+      required: true
+      description: PR18 recovery lists only unfinished Proposals.
+      schema: { type: boolean, const: true }
     DraftStatusQuery:
       name: status
       in: query
@@ -3890,6 +4159,65 @@ components:
         operations:
           type: array
           items: { $ref: "#/components/schemas/AiOperation" }
+    AiProposalCreateRequest:
+      $ref: "#/components/schemas/AiProviderInput"
+    AiProposalCreateResponse:
+      type: object
+      additionalProperties: false
+      required: [request, proposal]
+      properties:
+        request: { $ref: "#/components/schemas/AiRequestSummary" }
+        proposal: { $ref: "#/components/schemas/AiProposalDetail" }
+    AiOperationEditRequest:
+      type: object
+      additionalProperties: false
+      required: [version, fields]
+      properties:
+        version: { type: integer, minimum: 1 }
+        fields: { type: object, additionalProperties: true }
+    AiOperationAcceptRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        version: { type: integer, minimum: 1 }
+    AiOperationRejectRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        version: { type: integer, minimum: 1 }
+    AiProposalRejectRequest:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        version: { type: integer, minimum: 1 }
+    AiFinalConfirmRequest:
+      type: object
+      additionalProperties: false
+      required: [version, operationIds]
+      properties:
+        version: { type: integer, minimum: 1 }
+        operationIds:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: { $ref: "#/components/schemas/Identifier" }
+    AiFinalConfirmResponse:
+      $ref: "#/components/schemas/AiProposalDetail"
+    AiProposalListResponse:
+      type: object
+      additionalProperties: false
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/AiProposalSummary" }
+        nextCursor:
+          anyOf:
+            - { $ref: "#/components/schemas/Identifier" }
+            - { type: "null" }
     AiAuditCostMetadata:
       type: object
       additionalProperties: false
