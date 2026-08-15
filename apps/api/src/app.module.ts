@@ -5,6 +5,7 @@ import { AccountModule } from "./account/account.module.js";
 import { AdminModule } from "./admin/admin.module.js";
 import { AttachmentsModule } from "./attachments/attachments.module.js";
 import { AuthModule } from "./auth/auth.module.js";
+import { AiModule } from "./ai/ai.module.js";
 import { AuditModule } from "./audit/audit.module.js";
 import { CalendarModule } from "./calendar/calendar.module.js";
 import { CapacityModule } from "./capacity/capacity.module.js";
@@ -27,6 +28,7 @@ import { TripsModule } from "./trips/trips.module.js";
     AccountModule,
     AdminModule,
     AttachmentsModule,
+    AiModule,
     AuditModule,
     AuthModule,
     CalendarModule,
