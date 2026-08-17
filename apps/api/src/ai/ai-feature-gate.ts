@@ -8,6 +8,9 @@ import {
 import { ApiException } from "../common/api-error.js";
 
 export const AI_FEATURE_GATE_SNAPSHOT = Symbol("AI_FEATURE_GATE_SNAPSHOT");
+export const AI_FEATURE_GATE_DATABASE_FLAGS = Symbol(
+  "AI_FEATURE_GATE_DATABASE_FLAGS",
+);
 
 export interface AiFeatureFlagSnapshot {
   businessWrite: boolean;
@@ -20,8 +23,8 @@ type TestFeatureFlagSnapshot = Partial<AiFeatureFlagSnapshot>;
 
 /**
  * Centralizes the server-side AI gates. Production reads the shared resolver
- * with an intentionally empty DB snapshot until the SystemSetting foundation
- * exists; tests may inject an explicit in-memory snapshot through DI.
+ * with the DB snapshot loaded by AiModule; missing, malformed, or unavailable
+ * snapshots fail closed. Tests may inject an explicit in-memory snapshot.
  */
 @Injectable()
 export class AiFeatureGate {
@@ -31,6 +34,9 @@ export class AiFeatureGate {
     @Optional()
     @Inject(AI_FEATURE_GATE_SNAPSHOT)
     testSnapshot?: TestFeatureFlagSnapshot,
+    @Optional()
+    @Inject(AI_FEATURE_GATE_DATABASE_FLAGS)
+    databaseFlags?: DatabaseFeatureFlags,
   ) {
     this.flags = testSnapshot
       ? {
@@ -39,11 +45,15 @@ export class AiFeatureGate {
           liveProvider: testSnapshot.liveProvider ?? false,
           proposal: testSnapshot.proposal ?? false,
         }
-      : resolveProductionFlags();
+      : resolveProductionFlags(databaseFlags ?? {});
   }
 
   static forTesting(snapshot: TestFeatureFlagSnapshot): AiFeatureGate {
     return new AiFeatureGate(snapshot);
+  }
+
+  static forProduction(databaseFlags: DatabaseFeatureFlags): AiFeatureGate {
+    return new AiFeatureGate(undefined, databaseFlags);
   }
 
   isProposalEnabled(): boolean {
@@ -83,9 +93,10 @@ export class AiFeatureGate {
   }
 }
 
-function resolveProductionFlags(): AiFeatureFlagSnapshot {
+function resolveProductionFlags(
+  databaseFlags: DatabaseFeatureFlags,
+): AiFeatureFlagSnapshot {
   const environment = process.env as EnvironmentVariables;
-  const databaseFlags: DatabaseFeatureFlags = {};
   return {
     businessWrite: resolveFeatureFlag(
       "v15.ai.businessWrite",
