@@ -16,6 +16,7 @@ const moreRef = ref<HTMLElement | null>(null);
 const moreItems = computed(() => {
   const items = [
     { icon: "pen", label: "快捷记录", to: "/capture" },
+    { icon: "zap", label: "AI 助手", to: "/ai" },
     { icon: "file", label: "草稿中心", to: "/drafts" },
     { icon: "zap", label: "快捷指令", to: "/shortcuts" },
     { icon: "bell", label: "提醒", to: "/reminders" },

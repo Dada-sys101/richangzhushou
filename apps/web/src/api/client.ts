@@ -480,9 +480,123 @@ export interface SyncStatusResponse {
   lastAppliedAt: string | null;
 }
 
+export type AiOperationType =
+  "TRANSACTION" | "CALENDAR_EVENT" | "TASK" | "REMINDER" | "TRIP";
+
+export type AiOperationStatus =
+  "PENDING" | "ACCEPTED" | "REJECTED" | "APPLIED" | "FAILED" | "EXPIRED";
+
+export type AiProposalStatus =
+  | "PENDING_REVIEW"
+  | "PARTIALLY_APPLIED"
+  | "APPLIED"
+  | "REJECTED"
+  | "EXPIRED"
+  | "FAILED"
+  | "CANCELLED";
+
+export interface AiOperation {
+  id: string;
+  ordinal: number;
+  operationType: AiOperationType;
+  status: AiOperationStatus;
+  confidence: string;
+  fields: Record<string, unknown>;
+  clarification: string | null;
+  resultEntityType: string | null;
+  resultEntityId: string | null;
+  resultDraftId: string | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+  acceptedAt: string | null;
+  rejectedAt: string | null;
+  appliedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AiProposalSummary {
+  id: string;
+  providerId: string;
+  modelId: string;
+  status: AiProposalStatus;
+  schemaVersion: number;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  reviewedAt: string | null;
+  completedAt: string | null;
+  expiresAt: string | null;
+}
+
+export interface AiProposalDetail extends AiProposalSummary {
+  operations: AiOperation[];
+}
+
+export interface AiProposalCreateRequest {
+  userInput: string;
+  requestType: string;
+  locale: string;
+  timeZoneId: string;
+  currentDateTime: string;
+  currency: string;
+  allowedCategoryLabels: string[];
+  explicitSelectedContext: Array<{
+    id: string;
+    entityType: string;
+    summary: string;
+  }>;
+}
+
+export interface AiProposalCreateResponse {
+  request: {
+    id: string;
+    requestId: string;
+    locale: string;
+    timeZoneId: string;
+    status: string;
+    proposalId: string | null;
+    failureCategory: string | null;
+    failureCode: string | null;
+    startedAt: string | null;
+    completedAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+  proposal: AiProposalDetail;
+}
+
+export interface AiOperationEditRequest {
+  version: number;
+  fields: Record<string, unknown>;
+}
+
+export interface AiOperationAcceptRequest {
+  version: number;
+}
+
+export interface AiOperationRejectRequest {
+  version: number;
+}
+
+export interface AiProposalRejectRequest {
+  version: number;
+}
+
+export interface AiFinalConfirmRequest {
+  version: number;
+  operationIds: string[];
+}
+
+export type AiFinalConfirmResponse = AiProposalDetail;
+
 async function http<T>(
   path: string,
-  options: { body?: unknown; method?: string } = {},
+  options: {
+    body?: unknown;
+    headers?: Record<string, string>;
+    method?: string;
+  } = {},
 ): Promise<T> {
   const method = options.method ?? "GET";
   if (
@@ -503,7 +617,11 @@ async function http<T>(
         body:
           options.body === undefined ? undefined : JSON.stringify(options.body),
         credentials: "include",
+        // Merge order: caller headers first, then built-in Accept,
+        // Authorization and Content-Type. Callers may add extra headers such
+        // as Idempotency-Key but can never override auth or content headers.
         headers: {
+          ...options.headers,
           Accept: "application/json",
           ...(getAccessToken()
             ? { Authorization: `Bearer ${getAccessToken()}` }
@@ -1220,5 +1338,57 @@ export const api = {
         throw new ApiClientError(response.status, "UPLOAD_FAILED", message);
       }
     });
+  },
+  createAiProposal(body: AiProposalCreateRequest, idempotencyKey: string) {
+    return http<AiProposalCreateResponse>("/ai/proposals", {
+      body,
+      headers: { "Idempotency-Key": idempotencyKey },
+      method: "POST",
+    });
+  },
+  getAiProposal(proposalId: string) {
+    return http<AiProposalDetail>(`/ai/proposals/${proposalId}`);
+  },
+  editAiOperation(
+    proposalId: string,
+    operationId: string,
+    body: AiOperationEditRequest,
+  ) {
+    return http<AiProposalDetail>(
+      `/ai/proposals/${proposalId}/operations/${operationId}`,
+      { body, method: "PATCH" },
+    );
+  },
+  acceptAiOperation(
+    proposalId: string,
+    operationId: string,
+    body: AiOperationAcceptRequest,
+  ) {
+    return http<AiProposalDetail>(
+      `/ai/proposals/${proposalId}/operations/${operationId}/accept`,
+      { body, method: "POST" },
+    );
+  },
+  rejectAiOperation(
+    proposalId: string,
+    operationId: string,
+    body: AiOperationRejectRequest,
+  ) {
+    return http<AiProposalDetail>(
+      `/ai/proposals/${proposalId}/operations/${operationId}/reject`,
+      { body, method: "POST" },
+    );
+  },
+  rejectAiProposal(proposalId: string, body: AiProposalRejectRequest) {
+    return http<AiProposalDetail>(`/ai/proposals/${proposalId}/reject`, {
+      body,
+      method: "POST",
+    });
+  },
+  finalConfirmAiProposal(proposalId: string, body: AiFinalConfirmRequest) {
+    return http<AiFinalConfirmResponse>(
+      `/ai/proposals/${proposalId}/final-confirm`,
+      { body, method: "POST" },
+    );
   },
 };
