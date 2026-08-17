@@ -8,6 +8,7 @@ import { RemindersModule } from "../reminders/reminders.module.js";
 import { TasksModule } from "../tasks/tasks.module.js";
 import { TripsModule } from "../trips/trips.module.js";
 import { AiFakeProviderFactory } from "./ai-fake-provider.factory.js";
+import { AiFeatureGate } from "./ai-feature-gate.js";
 import { AiFormalWriteOrchestrator } from "./ai-formal-write.orchestrator.js";
 import { AiProposalApplicationPort } from "./ai-proposal.application-port.js";
 import { AiProposalController } from "./ai-proposal.controller.js";
@@ -17,6 +18,7 @@ import { AiProposalService } from "./ai-proposal.service.js";
   controllers: [AiProposalController],
   exports: [
     AiProposalApplicationPort,
+    AiFeatureGate,
     AiFormalWriteOrchestrator,
     AiProposalService,
   ],
@@ -31,6 +33,7 @@ import { AiProposalService } from "./ai-proposal.service.js";
   ],
   providers: [
     AiFakeProviderFactory,
+    AiFeatureGate,
     AiFormalWriteOrchestrator,
     AiProposalService,
     {

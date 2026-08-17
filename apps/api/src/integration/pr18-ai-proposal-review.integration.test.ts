@@ -11,6 +11,7 @@ import {
 import type { AiProposalCreateRequest } from "@daily-assistant/api-contracts";
 
 import { AiFakeProviderFactory } from "../ai/ai-fake-provider.factory.js";
+import { AiFeatureGate } from "../ai/ai-feature-gate.js";
 import { sha256Fingerprint } from "../ai/ai-proposal.fingerprint.js";
 import { AiProposalReviewService } from "../ai/ai-proposal.review-service.js";
 import { FakeAiProvider } from "../ai/fake-provider/fake-ai-provider.js";
@@ -421,8 +422,17 @@ function createService(
   const Constructor = AiProposalReviewService as unknown as new (
     prisma: PrismaService,
     factory: AiFakeProviderFactory,
+    featureGate: AiFeatureGate,
   ) => AiProposalReviewService;
-  return new Constructor(prisma as unknown as PrismaService, factory);
+  return new Constructor(
+    prisma as unknown as PrismaService,
+    factory,
+    AiFeatureGate.forTesting({
+      businessWrite: true,
+      fakeProvider: true,
+      proposal: true,
+    }),
+  );
 }
 
 function providerFactoryWithGenerate(

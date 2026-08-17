@@ -8,6 +8,7 @@ import {
   AiFakeProviderFactory,
   operationTypeForRequestType,
 } from "./ai-fake-provider.factory.js";
+import { AiFeatureGate } from "./ai-feature-gate.js";
 import { sha256Fingerprint } from "./ai-proposal.fingerprint.js";
 import { toAiProposalDetail } from "./ai-proposal.mapper.js";
 import { AiProposalReviewService } from "./ai-proposal.review-service.js";
@@ -25,6 +26,60 @@ const INPUT: AiProposalCreateRequest = {
 };
 
 describe("PR18 H03 proposal review service", () => {
+  it("H04-F01: every review operation fails closed before reading Proposal data", async () => {
+    const service = createService(
+      {} as PrismaService,
+      undefined,
+      AiFeatureGate.forTesting({
+        businessWrite: false,
+        fakeProvider: false,
+        proposal: false,
+      }),
+    );
+    const calls = [
+      () => service.create("user_1", "k".repeat(16), INPUT),
+      () => service.list("user_1", { unfinished: true }),
+      () => service.get("user_1", "proposal_1"),
+      () =>
+        service.editOperation("user_1", "proposal_1", "operation_1", {
+          fields: {},
+          version: 1,
+        }),
+      () =>
+        service.acceptOperation("user_1", "proposal_1", "operation_1", {
+          version: 1,
+        }),
+      () =>
+        service.rejectOperation("user_1", "proposal_1", "operation_1", {
+          version: 1,
+        }),
+      () => service.rejectProposal("user_1", "proposal_1", { version: 1 }),
+    ];
+    for (const call of calls) {
+      await expect(call()).rejects.toMatchObject({
+        code: "AI_DISABLED",
+        statusCode: 403,
+      });
+    }
+  });
+
+  it("H04-F02: create is blocked when fakeProvider is disabled", async () => {
+    const factory = { create: vi.fn() } as unknown as AiFakeProviderFactory;
+    const service = createService(
+      {} as PrismaService,
+      factory,
+      AiFeatureGate.forTesting({
+        businessWrite: false,
+        fakeProvider: false,
+        proposal: true,
+      }),
+    );
+    await expect(
+      service.create("user_1", "k".repeat(16), INPUT),
+    ).rejects.toMatchObject({ code: "AI_DISABLED", statusCode: 403 });
+    expect(factory.create).not.toHaveBeenCalled();
+  });
+
   it("H03-U01: same create input produces a stable fingerprint", () => {
     expect(sha256Fingerprint(INPUT)).toBe(sha256Fingerprint({ ...INPUT }));
     expect(sha256Fingerprint({ a: 1, b: 2 })).toBe(
@@ -260,12 +315,18 @@ describe("PR18 H03 proposal review service", () => {
 function createService(
   prisma: PrismaService,
   factory: AiFakeProviderFactory = new AiFakeProviderFactory(),
+  featureGate: AiFeatureGate = AiFeatureGate.forTesting({
+    businessWrite: true,
+    fakeProvider: true,
+    proposal: true,
+  }),
 ): AiProposalReviewService {
   const Constructor = AiProposalReviewService as unknown as new (
     prisma: PrismaService,
     factory: AiFakeProviderFactory,
+    featureGate: AiFeatureGate,
   ) => AiProposalReviewService;
-  return new Constructor(prisma, factory);
+  return new Constructor(prisma, factory, featureGate);
 }
 
 function normalize(
@@ -458,6 +519,7 @@ function buildMutationHarness(
     updatedAt: now,
   };
   const tx = {
+    $queryRaw: vi.fn(async () => [{ id: "locked" }]),
     aiProposal: {
       findFirst: vi.fn(
         async (args: {

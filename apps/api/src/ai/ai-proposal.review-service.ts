@@ -25,6 +25,7 @@ import {
   AiFakeProviderFactory,
   operationTypeForRequestType,
 } from "./ai-fake-provider.factory.js";
+import { AiFeatureGate } from "./ai-feature-gate.js";
 import { AiProposalApplicationPort } from "./ai-proposal.application-port.js";
 import { sha256Fingerprint } from "./ai-proposal.fingerprint.js";
 import {
@@ -71,6 +72,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
   constructor(
     protected readonly prisma: PrismaService,
     protected readonly fakeProviderFactory: AiFakeProviderFactory,
+    protected readonly featureGate: AiFeatureGate = new AiFeatureGate(),
   ) {
     super();
   }
@@ -86,6 +88,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     idempotencyKey: string,
     request: AiProposalCreateRequest,
   ): Promise<AiProposalCreateResponse> {
+    this.featureGate.requireFakeProvider();
     const inputFingerprint = sha256Fingerprint(request);
     const existing = await this.prisma.aiRequest.findUnique({
       where: { idempotencyKey },
@@ -234,6 +237,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     userId: string,
     query: AiProposalListQuery,
   ): Promise<AiProposalListResponse> {
+    this.featureGate.requireProposal();
     const limit = Number(query.limit ?? 50);
     const rows = await this.prisma.aiProposal.findMany({
       cursor: query.cursor ? { id: query.cursor } : undefined,
@@ -255,6 +259,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
   }
 
   async get(userId: string, proposalId: Identifier): Promise<AiProposalDetail> {
+    this.featureGate.requireProposal();
     return this.loadDetail(this.prisma, userId, proposalId);
   }
 
@@ -264,6 +269,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     operationId: Identifier,
     request: AiOperationEditRequest,
   ): Promise<AiProposalDetail> {
+    this.featureGate.requireProposal();
     const fieldsFingerprint = sha256Fingerprint(request.fields);
     return this.prisma.$transaction(async (tx) => {
       const { operation, proposal } = await this.loadOperationForMutation(
@@ -301,6 +307,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     operationId: Identifier,
     request: AiOperationAcceptRequest,
   ): Promise<AiProposalDetail> {
+    this.featureGate.requireProposal();
     return this.prisma.$transaction(async (tx) => {
       const { operation, proposal } = await this.loadOperationForMutation(
         tx,
@@ -335,6 +342,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     operationId: Identifier,
     request: AiOperationRejectRequest,
   ): Promise<AiProposalDetail> {
+    this.featureGate.requireProposal();
     return this.prisma.$transaction(async (tx) => {
       const { operation, proposal } = await this.loadOperationForMutation(
         tx,
@@ -377,7 +385,10 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     proposalId: Identifier,
     request: AiProposalRejectRequest,
   ): Promise<AiProposalDetail> {
+    this.featureGate.requireProposal();
     return this.prisma.$transaction(async (tx) => {
+      await this.lockProposalForUpdate(tx, userId, proposalId);
+      await this.lockOperationsForUpdate(tx, proposalId);
       const proposal = await tx.aiProposal.findFirst({
         where: { id: proposalId, userId },
       });
@@ -522,13 +533,15 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     });
   }
 
-  private async loadOperationForMutation(
+  protected async loadOperationForMutation(
     tx: Prisma.TransactionClient,
     userId: string,
     proposalId: string,
     operationId: string,
     version: number,
   ) {
+    await this.lockProposalForUpdate(tx, userId, proposalId);
+    await this.lockOperationForUpdate(tx, proposalId, operationId);
     const proposal = await tx.aiProposal.findFirst({
       include: { operations: { where: { id: operationId } } },
       where: { id: proposalId, userId },
@@ -552,7 +565,52 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     return { operation: proposal.operations[0]!, proposal };
   }
 
-  private async claimProposalVersion(
+  protected async lockProposalForUpdate(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    proposalId: string,
+  ): Promise<void> {
+    const rows = await tx.$queryRaw<Array<{ id: string }>>`
+      SELECT \`id\`
+      FROM \`ai_proposals\`
+      WHERE \`id\` = ${proposalId} AND \`user_id\` = ${userId}
+      FOR UPDATE
+    `;
+    if (rows.length !== 1) {
+      throw proposalNotFound();
+    }
+  }
+
+  protected async lockOperationForUpdate(
+    tx: Prisma.TransactionClient,
+    proposalId: string,
+    operationId: string,
+  ): Promise<void> {
+    const rows = await tx.$queryRaw<Array<{ id: string }>>`
+      SELECT \`id\`
+      FROM \`ai_operations\`
+      WHERE \`id\` = ${operationId} AND \`proposal_id\` = ${proposalId}
+      FOR UPDATE
+    `;
+    if (rows.length !== 1) {
+      throw proposalNotFound();
+    }
+  }
+
+  protected async lockOperationsForUpdate(
+    tx: Prisma.TransactionClient,
+    proposalId: string,
+  ): Promise<void> {
+    await tx.$queryRaw<Array<{ id: string }>>`
+      SELECT \`id\`
+      FROM \`ai_operations\`
+      WHERE \`proposal_id\` = ${proposalId}
+      ORDER BY \`ordinal\` ASC, \`id\` ASC
+      FOR UPDATE
+    `;
+  }
+
+  protected async claimProposalVersion(
     tx: Prisma.TransactionClient,
     proposal: {
       id: string;

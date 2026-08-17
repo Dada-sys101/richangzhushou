@@ -5,7 +5,11 @@ import type {
   CalendarEventSummary,
 } from "@daily-assistant/api-contracts";
 
-import { Prisma, type CalendarEvent } from "../generated/prisma/client.js";
+import {
+  Prisma,
+  type CalendarEvent,
+  type PrismaClient,
+} from "../generated/prisma/client.js";
 import { ApiException } from "../common/api-error.js";
 import { dayBounds, monthBounds } from "../finance/time.util.js";
 import { PrismaService } from "../prisma/prisma.service.js";
@@ -91,7 +95,9 @@ export class CalendarService {
   async create(
     userId: string,
     dto: CreateCalendarEventDto,
+    tx?: Prisma.TransactionClient,
   ): Promise<CalendarEventCreatedResponse> {
+    const db = tx ?? this.prisma;
     const input = this.normalizeInput(dto);
     this.validateTimeRange(input);
 
@@ -99,6 +105,7 @@ export class CalendarService {
       const replayed = await this.findByIdempotencyKey(
         userId,
         input.clientMutationId,
+        db,
       );
       if (replayed) {
         this.assertSameMutation(replayed, input);
@@ -111,9 +118,10 @@ export class CalendarService {
       input.startsAt,
       input.endsAt,
       null,
+      db,
     );
     try {
-      const row = await this.prisma.calendarEvent.create({
+      const row = await db.calendarEvent.create({
         data: {
           allDay: input.allDay,
           clientMutationId: input.clientMutationId,
@@ -128,7 +136,7 @@ export class CalendarService {
       return this.withOverlap(row, overlap);
     } catch (error) {
       if (this.isUniqueViolation(error) && input.clientMutationId) {
-        const global = await this.prisma.calendarEvent.findUnique({
+        const global = await db.calendarEvent.findUnique({
           where: { clientMutationId: input.clientMutationId },
         });
         if (global) {
@@ -183,6 +191,7 @@ export class CalendarService {
       input.startsAt,
       input.endsAt,
       id,
+      this.prisma,
     );
     const updated = await this.prisma.calendarEvent.updateMany({
       data: {
@@ -311,8 +320,9 @@ export class CalendarService {
     startsAt: Date,
     endsAt: Date,
     excludeId: string | null,
+    db: Prisma.TransactionClient | PrismaClient,
   ): Promise<CalendarEvent | null> {
-    return this.prisma.calendarEvent.findFirst({
+    return db.calendarEvent.findFirst({
       orderBy: [{ startsAt: "asc" }, { id: "asc" }],
       where: {
         deletedAt: null,
@@ -345,8 +355,9 @@ export class CalendarService {
   private async findByIdempotencyKey(
     userId: string,
     clientMutationId: string,
+    db: Prisma.TransactionClient | PrismaClient,
   ): Promise<CalendarEvent | null> {
-    return this.prisma.calendarEvent.findFirst({
+    return db.calendarEvent.findFirst({
       where: { clientMutationId, userId },
     });
   }

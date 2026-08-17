@@ -19,6 +19,7 @@ import { TasksService } from "../tasks/tasks.service.js";
 import { CreateTaskDto } from "../tasks/dto/tasks.dto.js";
 import { TripsService } from "../trips/trips.service.js";
 import { CreateTripDto } from "../trips/dto/trips.dto.js";
+import { Prisma } from "../generated/prisma/client.js";
 
 type FormalCreateDto =
   | CreateCalendarEventDto
@@ -104,53 +105,70 @@ export class AiFormalWriteOrchestrator {
   async applyPrepared(
     userId: string,
     prepared: PreparedFormalWrite,
+    tx?: Prisma.TransactionClient,
   ): Promise<FormalWriteResult> {
     switch (prepared.operationType) {
       case "TRANSACTION": {
-        const response = (await this.financeService.createTransaction(
-          userId,
-          prepared.dto as CreateTransactionDto,
-        )) as TransactionCreatedResponse;
+        const response = (await (tx
+          ? this.financeService.createTransaction(
+              userId,
+              prepared.dto as CreateTransactionDto,
+              tx,
+            )
+          : this.financeService.createTransaction(
+              userId,
+              prepared.dto as CreateTransactionDto,
+            ))) as TransactionCreatedResponse;
         return {
           resultEntityId: requireResultId(response.transaction?.id),
           resultEntityType: "TRANSACTION",
         };
       }
       case "CALENDAR_EVENT": {
-        const response = (await this.calendarService.create(
-          userId,
-          prepared.dto as CreateCalendarEventDto,
-        )) as CalendarEventCreatedResponse;
+        const response = (await (tx
+          ? this.calendarService.create(
+              userId,
+              prepared.dto as CreateCalendarEventDto,
+              tx,
+            )
+          : this.calendarService.create(
+              userId,
+              prepared.dto as CreateCalendarEventDto,
+            ))) as CalendarEventCreatedResponse;
         return {
           resultEntityId: requireResultId(response.calendarEvent?.id),
           resultEntityType: "CALENDAR_EVENT",
         };
       }
       case "TASK": {
-        const result = await this.tasksService.create(
-          userId,
-          prepared.dto as CreateTaskDto,
-        );
+        const result = await (tx
+          ? this.tasksService.create(userId, prepared.dto as CreateTaskDto, tx)
+          : this.tasksService.create(userId, prepared.dto as CreateTaskDto));
         return {
           resultEntityId: requireResultId(result.id),
           resultEntityType: "TASK",
         };
       }
       case "REMINDER": {
-        const result = await this.remindersService.create(
-          userId,
-          prepared.dto as CreateReminderDto,
-        );
+        const result = await (tx
+          ? this.remindersService.create(
+              userId,
+              prepared.dto as CreateReminderDto,
+              tx,
+            )
+          : this.remindersService.create(
+              userId,
+              prepared.dto as CreateReminderDto,
+            ));
         return {
           resultEntityId: requireResultId(result.id),
           resultEntityType: "REMINDER",
         };
       }
       case "TRIP": {
-        const result = await this.tripsService.create(
-          userId,
-          prepared.dto as CreateTripDto,
-        );
+        const result = await (tx
+          ? this.tripsService.create(userId, prepared.dto as CreateTripDto, tx)
+          : this.tripsService.create(userId, prepared.dto as CreateTripDto));
         return {
           resultEntityId: requireResultId(result.id),
           resultEntityType: "TRIP",

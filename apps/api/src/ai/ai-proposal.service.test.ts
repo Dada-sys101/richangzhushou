@@ -5,6 +5,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { AiOperationType } from "@daily-assistant/api-contracts";
 
 import { AiFakeProviderFactory } from "./ai-fake-provider.factory.js";
+import { AiFeatureGate } from "./ai-feature-gate.js";
+import { sha256Fingerprint } from "./ai-proposal.fingerprint.js";
 import { AiProposalService } from "./ai-proposal.service.js";
 
 describe("PR18 H04 proposal final confirmation", () => {
@@ -20,6 +22,61 @@ describe("PR18 H04 proposal final confirmation", () => {
     expect(result.status).toBe("APPLIED");
     expect(harness.orchestrator.applyPrepared).not.toHaveBeenCalled();
     expect(harness.prisma.aiProposal.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("H04-F04: APPLIED replay remains readable when businessWrite is disabled", async () => {
+    const harness = buildHarness({
+      featureFlags: {
+        businessWrite: false,
+        fakeProvider: false,
+        proposal: true,
+      },
+      operationStatus: "APPLIED",
+      proposalStatus: "APPLIED",
+    });
+    await expect(
+      harness.service.finalConfirm("user_1", "proposal_1", {
+        operationIds: ["operation_1"],
+        version: 1,
+      }),
+    ).resolves.toMatchObject({ status: "APPLIED" });
+    expect(harness.orchestrator.applyPrepared).not.toHaveBeenCalled();
+  });
+
+  it("H04-F03: a new formal write is blocked when businessWrite is disabled", async () => {
+    const harness = buildHarness({
+      featureFlags: {
+        businessWrite: false,
+        fakeProvider: true,
+        proposal: true,
+      },
+      operationStatus: "ACCEPTED",
+    });
+    await expect(
+      harness.service.finalConfirm("user_1", "proposal_1", {
+        operationIds: ["operation_1"],
+        version: 1,
+      }),
+    ).rejects.toMatchObject({ code: "AI_DISABLED", statusCode: 403 });
+    expect(harness.orchestrator.applyPrepared).not.toHaveBeenCalled();
+  });
+
+  it("H04-F01: FinalConfirm is blocked before Proposal lookup when proposal is disabled", async () => {
+    const harness = buildHarness({
+      featureFlags: {
+        businessWrite: true,
+        fakeProvider: true,
+        proposal: false,
+      },
+      operationStatus: "ACCEPTED",
+    });
+    await expect(
+      harness.service.finalConfirm("user_1", "proposal_1", {
+        operationIds: ["operation_1"],
+        version: 1,
+      }),
+    ).rejects.toMatchObject({ code: "AI_DISABLED", statusCode: 403 });
+    expect(harness.prisma.aiProposal.findFirst).not.toHaveBeenCalled();
   });
 
   it("H04-U09/U10: rejects PENDING and REJECTED operations before a write", async () => {
@@ -168,6 +225,11 @@ describe("PR18 H04 proposal final confirmation", () => {
 type OperationStatus = "ACCEPTED" | "APPLIED" | "PENDING" | "REJECTED";
 
 interface HarnessOptions {
+  featureFlags?: {
+    businessWrite: boolean;
+    fakeProvider: boolean;
+    proposal: boolean;
+  };
   operationStatus: OperationStatus;
   proposalStatus?: "PENDING_REVIEW" | "PARTIALLY_APPLIED" | "APPLIED";
   secondOperation?: { operationType: AiOperationType; status: OperationStatus };
@@ -226,6 +288,7 @@ function buildHarness(options: HarnessOptions) {
     $transaction: vi.fn(async (callback: (tx: typeof prisma) => unknown) =>
       callback(prisma),
     ),
+    $queryRaw: vi.fn(async () => [{ id: "locked" }]),
     aiOperation: {
       findMany: vi.fn(async () =>
         proposal.operations.map((operation) => ({ status: operation.status })),
@@ -250,7 +313,21 @@ function buildHarness(options: HarnessOptions) {
       ),
     },
     aiProposal: {
-      findFirst: vi.fn(async () => proposal),
+      findFirst: vi.fn(
+        async (args: {
+          include?: { operations?: { where?: { id?: string } } };
+        }) => {
+          const operationId = args.include?.operations?.where?.id;
+          return operationId
+            ? {
+                ...proposal,
+                operations: proposal.operations.filter(
+                  (operation) => operation.id === operationId,
+                ),
+              }
+            : proposal;
+        },
+      ),
       updateMany: vi.fn(
         async ({
           data,
@@ -290,6 +367,13 @@ function buildHarness(options: HarnessOptions) {
     prisma as never,
     {} as AiFakeProviderFactory,
     orchestrator as never,
+    AiFeatureGate.forTesting(
+      options.featureFlags ?? {
+        businessWrite: true,
+        fakeProvider: true,
+        proposal: true,
+      },
+    ),
   );
   return {
     operation: operations[0]!,
@@ -320,6 +404,11 @@ function buildOperation(
       operationType === "TRANSACTION"
         ? { amount: "1.00", type: "EXPENSE" }
         : { title: "task" },
+    fieldsFingerprint: sha256Fingerprint(
+      operationType === "TRANSACTION"
+        ? { amount: "1.00", type: "EXPENSE" }
+        : { title: "task" },
+    ),
     id,
     operationType,
     ordinal,

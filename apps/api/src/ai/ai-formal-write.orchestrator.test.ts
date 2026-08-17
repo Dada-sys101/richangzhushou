@@ -173,6 +173,87 @@ describe("PR18 H04 formal write orchestrator", () => {
     expect(harness.tripsService.create).toHaveBeenCalledTimes(1);
   });
 
+  it("H04-R04: propagates one TransactionClient to every formal create path", async () => {
+    const harness = createOrchestrator();
+    const tx = { marker: "same-transaction" };
+    await harness.orchestrator.applyPrepared(
+      "user_1",
+      {
+        dto: { amount: "1.00", type: "EXPENSE" },
+        operationType: "TRANSACTION",
+      } as never,
+      tx as never,
+    );
+    await harness.orchestrator.applyPrepared(
+      "user_1",
+      {
+        dto: {
+          endsAt: "2026-08-16T01:00:00.000Z",
+          startsAt: "2026-08-16T00:00:00.000Z",
+          title: "event",
+        },
+        operationType: "CALENDAR_EVENT",
+      } as never,
+      tx as never,
+    );
+    await harness.orchestrator.applyPrepared(
+      "user_1",
+      { dto: { title: "task" }, operationType: "TASK" } as never,
+      tx as never,
+    );
+    await harness.orchestrator.applyPrepared(
+      "user_1",
+      {
+        dto: {
+          scheduleType: "ONCE",
+          startsAt: "2099-08-16T00:00:00.000Z",
+          title: "reminder",
+        },
+        operationType: "REMINDER",
+      } as never,
+      tx as never,
+    );
+    await harness.orchestrator.applyPrepared(
+      "user_1",
+      {
+        dto: {
+          destination: "Shanghai",
+          endDate: "2099-08-18",
+          startDate: "2099-08-16",
+          title: "trip",
+        },
+        operationType: "TRIP",
+      } as never,
+      tx as never,
+    );
+
+    expect(harness.financeService.createTransaction).toHaveBeenCalledWith(
+      "user_1",
+      expect.anything(),
+      tx,
+    );
+    expect(harness.calendarService.create).toHaveBeenCalledWith(
+      "user_1",
+      expect.anything(),
+      tx,
+    );
+    expect(harness.tasksService.create).toHaveBeenCalledWith(
+      "user_1",
+      expect.anything(),
+      tx,
+    );
+    expect(harness.remindersService.create).toHaveBeenCalledWith(
+      "user_1",
+      expect.anything(),
+      tx,
+    );
+    expect(harness.tripsService.create).toHaveBeenCalledWith(
+      "user_1",
+      expect.anything(),
+      tx,
+    );
+  });
+
   it("H04-U05/U06: validates existing DTOs before invoking a Domain Service", async () => {
     const { tasksService, orchestrator } = createOrchestrator();
     await expect(

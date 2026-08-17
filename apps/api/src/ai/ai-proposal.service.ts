@@ -11,6 +11,7 @@ import { Prisma } from "../generated/prisma/client.js";
 import { ApiException } from "../common/api-error.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { AiFakeProviderFactory } from "./ai-fake-provider.factory.js";
+import { AiFeatureGate } from "./ai-feature-gate.js";
 import {
   AiFormalWriteOrchestrator,
   type FormalWriteResult,
@@ -39,6 +40,11 @@ type ProposalWithOperations = Prisma.AiProposalGetPayload<{
   include: { operations: { orderBy: { ordinal: "asc" } } };
 }>;
 
+interface PreparedFinalWrite {
+  fieldsFingerprint: string;
+  write: PreparedFormalWrite;
+}
+
 /** Stable, server-owned mutation key used by every formal Domain Service. */
 export function buildAiFinalClientMutationId(
   proposalId: Identifier,
@@ -61,8 +67,9 @@ export class AiProposalService extends AiProposalReviewService {
     prisma: PrismaService,
     fakeProviderFactory: AiFakeProviderFactory,
     private readonly formalWriteOrchestrator: AiFormalWriteOrchestrator,
+    featureGate: AiFeatureGate = new AiFeatureGate(),
   ) {
-    super(prisma, fakeProviderFactory);
+    super(prisma, fakeProviderFactory, featureGate);
   }
 
   override async finalConfirm(
@@ -70,6 +77,7 @@ export class AiProposalService extends AiProposalReviewService {
     proposalId: Identifier,
     request: AiFinalConfirmRequest,
   ): Promise<AiFinalConfirmResponse> {
+    this.featureGate.requireProposal();
     const proposal = await this.loadProposal(userId, proposalId);
     const requested = this.requestedOperations(proposal, request.operationIds);
 
@@ -111,39 +119,30 @@ export class AiProposalService extends AiProposalReviewService {
       throw versionConflict();
     }
 
+    this.featureGate.requireBusinessWrite();
+
     // Validate every accepted operation before claiming the version or
     // invoking any formal Domain Service. This guarantees an invalid later
     // operation cannot follow an earlier business write.
-    const prepared = new Map<string, PreparedFormalWrite>();
+    const prepared = new Map<string, PreparedFinalWrite>();
     for (const operation of requested) {
       if (operation.status !== CONFIRMABLE_OPERATION_STATUS) {
         continue;
       }
+      const fields = toFields(operation.fieldsJson);
       const preparedWrite = await this.formalWriteOrchestrator.prepare(
         operation.operationType as AiOperationType,
-        toFields(operation.fieldsJson),
+        fields,
         buildAiFinalClientMutationId(proposalId, operation.id),
       );
-      prepared.set(operation.id, preparedWrite);
+      prepared.set(operation.id, {
+        fieldsFingerprint: sha256Fingerprint(fields),
+        write: preparedWrite,
+      });
     }
 
-    const claimTime = new Date();
-    const claimed = await this.prisma.aiProposal.updateMany({
-      data: {
-        reviewedAt: proposal.reviewedAt ?? claimTime,
-        version: { increment: 1 },
-      },
-      where: {
-        id: proposalId,
-        status: { in: [...REVIEWABLE_PROPOSAL_STATUSES] },
-        userId,
-        version: request.version,
-      },
-    });
-    if (claimed.count !== 1) {
-      throw versionConflict();
-    }
-
+    let expectedVersion = request.version;
+    let claimVersion = true;
     for (const operation of requested) {
       if (operation.status !== CONFIRMABLE_OPERATION_STATUS) {
         continue;
@@ -152,20 +151,67 @@ export class AiProposalService extends AiProposalReviewService {
       if (!preparedWrite) {
         throw operationInvalidState();
       }
-      const result = await this.formalWriteOrchestrator.applyPrepared(
-        userId,
-        preparedWrite,
-      );
-      await this.persistApplied(
+      await this.applyPreparedOperation(
         userId,
         proposalId,
         operation.id,
         operation.operationType as AiOperationType,
-        result,
+        preparedWrite,
+        expectedVersion,
+        claimVersion,
       );
+      if (claimVersion) {
+        expectedVersion += 1;
+        claimVersion = false;
+      }
     }
 
     return this.loadFinalDetail(userId, proposalId);
+  }
+
+  private async applyPreparedOperation(
+    userId: string,
+    proposalId: string,
+    operationId: string,
+    operationType: AiOperationType,
+    prepared: PreparedFinalWrite,
+    expectedVersion: number,
+    claimVersion: boolean,
+  ): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const { operation, proposal } = await this.loadOperationForMutation(
+        tx,
+        userId,
+        proposalId,
+        operationId,
+        expectedVersion,
+      );
+      if (operation.status !== CONFIRMABLE_OPERATION_STATUS) {
+        throw operationInvalidState();
+      }
+      if (
+        operation.operationType !== operationType ||
+        operation.fieldsFingerprint !== prepared.fieldsFingerprint
+      ) {
+        throw operationInvalidState();
+      }
+      if (claimVersion) {
+        await this.claimProposalVersion(tx, proposal, expectedVersion);
+      }
+      const result = await this.formalWriteOrchestrator.applyPrepared(
+        userId,
+        prepared.write,
+        tx,
+      );
+      await this.persistAppliedInTx(
+        tx,
+        userId,
+        proposalId,
+        operationId,
+        operationType,
+        result,
+      );
+    });
   }
 
   private async loadProposal(
@@ -210,7 +256,8 @@ export class AiProposalService extends AiProposalReviewService {
       .sort((left, right) => left.ordinal - right.ordinal);
   }
 
-  private async persistApplied(
+  private async persistAppliedInTx(
+    tx: Prisma.TransactionClient,
     userId: string,
     proposalId: string,
     operationId: string,
@@ -218,52 +265,50 @@ export class AiProposalService extends AiProposalReviewService {
     result: FormalWriteResult,
   ): Promise<void> {
     const now = new Date();
-    await this.prisma.$transaction(async (tx) => {
-      const updated = await tx.aiOperation.updateMany({
-        data: {
-          appliedAt: now,
-          errorCode: null,
-          errorMessage: null,
-          resultDraftId: null,
-          resultEntityId: result.resultEntityId,
-          resultEntityType: operationType,
-          status: "APPLIED",
-        },
-        where: {
-          id: operationId,
-          proposalId,
-          status: "ACCEPTED",
-        },
-      });
-      if (updated.count !== 1) {
-        throw operationInvalidState();
-      }
-
-      const operations = await tx.aiOperation.findMany({
-        orderBy: { ordinal: "asc" },
-        select: { status: true },
-        where: { proposalId },
-      });
-      const hasApplied = operations.some(
-        (operation) => operation.status === "APPLIED",
-      );
-      if (!hasApplied) {
-        return;
-      }
-      const settled = operations.every(
-        (operation) =>
-          operation.status === "APPLIED" || operation.status === "REJECTED",
-      );
-      const proposalUpdate = await tx.aiProposal.updateMany({
-        data: settled
-          ? { completedAt: now, status: "APPLIED" }
-          : { completedAt: null, status: "PARTIALLY_APPLIED" },
-        where: { id: proposalId, userId },
-      });
-      if (proposalUpdate.count !== 1) {
-        throw proposalNotFound();
-      }
+    const updated = await tx.aiOperation.updateMany({
+      data: {
+        appliedAt: now,
+        errorCode: null,
+        errorMessage: null,
+        resultDraftId: null,
+        resultEntityId: result.resultEntityId,
+        resultEntityType: operationType,
+        status: "APPLIED",
+      },
+      where: {
+        id: operationId,
+        proposalId,
+        status: "ACCEPTED",
+      },
     });
+    if (updated.count !== 1) {
+      throw operationInvalidState();
+    }
+
+    const operations = await tx.aiOperation.findMany({
+      orderBy: { ordinal: "asc" },
+      select: { status: true },
+      where: { proposalId },
+    });
+    const hasApplied = operations.some(
+      (operation) => operation.status === "APPLIED",
+    );
+    if (!hasApplied) {
+      return;
+    }
+    const settled = operations.every(
+      (operation) =>
+        operation.status === "APPLIED" || operation.status === "REJECTED",
+    );
+    const proposalUpdate = await tx.aiProposal.updateMany({
+      data: settled
+        ? { completedAt: now, status: "APPLIED" }
+        : { completedAt: null, status: "PARTIALLY_APPLIED" },
+      where: { id: proposalId, userId },
+    });
+    if (proposalUpdate.count !== 1) {
+      throw proposalNotFound();
+    }
   }
 
   private async loadFinalDetail(

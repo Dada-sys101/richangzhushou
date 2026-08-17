@@ -14,6 +14,7 @@ import type {
 import {
   Prisma,
   type PackingItem,
+  type PrismaClient,
   type Trip,
   type TripItem,
 } from "../generated/prisma/client.js";
@@ -125,7 +126,12 @@ export class TripsService {
     };
   }
 
-  async create(userId: string, dto: CreateTripDto): Promise<TripSummary> {
+  async create(
+    userId: string,
+    dto: CreateTripDto,
+    tx?: Prisma.TransactionClient,
+  ): Promise<TripSummary> {
+    const db = tx ?? this.prisma;
     const input = this.normalizeCreateInput(dto);
     this.validateTripDates(input.startDate, input.endDate);
 
@@ -133,6 +139,7 @@ export class TripsService {
       const replayed = await this.findTripByIdempotencyKey(
         userId,
         input.clientMutationId,
+        db,
       );
       if (replayed) {
         this.assertSameTripMutation(replayed, input);
@@ -140,7 +147,7 @@ export class TripsService {
       }
     }
     try {
-      const row = await this.prisma.trip.create({
+      const row = await db.trip.create({
         data: {
           budgetAmount: input.budgetAmount,
           clientMutationId: input.clientMutationId,
@@ -155,7 +162,7 @@ export class TripsService {
       return toTripSummary(row);
     } catch (error) {
       if (this.isUniqueViolation(error) && input.clientMutationId) {
-        const global = await this.prisma.trip.findUnique({
+        const global = await db.trip.findUnique({
           where: { clientMutationId: input.clientMutationId },
         });
         if (global) {
@@ -863,8 +870,9 @@ export class TripsService {
   private async findTripByIdempotencyKey(
     userId: string,
     clientMutationId: string,
+    db: Prisma.TransactionClient | PrismaClient,
   ): Promise<Trip | null> {
-    return this.prisma.trip.findFirst({
+    return db.trip.findFirst({
       where: { clientMutationId, userId },
     });
   }
