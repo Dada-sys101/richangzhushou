@@ -5,8 +5,9 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前 canonical 任务：`PR18`（`READY / NOT_STARTED`）
-当前依赖：`PR2 + PR5 DONE_INTEGRATION`；本步骤未授权 PR18 implementation。
+当前 canonical 任务：`PR18`（`IN_PROGRESS / DONE_PUSHED`）
+当前依赖：`PR2 + PR5 DONE_INTEGRATION`；PR18 source implementation 已完成并
+已 pushed，当前处于治理同步与最终验收阶段。
 PR18 完成后的下一 canonical 工程任务：`PR19`（不构成自动启动授权）
 
 ## 1. 版本目标与边界
@@ -386,8 +387,13 @@ nextCanonicalTask: PR18
 nextCanonicalTaskAfterCompletion: PR19
 ```
 
-当前交付/执行门禁：PR18 是唯一 `nextCanonicalTask`，状态为 `READY / NOT_STARTED`；
-依赖 `PR2 + PR5 DONE_INTEGRATION` 已满足，但本次 control bootstrap 不授权 implementation。
+当前交付/执行门禁：PR18 是唯一 `nextCanonicalTask`，状态为
+`IN_PROGRESS / DONE_PUSHED`；实现 commit/head 为
+`f574a79cdba289c5a210f6efad9f26b3a45be4df`，PR #17 仍为 `OPEN / DRAFT`，CI
+#261 SUCCESS。Final Acceptance Review01 为 `REQUEST_CHANGES`，两项 scope
+deviation 已分别授权；当前下一 Gate 为
+`PR18-GOVERNANCE-SYNC-REVIEW03`，随后还需最终验收复审、PR metadata 更新、
+Ready 和 merge 的独立授权。
 PR18 达到 `DONE_INTEGRATION` 并重新核验实时事实后，才可在独立授权下选择 PR19。
 该门禁仅同步当前执行指针，不改写 PLANS v2.1.1 冻结依赖图。
 多个任务同时 READY 时仍不得自动并行：先比较 R1 关键路径影响，再遵循明确 next 指针，
