@@ -37,7 +37,9 @@ test("H05-B01/B02/B03/B05: create, accept, explicit final confirm, reload safety
   // Review route visible with the operation card.
   await expect(page).toHaveURL(/\/ai\/proposals\/.+/);
   await expect(page.getByRole("heading", { name: "提案核对" })).toBeVisible();
-  await expect(page.getByText("待办").first()).toBeVisible();
+  await expect(
+    page.locator("article.operation-card").getByText("待办", { exact: true }),
+  ).toBeVisible();
 
   // H05-B02: accept the operation; formal Task must NOT exist yet.
   await page.getByRole("button", { name: "接受此项" }).click();
