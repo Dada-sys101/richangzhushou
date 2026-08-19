@@ -5,7 +5,11 @@ import type {
   TaskSummary,
 } from "@daily-assistant/api-contracts";
 
-import { Prisma, type Task } from "../generated/prisma/client.js";
+import {
+  Prisma,
+  type PrismaClient,
+  type Task,
+} from "../generated/prisma/client.js";
 import { ApiException } from "../common/api-error.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { toTaskSummary } from "./tasks.mapper.js";
@@ -62,12 +66,18 @@ export class TasksService {
     return toTaskSummary(row);
   }
 
-  async create(userId: string, dto: CreateTaskDto): Promise<TaskSummary> {
+  async create(
+    userId: string,
+    dto: CreateTaskDto,
+    tx?: Prisma.TransactionClient,
+  ): Promise<TaskSummary> {
+    const db = tx ?? this.prisma;
     const input = this.normalizeInput(dto);
     if (input.clientMutationId) {
       const replayed = await this.findByIdempotencyKey(
         userId,
         input.clientMutationId,
+        db,
       );
       if (replayed) {
         this.assertSameMutation(replayed, input);
@@ -75,7 +85,7 @@ export class TasksService {
       }
     }
     try {
-      const row = await this.prisma.task.create({
+      const row = await db.task.create({
         data: {
           clientMutationId: input.clientMutationId,
           dueAt: input.dueAt,
@@ -89,7 +99,7 @@ export class TasksService {
       return toTaskSummary(row);
     } catch (error) {
       if (this.isUniqueViolation(error) && input.clientMutationId) {
-        const global = await this.prisma.task.findUnique({
+        const global = await db.task.findUnique({
           where: { clientMutationId: input.clientMutationId },
         });
         if (global) {
@@ -259,8 +269,9 @@ export class TasksService {
   private async findByIdempotencyKey(
     userId: string,
     clientMutationId: string,
+    db: Prisma.TransactionClient | PrismaClient,
   ): Promise<Task | null> {
-    return this.prisma.task.findFirst({
+    return db.task.findFirst({
       where: { clientMutationId, userId },
     });
   }

@@ -217,6 +217,7 @@ enum AiProviderAttemptStatus {
 model SystemSetting {
   id             String   @id @default("singleton")
   maxActiveUsers Int      @default(20) @map("max_active_users")
+  featureFlags   Json?    @map("feature_flags")
   updatedAt      DateTime @updatedAt @map("updated_at")
   updatedBy      String?  @map("updated_by")
 

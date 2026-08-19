@@ -2,60 +2,86 @@
 
 ## Session Status
 
-VERIFYING / GOVERNANCE_CLOSE / PR_OPEN
+PHASE_2_R1_AI_CORE / PR18 / GOVERNANCE_SYNC / IN_PROGRESS / DONE_PUSHED
 
 ## Task
 
-- ID: `PR9`
-- Name: Repository Abstraction + V1PlainRepository
-- Branch: `codex/v15-pr9-v1plain-repository`
-- Base: `codex/v15-integration-foundation@24b6a3928a45d64947749491c40cd0e3a890c683`
-- Delivery: `PR_OPEN / DRAFT`; head `91912de05abdf3ef5851b181697476392de79a1e`
+- ID: `PR18`
+- Name: AI Proposal / Operation + Confirmation UI + Fake Provider
+- Phase: Phase 2 / R1 AI Core
+- Canonical task: PR18
+- Execution: `IN_PROGRESS`
+- Delivery: `DONE_PUSHED`
+- Implementation: completed
+- Branch: `codex/v15-pr18-ai-proposal-fake-provider`
+- HEAD: `f574a79cdba289c5a210f6efad9f26b3a45be4df`
+- Base: `codex/v15-integration-foundation@3caa93bbc9127c9fee42da9c440f9db9b37436d3`
+- GitHub PR: `#17`, `OPEN / DRAFT`
 
 ## Current Progress
 
-- Implementation and local validation are complete.
-- Added the strict user-scoped `LocalRepository` contract.
-- Added `V1PlainRepository` over unchanged IndexedDB v1 primitives and a default
-  composition root with no Feature Flag.
-- Adapted handler/sync through dependency injection; stores and views unchanged.
-- Added contract, adapter, handler, sync and real-browser parity tests.
-- Two commits are pushed; Draft PR #16 is `OPEN` against the frozen integration base.
-- Push CI #233 and pull-request CI #234 completed successfully.
-- Reconnect E2E runtime is PASS for desktop and mobile, including offline TASK
-  creation, pending state, reconnect flush, duplicate protection, ID rewrite,
-  second-user isolation and reload convergence.
-- Governance-close DeepSeek policy is `PROHIBITED`; DeepSeek was not called.
+- H05 dependency audit exception: implemented and Review `ACCEPT`.
+- PR18 source implementation: committed and pushed.
+- CI #261 (`32108381329`): `quality`, `browser-qa` and `db-validation`
+  `SUCCESS`.
+- `PR18-FINAL-ACCEPTANCE-REVIEW01`: `REQUEST_CHANGES`.
+- `PR18-SCOPE-DEVIATION-DECISION01` and its authorization are complete:
+  shared contract `KEEP_AND_AUTHORIZE`; minimal Feature Flag persistence
+  `AUTHORIZED`; the remaining full persistence capability is covered by
+  `PR4 full management = DEFERRED / NOT AUTHORIZED IN PR18`.
+- Previous gate: `PR18-GOVERNANCE-SYNC-REVIEW02` returned `REQUEST_CHANGES`.
+- Active gate: `PR18-GOVERNANCE-SYNC-FIX02`.
+- Next gate: `PR18-GOVERNANCE-SYNC-REVIEW03`.
+
+## Scope Deviation Record
+
+- Shared AI Proposal / Operation / Final Confirm TypeScript contracts,
+  OpenAPI endpoints/schemas and contract tests are authorized to remain.
+- `SystemSetting.feature_flags` and
+  `20260817170000_pr18_ai_feature_flags/migration.sql` are authorized as the
+  minimal env-AND-DB fail-closed integration.
+- Admin Feature Flag API/UI, AdminAudit writes, version/update metadata and the
+  remaining full persistence capability are `DEFERRED / NOT AUTHORIZED IN PR18`
+  and remain PR4 responsibility.
+
+## Git Permissions
+
+- This gate modifies only the five exact governance files authorized by the
+  user.
+- Staging: NO.
+- Commit: NO.
+- Push: NO.
+- PR update/comment, Ready, merge and deploy: NO.
+- DeepSeek: PROHIBITED and not used.
 
 ## Validation
 
-- Web typecheck PASS.
-- Web Vitest 11 files / 25 tests PASS.
-- Web production build PASS.
-- Real Chromium + Vite actual repository parity PASS for entities, pending queue,
-  isolation, reload, cleanup and global availability.
-- CI #233 SUCCESS: quality, db-validation and browser-qa PASS.
-- CI #234 SUCCESS: quality, db-validation and browser-qa PASS; 24 Playwright tests
-  passed. Both PR9 repository parity and reconnect convergence tests passed on
-  Chromium desktop and mobile.
-- Full quality, check:context, git diff check and static scope review PASS.
+- Preflight branch, HEAD, clean worktree and empty staged set: PASS.
+- `git diff --check`: PASS.
+- `npm run check:context`: PASS.
+- `git diff --name-only`: exactly the five authorized governance files.
+- No source, test, package, Prisma, migration, OpenAPI, contract or CI
+  workflow file was modified in this gate.
 
 ## Blockers
 
-- No implementation or CI blocker.
-- Remaining gate is governance-close delivery followed by final merge-readiness
-  review.
-- Governance commit/push, Ready, merge and deploy are not authorized; the next
-  canonical task has not started.
+- Final acceptance re-review remains open after the earlier `REQUEST_CHANGES`.
+- PR metadata/body update requires a separate authorization.
+- Ready-for-review and merge require separate authorization.
+- PR18 has not reached `DONE_INTEGRATION`; PR19 remains blocked.
 
 ## Resume Instructions
 
-1. Review the four-file governance-close diff.
-2. If it passes, request independent governance commit authorization.
-3. Separately authorize push, verify final CI and perform merge-readiness review.
-4. Ready and merge remain independent gates.
-5. Keep PR9 as the only canonical task; do not start PR10 or PR18.
+1. Review the exact five-file governance diff in
+   `PR18-GOVERNANCE-SYNC-REVIEW03`.
+2. Verify live PR #17 Draft status, current HEAD and CI #261 before the next
+   gate.
+3. Use the proposed PR body from this gate only in the separately authorized
+   PR metadata update gate.
+4. Do not mark PR18 Ready, merged, `DONE_INTEGRATION` or deployed.
+5. Do not start PR19, PR4 full Feature Flag persistence, PR10, real AI or
+   deployment automatically.
 
 ## Last Updated
 
-2026-08-14 14:28 +08:00
+2026-08-18 15:37 +08:00

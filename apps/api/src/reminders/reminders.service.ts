@@ -7,7 +7,11 @@ import type {
   ReminderTargetType,
 } from "@daily-assistant/api-contracts";
 
-import { Prisma, type Reminder } from "../generated/prisma/client.js";
+import {
+  Prisma,
+  type PrismaClient,
+  type Reminder,
+} from "../generated/prisma/client.js";
 import { ApiException } from "../common/api-error.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import {
@@ -79,8 +83,10 @@ export class RemindersService {
   async create(
     userId: string,
     dto: CreateReminderDto,
+    tx?: Prisma.TransactionClient,
   ): Promise<ReminderSummary> {
-    const input = await this.normalizeInput(userId, dto);
+    const db = tx ?? this.prisma;
+    const input = await this.normalizeInput(userId, dto, db);
     const normalized = normalizeRecurrence(
       input.scheduleType,
       input.recurrence,
@@ -104,6 +110,7 @@ export class RemindersService {
       const replayed = await this.findByIdempotencyKey(
         userId,
         input.clientMutationId,
+        db,
       );
       if (replayed) {
         this.assertSameMutation(replayed, input);
@@ -112,7 +119,7 @@ export class RemindersService {
     }
 
     try {
-      const row = await this.prisma.reminder.create({
+      const row = await db.reminder.create({
         data: {
           clientMutationId: input.clientMutationId,
           note: input.note,
@@ -131,7 +138,7 @@ export class RemindersService {
       return toReminderSummary(row);
     } catch (error) {
       if (this.isUniqueViolation(error) && input.clientMutationId) {
-        const global = await this.prisma.reminder.findUnique({
+        const global = await db.reminder.findUnique({
           where: { clientMutationId: input.clientMutationId },
         });
         if (global) {
@@ -186,7 +193,7 @@ export class RemindersService {
     const targetType = dto.targetType ?? current.targetType;
     const targetId =
       dto.targetId === undefined ? current.targetId : dto.targetId;
-    await this.validateTarget(userId, targetType, targetId);
+    await this.validateTarget(userId, targetType, targetId, this.prisma);
     const scheduleType = dto.scheduleType ?? current.scheduleType;
     const startsAt = dto.startsAt ? new Date(dto.startsAt) : current.startsAt;
     const recurrence =
@@ -301,6 +308,7 @@ export class RemindersService {
   private async normalizeInput(
     userId: string,
     dto: CreateReminderDto,
+    db: Prisma.TransactionClient | PrismaClient,
   ): Promise<NormalizedReminderInput> {
     const title = dto.title.trim();
     if (!title) {
@@ -312,7 +320,7 @@ export class RemindersService {
     }
     const targetType = dto.targetType ?? "STANDALONE";
     const targetId = dto.targetId ?? null;
-    await this.validateTarget(userId, targetType, targetId);
+    await this.validateTarget(userId, targetType, targetId, db);
     return {
       clientMutationId: dto.clientMutationId ?? null,
       note:
@@ -332,6 +340,7 @@ export class RemindersService {
     userId: string,
     targetType: ReminderTargetType,
     targetId: string | null,
+    db: Prisma.TransactionClient | PrismaClient,
   ): Promise<void> {
     if (targetType === "STANDALONE") {
       if (targetId) {
@@ -351,7 +360,7 @@ export class RemindersService {
       );
     }
     if (targetType === "CALENDAR_EVENT") {
-      const event = await this.prisma.calendarEvent.findFirst({
+      const event = await db.calendarEvent.findFirst({
         where: { deletedAt: null, id: targetId, userId },
       });
       if (!event) {
@@ -363,7 +372,7 @@ export class RemindersService {
       }
       return;
     }
-    const task = await this.prisma.task.findFirst({
+    const task = await db.task.findFirst({
       where: { deletedAt: null, id: targetId, userId },
     });
     if (!task) {
@@ -374,8 +383,9 @@ export class RemindersService {
   private async findByIdempotencyKey(
     userId: string,
     clientMutationId: string,
+    db: Prisma.TransactionClient | PrismaClient,
   ): Promise<Reminder | null> {
-    return this.prisma.reminder.findFirst({
+    return db.reminder.findFirst({
       where: { clientMutationId, userId },
     });
   }

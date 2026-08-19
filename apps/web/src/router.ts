@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "./stores/auth";
 import AccountView from "./views/AccountView.vue";
 import AccountsView from "./views/AccountsView.vue";
+import AiView from "./views/AiView.vue";
 import BudgetsView from "./views/BudgetsView.vue";
 import CalendarView from "./views/CalendarView.vue";
 import CategoriesView from "./views/CategoriesView.vue";
@@ -11,6 +12,7 @@ import DraftsView from "./views/DraftsView.vue";
 import HomeView from "./views/HomeView.vue";
 import LoginView from "./views/LoginView.vue";
 import NotFoundView from "./views/NotFoundView.vue";
+import ProposalReviewView from "./views/ProposalReviewView.vue";
 import QuickCaptureView from "./views/QuickCaptureView.vue";
 import RemindersView from "./views/RemindersView.vue";
 import ShortcutsView from "./views/ShortcutsView.vue";
@@ -69,6 +71,18 @@ export const router = createRouter({
       path: "/capture",
       name: "capture",
       component: QuickCaptureView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/ai",
+      name: "ai",
+      component: AiView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/ai/proposals/:proposalId",
+      name: "ai-proposal-review",
+      component: ProposalReviewView,
       meta: { requiresAuth: true },
     },
     {
