@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-08-19T16:42:16+08:00
+updatedAt: 2026-08-19T17:25:40+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 integrationBranch: codex/v15-integration-foundation
@@ -11,35 +11,43 @@ pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: PR19
 executionStatus: READY
 deliveryStatus: NOT_STARTED
-currentWork: PR19 Contract landing correction
+currentWork: PR19 persisted-successor gate semantics fix
 nextCanonicalTask: PR19
 nextCanonicalTaskAfterCompletion: PR19
 openPullRequests: []
-currentGate: PR19-TASK-CONTRACT-LAND-REVIEW02
-nextGate: PR19-TASK-CONTRACT-LAND-REVIEW02
+repositoryPersistedGate: PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02
+repositoryLandingState: WORKTREE_FIXED / UNCOMMITTED
+persistedSuccessorGate: PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02
 
 ## Active Task
 
 - id: PR19
 - displayName: AI Router、Stub 与安全降级
-- branch: documentation landing on detached baseline checkout; no branch operation authorized
+- branch: detached checkout at the PR19 contract landing commit; no branch operation authorized
 - baseBranch: codex/v15-integration-foundation
 - baseHead: 50f4f936a4ce46ac746f23478a929287d6e17c94
+- localHead: bc8bc413c6862e0d92247d7e6608dd6e99f505d7
+- remoteIntegrationHead: 50f4f936a4ce46ac746f23478a929287d6e17c94
+- localRelation: AHEAD 1 / BEHIND 0
 - executionStatus: READY
 - deliveryStatus: NOT_STARTED
 - contract: tasks/PR19.md
-- contractVersion: V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE
+- contractVersion: V10 / FROZEN / GPT_ACCEPT
 - contractReview: PR19-CONTRACT-REVIEW09 = ACCEPT
+- contractLandingCommit: bc8bc413c6862e0d92247d7e6608dd6e99f505d7
+- contractLandingCommitStatus: LOCAL_COMMITTED / NOT_PUSHED
 - implementation: NOT_STARTED / NOT_AUTHORIZED
-- currentWork: PR19 Contract landing correction
-- currentGate: PR19-TASK-CONTRACT-LAND-REVIEW02
-- commit: NOT_AUTHORIZED
+- currentWork: PR19 persisted-successor gate semantics fix
+- repositoryPersistedGate: PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02
+- repositoryLandingState: WORKTREE_FIXED / UNCOMMITTED
+- persistedSuccessorGate: PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02
+- commit: COMPLETED / LOCAL_COMMITTED
 - push: NOT_AUTHORIZED
-- prUpdate: NOT_AUTHORIZED
-- allowedScope: tasks/PR19.md plus the existing governance state carriers required to record V10 landing; no implementation changes
-- forbiddenScope: source/test/package/Prisma/migration/OpenAPI/contract/CI workflow/Web changes、commit、push、PR update、CI operation、PR20、H7 closure、real Provider/network/credentials、deploy
-- validation: preflight local/remote HEAD match, clean worktree and empty staging; post-landing check:context and diff-check required
-- remaining: PR19-TASK-CONTRACT-LAND-REVIEW02; implementation remains NOT_AUTHORIZED
+- prOperation: NOT_AUTHORIZED
+- allowedScope: persisted-successor gate semantics only in the five approved governance carriers; no V10 semantic or implementation changes
+- forbiddenScope: source/test/package/Prisma/migration/OpenAPI/contract/CI workflow/Web changes、stage、commit、push、PR operation、CI operation、PR20、H7 closure、real Provider/network/credentials、deploy
+- validation: exact landing commit/local relation verified; post-persisted-successor-semantics check:context and diff-check required
+- remaining: Persisted Successor Gate PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02; implementation remains NOT_AUTHORIZED
 
 ## Task Ledger
 
@@ -61,7 +69,7 @@ nextGate: PR19-TASK-CONTRACT-LAND-REVIEW02
 | PR14/PR15 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
 | PR16/PR17 | PENDING | NOT_STARTED | R1.1 | H6/H8 affect PR17 | later |
 | PR18 | DONE | DONE_INTEGRATION | R1 | PR2 + PR5 DONE_INTEGRATION | source `9bee2f8...`；PR #17 MERGED/CLOSED；Squash `7caf892...`；CI #263 SUCCESS；Integration CI #264 SUCCESS；governance-close `f90f4ea...` PUSHED；Final Acceptance/Integration ACCEPT |
-| PR19 | READY | NOT_STARTED | R1 | PR18 + PR6 | V10 contract frozen/accepted and LANDED_WORKTREE at tasks/PR19.md; current work is contract landing correction; current/next gate PR19-TASK-CONTRACT-LAND-REVIEW02; implementation NOT_AUTHORIZED |
+| PR19 | READY | NOT_STARTED | R1 | PR18 + PR6 | V10 frozen/GPT-accepted; landing commit `bc8bc413...` LOCAL_COMMITTED / NOT_PUSHED; remote `50f4f936...`; local AHEAD 1 / BEHIND 0; Repository Persisted Gate PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02; Repository landing state WORKTREE_FIXED / UNCOMMITTED; Persisted Successor Gate PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02; implementation NOT_AUTHORIZED |
 | PR20 | BLOCKED | NOT_STARTED | R1 | dev: PR19; validation/merge: H7 | Adapter may be built later; human gate |
 | PR21 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
 | PR22/PR23 | PENDING | NOT_STARTED | R3 | PLANS dependencies + cleanup authorization | later |
@@ -118,16 +126,17 @@ nextGate: PR19-TASK-CONTRACT-LAND-REVIEW02
 - pr18ScopeDeviationAuthorization: CONTRACT_CHANGE_REQUIRED -> KEEP_AND_AUTHORIZE；SCHEMA_CHANGE_REQUIRED -> AUTHORIZED MINIMAL SLICE；PR4 full management = DEFERRED / NOT AUTHORIZED IN PR18
 - pr18H05: scoped `deepmerge-ts` / `GHSA-ggr8-5vv4-36mx` exception at `7.1.5` expires `2026-09-01T23:59:00+08:00`；focused tests `32/32` PASS
 - governanceSync (historical): PR18 governance-close commit `f90f4ea...` is PUSHED; verification is ACCEPT / PASSING; it is not the current or next active gate
-- pr19Contract: `PR19_TASK_CONTRACT_DRAFT_V10`; `PR19-CONTRACT-REVIEW09 = ACCEPT`; `V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE`; implementation NOT_STARTED / NOT_AUTHORIZED
-- pr19ContractLanding: local documentation-only landing correction in worktree; current/next gate `PR19-TASK-CONTRACT-LAND-REVIEW02`; implementation/commit/push/PR update NOT_AUTHORIZED
+- pr19Contract: `PR19_TASK_CONTRACT_DRAFT_V10`; `PR19-CONTRACT-REVIEW09 = ACCEPT`; `V10 / FROZEN / GPT_ACCEPT`; implementation NOT_STARTED / NOT_AUTHORIZED
+- pr19ContractLanding: commit `bc8bc413c6862e0d92247d7e6608dd6e99f505d7` LOCAL_COMMITTED / NOT_PUSHED; remote Integration `50f4f936a4ce46ac746f23478a929287d6e17c94`; local AHEAD 1 / BEHIND 0; Repository Persisted Gate `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`; Repository landing state `WORKTREE_FIXED / UNCOMMITTED`; Persisted Successor Gate `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`; push/PR operation NOT_AUTHORIZED
+- readOnlyGatePersistenceRule: REPOSITORY_PERSISTED_GATE is the last materialized repository write checkpoint; PERSISTED_SUCCESSOR_GATE is its immediate expected orchestration gate; GPT_ACTIVE_GATE is externally controlled. A read-only Review may consume the successor without mutation; it may remain until a later authorized Write Gate materializes new state. GPT Active Gate differing from the persisted checkpoint or advancing beyond a consumed successor is not, by itself, a state inconsistency; a Review must not REQUEST_CHANGES solely for either fact. A successor is inconsistent only if already stale when its checkpoint was produced.
 - staging: NOT_CREATED
 - production: NOT_DEPLOYED
 
 ## Last Verified
 
 - liveFactsChecked: PR #17 MERGED / CLOSED；source `9bee2f8...`; functional Integration merge `7caf892...`; last verified governance-close anchor `f90f4ea...`; CI #263 and Integration CI #264 SUCCESS；last verified Integration status badge PASSING
-- localBaseChecked: Integration ref `50f4f936a4ce46ac746f23478a929287d6e17c94` verified; checkout CLEAN and staged set EMPTY before V10 landing
-- currentLocalValidation: preflight HEAD/remote match PASS; post-landing `git diff --check` and `npm run check:context` required before review
+- localBaseChecked: local contract commit `bc8bc413c6862e0d92247d7e6608dd6e99f505d7`; remote Integration `50f4f936a4ce46ac746f23478a929287d6e17c94`; relation AHEAD 1 / BEHIND 0; checkout CLEAN and staged set EMPTY before state fix
+- currentLocalValidation: exact commit scope and local/remote relation PASS; post-persisted-successor-semantics `git diff --check` and `npm run check:context` required before review
 - snapshotRule: GitHub/Git/CI/environment facts override this snapshot; synchronize only at the next legal governance update point without creating a CI loop
 
 ## Recovery Rules
@@ -147,7 +156,17 @@ nextGate: PR19-TASK-CONTRACT-LAND-REVIEW02
 7. This snapshot does not authorize commit, push, PR metadata update, PR19
    implementation, PR4 full Feature Flag persistence, PR10, real AI or deploy;
    each requires a separate gate. The prior PR18 merge is complete.
-8. PR19 contract is `V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE`, but PR19
+8. PR19 contract is `V10 / FROZEN / GPT_ACCEPT`; landing commit `bc8bc413...`
+   is `LOCAL_COMMITTED / NOT_PUSHED`, with local AHEAD 1 / BEHIND 0. PR19
    implementation remains `NOT_STARTED / NOT_AUTHORIZED`; do not start it.
-9. Snapshot/live-fact mismatch is reconciled at the next legal governance update;
+9. READ_ONLY_GATE_PERSISTENCE_RULE: REPOSITORY_PERSISTED_GATE is the last
+   repository write checkpoint materialized into governance files;
+   PERSISTED_SUCCESSOR_GATE is its immediate expected orchestration gate; and
+   GPT_ACTIVE_GATE is externally controlled. A Write Gate records both the
+   checkpoint and successor. A read-only Review may consume the successor
+   without mutation, and it may remain until a later authorized Write Gate
+   materializes new state. Do not REQUEST_CHANGES solely because GPT Active
+   Gate differs from the checkpoint or advanced beyond a consumed successor. A
+   successor is inconsistent only if it was already stale when produced.
+10. Snapshot/live-fact mismatch is reconciled at the next legal governance update;
    never create an infinite CI synchronization loop.

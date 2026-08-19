@@ -2,7 +2,7 @@
 
 ## Session Status
 
-PHASE_2_R1_AI_CORE / PR19 / CONTRACT_LANDING / LANDED_WORKTREE / REVIEW_PENDING
+PHASE_2_R1_AI_CORE / PR19 / CONTRACT_LANDING / WORKTREE_FIXED / UNCOMMITTED
 
 ## Task
 
@@ -14,13 +14,16 @@ PHASE_2_R1_AI_CORE / PR19 / CONTRACT_LANDING / LANDED_WORKTREE / REVIEW_PENDING
 - Delivery: `NOT_STARTED`
 - Implementation: `NOT_STARTED / NOT_AUTHORIZED`
 - Contract: `tasks/PR19.md`
-- Contract version: `V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE`
+- Contract version: `V10 / FROZEN / GPT_ACCEPT`
 - Contract review: `PR19-CONTRACT-REVIEW09 = ACCEPT`
-- Current checkout: detached at `50f4f936a4ce46ac746f23478a929287d6e17c94`
-- Current Gate: `PR19-TASK-CONTRACT-LAND-REVIEW02`
-- Commit: `NOT_AUTHORIZED`
+- Contract landing commit: `bc8bc413c6862e0d92247d7e6608dd6e99f505d7` (`LOCAL_COMMITTED / NOT_PUSHED`)
+- Current checkout: detached at `bc8bc413c6862e0d92247d7e6608dd6e99f505d7`; remote Integration `50f4f936a4ce46ac746f23478a929287d6e17c94`; local `AHEAD 1 / BEHIND 0`
+- Repository Persisted Gate: `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`
+- Repository landing state: `WORKTREE_FIXED / UNCOMMITTED`
+- Persisted Successor Gate: `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`
+- Commit: `COMPLETED / LOCAL_COMMITTED`
 - Push: `NOT_AUTHORIZED`
-- PR update: `NOT_AUTHORIZED`
+- PR operation: `NOT_AUTHORIZED`
 
 ## Current Progress
 
@@ -37,10 +40,13 @@ PHASE_2_R1_AI_CORE / PR19 / CONTRACT_LANDING / LANDED_WORKTREE / REVIEW_PENDING
   `PR4 full management = DEFERRED / NOT AUTHORIZED IN PR18`.
 - Governance-close commit `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd` was
   pushed to Integration; governance-close CI verification is `ACCEPT / PASSING`.
-- PR19 V10 task contract was landed in the worktree without implementation,
-  migration, test or external operation.
-- Current governance process: `PR19-TASK-CONTRACT-LAND-REVIEW02`.
-- Next Gate: `PR19-TASK-CONTRACT-LAND-REVIEW02`.
+- PR19 V10 task contract landing commit `bc8bc413c6862e0d92247d7e6608dd6e99f505d7`
+  is `LOCAL_COMMITTED / NOT_PUSHED`; no implementation, migration, test or
+  external operation was performed.
+- Repository Persisted Gate: `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`.
+- Repository landing state: `WORKTREE_FIXED / UNCOMMITTED`.
+- Persisted Successor Gate:
+  `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`.
 
 ## Scope Deviation Record
 
@@ -58,11 +64,19 @@ PHASE_2_R1_AI_CORE / PR19 / CONTRACT_LANDING / LANDED_WORKTREE / REVIEW_PENDING
 
 ## Git Permissions
 
-- This Gate modifies only task/governance documentation required to land the
-  accepted V10 contract: tasks/PR19.md, PLANS.md and the three project state
-  files. No implementation file is in scope.
-- Commit, push, PR update, CI operation and deploy are not authorized by this
-  Gate.
+- This Gate modifies only stale current-state text in tasks/PR19.md, PLANS.md
+  and the three project state files. No implementation file is in scope.
+- No additional commit, push, PR operation, CI operation or deploy is
+  authorized by this Gate.
+- **READ_ONLY_GATE_PERSISTENCE_RULE**: `REPOSITORY_PERSISTED_GATE` is the last
+  materialized repository write checkpoint, `PERSISTED_SUCCESSOR_GATE` is its
+  immediate expected orchestration gate, and `GPT_ACTIVE_GATE` is externally
+  controlled. A Read-only Review may consume the successor without mutation;
+  it may remain recorded until a later authorized Write Gate materializes new
+  state. Do not `REQUEST_CHANGES` solely because GPT Active Gate differs from
+  Repository Persisted Gate or has advanced beyond a consumed successor. A
+  successor is inconsistent only if already stale when its checkpoint was
+  produced.
 - Any subsequent write requires a separate explicit gate.
 - DeepSeek: PROHIBITED and not used.
 
@@ -81,8 +95,8 @@ PHASE_2_R1_AI_CORE / PR19 / CONTRACT_LANDING / LANDED_WORKTREE / REVIEW_PENDING
 
 - No PR18 implementation, merge or Integration verification blocker remains.
 - No PR18 governance-close delivery blocker remains.
-- PR19 V10 contract landing correction is awaiting
-  `PR19-TASK-CONTRACT-LAND-REVIEW02`.
+- PR19 V10 repository state semantics are awaiting the recorded Persisted
+  Successor Gate `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`.
 - PR19 implementation remains `NOT_STARTED / NOT_AUTHORIZED`.
 
 ## Resume Instructions
@@ -94,11 +108,13 @@ PHASE_2_R1_AI_CORE / PR19 / CONTRACT_LANDING / LANDED_WORKTREE / REVIEW_PENDING
 2. Treat governance-close delivery as `PUSHED` and verification as
    `ACCEPT / PASSING`; re-read the live Integration ref before any future Git
    action because this snapshot is not a realtime branch-ref mirror.
-3. Review `tasks/PR19.md` at V10 before any implementation gate. Contract
-   landing does not authorize implementation, commit, push or PR update.
+3. Review `tasks/PR19.md` at V10 using the recorded Persisted Successor Gate.
+   The Review may consume it without mutation, and a later GPT Active Gate does
+   not itself make repository state inconsistent. The landing commit does not
+   authorize implementation, an additional commit, push or PR operation.
 4. Do not modify PR4 full Feature Flag management, PR10, real AI or deployment
    automatically.
 
 ## Last Updated
 
-2026-08-19 16:42 +08:00
+2026-08-19 17:25 +08:00

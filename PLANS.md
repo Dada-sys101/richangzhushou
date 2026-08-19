@@ -5,11 +5,14 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前 canonical 任务：`PR19`（Contract `V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE`；implementation `NOT_STARTED / NOT_AUTHORIZED`）
+当前 canonical 任务：`PR19`（Contract `V10 / FROZEN / GPT_ACCEPT`；landing commit `LOCAL_COMMITTED / NOT_PUSHED`；implementation `NOT_STARTED / NOT_AUTHORIZED`）
 PR18 Integration：`7caf892022c9bb6833c7316893bfddeb169b7243`
 Integration CI #264：`SUCCESS`
-PR19 Contract：`tasks/PR19.md`（`PR19-CONTRACT-REVIEW09 = ACCEPT`）
-当前 Gate：`PR19-TASK-CONTRACT-LAND-REVIEW02`
+PR19 Contract：`tasks/PR19.md`（`PR19-CONTRACT-REVIEW09 = ACCEPT`；landing commit `bc8bc413c6862e0d92247d7e6608dd6e99f505d7`）
+Remote Integration：`50f4f936a4ce46ac746f23478a929287d6e17c94`；local `AHEAD 1 / BEHIND 0`
+Repository Persisted Gate：`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`
+Repository landing state：`WORKTREE_FIXED / UNCOMMITTED`
+Persisted Successor Gate：`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`
 
 ## 1. 版本目标与边界
 
@@ -261,10 +264,21 @@ thresholds，经再次人工批准写入 AI ADR，再关闭效果门禁。最终
 - **完成标准**：代码、测试、文档、状态证据齐全并合入 integration。
 - **冻结契约**：`tasks/PR19.md` = `PR19_TASK_CONTRACT_DRAFT_V10`；
   `PR19-CONTRACT-REVIEW09 = ACCEPT`；当前为
-  `V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE`。
-- **当前门禁**：`PR19-TASK-CONTRACT-LAND-REVIEW02`；契约落地不等于
-  implementation started，PR19 implementation、commit、push 和 PR update
-  均保持 `NOT_AUTHORIZED`。
+  `V10 / FROZEN / GPT_ACCEPT`；landing commit `bc8bc413...` is
+  `LOCAL_COMMITTED / NOT_PUSHED`.
+- **Repository Persisted Gate**：`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`；
+  **Repository landing state**：`WORKTREE_FIXED / UNCOMMITTED`；**Persisted
+  Successor Gate**：`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`。契约
+  landing commit 不等于
+  implementation started；PR19 implementation、push 和 PR operation 均保持
+  `NOT_AUTHORIZED`，且不授权额外 commit。
+- **READ_ONLY_GATE_PERSISTENCE_RULE**：`REPOSITORY_PERSISTED_GATE` 是最后一次
+  已物化到治理文件的仓库写入检查点；`PERSISTED_SUCCESSOR_GATE` 是该检查点完成后
+  预期的直接编排 Gate；`GPT_ACTIVE_GATE` 是外部控制的当前编排 Gate。Write Gate
+  必须记录 checkpoint 和 successor；只读 Review 可不修改仓库而消费 successor，且
+  successor 可保留至后续获授权 Write Gate 物化新状态。不得仅因 GPT Active Gate
+  不等于 Persisted Gate、或已越过已消费 successor 而 REQUEST_CHANGES；仅当
+  successor 在其 checkpoint 产生时已过期，才构成不一致。Git 事实仍须精确。
 - **关键冻结边界**：existing `AiRequest.locale/timeZoneId` persistence remains
   unchanged；new persistence is limited to `originalUserInput`,
   `originalInputExpiresAt` and the minimal expiry index；no real Provider,
@@ -402,10 +416,16 @@ nextCanonicalTaskAfterCompletion: PR19
 `9bee2f8fb1401caaeebff96912a21e01e57c655c`，PR #17 已 Squash Merge 到
 Integration，merge SHA 为 `7caf892022c9bb6833c7316893bfddeb169b7243`，
 Integration CI #264 SUCCESS。PR19 依赖已满足，状态为
-`READY / NOT_STARTED`；V10 契约已获得 `PR19-CONTRACT-REVIEW09 = ACCEPT` 并
-落地到 `tasks/PR19.md` 工作树，当前 Gate 为
-`PR19-TASK-CONTRACT-LAND-REVIEW02`。契约落地不授权 implementation、commit、
-push 或 PR update；该门禁不改写 PLANS v2.1.1 冻结依赖图。
+`READY / NOT_STARTED`；V10 契约已获得 `PR19-CONTRACT-REVIEW09 = ACCEPT`，
+landing commit 为 `bc8bc413c6862e0d92247d7e6608dd6e99f505d7`
+(`LOCAL_COMMITTED / NOT_PUSHED`)，remote Integration 为 `50f4f936...`，
+local `AHEAD 1 / BEHIND 0`。Repository Persisted Gate 为
+`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`，Repository landing
+state 为 `WORKTREE_FIXED / UNCOMMITTED`，Persisted Successor Gate 为
+`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`。只读 review 可消费
+该 successor 而不修改仓库；GPT Active Gate 的后续推进本身不构成不一致，也不授权
+implementation、额外 commit、push 或 PR operation；不改写 PLANS v2.1.1 冻结
+依赖图。
 多个任务同时 READY 时仍不得自动并行：先比较 R1 关键路径影响，再遵循明确 next 指针，
 决策阻塞优先于非阻塞工程；仍无法唯一确定时停止并请求人工选择。
 
