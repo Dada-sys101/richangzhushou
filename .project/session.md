@@ -2,7 +2,7 @@
 
 ## Session Status
 
-PHASE_2_R1_AI_CORE / PR18 / GOVERNANCE_SYNC / IN_PROGRESS / DONE_PUSHED
+PHASE_2_R1_AI_CORE / PR18 / GOVERNANCE_CLOSE / DONE / DONE_INTEGRATION
 
 ## Task
 
@@ -10,28 +10,31 @@ PHASE_2_R1_AI_CORE / PR18 / GOVERNANCE_SYNC / IN_PROGRESS / DONE_PUSHED
 - Name: AI Proposal / Operation + Confirmation UI + Fake Provider
 - Phase: Phase 2 / R1 AI Core
 - Canonical task: PR18
-- Execution: `IN_PROGRESS`
-- Delivery: `DONE_PUSHED`
+- Execution: `DONE`
+- Delivery: `DONE_INTEGRATION`
 - Implementation: completed
 - Branch: `codex/v15-pr18-ai-proposal-fake-provider`
-- HEAD: `f574a79cdba289c5a210f6efad9f26b3a45be4df`
-- Base: `codex/v15-integration-foundation@3caa93bbc9127c9fee42da9c440f9db9b37436d3`
-- GitHub PR: `#17`, `OPEN / DRAFT`
+- Source HEAD: `9bee2f8fb1401caaeebff96912a21e01e57c655c`
+- Integration HEAD: `7caf892022c9bb6833c7316893bfddeb169b7243`
+- Worktree: detached HEAD at `7caf892022c9bb6833c7316893bfddeb169b7243`
+- Base: `codex/v15-integration-foundation@7caf892022c9bb6833c7316893bfddeb169b7243`
+- GitHub PR: `#17`, `MERGED / CLOSED` by Squash Merge
 
 ## Current Progress
 
 - H05 dependency audit exception: implemented and Review `ACCEPT`.
 - PR18 source implementation: committed and pushed.
-- CI #261 (`32108381329`): `quality`, `browser-qa` and `db-validation`
-  `SUCCESS`.
-- `PR18-FINAL-ACCEPTANCE-REVIEW01`: `REQUEST_CHANGES`.
+- CI #263 (`32122546919`) and Integration CI #264 (`32204580996`): `quality`,
+  `browser-qa` and `db-validation` `SUCCESS`.
+- `PR18-FINAL-ACCEPTANCE-REVIEW02`: `ACCEPT`; P0/P1/P2 are none.
+- `PR18-READY-FOR-REVIEW`, `PR18-MERGE-ONLY` and
+  `PR18-POST-MERGE-INTEGRATION-VERIFICATION`: `ACCEPT`.
 - `PR18-SCOPE-DEVIATION-DECISION01` and its authorization are complete:
   shared contract `KEEP_AND_AUTHORIZE`; minimal Feature Flag persistence
   `AUTHORIZED`; the remaining full persistence capability is covered by
   `PR4 full management = DEFERRED / NOT AUTHORIZED IN PR18`.
-- Previous gate: `PR18-GOVERNANCE-SYNC-REVIEW02` returned `REQUEST_CHANGES`.
-- Active gate: `PR18-GOVERNANCE-SYNC-FIX02`.
-- Next gate: `PR18-GOVERNANCE-SYNC-REVIEW03`.
+- Current governance process: `PR18-INTEGRATION-GOVERNANCE-CLOSE`.
+- Next canonical Gate: `PR19-SELECTION`.
 
 ## Scope Deviation Record
 
@@ -47,41 +50,44 @@ PHASE_2_R1_AI_CORE / PR18 / GOVERNANCE_SYNC / IN_PROGRESS / DONE_PUSHED
 ## Git Permissions
 
 - This gate modifies only the five exact governance files authorized by the
-  user.
+  user: `tasks/PR18.md`, `.project/context.md`, `.project/session.md`,
+  `.project/v15-execution-state.md` and `PLANS.md`.
 - Staging: NO.
 - Commit: NO.
 - Push: NO.
-- PR update/comment, Ready, merge and deploy: NO.
+- PR metadata update/comment, CI rerun/cancel, deploy and PR19 start: NO.
+- Merge: completed in the separately authorized prior gate; no further merge
+  action is authorized here.
 - DeepSeek: PROHIBITED and not used.
 
 ## Validation
 
-- Preflight branch, HEAD, clean worktree and empty staged set: PASS.
-- `git diff --check`: PASS.
-- `npm run check:context`: PASS.
-- `git diff --name-only`: exactly the five authorized governance files.
+- Source/integration live facts and detached merge-SHA preflight: PASS.
+- Integration CI #264: `SUCCESS` for `quality`, `browser-qa` and
+  `db-validation`.
+- Five-file governance-close validation: `git diff --check`,
+  `npm run check:context` and exact-file scope all `PASS`.
 - No source, test, package, Prisma, migration, OpenAPI, contract or CI
   workflow file was modified in this gate.
 
 ## Blockers
 
-- Final acceptance re-review remains open after the earlier `REQUEST_CHANGES`.
-- PR metadata/body update requires a separate authorization.
-- Ready-for-review and merge require separate authorization.
-- PR18 has not reached `DONE_INTEGRATION`; PR19 remains blocked.
+- No PR18 implementation, merge or Integration verification blocker remains.
+- The five-file governance-close diff still requires separate review, commit
+  and push gates.
+- PR19 is dependency-ready but remains `NOT SELECTED / NOT AUTHORIZED /
+  NOT_STARTED`.
 
 ## Resume Instructions
 
-1. Review the exact five-file governance diff in
-   `PR18-GOVERNANCE-SYNC-REVIEW03`.
-2. Verify live PR #17 Draft status, current HEAD and CI #261 before the next
-   gate.
-3. Use the proposed PR body from this gate only in the separately authorized
-   PR metadata update gate.
-4. Do not mark PR18 Ready, merged, `DONE_INTEGRATION` or deployed.
-5. Do not start PR19, PR4 full Feature Flag persistence, PR10, real AI or
-   deployment automatically.
+1. Review this exact five-file governance-close diff.
+2. After Review `ACCEPT`, use a separate Commit Gate.
+3. After Commit, use a separate Push Gate.
+4. Do not start PR19 because it is merely `READY`; it remains unselected and
+   requires explicit authorization.
+5. Do not modify PR4 full Feature Flag management, PR10, real AI or deployment
+   automatically.
 
 ## Last Updated
 
-2026-08-18 15:37 +08:00
+2026-08-19 09:44 +08:00

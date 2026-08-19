@@ -1,20 +1,20 @@
 # V1.5 Execution State
 
-updatedAt: 2026-08-18T15:37:51+08:00
+updatedAt: 2026-08-19T09:44:17+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 integrationBranch: codex/v15-integration-foundation
-integrationHead: 3caa93bbc9127c9fee42da9c440f9db9b37436d3
+integrationHead: 7caf892022c9bb6833c7316893bfddeb169b7243
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: PR18
-executionStatus: IN_PROGRESS
-deliveryStatus: DONE_PUSHED
-nextCanonicalTask: PR18
+executionStatus: DONE
+deliveryStatus: DONE_INTEGRATION
+nextCanonicalTask: PR19
 nextCanonicalTaskAfterCompletion: PR19
-openPullRequests: [17]
-currentGate: PR18-GOVERNANCE-SYNC-FIX02
-nextGate: PR18-GOVERNANCE-SYNC-REVIEW03
+openPullRequests: []
+currentGate: PR18-INTEGRATION-GOVERNANCE-CLOSE
+nextGate: PR19-SELECTION
 
 ## Active Task
 
@@ -22,17 +22,20 @@ nextGate: PR18-GOVERNANCE-SYNC-REVIEW03
 - displayName: AI Proposal / Operation + Confirmation UI + Fake Provider
 - branch: codex/v15-pr18-ai-proposal-fake-provider
 - baseBranch: codex/v15-integration-foundation
-- baseHead: 3caa93bbc9127c9fee42da9c440f9db9b37436d3
-- executionStatus: IN_PROGRESS
-- deliveryStatus: DONE_PUSHED
-- localWorkingTree: MODIFIED_UNCOMMITTED
-- currentHead: f574a79cdba289c5a210f6efad9f26b3a45be4df
-- pullRequest: PR #17 OPEN / DRAFT
+- baseHead: 7caf892022c9bb6833c7316893bfddeb169b7243
+- executionStatus: DONE
+- deliveryStatus: DONE_INTEGRATION
+- localWorkingTree: MODIFIED_UNCOMMITTED (five governance-close files)
+- sourceHead: 9bee2f8fb1401caaeebff96912a21e01e57c655c
+- integrationHead: 7caf892022c9bb6833c7316893bfddeb169b7243
+- currentHead: 7caf892022c9bb6833c7316893bfddeb169b7243 (detached HEAD)
+- pullRequest: PR #17 MERGED / CLOSED; Squash Merge
+  7caf892022c9bb6833c7316893bfddeb169b7243
 - implementation: completed; source committed and branch pushed
-- allowedScope: this governance sync is limited to the five exact files named in `PR18-GOVERNANCE-SYNC-FIX02`; no source or contract implementation changes
-- forbiddenScope: staging、commit、push、PR update、Ready、merge、deploy、source/test/package/Prisma/migration/OpenAPI/contract/CI workflow changes、PR19、PR4 full Feature Flag persistence、real Provider/network/credentials
-- validation: preflight、git diff --check、check:context and exact five-file scope PASS；CI #261 quality/browser-qa/db-validation SUCCESS
-- remaining: Governance Sync Review03；Final Acceptance re-review；separate PR metadata update；separate Ready authorization；separate merge authorization；PR18 `DONE_INTEGRATION` verification；不得自动启动 PR19、PR4 full persistence、real AI 或 deploy
+- allowedScope: this governance close is limited to the five exact files named in `PR18-INTEGRATION-GOVERNANCE-CLOSE`; no source or contract implementation changes
+- forbiddenScope: staging、commit、push、PR metadata update、PR comment/review、CI rerun/cancel、deploy、source/test/package/Prisma/migration/OpenAPI/contract/CI workflow changes、PR19、PR4 full Feature Flag persistence、real Provider/network/credentials
+- validation: source/integration live facts and CI #263/#264 are PASS；five-file `git diff --check`、`npm run check:context` and exact scope validation are PASS
+- remaining: governance close review；separate governance commit；separate governance push；PR19 `READY / NOT_STARTED / NOT SELECTED` and separate selection authorization；不得自动启动 PR19、PR4 full persistence、real AI 或 deploy
 
 ## Task Ledger
 
@@ -53,8 +56,8 @@ nextGate: PR18-GOVERNANCE-SYNC-REVIEW03
 | PR10/PR11/PR12 | PENDING | NOT_STARTED | R3 | PLANS dependencies | later |
 | PR14/PR15 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
 | PR16/PR17 | PENDING | NOT_STARTED | R1.1 | H6/H8 affect PR17 | later |
-| PR18 | IN_PROGRESS | DONE_PUSHED | R1 | PR2 + PR5 DONE_INTEGRATION | implementation completed；commit/push `f574a79...`；PR #17 DRAFT；CI #261 SUCCESS；scope deviations authorized；await governance/final acceptance/Ready/merge gates |
-| PR19 | BLOCKED | NOT_STARTED | R1 | PR18 + PR6 | wait for PR18 DONE_INTEGRATION and separate selection |
+| PR18 | DONE | DONE_INTEGRATION | R1 | PR2 + PR5 DONE_INTEGRATION | source `9bee2f8...`；PR #17 MERGED/CLOSED；Squash `7caf892...`；CI #263 SUCCESS；Integration CI #264 SUCCESS；Final Acceptance/Integration ACCEPT |
+| PR19 | READY | NOT_STARTED | R1 | PR18 + PR6 | PR18 and PR6 DONE_INTEGRATION; dependency satisfied; NOT SELECTED; separate authorization required |
 | PR20 | BLOCKED | NOT_STARTED | R1 | dev: PR19; validation/merge: H7 | Adapter may be built later; human gate |
 | PR21 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
 | PR22/PR23 | PENDING | NOT_STARTED | R3 | PLANS dependencies + cleanup authorization | later |
@@ -81,10 +84,10 @@ nextGate: PR18-GOVERNANCE-SYNC-REVIEW03
 ## Evidence
 
 - repository: Dada-sys101/richangzhushou
-- completedPRs: #8, #9, #10, #11, #12, #13, #14, #15, #16
+- completedPRs: #8, #9, #10, #11, #12, #13, #14, #15, #16, #17
 - pr12State: MERGED
 - pr12MergeCommit: c4cca65bcd2ba71d93f948bf1c8731179fbb7fad（AI-DECISION-001）
-- integrationHead: 3caa93bbc9127c9fee42da9c440f9db9b37436d3
+- integrationHead: 7caf892022c9bb6833c7316893bfddeb169b7243
 - pr13State: MERGED
 - pr13MergeCommit: 042b2bc9fb8fcb1ed4527888eb7e4489af316673（PR2）
 - pr13CI: 222 SUCCESS
@@ -102,34 +105,41 @@ nextGate: PR18-GOVERNANCE-SYNC-REVIEW03
 - pr9ReconnectRuntime: PASS；CI #234 run ID `31775740446`；browser-qa 24 tests PASS；`V1PlainRepository preserves IndexedDB v1 parity across reload` and `offline task create reconnects once and converges local and server state` PASS on chromium-desktop and chromium-mobile
 - pr9SecurityCorrection: one-time explicitly authorized lockfile-only exception；`nanoid` 3.3.17 -> 3.3.18；commit `91912de05abdf3ef5851b181697476392de79a1e`；CI #233/#234 SUCCESS；audit vulnerabilities 0；does not expand future dependency authorization
 - pr9BranchDeletion: NOT_AUTHORIZED / NOT_DONE
-- pr18Implementation: completed；local commit/head `f574a79cdba289c5a210f6efad9f26b3a45be4df`；branch pushed；PR #17 OPEN / DRAFT
-- pr18CI: CI #261 / run `32108381329` SUCCESS；quality、browser-qa、db-validation all passed
-- pr18FinalAcceptanceReview01: REQUEST_CHANGES
+- pr17State: MERGED / CLOSED；pr17SourceHead: `9bee2f8fb1401caaeebff96912a21e01e57c655c`；pr17MergeCommit: `7caf892022c9bb6833c7316893bfddeb169b7243`
+- pr18Implementation: completed；implementation commit `f574a79...`；source HEAD `9bee2f8...`; branch pushed
+- pr18SourceCI: CI #263 / run `32122546919` SUCCESS
+- pr18IntegrationCI: CI #264 / run `32204580996` SUCCESS；event `push`; head branch `codex/v15-integration-foundation`; head SHA `7caf892...`; quality、browser-qa、db-validation all passed
+- pr18FinalAcceptance: ACCEPT；P0/P1/P2 none
+- pr18Integration: DONE_INTEGRATION
 - pr18ScopeDeviationAuthorization: CONTRACT_CHANGE_REQUIRED -> KEEP_AND_AUTHORIZE；SCHEMA_CHANGE_REQUIRED -> AUTHORIZED MINIMAL SLICE；PR4 full management = DEFERRED / NOT AUTHORIZED IN PR18
 - pr18H05: scoped `deepmerge-ts` / `GHSA-ggr8-5vv4-36mx` exception at `7.1.5` expires `2026-09-01T23:59:00+08:00`；focused tests `32/32` PASS
-- governanceSync: completed `PR18-GOVERNANCE-SYNC-REVIEW02` = REQUEST_CHANGES；current gate `PR18-GOVERNANCE-SYNC-FIX02`；next gate `PR18-GOVERNANCE-SYNC-REVIEW03`
+- governanceSync: current gate `PR18-INTEGRATION-GOVERNANCE-CLOSE`; next canonical gate `PR19-SELECTION`; review/commit/push are separate close-process gates
 - staging: NOT_CREATED
 - production: NOT_DEPLOYED
 
 ## Last Verified
 
-- liveFactsChecked: PR #17 OPEN / DRAFT；head `f574a79cdba289c5a210f6efad9f26b3a45be4df`；base Integration `3caa93bbc9127c9fee42da9c440f9db9b37436d3`；CI #261 SUCCESS
-- localBaseChecked: branch `codex/v15-pr18-ai-proposal-fake-provider` at expected HEAD；preflight worktree CLEAN and staged set EMPTY before this governance sync
-- currentLocalValidation: governance `git diff --check`、`npm run check:context` and exact five-file scope PASS
-- notPerformedThisGate: staging、commit、push、PR update、PR comment、Ready、merge、PR19、PR4 full persistence、real AI、deploy、cloud/staging/production
+- liveFactsChecked: PR #17 MERGED / CLOSED；source `9bee2f8...`; Integration `7caf892...`; CI #263 and Integration CI #264 SUCCESS
+- localBaseChecked: original source branch at expected HEAD; exact Integration merge SHA detached; preflight worktree CLEAN and staged set EMPTY before this governance sync
+- currentLocalValidation: five-file governance-close `git diff --check`、`npm run check:context` and exact scope validation PASS
+- notPerformedThisGate: staging、commit、push、PR metadata update、PR comment/review、CI rerun/cancel、PR19、PR4 full persistence、real AI、deploy、cloud/staging/production
 - snapshotRule: GitHub/Git/CI/environment facts override this snapshot; synchronize only at the next legal governance update point without creating a CI loop
 
 ## Recovery Rules
 
 1. Read `PLANS.md`, then this snapshot; verify GitHub/Git/CI/environment before action.
 2. Obey explicit `nextCanonicalTask` after dependency/gate validation; do not choose a random READY task.
-3. V15-CTRL-001、PR6a、AI-DECISION-001、PR2、PR5、PR6、PR9 均为 `DONE_INTEGRATION`；integration HEAD 为 `3caa93bbc9127c9fee42da9c440f9db9b37436d3`。
-4. PR18 is the only active canonical task and is `IN_PROGRESS / DONE_PUSHED`. The
-   source implementation is complete, committed and pushed; PR #17 remains
-   Draft and has not reached `DONE_INTEGRATION`.
+3. V15-CTRL-001、PR6a、AI-DECISION-001、PR2、PR5、PR6、PR9、PR18 均为
+   `DONE_INTEGRATION`；integration HEAD 为
+   `7caf892022c9bb6833c7316893bfddeb169b7243`。
+4. PR18 is `DONE / DONE_INTEGRATION`. Source HEAD is
+   `9bee2f8fb1401caaeebff96912a21e01e57c655c`; PR #17 is MERGED/CLOSED and
+   Integration CI #264 is SUCCESS.
 5. At most one canonical task may be IN_PROGRESS; do not auto-parallelize.
 6. Human gates may only be closed by a human based on evidence.
-7. This snapshot does not authorize staging, commit, push, PR update, Ready,
-   merge, PR19, PR4 full Feature Flag persistence, PR10, real AI or deploy;
-   each requires a separate gate.
-8. Snapshot/live-fact mismatch is reconciled at the next legal governance update; never create an infinite CI synchronization loop.
+7. This snapshot does not authorize staging, commit, push, PR metadata update,
+   PR19 selection/start, PR4 full Feature Flag persistence, PR10, real AI or
+   deploy; each requires a separate gate. The prior PR18 merge is complete.
+8. PR19 is `READY / NOT_STARTED / NOT SELECTED`; do not automatically start it.
+9. Snapshot/live-fact mismatch is reconciled at the next legal governance update;
+   never create an infinite CI synchronization loop.

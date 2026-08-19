@@ -5,10 +5,10 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前 canonical 任务：`PR18`（`IN_PROGRESS / DONE_PUSHED`）
-当前依赖：`PR2 + PR5 DONE_INTEGRATION`；PR18 source implementation 已完成并
-已 pushed，当前处于治理同步与最终验收阶段。
-PR18 完成后的下一 canonical 工程任务：`PR19`（不构成自动启动授权）
+当前 canonical 任务：`PR18`（`DONE / DONE_INTEGRATION`）
+PR18 Integration：`7caf892022c9bb6833c7316893bfddeb169b7243`
+Integration CI #264：`SUCCESS`
+下一 canonical 工程任务：`PR19`（`READY / NOT_STARTED`；尚未选择/授权启动）
 
 ## 1. 版本目标与边界
 
@@ -383,18 +383,15 @@ AI-DECISION-001 已完成 ADR-027 v1.0 Final Accepted，当前为 `DONE / DONE_I
 
 ```yaml
 currentTask: PR18
-nextCanonicalTask: PR18
+nextCanonicalTask: PR19
 nextCanonicalTaskAfterCompletion: PR19
 ```
 
-当前交付/执行门禁：PR18 是唯一 `nextCanonicalTask`，状态为
-`IN_PROGRESS / DONE_PUSHED`；实现 commit/head 为
-`f574a79cdba289c5a210f6efad9f26b3a45be4df`，PR #17 仍为 `OPEN / DRAFT`，CI
-#261 SUCCESS。Final Acceptance Review01 为 `REQUEST_CHANGES`，两项 scope
-deviation 已分别授权；当前下一 Gate 为
-`PR18-GOVERNANCE-SYNC-REVIEW03`，随后还需最终验收复审、PR metadata 更新、
-Ready 和 merge 的独立授权。
-PR18 达到 `DONE_INTEGRATION` 并重新核验实时事实后，才可在独立授权下选择 PR19。
+当前交付/执行门禁：PR18 已达到 `DONE / DONE_INTEGRATION`；source HEAD 为
+`9bee2f8fb1401caaeebff96912a21e01e57c655c`，PR #17 已 Squash Merge 到
+Integration，merge SHA 为 `7caf892022c9bb6833c7316893bfddeb169b7243`，
+Integration CI #264 SUCCESS。PR19 依赖已满足，状态为
+`READY / NOT_STARTED / NOT SELECTED`；必须经过独立选择授权，不得自动启动。
 该门禁仅同步当前执行指针，不改写 PLANS v2.1.1 冻结依赖图。
 多个任务同时 READY 时仍不得自动并行：先比较 R1 关键路径影响，再遵循明确 next 指针，
 决策阻塞优先于非阻塞工程；仍无法唯一确定时停止并请求人工选择。

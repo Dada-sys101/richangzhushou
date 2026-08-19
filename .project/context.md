@@ -2,23 +2,26 @@
 
 ## Last Updated
 
-2026-08-18 15:37 +08:00: PR18 implementation is complete and pushed at
-`f574a79cdba289c5a210f6efad9f26b3a45be4df`; PR #17 is open/Draft and CI #261
-is successful. The current phase is governance synchronization and final
-acceptance re-review, not Ready or merge.
+2026-08-19 09:44 +08:00: PR18 is complete and integrated. Source HEAD is
+`9bee2f8fb1401caaeebff96912a21e01e57c655c`; PR #17 was squash merged into
+Integration at `7caf892022c9bb6833c7316893bfddeb169b7243`; Integration CI #264
+is successful. PR19 is ready as a dependency-satisfied task but is not selected
+or authorized to start.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `13bfad4d32157166fa6e8f5215ce5f813a1ad67c`
-- Integration: `3caa93bbc9127c9fee42da9c440f9db9b37436d3`
-  (PR #16 / PR9 squash merge; Integration CI #237 SUCCESS)
-- Active branch: `codex/v15-pr18-ai-proposal-fake-provider`
-- Base: `codex/v15-integration-foundation@3caa93bbc9127c9fee42da9c440f9db9b37436d3`
-- Current HEAD: `f574a79cdba289c5a210f6efad9f26b3a45be4df`
-- Remote PR18 branch: pushed; PR #17 is `OPEN / DRAFT`
-- Current worktree: five authorized governance-sync changes, uncommitted and
-  unstaged during `PR18-GOVERNANCE-SYNC-FIX02`
+- Integration: `7caf892022c9bb6833c7316893bfddeb169b7243`
+  (PR #17 Squash Merge; Integration CI #264 SUCCESS)
+- Source branch: `codex/v15-pr18-ai-proposal-fake-provider`
+- Source HEAD: `9bee2f8fb1401caaeebff96912a21e01e57c655c`
+- Active worktree: detached HEAD at
+  `7caf892022c9bb6833c7316893bfddeb169b7243`
+- Base: `codex/v15-integration-foundation@7caf892022c9bb6833c7316893bfddeb169b7243`
+- PR #17: `MERGED / CLOSED`; source branch remains present
+- Current worktree: five authorized governance-close changes, uncommitted and
+  unstaged during `PR18-INTEGRATION-GOVERNANCE-CLOSE`
 - Staging / production: not created / not deployed
 
 ## Project Summary
@@ -31,26 +34,31 @@ task definition; Git/GitHub/CI/environment remain the live facts.
 
 - H05 scoped dependency audit exception: implemented and reviewed `ACCEPT`.
 - PR18 implementation commit: `f574a79cdba289c5a210f6efad9f26b3a45be4df`.
-- PR18 branch: pushed to the existing remote branch.
-- PR #17: `OPEN / DRAFT`.
-- CI #261 (`32108381329`): `quality`, `browser-qa` and `db-validation` SUCCESS.
-- Final Acceptance Review01: `REQUEST_CHANGES`.
+- PR18 source HEAD: `9bee2f8fb1401caaeebff96912a21e01e57c655c`.
+- PR #17: `MERGED / CLOSED` by Squash Merge
+  `7caf892022c9bb6833c7316893bfddeb169b7243`.
+- CI #263 (`32122546919`) and Integration CI #264 (`32204580996`) passed with
+  `quality`, `browser-qa` and `db-validation` SUCCESS.
+- Final Acceptance Review02: `ACCEPT`; P0/P1/P2: none.
+- Ready-for-review, merge and post-merge Integration verification: `ACCEPT`.
 - Scope Deviation Decision01 and Authorization01: completed; both deviations
-  are recorded below.
+  remain recorded below.
 
 ## Current Task
 
 - ID: `PR18`
 - Name: AI Proposal / Operation + Confirmation UI + Fake Provider
 - Phase: Phase 2 / R1 AI Core
-- Status: `IN_PROGRESS / DONE_PUSHED`
+- Status: `DONE / DONE_INTEGRATION`
 - Branch: `codex/v15-pr18-ai-proposal-fake-provider`
-- Base: `3caa93bbc9127c9fee42da9c440f9db9b37436d3`
+- Source HEAD: `9bee2f8fb1401caaeebff96912a21e01e57c655c`
+- Integration merge SHA: `7caf892022c9bb6833c7316893bfddeb169b7243`
+- Base: `7caf892022c9bb6833c7316893bfddeb169b7243`
 - Contract: `tasks/PR18.md`
 - Implementation: completed
-- HEAD: `f574a79cdba289c5a210f6efad9f26b3a45be4df`
-- Current gate: `PR18-GOVERNANCE-SYNC-FIX02`
-- Next gate: `PR18-GOVERNANCE-SYNC-REVIEW03`
+- HEAD: `7caf892022c9bb6833c7316893bfddeb169b7243` (detached worktree)
+- Current gate: `PR18-INTEGRATION-GOVERNANCE-CLOSE`
+- Next canonical task: `PR19-SELECTION`
 
 ## Completed Work
 
@@ -68,19 +76,21 @@ task definition; Git/GitHub/CI/environment remain the live facts.
 
 ## Remaining Work
 
-- Complete `PR18-GOVERNANCE-SYNC-REVIEW03`.
-- Complete `PR18-FINAL-ACCEPTANCE-REVIEW02`.
-- Separately authorize and perform PR #17 metadata/body synchronization.
-- Separately authorize Ready for review.
-- Separately authorize merge, then verify the resulting Integration HEAD.
-- PR19 remains blocked until PR18 reaches `DONE_INTEGRATION` and is separately
-  selected; PR10 remains NOT STARTED.
+- Review, commit and push the five governance-close changes through their
+  separate authorized gates.
+- `PR19-SELECTION` is the next canonical task, but PR19 is `READY /
+  NOT_STARTED`, not selected, and requires separate explicit authorization.
+- PR18 post-merge PR metadata close, if required, remains a separate metadata
+  gate and is not part of this five-file synchronization.
+- PR10 remains `NOT STARTED`.
 
 ## Blockers
 
-- No source implementation blocker remains.
-- PR18 remains blocked on governance/final acceptance/Ready/merge gates.
-- H1/H2/H7 retain their existing R1 blocking semantics; no human gate was changed.
+- No PR18 source, merge or Integration verification blocker remains.
+- PR19 is not blocked by PR18 dependency, but remains unselected and
+  unauthorized to start.
+- H1/H2/H7 retain their existing R1 blocking semantics; no human gate was
+  changed.
 
 ## Known Issues
 
@@ -92,12 +102,14 @@ task definition; Git/GitHub/CI/environment remain the live facts.
 
 ## Verification Status
 
-- Live Integration HEAD: `3caa93bbc9127c9fee42da9c440f9db9b37436d3`.
-- PR #17: `OPEN / DRAFT`, head `f574a79cdba289c5a210f6efad9f26b3a45be4df`.
-- CI #261 (`32108381329`): `quality`, `browser-qa` and `db-validation`
-  SUCCESS.
-- PR18 Final Acceptance Review01: `REQUEST_CHANGES`; scope deviations were
-  separately authorized.
+- Source HEAD: `9bee2f8fb1401caaeebff96912a21e01e57c655c`.
+- PR #17: `MERGED / CLOSED`; Squash Merge
+  `7caf892022c9bb6833c7316893bfddeb169b7243`.
+- Integration HEAD: `7caf892022c9bb6833c7316893bfddeb169b7243`.
+- CI #263 (`32122546919`) and Integration CI #264 (`32204580996`):
+  `quality`, `browser-qa` and `db-validation` SUCCESS.
+- Final Acceptance Review02, Ready-for-review, merge and post-merge
+  Integration verification: `ACCEPT`.
 - Shared AI Operation types, statuses and eight-field whitelist: VERIFIED against
   `packages/api-contracts/src/ai.ts` and `packages/api-contracts/src/enums.ts`.
 - Governance-sync `git diff --check` and `npm run check:context`: PASS after
@@ -107,16 +119,17 @@ task definition; Git/GitHub/CI/environment remain the live facts.
 
 ## Recent Changes
 
-- PR18 implementation, H05 exception, commit, push and CI #261 are complete.
-- Final Acceptance Review01 identified two scope deviations; both are now
-  recorded as separately authorized.
+- PR18 implementation, H05 exception, final acceptance, Ready, Squash Merge
+  and Integration CI #264 are complete.
+- PR18 is now `DONE / DONE_INTEGRATION`.
 - This gate synchronizes only the five governance/task-state files.
 
 ## Next Recommended Task
 
-`PR18-GOVERNANCE-SYNC-REVIEW03`, followed by final acceptance re-review. PR
-metadata update, Ready, merge and Integration verification each require their
-own authorization.
+`PR19-SELECTION`
+
+PR19 is `READY / NOT_STARTED / NOT SELECTED`. Starting PR19 requires a separate
+explicit selection authorization. It must not start automatically.
 
 ## Important Constraints
 
@@ -130,9 +143,11 @@ own authorization.
 ## Handoff Instructions
 
 1. Read `PLANS.md`, this context, execution state, session and `tasks/PR18.md`.
-2. Verify live branch, HEAD, PR #17 Draft status and CI #261 before any gate.
-3. Treat PR18 as `IN_PROGRESS / DONE_PUSHED`; it is not Ready, merged or
-   `DONE_INTEGRATION`.
-4. Complete `PR18-GOVERNANCE-SYNC-REVIEW03` before any PR metadata update.
-5. Do not stage, commit, push, update PR, Ready, merge, deploy or start PR19
-   without a separate explicit authorization.
+2. Treat PR18 as `DONE / DONE_INTEGRATION` with Integration HEAD
+   `7caf892022c9bb6833c7316893bfddeb169b7243`.
+3. Review the exact five-file governance-close diff before its separate commit
+   and push gates.
+4. Treat PR19 as `READY / NOT_STARTED / NOT SELECTED`; do not start it without
+   separate explicit selection authorization.
+5. Keep Deploy `NOT AUTHORIZED`, H1/H2/H7 semantics unchanged, and do not
+   modify PR4 full management scope.
