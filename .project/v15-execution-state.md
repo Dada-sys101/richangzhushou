@@ -1,43 +1,45 @@
 # V1.5 Execution State
 
-updatedAt: 2026-08-19T10:11:37+08:00
+updatedAt: 2026-08-19T16:42:16+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd
+integrationHead: 50f4f936a4ce46ac746f23478a929287d6e17c94
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: PR18
-executionStatus: DONE
-deliveryStatus: DONE_INTEGRATION
+currentTask: PR19
+executionStatus: READY
+deliveryStatus: NOT_STARTED
+currentWork: PR19 Contract landing correction
 nextCanonicalTask: PR19
 nextCanonicalTaskAfterCompletion: PR19
 openPullRequests: []
-currentGate: PR18-INTEGRATION-GOVERNANCE-CLOSE
-nextGate: PR19-SELECTION
+currentGate: PR19-TASK-CONTRACT-LAND-REVIEW02
+nextGate: PR19-TASK-CONTRACT-LAND-REVIEW02
 
 ## Active Task
 
-- id: PR18
-- displayName: AI Proposal / Operation + Confirmation UI + Fake Provider
-- branch: codex/v15-pr18-ai-proposal-fake-provider
+- id: PR19
+- displayName: AI Router、Stub 与安全降级
+- branch: documentation landing on detached baseline checkout; no branch operation authorized
 - baseBranch: codex/v15-integration-foundation
-- baseHead: 7caf892022c9bb6833c7316893bfddeb169b7243
-- executionStatus: DONE
-- deliveryStatus: DONE_INTEGRATION
-- sourceHead: 9bee2f8fb1401caaeebff96912a21e01e57c655c
-- governanceCloseAnchor: f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd
-- pullRequest: PR #17 MERGED / CLOSED; Squash Merge
-  7caf892022c9bb6833c7316893bfddeb169b7243
-- implementation: completed; source committed and branch pushed
-- governanceCloseCommit: f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd
-- governanceCloseDelivery: PUSHED / VERIFIED
-- governanceCloseCiVerification: ACCEPT / PASSING
-- allowedScope: canonical governance state is limited to `.project/context.md`, `.project/session.md` and `.project/v15-execution-state.md`; no source or contract implementation changes
-- forbiddenScope: staging、commit、push、PR metadata update、PR comment/review、CI rerun/cancel、deploy、source/test/package/Prisma/migration/OpenAPI/contract/CI workflow changes、PR19、PR4 full Feature Flag persistence、real Provider/network/credentials
-- validation: source/integration live facts and CI #263/#264 are PASS；governance-close delivery and last verified Integration status are ACCEPT / PASSING
-- remaining: PR19 `READY / NOT_STARTED / NOT SELECTED` and separate selection authorization；不得自动启动 PR19、PR4 full persistence、real AI 或 deploy
+- baseHead: 50f4f936a4ce46ac746f23478a929287d6e17c94
+- executionStatus: READY
+- deliveryStatus: NOT_STARTED
+- contract: tasks/PR19.md
+- contractVersion: V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE
+- contractReview: PR19-CONTRACT-REVIEW09 = ACCEPT
+- implementation: NOT_STARTED / NOT_AUTHORIZED
+- currentWork: PR19 Contract landing correction
+- currentGate: PR19-TASK-CONTRACT-LAND-REVIEW02
+- commit: NOT_AUTHORIZED
+- push: NOT_AUTHORIZED
+- prUpdate: NOT_AUTHORIZED
+- allowedScope: tasks/PR19.md plus the existing governance state carriers required to record V10 landing; no implementation changes
+- forbiddenScope: source/test/package/Prisma/migration/OpenAPI/contract/CI workflow/Web changes、commit、push、PR update、CI operation、PR20、H7 closure、real Provider/network/credentials、deploy
+- validation: preflight local/remote HEAD match, clean worktree and empty staging; post-landing check:context and diff-check required
+- remaining: PR19-TASK-CONTRACT-LAND-REVIEW02; implementation remains NOT_AUTHORIZED
 
 ## Task Ledger
 
@@ -59,11 +61,11 @@ nextGate: PR19-SELECTION
 | PR14/PR15 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
 | PR16/PR17 | PENDING | NOT_STARTED | R1.1 | H6/H8 affect PR17 | later |
 | PR18 | DONE | DONE_INTEGRATION | R1 | PR2 + PR5 DONE_INTEGRATION | source `9bee2f8...`；PR #17 MERGED/CLOSED；Squash `7caf892...`；CI #263 SUCCESS；Integration CI #264 SUCCESS；governance-close `f90f4ea...` PUSHED；Final Acceptance/Integration ACCEPT |
-| PR19 | READY | NOT_STARTED | R1 | PR18 + PR6 | PR18 and PR6 DONE_INTEGRATION; dependency satisfied; NOT SELECTED; separate authorization required |
+| PR19 | READY | NOT_STARTED | R1 | PR18 + PR6 | V10 contract frozen/accepted and LANDED_WORKTREE at tasks/PR19.md; current work is contract landing correction; current/next gate PR19-TASK-CONTRACT-LAND-REVIEW02; implementation NOT_AUTHORIZED |
 | PR20 | BLOCKED | NOT_STARTED | R1 | dev: PR19; validation/merge: H7 | Adapter may be built later; human gate |
 | PR21 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
 | PR22/PR23 | PENDING | NOT_STARTED | R3 | PLANS dependencies + cleanup authorization | later |
-| REL-01 | READY | NOT_STARTED | R1 | V15-CTRL-001 satisfied | design only; no resources; not selected; PR18 is the current canonical task |
+| REL-01 | READY | NOT_STARTED | R1 | V15-CTRL-001 satisfied | design only; no resources; not selected; PR19 is the current canonical task |
 | REL-02 | BLOCKED | NOT_STARTED | R1 | REL-01 + R1 Quality Gate + authorization | no resources yet |
 | REL-03/REL-04 | BLOCKED | NOT_STARTED | R1 | REL-02 and PLANS gates | no staging |
 | REL-05 | BLOCKED | NOT_STARTED | R1 | REL-04 | no pilot |
@@ -115,15 +117,17 @@ nextGate: PR19-SELECTION
 - pr18Integration: DONE_INTEGRATION
 - pr18ScopeDeviationAuthorization: CONTRACT_CHANGE_REQUIRED -> KEEP_AND_AUTHORIZE；SCHEMA_CHANGE_REQUIRED -> AUTHORIZED MINIMAL SLICE；PR4 full management = DEFERRED / NOT AUTHORIZED IN PR18
 - pr18H05: scoped `deepmerge-ts` / `GHSA-ggr8-5vv4-36mx` exception at `7.1.5` expires `2026-09-01T23:59:00+08:00`；focused tests `32/32` PASS
-- governanceSync: current gate `PR18-INTEGRATION-GOVERNANCE-CLOSE`; governance-close commit `f90f4ea...` is PUSHED; verification is ACCEPT / PASSING; next canonical gate `PR19-SELECTION`
+- governanceSync (historical): PR18 governance-close commit `f90f4ea...` is PUSHED; verification is ACCEPT / PASSING; it is not the current or next active gate
+- pr19Contract: `PR19_TASK_CONTRACT_DRAFT_V10`; `PR19-CONTRACT-REVIEW09 = ACCEPT`; `V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE`; implementation NOT_STARTED / NOT_AUTHORIZED
+- pr19ContractLanding: local documentation-only landing correction in worktree; current/next gate `PR19-TASK-CONTRACT-LAND-REVIEW02`; implementation/commit/push/PR update NOT_AUTHORIZED
 - staging: NOT_CREATED
 - production: NOT_DEPLOYED
 
 ## Last Verified
 
 - liveFactsChecked: PR #17 MERGED / CLOSED；source `9bee2f8...`; functional Integration merge `7caf892...`; last verified governance-close anchor `f90f4ea...`; CI #263 and Integration CI #264 SUCCESS；last verified Integration status badge PASSING
-- localBaseChecked: governance-close commit `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd` verified at the Integration ref; checkout CLEAN and staged set EMPTY at last governance verification
-- currentLocalValidation: canonical governance-state `git diff --check`、`npm run check:context` and exact scope validation PASS
+- localBaseChecked: Integration ref `50f4f936a4ce46ac746f23478a929287d6e17c94` verified; checkout CLEAN and staged set EMPTY before V10 landing
+- currentLocalValidation: preflight HEAD/remote match PASS; post-landing `git diff --check` and `npm run check:context` required before review
 - snapshotRule: GitHub/Git/CI/environment facts override this snapshot; synchronize only at the next legal governance update point without creating a CI loop
 
 ## Recovery Rules
@@ -140,9 +144,10 @@ nextGate: PR19-SELECTION
    Integration CI #264 is SUCCESS.
 5. At most one canonical task may be IN_PROGRESS; do not auto-parallelize.
 6. Human gates may only be closed by a human based on evidence.
-7. This snapshot does not authorize staging, commit, push, PR metadata update,
-   PR19 selection/start, PR4 full Feature Flag persistence, PR10, real AI or
-   deploy; each requires a separate gate. The prior PR18 merge is complete.
-8. PR19 is `READY / NOT_STARTED / NOT SELECTED`; do not automatically start it.
+7. This snapshot does not authorize commit, push, PR metadata update, PR19
+   implementation, PR4 full Feature Flag persistence, PR10, real AI or deploy;
+   each requires a separate gate. The prior PR18 merge is complete.
+8. PR19 contract is `V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE`, but PR19
+   implementation remains `NOT_STARTED / NOT_AUTHORIZED`; do not start it.
 9. Snapshot/live-fact mismatch is reconciled at the next legal governance update;
    never create an infinite CI synchronization loop.

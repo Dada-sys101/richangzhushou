@@ -5,10 +5,11 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前 canonical 任务：`PR18`（`DONE / DONE_INTEGRATION`）
+当前 canonical 任务：`PR19`（Contract `V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE`；implementation `NOT_STARTED / NOT_AUTHORIZED`）
 PR18 Integration：`7caf892022c9bb6833c7316893bfddeb169b7243`
 Integration CI #264：`SUCCESS`
-下一 canonical 工程任务：`PR19`（`READY / NOT_STARTED`；尚未选择/授权启动）
+PR19 Contract：`tasks/PR19.md`（`PR19-CONTRACT-REVIEW09 = ACCEPT`）
+当前 Gate：`PR19-TASK-CONTRACT-LAND-REVIEW02`
 
 ## 1. 版本目标与边界
 
@@ -258,6 +259,16 @@ thresholds，经再次人工批准写入 AI ADR，再关闭效果门禁。最终
 - **禁止项**：真实凭据、真实调用、默认启用、绕过 Proposal/确认链。
 - **步骤/验证**：成功、超时、格式错误、熔断、降级、输入恢复、预算拒绝场景；敏感日志检查。
 - **完成标准**：代码、测试、文档、状态证据齐全并合入 integration。
+- **冻结契约**：`tasks/PR19.md` = `PR19_TASK_CONTRACT_DRAFT_V10`；
+  `PR19-CONTRACT-REVIEW09 = ACCEPT`；当前为
+  `V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE`。
+- **当前门禁**：`PR19-TASK-CONTRACT-LAND-REVIEW02`；契约落地不等于
+  implementation started，PR19 implementation、commit、push 和 PR update
+  均保持 `NOT_AUTHORIZED`。
+- **关键冻结边界**：existing `AiRequest.locale/timeZoneId` persistence remains
+  unchanged；new persistence is limited to `originalUserInput`,
+  `originalInputExpiresAt` and the minimal expiry index；no real Provider,
+  credentials, PR20, H7 closure or deploy.
 
 ### PR20 — 真实 AI Provider Adapter
 
@@ -382,7 +393,7 @@ AI-DECISION-001 已完成 ADR-027 v1.0 Final Accepted，当前为 `DONE / DONE_I
 8. R3。
 
 ```yaml
-currentTask: PR18
+currentTask: PR19
 nextCanonicalTask: PR19
 nextCanonicalTaskAfterCompletion: PR19
 ```
@@ -391,8 +402,10 @@ nextCanonicalTaskAfterCompletion: PR19
 `9bee2f8fb1401caaeebff96912a21e01e57c655c`，PR #17 已 Squash Merge 到
 Integration，merge SHA 为 `7caf892022c9bb6833c7316893bfddeb169b7243`，
 Integration CI #264 SUCCESS。PR19 依赖已满足，状态为
-`READY / NOT_STARTED / NOT SELECTED`；必须经过独立选择授权，不得自动启动。
-该门禁仅同步当前执行指针，不改写 PLANS v2.1.1 冻结依赖图。
+`READY / NOT_STARTED`；V10 契约已获得 `PR19-CONTRACT-REVIEW09 = ACCEPT` 并
+落地到 `tasks/PR19.md` 工作树，当前 Gate 为
+`PR19-TASK-CONTRACT-LAND-REVIEW02`。契约落地不授权 implementation、commit、
+push 或 PR update；该门禁不改写 PLANS v2.1.1 冻结依赖图。
 多个任务同时 READY 时仍不得自动并行：先比较 R1 关键路径影响，再遵循明确 next 指针，
 决策阻塞优先于非阻塞工程；仍无法唯一确定时停止并请求人工选择。
 

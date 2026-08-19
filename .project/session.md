@@ -2,23 +2,25 @@
 
 ## Session Status
 
-PHASE_2_R1_AI_CORE / PR18 / GOVERNANCE_CLOSE / DONE / DONE_INTEGRATION
+PHASE_2_R1_AI_CORE / PR19 / CONTRACT_LANDING / LANDED_WORKTREE / REVIEW_PENDING
 
 ## Task
 
-- ID: `PR18`
-- Name: AI Proposal / Operation + Confirmation UI + Fake Provider
+- ID: `PR19`
+- Name: AI Router、Stub 与安全降级
 - Phase: Phase 2 / R1 AI Core
-- Canonical task: PR18
-- Execution: `DONE`
-- Delivery: `DONE_INTEGRATION`
-- Implementation: completed
-- Branch: `codex/v15-pr18-ai-proposal-fake-provider`
-- Source HEAD: `9bee2f8fb1401caaeebff96912a21e01e57c655c`
-- Governance-close anchor: `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd`
-  (`PUSHED`; last verified Integration status badge `PASSING`)
-- Base: `codex/v15-integration-foundation@7caf892022c9bb6833c7316893bfddeb169b7243`
-- GitHub PR: `#17`, `MERGED / CLOSED` by Squash Merge
+- Canonical task: PR19
+- Execution: `READY`
+- Delivery: `NOT_STARTED`
+- Implementation: `NOT_STARTED / NOT_AUTHORIZED`
+- Contract: `tasks/PR19.md`
+- Contract version: `V10 / FROZEN / GPT_ACCEPT / LANDED_WORKTREE`
+- Contract review: `PR19-CONTRACT-REVIEW09 = ACCEPT`
+- Current checkout: detached at `50f4f936a4ce46ac746f23478a929287d6e17c94`
+- Current Gate: `PR19-TASK-CONTRACT-LAND-REVIEW02`
+- Commit: `NOT_AUTHORIZED`
+- Push: `NOT_AUTHORIZED`
+- PR update: `NOT_AUTHORIZED`
 
 ## Current Progress
 
@@ -35,8 +37,10 @@ PHASE_2_R1_AI_CORE / PR18 / GOVERNANCE_CLOSE / DONE / DONE_INTEGRATION
   `PR4 full management = DEFERRED / NOT AUTHORIZED IN PR18`.
 - Governance-close commit `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd` was
   pushed to Integration; governance-close CI verification is `ACCEPT / PASSING`.
-- Current governance process: `PR18-INTEGRATION-GOVERNANCE-CLOSE`.
-- Next canonical Gate: `PR19-SELECTION`.
+- PR19 V10 task contract was landed in the worktree without implementation,
+  migration, test or external operation.
+- Current governance process: `PR19-TASK-CONTRACT-LAND-REVIEW02`.
+- Next Gate: `PR19-TASK-CONTRACT-LAND-REVIEW02`.
 
 ## Scope Deviation Record
 
@@ -48,14 +52,17 @@ PHASE_2_R1_AI_CORE / PR18 / GOVERNANCE_CLOSE / DONE / DONE_INTEGRATION
 - Admin Feature Flag API/UI, AdminAudit writes, version/update metadata and the
   remaining full persistence capability are `DEFERRED / NOT AUTHORIZED IN PR18`
   and remain PR4 responsibility.
+- PR19 V10 authorizes only originalUserInput, originalInputExpiresAt and the
+  minimal expiry index as new persistence; existing locale/timeZoneId fields
+  remain unchanged.
 
 ## Git Permissions
 
-- This governance fix modifies only the three exact state files authorized by
-  the user: `.project/context.md`, `.project/session.md` and
-  `.project/v15-execution-state.md`; `PLANS.md` and `tasks/PR18.md` are not in
-  scope.
-- No future Git/PR/deploy action is authorized by this repository snapshot.
+- This Gate modifies only task/governance documentation required to land the
+  accepted V10 contract: tasks/PR19.md, PLANS.md and the three project state
+  files. No implementation file is in scope.
+- Commit, push, PR update, CI operation and deploy are not authorized by this
+  Gate.
 - Any subsequent write requires a separate explicit gate.
 - DeepSeek: PROHIBITED and not used.
 
@@ -67,15 +74,16 @@ PHASE_2_R1_AI_CORE / PR18 / GOVERNANCE_CLOSE / DONE / DONE_INTEGRATION
 - Governance-close delivery and last verified Integration status are
   `PUSHED / ACCEPT / PASSING`; the repository snapshot records stable state
   markers only.
-- No source, test, package, Prisma, migration, OpenAPI, contract or CI
-  workflow file is part of this governance state scope.
+- V10 landing is documentation-only; no source, test, package, Prisma,
+  migration, OpenAPI implementation or CI workflow file was changed.
 
 ## Blockers
 
 - No PR18 implementation, merge or Integration verification blocker remains.
 - No PR18 governance-close delivery blocker remains.
-- PR19 is dependency-ready but remains `READY / NOT SELECTED / NOT AUTHORIZED /
-  NOT_STARTED`.
+- PR19 V10 contract landing correction is awaiting
+  `PR19-TASK-CONTRACT-LAND-REVIEW02`.
+- PR19 implementation remains `NOT_STARTED / NOT_AUTHORIZED`.
 
 ## Resume Instructions
 
@@ -86,11 +94,11 @@ PHASE_2_R1_AI_CORE / PR18 / GOVERNANCE_CLOSE / DONE / DONE_INTEGRATION
 2. Treat governance-close delivery as `PUSHED` and verification as
    `ACCEPT / PASSING`; re-read the live Integration ref before any future Git
    action because this snapshot is not a realtime branch-ref mirror.
-3. Proceed to `PR19-SELECTION` only after separate explicit selection
-   authorization; do not start PR19 automatically.
+3. Review `tasks/PR19.md` at V10 before any implementation gate. Contract
+   landing does not authorize implementation, commit, push or PR update.
 4. Do not modify PR4 full Feature Flag management, PR10, real AI or deployment
    automatically.
 
 ## Last Updated
 
-2026-08-19 10:11 +08:00
+2026-08-19 16:42 +08:00
