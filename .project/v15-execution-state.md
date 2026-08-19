@@ -1,10 +1,11 @@
 # V1.5 Execution State
 
-updatedAt: 2026-08-19T09:44:17+08:00
+updatedAt: 2026-08-19T10:11:37+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 integrationBranch: codex/v15-integration-foundation
-integrationHead: 7caf892022c9bb6833c7316893bfddeb169b7243
+# integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
+integrationHead: f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: PR18
@@ -25,17 +26,18 @@ nextGate: PR19-SELECTION
 - baseHead: 7caf892022c9bb6833c7316893bfddeb169b7243
 - executionStatus: DONE
 - deliveryStatus: DONE_INTEGRATION
-- localWorkingTree: MODIFIED_UNCOMMITTED (five governance-close files)
 - sourceHead: 9bee2f8fb1401caaeebff96912a21e01e57c655c
-- integrationHead: 7caf892022c9bb6833c7316893bfddeb169b7243
-- currentHead: 7caf892022c9bb6833c7316893bfddeb169b7243 (detached HEAD)
+- governanceCloseAnchor: f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd
 - pullRequest: PR #17 MERGED / CLOSED; Squash Merge
   7caf892022c9bb6833c7316893bfddeb169b7243
 - implementation: completed; source committed and branch pushed
-- allowedScope: this governance close is limited to the five exact files named in `PR18-INTEGRATION-GOVERNANCE-CLOSE`; no source or contract implementation changes
+- governanceCloseCommit: f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd
+- governanceCloseDelivery: PUSHED / VERIFIED
+- governanceCloseCiVerification: ACCEPT / PASSING
+- allowedScope: canonical governance state is limited to `.project/context.md`, `.project/session.md` and `.project/v15-execution-state.md`; no source or contract implementation changes
 - forbiddenScope: staging、commit、push、PR metadata update、PR comment/review、CI rerun/cancel、deploy、source/test/package/Prisma/migration/OpenAPI/contract/CI workflow changes、PR19、PR4 full Feature Flag persistence、real Provider/network/credentials
-- validation: source/integration live facts and CI #263/#264 are PASS；five-file `git diff --check`、`npm run check:context` and exact scope validation are PASS
-- remaining: governance close review；separate governance commit；separate governance push；PR19 `READY / NOT_STARTED / NOT SELECTED` and separate selection authorization；不得自动启动 PR19、PR4 full persistence、real AI 或 deploy
+- validation: source/integration live facts and CI #263/#264 are PASS；governance-close delivery and last verified Integration status are ACCEPT / PASSING
+- remaining: PR19 `READY / NOT_STARTED / NOT SELECTED` and separate selection authorization；不得自动启动 PR19、PR4 full persistence、real AI 或 deploy
 
 ## Task Ledger
 
@@ -56,7 +58,7 @@ nextGate: PR19-SELECTION
 | PR10/PR11/PR12 | PENDING | NOT_STARTED | R3 | PLANS dependencies | later |
 | PR14/PR15 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
 | PR16/PR17 | PENDING | NOT_STARTED | R1.1 | H6/H8 affect PR17 | later |
-| PR18 | DONE | DONE_INTEGRATION | R1 | PR2 + PR5 DONE_INTEGRATION | source `9bee2f8...`；PR #17 MERGED/CLOSED；Squash `7caf892...`；CI #263 SUCCESS；Integration CI #264 SUCCESS；Final Acceptance/Integration ACCEPT |
+| PR18 | DONE | DONE_INTEGRATION | R1 | PR2 + PR5 DONE_INTEGRATION | source `9bee2f8...`；PR #17 MERGED/CLOSED；Squash `7caf892...`；CI #263 SUCCESS；Integration CI #264 SUCCESS；governance-close `f90f4ea...` PUSHED；Final Acceptance/Integration ACCEPT |
 | PR19 | READY | NOT_STARTED | R1 | PR18 + PR6 | PR18 and PR6 DONE_INTEGRATION; dependency satisfied; NOT SELECTED; separate authorization required |
 | PR20 | BLOCKED | NOT_STARTED | R1 | dev: PR19; validation/merge: H7 | Adapter may be built later; human gate |
 | PR21 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
@@ -87,7 +89,7 @@ nextGate: PR19-SELECTION
 - completedPRs: #8, #9, #10, #11, #12, #13, #14, #15, #16, #17
 - pr12State: MERGED
 - pr12MergeCommit: c4cca65bcd2ba71d93f948bf1c8731179fbb7fad（AI-DECISION-001）
-- integrationHead: 7caf892022c9bb6833c7316893bfddeb169b7243
+- pr18GovernanceCloseAnchor: f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd
 - pr13State: MERGED
 - pr13MergeCommit: 042b2bc9fb8fcb1ed4527888eb7e4489af316673（PR2）
 - pr13CI: 222 SUCCESS
@@ -113,16 +115,15 @@ nextGate: PR19-SELECTION
 - pr18Integration: DONE_INTEGRATION
 - pr18ScopeDeviationAuthorization: CONTRACT_CHANGE_REQUIRED -> KEEP_AND_AUTHORIZE；SCHEMA_CHANGE_REQUIRED -> AUTHORIZED MINIMAL SLICE；PR4 full management = DEFERRED / NOT AUTHORIZED IN PR18
 - pr18H05: scoped `deepmerge-ts` / `GHSA-ggr8-5vv4-36mx` exception at `7.1.5` expires `2026-09-01T23:59:00+08:00`；focused tests `32/32` PASS
-- governanceSync: current gate `PR18-INTEGRATION-GOVERNANCE-CLOSE`; next canonical gate `PR19-SELECTION`; review/commit/push are separate close-process gates
+- governanceSync: current gate `PR18-INTEGRATION-GOVERNANCE-CLOSE`; governance-close commit `f90f4ea...` is PUSHED; verification is ACCEPT / PASSING; next canonical gate `PR19-SELECTION`
 - staging: NOT_CREATED
 - production: NOT_DEPLOYED
 
 ## Last Verified
 
-- liveFactsChecked: PR #17 MERGED / CLOSED；source `9bee2f8...`; Integration `7caf892...`; CI #263 and Integration CI #264 SUCCESS
-- localBaseChecked: original source branch at expected HEAD; exact Integration merge SHA detached; preflight worktree CLEAN and staged set EMPTY before this governance sync
-- currentLocalValidation: five-file governance-close `git diff --check`、`npm run check:context` and exact scope validation PASS
-- notPerformedThisGate: staging、commit、push、PR metadata update、PR comment/review、CI rerun/cancel、PR19、PR4 full persistence、real AI、deploy、cloud/staging/production
+- liveFactsChecked: PR #17 MERGED / CLOSED；source `9bee2f8...`; functional Integration merge `7caf892...`; last verified governance-close anchor `f90f4ea...`; CI #263 and Integration CI #264 SUCCESS；last verified Integration status badge PASSING
+- localBaseChecked: governance-close commit `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd` verified at the Integration ref; checkout CLEAN and staged set EMPTY at last governance verification
+- currentLocalValidation: canonical governance-state `git diff --check`、`npm run check:context` and exact scope validation PASS
 - snapshotRule: GitHub/Git/CI/environment facts override this snapshot; synchronize only at the next legal governance update point without creating a CI loop
 
 ## Recovery Rules
@@ -130,8 +131,10 @@ nextGate: PR19-SELECTION
 1. Read `PLANS.md`, then this snapshot; verify GitHub/Git/CI/environment before action.
 2. Obey explicit `nextCanonicalTask` after dependency/gate validation; do not choose a random READY task.
 3. V15-CTRL-001、PR6a、AI-DECISION-001、PR2、PR5、PR6、PR9、PR18 均为
-   `DONE_INTEGRATION`；integration HEAD 为
-   `7caf892022c9bb6833c7316893bfddeb169b7243`。
+   `DONE_INTEGRATION`；PR18 functional merge SHA 为
+   `7caf892022c9bb6833c7316893bfddeb169b7243`；PR18 governance-close anchor
+   为 `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd`。Live Integration ref must be
+   re-read from Git/GitHub before any write action.
 4. PR18 is `DONE / DONE_INTEGRATION`. Source HEAD is
    `9bee2f8fb1401caaeebff96912a21e01e57c655c`; PR #17 is MERGED/CLOSED and
    Integration CI #264 is SUCCESS.
