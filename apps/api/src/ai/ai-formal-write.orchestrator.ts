@@ -58,33 +58,11 @@ export class AiFormalWriteOrchestrator {
     fields: Record<string, unknown>,
     clientMutationId: string,
   ): Promise<PreparedFormalWrite> {
-    if (!isRecord(fields)) {
-      throw validationError("AI operation fields must be an object");
-    }
-    if (hasOwn(fields, "clientMutationId")) {
-      throw validationError("clientMutationId is server-owned");
-    }
-
-    const sanitized = { ...fields };
-    if (operationType === "TRANSACTION") {
-      if (hasOwn(fields, "sourceFingerprint")) {
-        throw validationError("sourceFingerprint is server-owned");
-      }
-      if (hasOwn(fields, "source") && fields.source !== "TEXT") {
-        throw validationError("AI transactions must use the TEXT source");
-      }
-      // H01 already persists source=TEXT in its provider fixture. The value
-      // is accepted for compatibility, removed, and replaced below by the
-      // server-owned value rather than passed through from the provider.
-      delete sanitized.source;
-      delete sanitized.sourceFingerprint;
-      sanitized.source = "TEXT";
-    }
-
-    const dto = await this.validateDto(operationType, {
-      ...sanitized,
+    const dto = await validateAiOperationFields(
+      operationType,
+      fields,
       clientMutationId,
-    });
+    );
     return { dto, operationType };
   }
 
@@ -178,25 +156,48 @@ export class AiFormalWriteOrchestrator {
         throw validationError("Unsupported AI operation type");
     }
   }
+}
 
-  private async validateDto(
-    operationType: AiOperationType,
-    raw: Record<string, unknown>,
-  ): Promise<FormalCreateDto> {
-    const Dto = dtoForOperation(
-      operationType,
-    ) as ClassConstructor<FormalCreateDto>;
-    const dto = plainToInstance(Dto, raw);
-    const errors = await validate(dto, {
-      forbidNonWhitelisted: true,
-      forbidUnknownValues: true,
-      whitelist: true,
-    });
-    if (errors.length > 0) {
-      throw validationError("AI operation fields failed domain validation");
-    }
-    return dto as FormalCreateDto;
+/** Shared, side-effect-free validation used both before Proposal persistence
+ * and immediately before the final-confirm business-write boundary. */
+export async function validateAiOperationFields(
+  operationType: AiOperationType,
+  fields: Record<string, unknown>,
+  clientMutationId: string,
+): Promise<FormalCreateDto> {
+  if (!isRecord(fields)) {
+    throw validationError("AI operation fields must be an object");
   }
+  if (hasOwn(fields, "clientMutationId")) {
+    throw validationError("clientMutationId is server-owned");
+  }
+
+  const sanitized = { ...fields };
+  if (operationType === "TRANSACTION") {
+    if (hasOwn(fields, "sourceFingerprint")) {
+      throw validationError("sourceFingerprint is server-owned");
+    }
+    if (hasOwn(fields, "source") && fields.source !== "TEXT") {
+      throw validationError("AI transactions must use the TEXT source");
+    }
+    delete sanitized.source;
+    delete sanitized.sourceFingerprint;
+    sanitized.source = "TEXT";
+  }
+
+  const Dto = dtoForOperation(
+    operationType,
+  ) as ClassConstructor<FormalCreateDto>;
+  const dto = plainToInstance(Dto, { ...sanitized, clientMutationId });
+  const errors = await validate(dto, {
+    forbidNonWhitelisted: true,
+    forbidUnknownValues: true,
+    whitelist: true,
+  });
+  if (errors.length > 0) {
+    throw validationError("AI operation fields failed domain validation");
+  }
+  return dto as FormalCreateDto;
 }
 
 function dtoForOperation(

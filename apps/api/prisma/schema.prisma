@@ -600,26 +600,29 @@ model ReminderRecurrenceException {
 }
 
 model AiRequest {
-  id               String              @id @default(cuid())
-  userId           String              @map("user_id")
-  requestId        String              @map("request_id") @db.VarChar(100)
-  idempotencyKey   String              @unique @map("idempotency_key") @db.VarChar(200)
-  inputFingerprint String              @map("input_fingerprint") @db.Char(64)
-  locale           String              @db.VarChar(20)
-  timeZoneId       String              @map("time_zone_id") @db.VarChar(64)
-  status           AiRequestStatus
-  proposalId       String?             @map("proposal_id")
-  failureCategory  String?             @map("failure_category") @db.VarChar(50)
-  failureCode      String?             @map("failure_code") @db.VarChar(100)
-  startedAt        DateTime?           @map("started_at")
-  completedAt      DateTime?           @map("completed_at")
-  createdAt        DateTime            @default(now()) @map("created_at")
-  updatedAt        DateTime            @updatedAt @map("updated_at")
-  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  aiProposal       AiProposal?
-  providerAttempts AiProviderAttempt[]
+  id                     String              @id @default(cuid())
+  userId                 String              @map("user_id")
+  requestId              String              @map("request_id") @db.VarChar(100)
+  idempotencyKey         String              @unique @map("idempotency_key") @db.VarChar(200)
+  inputFingerprint       String              @map("input_fingerprint") @db.Char(64)
+  originalUserInput      String?             @map("original_user_input") @db.VarChar(2000)
+  originalInputExpiresAt DateTime?           @map("original_input_expires_at")
+  locale                 String              @db.VarChar(20)
+  timeZoneId             String              @map("time_zone_id") @db.VarChar(64)
+  status                 AiRequestStatus
+  proposalId             String?             @map("proposal_id")
+  failureCategory        String?             @map("failure_category") @db.VarChar(50)
+  failureCode            String?             @map("failure_code") @db.VarChar(100)
+  startedAt              DateTime?           @map("started_at")
+  completedAt            DateTime?           @map("completed_at")
+  createdAt              DateTime            @default(now()) @map("created_at")
+  updatedAt              DateTime            @updatedAt @map("updated_at")
+  user                   User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiProposal             AiProposal?
+  providerAttempts       AiProviderAttempt[]
 
   @@index([userId, status, createdAt])
+  @@index([originalInputExpiresAt])
   @@map("ai_requests")
 }
 

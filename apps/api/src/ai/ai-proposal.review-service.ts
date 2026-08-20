@@ -25,7 +25,19 @@ import {
   AiFakeProviderFactory,
   operationTypeForRequestType,
 } from "./ai-fake-provider.factory.js";
+import {
+  AiCircuitBreaker,
+  type AiBreakerPermit,
+  type AiBreakerSample,
+} from "./ai-circuit-breaker.js";
+import { AllowFakeAiBudgetGate, type AiBudgetGate } from "./ai-budget-gate.js";
 import { AiFeatureGate } from "./ai-feature-gate.js";
+import { validateAiOperationFields } from "./ai-formal-write.orchestrator.js";
+import {
+  AiProviderRouter,
+  AiRouterSelectionError,
+  type AiProviderAdapter,
+} from "./ai-provider-router.js";
 import { AiProposalApplicationPort } from "./ai-proposal.application-port.js";
 import { sha256Fingerprint } from "./ai-proposal.fingerprint.js";
 import {
@@ -52,6 +64,29 @@ const TERMINAL_PROPOSAL_STATUSES = [
   "CANCELLED",
 ] as const;
 
+const ORIGINAL_INPUT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+const STALE_REQUEST_MS = 60_000;
+const PROVIDER_TIMEOUT_MS = 15_000;
+const RETRY_DELAY_MS = 100;
+
+export interface AiProposalRuntimeOptions {
+  breaker?: AiCircuitBreaker;
+  budgetGate?: AiBudgetGate;
+  clock?: { now(): Date };
+  providerRouter?: AiProviderRouter;
+  retryDelayMs?: number;
+  sleep?: (milliseconds: number) => Promise<void>;
+  timeoutMs?: number;
+}
+
+interface ClassifiedProviderFailure {
+  breakerSample: AiBreakerSample;
+  category: string;
+  code: ApiErrorCode;
+  httpStatus?: number;
+  retryable: boolean;
+}
+
 interface NormalizedOperation {
   clarification: string | null;
   confidence: string;
@@ -69,12 +104,32 @@ interface NormalizedProviderResult {
 
 @Injectable()
 export abstract class AiProposalReviewService extends AiProposalApplicationPort {
+  private readonly breaker: AiCircuitBreaker;
+  private readonly budgetGate: AiBudgetGate;
+  private readonly clock: { now(): Date };
+  private readonly providerRouter: AiProviderRouter;
+  private readonly retryDelayMs: number;
+  private readonly sleep: (milliseconds: number) => Promise<void>;
+  private readonly timeoutMs: number;
+
   constructor(
     protected readonly prisma: PrismaService,
     protected readonly fakeProviderFactory: AiFakeProviderFactory,
     protected readonly featureGate: AiFeatureGate = new AiFeatureGate(),
+    runtime: AiProposalRuntimeOptions = {},
   ) {
     super();
+    this.breaker = runtime.breaker ?? new AiCircuitBreaker();
+    this.budgetGate = runtime.budgetGate ?? new AllowFakeAiBudgetGate();
+    this.clock = runtime.clock ?? { now: () => new Date() };
+    this.providerRouter =
+      runtime.providerRouter ?? new AiProviderRouter(fakeProviderFactory);
+    this.retryDelayMs = runtime.retryDelayMs ?? RETRY_DELAY_MS;
+    this.sleep =
+      runtime.sleep ??
+      ((milliseconds) =>
+        new Promise((resolve) => setTimeout(resolve, milliseconds)));
+    this.timeoutMs = runtime.timeoutMs ?? PROVIDER_TIMEOUT_MS;
   }
 
   abstract override finalConfirm(
@@ -88,23 +143,33 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     idempotencyKey: string,
     request: AiProposalCreateRequest,
   ): Promise<AiProposalCreateResponse> {
-    this.featureGate.requireFakeProvider();
+    operationTypeForRequestType(request.requestType);
     const inputFingerprint = sha256Fingerprint(request);
+    const logicalNow = this.clock.now();
     const existing = await this.prisma.aiRequest.findUnique({
       where: { idempotencyKey },
     });
     if (existing) {
-      return this.resolveExistingCreate(existing, userId, inputFingerprint);
+      return this.resolveExistingCreate(
+        existing,
+        userId,
+        inputFingerprint,
+        logicalNow,
+      );
     }
-    const provider = this.fakeProviderFactory.create(request.requestType);
 
     let claimed;
     try {
       claimed = await this.prisma.aiRequest.create({
         data: {
+          createdAt: logicalNow,
           idempotencyKey,
           inputFingerprint,
           locale: request.locale,
+          originalInputExpiresAt: new Date(
+            logicalNow.getTime() + ORIGINAL_INPUT_RETENTION_MS,
+          ),
+          originalUserInput: request.userInput,
           requestId: randomUUID(),
           status: "CLAIMED",
           timeZoneId: request.timeZoneId,
@@ -121,67 +186,368 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
       if (!raced) {
         throw error;
       }
-      return this.resolveExistingCreate(raced, userId, inputFingerprint);
+      return this.resolveExistingCreate(
+        raced,
+        userId,
+        inputFingerprint,
+        logicalNow,
+      );
     }
 
-    const startedAt = new Date();
-    await this.prisma.$transaction(async (tx) => {
+    try {
+      await this.featureGate.requireFakeProviderForCreate(this.prisma);
+    } catch (error) {
+      if (error instanceof ApiException && error.code !== "AI_DISABLED") {
+        throw error;
+      }
+      return this.failClaimedAndThrow(
+        claimed,
+        userId,
+        inputFingerprint,
+        "FEATURE_DISABLED",
+        "AI_DISABLED",
+      );
+    }
+
+    let budgetDecision;
+    try {
+      budgetDecision = await this.budgetGate.evaluate();
+    } catch {
+      budgetDecision = "BUDGET_BLOCKED" as const;
+    }
+    if (budgetDecision !== "ALLOW") {
+      return this.failClaimedAndThrow(
+        claimed,
+        userId,
+        inputFingerprint,
+        "BUDGET_BLOCKED",
+        "AI_BUDGET_BLOCKED",
+      );
+    }
+
+    let provider: AiProviderAdapter;
+    try {
+      provider = this.providerRouter.select(request.requestType);
+    } catch (error) {
+      if (
+        error instanceof ApiException &&
+        error.code === "AI_INPUT_VALIDATION_ERROR"
+      ) {
+        throw error;
+      }
+      return this.failClaimedAndThrow(
+        claimed,
+        userId,
+        inputFingerprint,
+        error instanceof AiRouterSelectionError
+          ? error.category
+          : "PROVIDER_UNAVAILABLE",
+        "AI_PROVIDER_ERROR",
+      );
+    }
+
+    const breakerResult = this.breaker.acquire(this.clock.now());
+    if (!breakerResult.allowed) {
+      return this.failClaimedAndThrow(
+        claimed,
+        userId,
+        inputFingerprint,
+        "CIRCUIT_OPEN",
+        "AI_CIRCUIT_BREAKER_BLOCKED",
+      );
+    }
+
+    const firstStartedAt = this.clock.now();
+    const entered = await this.beginAttempt(
+      claimed.id,
+      userId,
+      provider,
+      1,
+      firstStartedAt,
+      true,
+    );
+    if (!entered) {
+      this.breaker.abandon(breakerResult.permit, this.clock.now());
+      const current = await this.prisma.aiRequest.findUniqueOrThrow({
+        where: { id: claimed.id },
+      });
+      return this.resolveExistingCreate(
+        current,
+        userId,
+        inputFingerprint,
+        this.clock.now(),
+      );
+    }
+
+    return this.executeProvider(
+      claimed.id,
+      userId,
+      inputFingerprint,
+      request,
+      provider,
+      breakerResult.permit,
+      firstStartedAt,
+    );
+  }
+
+  private async executeProvider(
+    aiRequestId: string,
+    userId: string,
+    inputFingerprint: string,
+    request: AiProposalCreateRequest,
+    provider: AiProviderAdapter,
+    breakerPermit: AiBreakerPermit,
+    firstStartedAt: Date,
+  ): Promise<AiProposalCreateResponse> {
+    let attemptNo = 1;
+    let attemptStartedAt = firstStartedAt;
+
+    for (;;) {
+      let normalized: NormalizedProviderResult;
+      try {
+        const result = await this.invokeProvider(provider, request);
+        normalized = this.normalizeProviderResult(request, result);
+        if (
+          normalized.providerId !== provider.providerId ||
+          normalized.modelId !== provider.modelId
+        ) {
+          throw malformedOutputError();
+        }
+        await this.validateProviderDomain(
+          normalized,
+          request,
+          inputFingerprint,
+        );
+      } catch (error) {
+        const failure = classifyProviderFailure(error);
+        const completedAt = this.clock.now();
+        if (failure.retryable && attemptNo === 1) {
+          const terminalized = await this.terminalizeAttempt(
+            aiRequestId,
+            attemptNo,
+            attemptStartedAt,
+            completedAt,
+            failure,
+          );
+          if (!terminalized) {
+            this.breaker.abandon(breakerPermit, this.clock.now());
+            return this.resolveCurrentCreate(
+              aiRequestId,
+              userId,
+              inputFingerprint,
+            );
+          }
+          await this.sleep(this.retryDelayMs);
+          attemptNo = 2;
+          attemptStartedAt = this.clock.now();
+          const retryStarted = await this.beginAttempt(
+            aiRequestId,
+            userId,
+            provider,
+            attemptNo,
+            attemptStartedAt,
+            false,
+          );
+          if (!retryStarted) {
+            this.breaker.abandon(breakerPermit, this.clock.now());
+            return this.resolveCurrentCreate(
+              aiRequestId,
+              userId,
+              inputFingerprint,
+            );
+          }
+          continue;
+        }
+
+        await this.persistRunningFailure(
+          aiRequestId,
+          userId,
+          attemptNo,
+          attemptStartedAt,
+          completedAt,
+          failure,
+        );
+        this.breaker.record(breakerPermit, failure.breakerSample, completedAt);
+        throw persistedFailureException(failure.code);
+      }
+
+      const completedAt = this.clock.now();
+      const persisted = await this.persistSuccess(
+        aiRequestId,
+        userId,
+        attemptNo,
+        attemptStartedAt,
+        completedAt,
+        normalized,
+      );
+      this.breaker.record(breakerPermit, "SUCCESS", completedAt);
+      return {
+        request: toAiRequestSummary(persisted.request),
+        proposal: toAiProposalDetail(persisted.proposal),
+      };
+    }
+  }
+
+  private async invokeProvider(
+    provider: AiProviderAdapter,
+    request: AiProposalCreateRequest,
+  ): Promise<FakeAiProviderResult> {
+    return new Promise((resolve, reject) => {
+      let settled = false;
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        reject(new ProviderTimeoutError());
+      }, this.timeoutMs);
+
+      Promise.resolve()
+        .then(() => provider.generate(request))
+        .then(
+          (result) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            resolve(result);
+          },
+          (error: unknown) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            reject(error);
+          },
+        );
+    });
+  }
+
+  private async validateProviderDomain(
+    normalized: NormalizedProviderResult,
+    request: AiProposalCreateRequest,
+    inputFingerprint: string,
+  ): Promise<void> {
+    for (const operation of normalized.operations) {
+      if (operation.operationType !== request.requestType) {
+        throw domainValidationError();
+      }
+      if (
+        operation.confidence === "0.0000" &&
+        operation.clarification !== null
+      ) {
+        continue;
+      }
+      try {
+        await validateAiOperationFields(
+          operation.operationType,
+          operation.fields,
+          `ai-validation:${inputFingerprint}`,
+        );
+      } catch {
+        throw domainValidationError();
+      }
+    }
+  }
+
+  private async beginAttempt(
+    aiRequestId: string,
+    userId: string,
+    provider: AiProviderAdapter,
+    attemptNo: number,
+    startedAt: Date,
+    firstAttempt: boolean,
+  ): Promise<boolean> {
+    return this.prisma.$transaction(async (tx) => {
       const transitioned = await tx.aiRequest.updateMany({
-        data: { startedAt, status: "RUNNING" },
-        where: { id: claimed.id, status: "CLAIMED", userId },
+        data: firstAttempt
+          ? { startedAt, status: "RUNNING" }
+          : { status: "RUNNING" },
+        where: {
+          id: aiRequestId,
+          status: firstAttempt ? "CLAIMED" : "RUNNING",
+          userId,
+        },
       });
       if (transitioned.count !== 1) {
-        throw idempotencyConflict();
+        return false;
       }
       await tx.aiProviderAttempt.create({
         data: {
-          aiRequestId: claimed.id,
-          attemptNo: 1,
+          aiRequestId,
+          attemptNo,
           modelId: provider.modelId,
           providerId: provider.providerId,
           startedAt,
           status: "RUNNING",
         },
       });
+      return true;
     });
+  }
 
-    let normalized: NormalizedProviderResult;
-    try {
-      normalized = this.normalizeProviderResult(
-        request,
-        provider.generate(request),
-      );
-    } catch (error) {
-      if (error instanceof FakeAiProviderError) {
-        await this.persistFailure(
-          claimed.id,
-          "CONTROLLED_FAILURE",
-          "AI_PROVIDER_ERROR",
-        );
-        throw new ApiException(
-          "AI_PROVIDER_ERROR",
-          502,
-          "The AI provider could not create a proposal",
-        );
-      }
-      if (
-        error instanceof ApiException &&
-        error.code === "AI_SCHEMA_VALIDATION_ERROR"
-      ) {
-        await this.persistFailure(
-          claimed.id,
-          "SCHEMA_VALIDATION_FAILURE",
-          "AI_SCHEMA_VALIDATION_ERROR",
-        );
-      }
-      throw error;
-    }
+  private async terminalizeAttempt(
+    aiRequestId: string,
+    attemptNo: number,
+    startedAt: Date,
+    completedAt: Date,
+    failure: ClassifiedProviderFailure,
+  ): Promise<boolean> {
+    const updated = await this.prisma.aiProviderAttempt.updateMany({
+      data: {
+        completedAt,
+        failureCategory: failure.category,
+        httpStatus: failure.httpStatus,
+        latencyMs: elapsedMilliseconds(startedAt, completedAt),
+        status: "FAILED",
+      },
+      where: { aiRequestId, attemptNo, status: "RUNNING" },
+    });
+    return updated.count === 1;
+  }
 
-    const completedAt = new Date();
-    const persisted = await this.prisma.$transaction(async (tx) => {
+  private async persistRunningFailure(
+    aiRequestId: string,
+    userId: string,
+    attemptNo: number,
+    startedAt: Date,
+    completedAt: Date,
+    failure: ClassifiedProviderFailure,
+  ): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const attempt = await tx.aiProviderAttempt.updateMany({
+        data: {
+          completedAt,
+          failureCategory: failure.category,
+          httpStatus: failure.httpStatus,
+          latencyMs: elapsedMilliseconds(startedAt, completedAt),
+          status: "FAILED",
+        },
+        where: { aiRequestId, attemptNo, status: "RUNNING" },
+      });
+      const requestUpdate = await tx.aiRequest.updateMany({
+        data: {
+          completedAt,
+          failureCategory: failure.category,
+          failureCode: failure.code,
+          status: "FAILED",
+        },
+        where: { id: aiRequestId, status: "RUNNING", userId },
+      });
+      if (attempt.count !== 1 || requestUpdate.count !== 1) {
+        throw idempotencyConflict();
+      }
+    });
+  }
+
+  private async persistSuccess(
+    aiRequestId: string,
+    userId: string,
+    attemptNo: number,
+    startedAt: Date,
+    completedAt: Date,
+    normalized: NormalizedProviderResult,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
       const proposal = await tx.aiProposal.create({
         data: {
-          aiRequestId: claimed.id,
+          aiRequestId,
           modelId: normalized.modelId,
           operations: {
             create: normalized.operations.map((operation, index) => ({
@@ -203,34 +569,70 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
         include: { operations: { orderBy: { ordinal: "asc" } } },
       });
       const attempt = await tx.aiProviderAttempt.updateMany({
-        data: { completedAt, status: "SUCCEEDED" },
-        where: {
-          aiRequestId: claimed.id,
-          attemptNo: 1,
-          status: "RUNNING",
+        data: {
+          completedAt,
+          latencyMs: elapsedMilliseconds(startedAt, completedAt),
+          status: "SUCCEEDED",
         },
+        where: { aiRequestId, attemptNo, status: "RUNNING" },
       });
       const requestUpdate = await tx.aiRequest.updateMany({
         data: {
           completedAt,
+          originalInputExpiresAt: null,
+          originalUserInput: null,
           proposalId: proposal.id,
           status: "SUCCEEDED",
         },
-        where: { id: claimed.id, status: "RUNNING", userId },
+        where: { id: aiRequestId, status: "RUNNING", userId },
       });
       if (attempt.count !== 1 || requestUpdate.count !== 1) {
         throw idempotencyConflict();
       }
       const requestRow = await tx.aiRequest.findUniqueOrThrow({
-        where: { id: claimed.id },
+        where: { id: aiRequestId },
       });
       return { proposal, request: requestRow };
     });
+  }
 
-    return {
-      request: toAiRequestSummary(persisted.request),
-      proposal: toAiProposalDetail(persisted.proposal),
-    };
+  private async failClaimedAndThrow(
+    claimed: { id: string },
+    userId: string,
+    inputFingerprint: string,
+    failureCategory: string,
+    failureCode: ApiErrorCode,
+  ): Promise<AiProposalCreateResponse> {
+    const completedAt = this.clock.now();
+    const updated = await this.prisma.aiRequest.updateMany({
+      data: {
+        completedAt,
+        failureCategory,
+        failureCode,
+        status: "FAILED",
+      },
+      where: { id: claimed.id, status: "CLAIMED", userId },
+    });
+    if (updated.count !== 1) {
+      return this.resolveCurrentCreate(claimed.id, userId, inputFingerprint);
+    }
+    throw persistedFailureException(failureCode);
+  }
+
+  private async resolveCurrentCreate(
+    aiRequestId: string,
+    userId: string,
+    inputFingerprint: string,
+  ): Promise<AiProposalCreateResponse> {
+    const current = await this.prisma.aiRequest.findUniqueOrThrow({
+      where: { id: aiRequestId },
+    });
+    return this.resolveExistingCreate(
+      current,
+      userId,
+      inputFingerprint,
+      this.clock.now(),
+    );
   }
 
   async list(
@@ -440,7 +842,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
       typeof result.modelId !== "string" ||
       !Array.isArray(result.operations)
     ) {
-      throw schemaValidationError();
+      throw malformedOutputError();
     }
     const operations =
       result.resultType === "UNCERTAIN"
@@ -450,7 +852,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
               this.validateProviderOperation(operation),
             )
           : (() => {
-              throw schemaValidationError();
+              throw malformedOutputError();
             })();
     if (operations.length === 0) {
       throw schemaValidationError();
@@ -468,15 +870,18 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
 
   private async resolveExistingCreate(
     existing: {
+      createdAt: Date;
       failureCode: string | null;
       id: string;
       inputFingerprint: string;
       proposalId: string | null;
+      startedAt: Date | null;
       status: string;
       userId: string;
     },
     userId: string,
     inputFingerprint: string,
+    now: Date,
   ): Promise<AiProposalCreateResponse> {
     if (
       existing.userId !== userId ||
@@ -485,8 +890,80 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
       throw idempotencyConflict();
     }
     if (existing.status === "FAILED") {
-      const code = providerFailureCode(existing.failureCode);
-      throw new ApiException(code, 502, "The AI provider request failed");
+      throw persistedFailureException(
+        persistedProviderFailureCode(existing.failureCode),
+      );
+    }
+    if (existing.status === "CLAIMED") {
+      if (existing.createdAt.getTime() > now.getTime() - STALE_REQUEST_MS) {
+        throw idempotencyConflict();
+      }
+      const recovered = await this.prisma.aiRequest.updateMany({
+        data: {
+          completedAt: now,
+          failureCategory: "STALE_CLAIMED_RECOVERY",
+          failureCode: "INTERNAL_ERROR",
+          status: "FAILED",
+        },
+        where: { id: existing.id, status: "CLAIMED", userId },
+      });
+      if (recovered.count === 1) {
+        throw persistedFailureException("INTERNAL_ERROR");
+      }
+      return this.resolveCurrentCreate(existing.id, userId, inputFingerprint);
+    }
+    if (existing.status === "RUNNING") {
+      if (
+        existing.startedAt !== null &&
+        existing.startedAt.getTime() > now.getTime() - STALE_REQUEST_MS
+      ) {
+        throw idempotencyConflict();
+      }
+      const inconsistent = existing.startedAt === null;
+      const failureCategory = inconsistent
+        ? "INCONSISTENT_RUNNING_STATE"
+        : "STALE_RUNNING_RECOVERY";
+      const failureCode: ApiErrorCode = inconsistent
+        ? "INTERNAL_ERROR"
+        : "AI_PROVIDER_TIMEOUT";
+      try {
+        await this.prisma.$transaction(async (tx) => {
+          const requestUpdate = await tx.aiRequest.updateMany({
+            data: {
+              completedAt: now,
+              failureCategory,
+              failureCode,
+              status: "FAILED",
+            },
+            where: {
+              id: existing.id,
+              startedAt: inconsistent ? null : existing.startedAt,
+              status: "RUNNING",
+              userId,
+            },
+          });
+          if (requestUpdate.count !== 1) {
+            throw new RecoveryRaceLostError();
+          }
+          await tx.aiProviderAttempt.updateMany({
+            data: { completedAt: now, failureCategory, status: "FAILED" },
+            where: { aiRequestId: existing.id, status: "RUNNING" },
+          });
+        });
+      } catch (error) {
+        if (error instanceof RecoveryRaceLostError) {
+          return this.resolveCurrentCreate(
+            existing.id,
+            userId,
+            inputFingerprint,
+          );
+        }
+        throw error;
+      }
+      throw persistedFailureException(failureCode);
+    }
+    if (existing.status === "CANCELLED") {
+      throw idempotencyConflict();
     }
     if (existing.status !== "SUCCEEDED" || !existing.proposalId) {
       throw idempotencyConflict();
@@ -505,32 +982,6 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
       request: toAiRequestSummary(requestRow),
       proposal: toAiProposalDetail(proposal),
     };
-  }
-
-  private async persistFailure(
-    aiRequestId: string,
-    failureCategory: string,
-    failureCode: ApiErrorCode,
-  ): Promise<void> {
-    const completedAt = new Date();
-    await this.prisma.$transaction(async (tx) => {
-      const attempt = await tx.aiProviderAttempt.updateMany({
-        data: { completedAt, failureCategory, status: "FAILED" },
-        where: { aiRequestId, attemptNo: 1, status: "RUNNING" },
-      });
-      const request = await tx.aiRequest.updateMany({
-        data: {
-          completedAt,
-          failureCategory,
-          failureCode,
-          status: "FAILED",
-        },
-        where: { id: aiRequestId, status: "RUNNING" },
-      });
-      if (attempt.count !== 1 || request.count !== 1) {
-        throw idempotencyConflict();
-      }
-    });
   }
 
   protected async loadOperationForMutation(
@@ -719,11 +1170,107 @@ function isUniqueViolation(error: unknown): boolean {
   );
 }
 
-function providerFailureCode(value: string | null): ApiErrorCode {
-  return value === "AI_SCHEMA_VALIDATION_ERROR"
-    ? "AI_SCHEMA_VALIDATION_ERROR"
-    : "AI_PROVIDER_ERROR";
+function classifyProviderFailure(error: unknown): ClassifiedProviderFailure {
+  if (error instanceof FakeAiProviderError) {
+    return {
+      breakerSample: error.retryable ? "TECHNICAL_FAILURE" : "NON_TECHNICAL",
+      category: error.errorCategory,
+      code: error.errorCode,
+      httpStatus: error.httpStatus,
+      retryable: error.retryable,
+    };
+  }
+  if (error instanceof ProviderTimeoutError) {
+    return {
+      breakerSample: "TECHNICAL_FAILURE",
+      category: "TIMEOUT",
+      code: "AI_PROVIDER_TIMEOUT",
+      retryable: true,
+    };
+  }
+  if (error instanceof ApiException) {
+    if (error.code === "AI_SCHEMA_VALIDATION_ERROR") {
+      return {
+        breakerSample: "NON_TECHNICAL",
+        category: "SCHEMA_INVALID",
+        code: error.code,
+        retryable: false,
+      };
+    }
+    if (error.code === "AI_DOMAIN_VALIDATION_ERROR") {
+      return {
+        breakerSample: "NON_TECHNICAL",
+        category: "DOMAIN_INVALID",
+        code: error.code,
+        retryable: false,
+      };
+    }
+    if (error.code === "AI_MALFORMED_OUTPUT") {
+      return {
+        breakerSample: "NON_TECHNICAL",
+        category: "MALFORMED_RESPONSE",
+        code: error.code,
+        retryable: false,
+      };
+    }
+  }
+  return {
+    breakerSample: "NON_TECHNICAL",
+    category: "INTERNAL_ROUTER_ERROR",
+    code: "INTERNAL_ERROR",
+    retryable: false,
+  };
 }
+
+function persistedProviderFailureCode(value: string | null): ApiErrorCode {
+  const known = new Set<ApiErrorCode>([
+    "AI_DISABLED",
+    "AI_BUDGET_BLOCKED",
+    "AI_CIRCUIT_BREAKER_BLOCKED",
+    "AI_PROVIDER_TIMEOUT",
+    "AI_PROVIDER_NETWORK_ERROR",
+    "AI_SCHEMA_VALIDATION_ERROR",
+    "AI_DOMAIN_VALIDATION_ERROR",
+    "AI_MALFORMED_OUTPUT",
+    "AI_PROVIDER_ERROR",
+    "INTERNAL_ERROR",
+  ]);
+  return value !== null && known.has(value as ApiErrorCode)
+    ? (value as ApiErrorCode)
+    : "INTERNAL_ERROR";
+}
+
+function persistedFailureException(code: ApiErrorCode): ApiException {
+  const statusCode =
+    code === "AI_DISABLED"
+      ? 403
+      : code === "AI_BUDGET_BLOCKED" || code === "AI_CIRCUIT_BREAKER_BLOCKED"
+        ? 429
+        : code === "AI_PROVIDER_TIMEOUT"
+          ? 504
+          : code === "INTERNAL_ERROR"
+            ? 500
+            : 502;
+  const message =
+    code === "AI_DISABLED"
+      ? "AI features are disabled"
+      : code === "AI_BUDGET_BLOCKED"
+        ? "The AI budget gate blocked this request"
+        : code === "AI_CIRCUIT_BREAKER_BLOCKED"
+          ? "The AI provider is temporarily unavailable"
+          : code === "INTERNAL_ERROR"
+            ? "The AI request could not be completed"
+            : "The AI provider request failed";
+  return new ApiException(code, statusCode, message);
+}
+
+function elapsedMilliseconds(startedAt: Date, completedAt: Date): number {
+  return Math.max(0, completedAt.getTime() - startedAt.getTime());
+}
+
+class ProviderTimeoutError extends Error {}
+
+class RecoveryRaceLostError extends Error {}
 
 function proposalNotFound(): ApiException {
   return new ApiException(
@@ -770,5 +1317,21 @@ function schemaValidationError(): ApiException {
     "AI_SCHEMA_VALIDATION_ERROR",
     502,
     "AI provider returned an invalid proposal",
+  );
+}
+
+function domainValidationError(): ApiException {
+  return new ApiException(
+    "AI_DOMAIN_VALIDATION_ERROR",
+    502,
+    "AI provider output failed domain validation",
+  );
+}
+
+function malformedOutputError(): ApiException {
+  return new ApiException(
+    "AI_MALFORMED_OUTPUT",
+    502,
+    "AI provider returned malformed output",
   );
 }

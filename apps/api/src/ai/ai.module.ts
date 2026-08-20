@@ -18,6 +18,7 @@ import { AiFormalWriteOrchestrator } from "./ai-formal-write.orchestrator.js";
 import { AiProposalApplicationPort } from "./ai-proposal.application-port.js";
 import { AiProposalController } from "./ai-proposal.controller.js";
 import { AiProposalService } from "./ai-proposal.service.js";
+import { AiOriginalInputRetentionService } from "./ai-original-input-retention.service.js";
 
 @Module({
   controllers: [AiProposalController],
@@ -26,6 +27,7 @@ import { AiProposalService } from "./ai-proposal.service.js";
     AiFeatureGate,
     AiFormalWriteOrchestrator,
     AiProposalService,
+    AiOriginalInputRetentionService,
   ],
   imports: [
     AuthModule,
@@ -46,6 +48,7 @@ import { AiProposalService } from "./ai-proposal.service.js";
     AiFeatureGate,
     AiFormalWriteOrchestrator,
     AiProposalService,
+    AiOriginalInputRetentionService,
     {
       provide: AiProposalApplicationPort,
       useExisting: AiProposalService,
