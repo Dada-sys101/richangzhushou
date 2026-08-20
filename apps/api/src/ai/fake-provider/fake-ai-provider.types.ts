@@ -8,12 +8,24 @@ export const FAKE_AI_PROVIDER_ID = "fake-provider";
 export const FAKE_AI_MODEL_ID = "fake-model";
 
 export const FAKE_AI_PROVIDER_SCENARIOS = [
+  "SUCCESS",
   "TRANSACTION_SUCCESS",
   "CALENDAR_EVENT_SUCCESS",
   "TASK_SUCCESS",
   "REMINDER_SUCCESS",
   "TRIP_SUCCESS",
   "UNCERTAIN",
+  "NETWORK_ERROR",
+  "TIMEOUT",
+  "HTTP_429",
+  "HTTP_5XX",
+  "HTTP_4XX",
+  "AUTH_ERROR",
+  "AUTHZ_ERROR",
+  "SCHEMA_INVALID",
+  "DOMAIN_INVALID",
+  "MALFORMED_RESPONSE",
+  "SAFETY_FAILURE",
   "CONTROLLED_FAILURE",
 ] as const satisfies readonly FakeAiProviderScenario[];
 
@@ -23,12 +35,24 @@ export const FAKE_AI_PROVIDER_SCENARIOS = [
  * input whitelist stays exactly as defined in the shared AI contract.
  */
 export type FakeAiProviderScenario =
+  | "SUCCESS"
   | "TRANSACTION_SUCCESS"
   | "CALENDAR_EVENT_SUCCESS"
   | "TASK_SUCCESS"
   | "REMINDER_SUCCESS"
   | "TRIP_SUCCESS"
   | "UNCERTAIN"
+  | "NETWORK_ERROR"
+  | "TIMEOUT"
+  | "HTTP_429"
+  | "HTTP_5XX"
+  | "HTTP_4XX"
+  | "AUTH_ERROR"
+  | "AUTHZ_ERROR"
+  | "SCHEMA_INVALID"
+  | "DOMAIN_INVALID"
+  | "MALFORMED_RESPONSE"
+  | "SAFETY_FAILURE"
   | "CONTROLLED_FAILURE";
 
 export interface FakeAiProviderConfiguration {
@@ -71,7 +95,18 @@ export type FakeAiProviderResult =
 export interface FakeAiProviderErrorDetails {
   providerId: string;
   modelId: string;
-  errorCategory: "CONTROLLED_FAILURE";
+  errorCategory:
+    | "AUTH_ERROR"
+    | "AUTHZ_ERROR"
+    | "HTTP_4XX"
+    | "HTTP_429"
+    | "HTTP_5XX"
+    | "NETWORK_ERROR"
+    | "SAFETY_FAILURE"
+    | "SCHEMA_INVALID"
+    | "TIMEOUT";
   errorCode: ApiErrorCode;
+  httpStatus?: number;
   message: string;
+  retryable: boolean;
 }

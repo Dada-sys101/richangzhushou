@@ -83,6 +83,8 @@ describeWithDb("PR18 H03 AI proposal review persistence", () => {
       where: { aiRequestId: requestRow.id },
     });
     expect(requestRow).toMatchObject({
+      originalInputExpiresAt: null,
+      originalUserInput: null,
       status: "SUCCEEDED",
       proposalId: created.proposal.id,
     });
@@ -147,12 +149,14 @@ describeWithDb("PR18 H03 AI proposal review persistence", () => {
       where: { aiRequestId: requestRow.id },
     });
     expect(requestRow).toMatchObject({
-      failureCategory: "CONTROLLED_FAILURE",
+      failureCategory: "SAFETY_FAILURE",
       failureCode: "AI_PROVIDER_ERROR",
+      originalUserInput: INPUT.userInput,
       status: "FAILED",
     });
+    expect(requestRow.originalInputExpiresAt).toBeInstanceOf(Date);
     expect(attempt).toMatchObject({
-      failureCategory: "CONTROLLED_FAILURE",
+      failureCategory: "SAFETY_FAILURE",
       status: "FAILED",
     });
     expect(requestRow.completedAt).toBeInstanceOf(Date);

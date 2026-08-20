@@ -11,6 +11,7 @@ import {
 
 import { FakeAiProvider, FakeAiProviderError } from "./fake-ai-provider.js";
 import {
+  FAKE_AI_PROVIDER_SCENARIOS,
   FAKE_AI_MODEL_ID,
   FAKE_AI_PROVIDER_ID,
   type FakeAiProviderScenario,
@@ -24,11 +25,7 @@ const SUCCESS_SCENARIOS = [
   "TRIP_SUCCESS",
 ] as const satisfies readonly FakeAiProviderScenario[];
 
-const ALL_SCENARIOS = [
-  ...SUCCESS_SCENARIOS,
-  "UNCERTAIN",
-  "CONTROLLED_FAILURE",
-] as const satisfies readonly FakeAiProviderScenario[];
+const ALL_SCENARIOS = FAKE_AI_PROVIDER_SCENARIOS;
 
 function createInput(
   overrides: Partial<AiProviderInput> = {},
@@ -112,7 +109,7 @@ describe("PR18 Fake AI Provider", () => {
     const second = run();
 
     expect(first.errorCode).toBe("AI_PROVIDER_ERROR");
-    expect(first.errorCategory).toBe("CONTROLLED_FAILURE");
+    expect(first.errorCategory).toBe("SAFETY_FAILURE");
     expect(first.providerId).toBe(FAKE_AI_PROVIDER_ID);
     expect(first.modelId).toBe(FAKE_AI_MODEL_ID);
     expect(first.message.length).toBeGreaterThan(0);
@@ -210,6 +207,47 @@ describe("PR18 Fake AI Provider", () => {
       expect(AI_PROVIDER_INPUT_ALLOWED_FIELDS).toContain(key);
     }
     expect(accessedKeys.size).toBeGreaterThan(0);
+  });
+
+  it.each([
+    ["NETWORK_ERROR", "AI_PROVIDER_NETWORK_ERROR", true, undefined],
+    ["TIMEOUT", "AI_PROVIDER_TIMEOUT", true, undefined],
+    ["HTTP_429", "AI_PROVIDER_ERROR", true, 429],
+    ["HTTP_5XX", "AI_PROVIDER_ERROR", true, 503],
+    ["HTTP_4XX", "AI_PROVIDER_ERROR", false, 400],
+    ["AUTH_ERROR", "AI_PROVIDER_ERROR", false, 401],
+    ["AUTHZ_ERROR", "AI_PROVIDER_ERROR", false, 403],
+    ["SCHEMA_INVALID", "AI_SCHEMA_VALIDATION_ERROR", false, undefined],
+    ["SAFETY_FAILURE", "AI_PROVIDER_ERROR", false, undefined],
+    ["CONTROLLED_FAILURE", "AI_PROVIDER_ERROR", false, undefined],
+  ] as const)(
+    "PR19 matrix classifies %s deterministically",
+    (scenario, errorCode, retryable, httpStatus) => {
+      expect(() =>
+        new FakeAiProvider({ scenario }).generate(createInput()),
+      ).toThrowError(
+        expect.objectContaining({ errorCode, httpStatus, retryable }),
+      );
+    },
+  );
+
+  it("PR19 matrix keeps SUCCESS/DOMAIN_INVALID/MALFORMED_RESPONSE internal and deterministic", () => {
+    expect(
+      new FakeAiProvider({ scenario: "SUCCESS" }).generate(createInput()),
+    ).toMatchObject({ resultType: "SUCCESS" });
+    expect(
+      new FakeAiProvider({ scenario: "DOMAIN_INVALID" }).generate(
+        createInput(),
+      ),
+    ).toMatchObject({
+      operations: [expect.objectContaining({ fields: {} })],
+      resultType: "SUCCESS",
+    });
+    expect(
+      new FakeAiProvider({ scenario: "MALFORMED_RESPONSE" }).generate(
+        createInput(),
+      ),
+    ).toBeNull();
   });
 });
 

@@ -1,7 +1,8 @@
 import "reflect-metadata";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
+import type { PrismaService } from "../prisma/prisma.service.js";
 import { AiFeatureGate } from "./ai-feature-gate.js";
 
 describe("PR18 H04 AI feature gates", () => {
@@ -128,5 +129,103 @@ describe("PR18 H04 AI feature gates", () => {
       proposal: true,
     });
     expect(() => writeEnabled.requireBusinessWrite()).not.toThrow();
+  });
+
+  it("PR19 reloads DB flags for every new logical create", async () => {
+    const previous = process.env.V15_AI_ALLOWED;
+    process.env.V15_AI_ALLOWED = "true";
+    try {
+      const findUnique = vi
+        .fn()
+        .mockResolvedValueOnce({
+          featureFlags: {
+            "v15.ai.fakeProvider": true,
+            "v15.ai.liveProvider": false,
+            "v15.ai.proposal": true,
+          },
+        })
+        .mockResolvedValueOnce({
+          featureFlags: {
+            "v15.ai.fakeProvider": false,
+            "v15.ai.liveProvider": false,
+            "v15.ai.proposal": true,
+          },
+        });
+      const prisma = {
+        systemSetting: { findUnique },
+      } as unknown as PrismaService;
+      const gate = new AiFeatureGate();
+      await expect(
+        gate.requireFakeProviderForCreate(prisma),
+      ).resolves.toBeUndefined();
+      await expect(
+        gate.requireFakeProviderForCreate(prisma),
+      ).rejects.toMatchObject({ code: "AI_DISABLED" });
+      expect(findUnique).toHaveBeenCalledTimes(2);
+    } finally {
+      if (previous === undefined) delete process.env.V15_AI_ALLOWED;
+      else process.env.V15_AI_ALLOWED = previous;
+    }
+  });
+
+  it.each(["missing environment", "malformed DB", "DB unavailable"])(
+    "PR19 fails closed for %s",
+    async (cause) => {
+      const previous = process.env.V15_AI_ALLOWED;
+      if (cause === "missing environment") delete process.env.V15_AI_ALLOWED;
+      else process.env.V15_AI_ALLOWED = "true";
+      try {
+        const findUnique =
+          cause === "DB unavailable"
+            ? vi.fn().mockRejectedValue(new Error("database unavailable"))
+            : vi.fn().mockResolvedValue({
+                featureFlags:
+                  cause === "malformed DB"
+                    ? { "v15.ai.fakeProvider": "yes" }
+                    : {
+                        "v15.ai.fakeProvider": true,
+                        "v15.ai.liveProvider": false,
+                        "v15.ai.proposal": true,
+                      },
+              });
+        const prisma = {
+          systemSetting: { findUnique },
+        } as unknown as PrismaService;
+        await expect(
+          new AiFeatureGate().requireFakeProviderForCreate(prisma),
+        ).rejects.toMatchObject({ code: "AI_DISABLED", statusCode: 403 });
+      } finally {
+        if (previous === undefined) delete process.env.V15_AI_ALLOWED;
+        else process.env.V15_AI_ALLOWED = previous;
+      }
+    },
+  );
+
+  it("PR19 refuses fake execution whenever the live-provider gate resolves true", async () => {
+    const previousAi = process.env.V15_AI_ALLOWED;
+    const previousLive = process.env.V15_LIVE_AI_ALLOWED;
+    process.env.V15_AI_ALLOWED = "true";
+    process.env.V15_LIVE_AI_ALLOWED = "true";
+    try {
+      const prisma = {
+        systemSetting: {
+          findUnique: vi.fn().mockResolvedValue({
+            featureFlags: {
+              "v15.ai.fakeProvider": true,
+              "v15.ai.liveProvider": true,
+              "v15.ai.proposal": true,
+            },
+          }),
+        },
+      } as unknown as PrismaService;
+      await expect(
+        new AiFeatureGate().requireFakeProviderForCreate(prisma),
+      ).rejects.toMatchObject({ code: "AI_DISABLED" });
+    } finally {
+      if (previousAi === undefined) delete process.env.V15_AI_ALLOWED;
+      else process.env.V15_AI_ALLOWED = previousAi;
+      if (previousLive === undefined) delete process.env.V15_LIVE_AI_ALLOWED;
+      else process.env.V15_LIVE_AI_ALLOWED = previousLive;
+    }
   });
 });

@@ -148,8 +148,9 @@ export function buildControlledFailureDetails(): FakeAiProviderErrorDetails {
   return {
     providerId: FAKE_AI_PROVIDER_ID,
     modelId: FAKE_AI_MODEL_ID,
-    errorCategory: "CONTROLLED_FAILURE",
+    errorCategory: "SAFETY_FAILURE",
     errorCode: "AI_PROVIDER_ERROR",
     message: "Controlled failure from the Fake AI Provider.",
+    retryable: false,
   };
 }

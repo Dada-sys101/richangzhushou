@@ -6,6 +6,8 @@ import {
 } from "@daily-assistant/config";
 
 import { ApiException } from "../common/api-error.js";
+import type { PrismaService } from "../prisma/prisma.service.js";
+import { loadDatabaseFeatureFlags } from "./ai-feature-flag-loader.js";
 
 export const AI_FEATURE_GATE_SNAPSHOT = Symbol("AI_FEATURE_GATE_SNAPSHOT");
 export const AI_FEATURE_GATE_DATABASE_FLAGS = Symbol(
@@ -29,6 +31,7 @@ type TestFeatureFlagSnapshot = Partial<AiFeatureFlagSnapshot>;
 @Injectable()
 export class AiFeatureGate {
   private readonly flags: AiFeatureFlagSnapshot;
+  private readonly testSnapshot: TestFeatureFlagSnapshot | undefined;
 
   constructor(
     @Optional()
@@ -38,6 +41,7 @@ export class AiFeatureGate {
     @Inject(AI_FEATURE_GATE_DATABASE_FLAGS)
     databaseFlags?: DatabaseFeatureFlags,
   ) {
+    this.testSnapshot = testSnapshot;
     this.flags = testSnapshot
       ? {
           businessWrite: testSnapshot.businessWrite ?? false,
@@ -81,6 +85,20 @@ export class AiFeatureGate {
   requireFakeProvider(): void {
     this.requireProposal();
     if (!this.flags.fakeProvider) {
+      throw aiDisabled();
+    }
+  }
+
+  /**
+   * New logical creates must reload DB flags at request time. Replays never
+   * call this method. The sole authorized fake route is proposal=true,
+   * fakeProvider=true and liveProvider=false.
+   */
+  async requireFakeProviderForCreate(prisma: PrismaService): Promise<void> {
+    const flags = this.testSnapshot
+      ? this.flags
+      : resolveProductionFlags(await loadDatabaseFeatureFlags(prisma));
+    if (!flags.proposal || !flags.fakeProvider || flags.liveProvider) {
       throw aiDisabled();
     }
   }
