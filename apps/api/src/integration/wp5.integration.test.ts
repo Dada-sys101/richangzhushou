@@ -178,16 +178,21 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
 
   it("QA-TASK-001: overdue is computed and complete/cancel transitions are enforced", async () => {
     const token = await loginNewUser();
+    const dayMs = 24 * 60 * 60 * 1000;
+    const testNow = Date.now();
+    const pastDueAt = new Date(testNow - dayMs).toISOString();
+    const futureDueAt = new Date(testNow + dayMs).toISOString();
+    const postponedDueAt = new Date(testNow + 2 * dayMs).toISOString();
 
     const past = await createTask(token, {
-      dueAt: "2026-08-05T04:00:00.000Z",
+      dueAt: pastDueAt,
       title: "已过期任务",
     });
     expect(past.status).toBe(201);
     expect(past.body.overdue).toBe(true);
 
     const future = await createTask(token, {
-      dueAt: "2026-08-20T04:00:00.000Z",
+      dueAt: futureDueAt,
       priority: "HIGH",
       title: "未来任务",
     });
@@ -199,9 +204,9 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
     const postponed = await request(app.getHttpServer())
       .patch(`/api/v1/tasks/${futureId}`)
       .set("Authorization", `Bearer ${token}`)
-      .send({ dueAt: "2026-08-21T04:00:00.000Z", version: 1 });
+      .send({ dueAt: postponedDueAt, version: 1 });
     expect(postponed.status).toBe(200);
-    expect(postponed.body.dueAt).toBe("2026-08-21T04:00:00.000Z");
+    expect(postponed.body.dueAt).toBe(postponedDueAt);
     expect(postponed.body.overdue).toBe(false);
 
     const completed = await request(app.getHttpServer())
