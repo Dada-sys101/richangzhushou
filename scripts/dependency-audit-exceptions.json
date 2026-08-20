@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "exceptions": [
+    {
+      "package": "deepmerge-ts",
+      "advisory": "GHSA-ggr8-5vv4-36mx",
+      "cve": "CVE-2026-40345",
+      "severity": "high",
+      "affectedRange": "<8.0.0",
+      "currentVersion": "7.1.5",
+      "chain": "prisma@7.9.1 -> @prisma/config@7.9.1 -> deepmerge-ts@7.1.5",
+      "coveredFindings": ["deepmerge-ts", "@prisma/config", "prisma"],
+      "expiresAt": "2026-09-01T23:59:00+08:00",
+      "ownerRole": "V1 Private Preview release-security owner",
+      "reviewDate": "2026-08-25",
+      "reviewCondition": "Review immediately when a supported stable Prisma fix becomes available; no later than expiry.",
+      "reason": "Main-derived V1 Private Preview dependency-security baseline; the Prisma build/config chain is not reachable from the deployed API runtime or browser bundles."
+    }
+  ]
+}
