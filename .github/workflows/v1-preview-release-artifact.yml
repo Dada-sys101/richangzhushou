@@ -209,6 +209,7 @@ jobs:
           test ! -e "${output_root}"
           install -d -m 0755 \
             "${release_dir}/apps/api" \
+            "${release_dir}/apps/api/prisma/migrations" \
             "${release_dir}/apps/web" \
             "${release_dir}/apps/admin" \
             "${release_dir}/packages/api-contracts" \
@@ -225,7 +226,28 @@ jobs:
             "${release_dir}/packages/config/"
 
           cp -a apps/api/dist "${release_dir}/apps/api/dist"
-          cp -a apps/api/prisma "${release_dir}/apps/api/prisma"
+          install -m 0644 apps/api/prisma/schema.prisma \
+            "${release_dir}/apps/api/prisma/schema.prisma"
+          install -m 0644 apps/api/prisma/migrations/migration_lock.toml \
+            "${release_dir}/apps/api/prisma/migrations/migration_lock.toml"
+
+          frozen_migrations=(
+            20260805000000_wp2_identity_capacity
+            20260805080803_wp3_finance
+            20260805085724_wp4_shortcuts_ocr
+            20260805095154_wp5_calendar_tasks_reminders
+            20260806011520_wp6_trips
+            20260806074500_wp7_sync
+            20260806092920_open007_account_deletion_cleanup
+            20260806140000_wp9_identity_entry_simplification
+          )
+          for migration in "${frozen_migrations[@]}"; do
+            source_migration="apps/api/prisma/migrations/${migration}"
+            test -d "${source_migration}"
+            cp -a "${source_migration}" \
+              "${release_dir}/apps/api/prisma/migrations/${migration}"
+          done
+
           cp -a apps/web/dist "${release_dir}/apps/web/dist"
           cp -a apps/admin/dist "${release_dir}/apps/admin/dist"
           cp -a packages/api-contracts/dist \
@@ -236,6 +258,276 @@ jobs:
           cp -a packages/config/eslint "${release_dir}/packages/config/eslint"
           cp -a packages/config/typescript "${release_dir}/packages/config/typescript"
           cp -a node_modules "${release_dir}/node_modules"
+
+          export RELEASE_API_PACKAGE_JSON="${release_dir}/apps/api/package.json"
+          node <<'NODE'
+          const fs = require("node:fs");
+
+          const packagePath = process.env.RELEASE_API_PACKAGE_JSON;
+          const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+          const sourceScripts = packageJson.scripts ?? {};
+
+          const expectedSourceScripts = {
+            "account-deletion:run": "tsx src/cli/account-deletion-run.ts",
+            "bootstrap:admin": "tsx src/cli/bootstrap-admin.ts",
+            "prisma:migrate:deploy": "prisma migrate deploy",
+            "prisma:validate": "prisma validate",
+            start: "node dist/main.js",
+          };
+
+          for (const [name, expected] of Object.entries(expectedSourceScripts)) {
+            if (sourceScripts[name] !== expected) {
+              throw new Error(`unexpected source API script ${name}`);
+            }
+          }
+
+          packageJson.scripts = {
+            "account-deletion:run": "node dist/cli/account-deletion-run.js",
+            "bootstrap:admin": "node dist/cli/bootstrap-admin.js",
+            "prisma:migrate:deploy": sourceScripts["prisma:migrate:deploy"],
+            "prisma:validate": sourceScripts["prisma:validate"],
+            start: sourceScripts.start,
+          };
+
+          fs.writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`, {
+            encoding: "utf8",
+            mode: 0o644,
+          });
+          NODE
+
+          release_argon2_prebuilds="${release_dir}/node_modules/argon2/prebuilds"
+          release_argon2_binary="${release_argon2_prebuilds}/linux-x64/argon2.glibc.node"
+          test -d "${release_argon2_prebuilds}"
+          test -f "${release_argon2_binary}"
+
+          find "${release_argon2_prebuilds}" -type f \
+            ! -path "${release_argon2_binary}" -delete
+          find "${release_argon2_prebuilds}" -depth -type d -empty -delete
+
+          mapfile -d '' release_argon2_binaries < <(
+            find "${release_argon2_prebuilds}" -type f -name '*.node' -print0
+          )
+          test "${#release_argon2_binaries[@]}" -eq 1
+          test "$(realpath "${release_argon2_binaries[0]}")" = \
+            "$(realpath "${release_argon2_binary}")"
+
+          export RELEASE_DIR="${release_dir}"
+          export EXPECTED_RELEASE_ARGON2_BINARY="${release_argon2_binary}"
+          resolved_release_argon2_binary="$(
+            node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const { createRequire } = require("node:module");
+
+          async function validate() {
+            const releaseDirectory = fs.realpathSync(process.env.RELEASE_DIR);
+            const expectedBinary = fs.realpathSync(
+              process.env.EXPECTED_RELEASE_ARGON2_BINARY,
+            );
+            const releaseRequire = createRequire(
+              path.join(releaseDirectory, "package.json"),
+            );
+            const entryPath = fs.realpathSync(releaseRequire.resolve("argon2"));
+            const packageDirectory = path.dirname(entryPath);
+            const cacheBeforeLoad = new Set(Object.keys(require.cache));
+            const argon2 = releaseRequire("argon2");
+
+            if (typeof argon2.hash !== "function" || typeof argon2.verify !== "function") {
+              throw new Error("argon2 hash/verify API is unavailable");
+            }
+
+            const loadedBinaries = Object.keys(require.cache)
+              .filter(
+                (candidate) =>
+                  !cacheBeforeLoad.has(candidate) && candidate.endsWith(".node"),
+              )
+              .map((candidate) => fs.realpathSync(candidate));
+
+            if (loadedBinaries.length !== 1) {
+              throw new Error(
+                `expected exactly one staged argon2 native binary, found ${loadedBinaries.length}`,
+              );
+            }
+
+            const binaryPath = loadedBinaries[0];
+            const relativeBinaryPath = path.relative(packageDirectory, binaryPath);
+            if (
+              !relativeBinaryPath ||
+              relativeBinaryPath === ".." ||
+              relativeBinaryPath.startsWith(`..${path.sep}`) ||
+              path.isAbsolute(relativeBinaryPath)
+            ) {
+              throw new Error("staged argon2 loaded a binary outside its package");
+            }
+            if (binaryPath !== expectedBinary) {
+              throw new Error("staged argon2 resolved an unexpected native binary");
+            }
+
+            const validationInput = "daily-assistant-preview-artifact-validation";
+            const digest = await argon2.hash(validationInput, {
+              memoryCost: 4096,
+              parallelism: 1,
+              timeCost: 2,
+              type: argon2.argon2id,
+            });
+            if (!(await argon2.verify(digest, validationInput))) {
+              throw new Error("staged argon2 hash verification failed");
+            }
+
+            process.stdout.write(binaryPath);
+          }
+
+          validate().catch((error) => {
+            console.error(error instanceof Error ? error.message : error);
+            process.exit(1);
+          });
+          NODE
+          )"
+
+          test "$(realpath "${resolved_release_argon2_binary}")" = \
+            "$(realpath "${release_argon2_binary}")"
+          file "${release_argon2_binary}" | grep -Eq 'ELF 64-bit.*x86-64'
+          release_argon2_ldd="$(ldd "${release_argon2_binary}")"
+          if grep -Fq 'not found' <<< "${release_argon2_ldd}"; then
+            exit 1
+          fi
+
+          node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
+
+          const releaseDirectory = fs.realpathSync(process.env.RELEASE_DIR);
+          const forbiddenPathTokens = [
+            "win32",
+            "windows",
+            "darwin",
+            "freebsd",
+            "linux-arm/",
+            "linux-arm64/",
+          ];
+          const machOMagic = new Set([
+            "cafebabe",
+            "bebafeca",
+            "cefaedfe",
+            "cffaedfe",
+            "feedface",
+            "feedfacf",
+          ]);
+          let nativeBinaryCount = 0;
+
+          function inspect(directory) {
+            for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+              const entryPath = path.join(directory, entry.name);
+              if (entry.isDirectory()) {
+                inspect(entryPath);
+                continue;
+              }
+              if (!entry.isFile()) {
+                continue;
+              }
+
+              const descriptor = fs.openSync(entryPath, "r");
+              const header = Buffer.alloc(20);
+              const bytesRead = fs.readSync(descriptor, header, 0, header.length, 0);
+              fs.closeSync(descriptor);
+              if (bytesRead < 4) {
+                continue;
+              }
+
+              const relativePath = path.relative(releaseDirectory, entryPath);
+              const relativePathLower = relativePath.toLowerCase().replaceAll("\\\\", "/");
+              const magic = header.subarray(0, 4).toString("hex");
+              if (header[0] === 0x4d && header[1] === 0x5a) {
+                throw new Error(`PE/MZ binary is forbidden: ${relativePath}`);
+              }
+              if (machOMagic.has(magic)) {
+                throw new Error(`Mach-O binary is forbidden: ${relativePath}`);
+              }
+              if (magic !== "7f454c46") {
+                continue;
+              }
+
+              nativeBinaryCount += 1;
+              if (forbiddenPathTokens.some((token) => relativePathLower.includes(token))) {
+                throw new Error(`non-target native binary path: ${relativePath}`);
+              }
+              if (bytesRead < 20 || header[4] !== 2 || header[5] !== 1) {
+                throw new Error(`ELF must be 64-bit little-endian: ${relativePath}`);
+              }
+              if (header.readUInt16LE(18) !== 0x3e) {
+                throw new Error(`ELF must target x86-64: ${relativePath}`);
+              }
+            }
+          }
+
+          inspect(releaseDirectory);
+          if (nativeBinaryCount === 0) {
+            throw new Error("release contains no validated ELF native binaries");
+          }
+          process.stdout.write(`validated ${nativeBinaryCount} ELF x86-64 binaries\n`);
+          NODE
+
+          release_api_package="${release_dir}/apps/api/package.json"
+          release_bootstrap_cli="${release_dir}/apps/api/dist/cli/bootstrap-admin.js"
+          release_deletion_cli="${release_dir}/apps/api/dist/cli/account-deletion-run.js"
+          test -f "${release_bootstrap_cli}"
+          test -f "${release_deletion_cli}"
+          node --check "${release_bootstrap_cli}"
+          node --check "${release_deletion_cli}"
+          node - "${release_api_package}" <<'NODE'
+          const fs = require("node:fs");
+
+          const packageJson = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+          const expectedScripts = {
+            "account-deletion:run": "node dist/cli/account-deletion-run.js",
+            "bootstrap:admin": "node dist/cli/bootstrap-admin.js",
+            "prisma:migrate:deploy": "prisma migrate deploy",
+            "prisma:validate": "prisma validate",
+            start: "node dist/main.js",
+          };
+          if (JSON.stringify(packageJson.scripts) !== JSON.stringify(expectedScripts)) {
+            throw new Error("release API scripts do not match the runtime allowlist");
+          }
+          NODE
+
+          mapfile -t packaged_migrations < <(
+            find "${release_dir}/apps/api/prisma/migrations" \
+              -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | LC_ALL=C sort
+          )
+          test "${#packaged_migrations[@]}" -eq "${#frozen_migrations[@]}"
+          test "$(printf '%s\n' "${packaged_migrations[@]}")" = \
+            "$(printf '%s\n' "${frozen_migrations[@]}" | LC_ALL=C sort)"
+          test -f "${release_dir}/apps/api/prisma/schema.prisma"
+          test -f "${release_dir}/apps/api/prisma/migrations/migration_lock.toml"
+          test ! -e "${release_dir}/apps/api/prisma/seed.ts"
+          test -z "$(find "${release_dir}/apps/api/prisma" \
+            -type f -iname 'README*' -print -quit)"
+
+          test -z "$(find "${release_dir}" \
+            \( -name '.git' -o -name '.env' -o -name '.env.*' \
+               -o -name '.npmrc' -o -name 'id_rsa' -o -name 'id_ed25519' \
+               -o -iname '*.pem' -o -iname '*.key' -o -iname '*.p12' \
+               -o -iname '*.pfx' \) -print -quit)"
+          test -z "$(find "${release_dir}" \
+            -path "${release_dir}/node_modules" -prune -o \
+            \( -name '.github' -o -name 'coverage' -o -name 'test-results' \
+               -o -name 'playwright-report' -o -name '.cache' \
+               -o -name '.turbo' -o -name '_temp' \
+               -o -name '*.tsbuildinfo' \) -print -quit)"
+
+          set +e
+          secret_content_matches="$(grep -RIlE --exclude='*.map' \
+            -- '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|AKIA[0-9A-Z]{16}|LTAI[A-Za-z0-9]{12,}|github_pat_[A-Za-z0-9_]{20,}|gh[pousr]_[A-Za-z0-9]{20,}' \
+            "${release_dir}/apps" "${release_dir}/packages" \
+            "${release_dir}/package.json" "${release_dir}/package-lock.json")"
+          secret_scan_status=$?
+          set -e
+          if [ "${secret_scan_status}" -eq 0 ]; then
+            echo "credential-like content found in release-owned files" >&2
+            printf '%s\n' "${secret_content_matches}" >&2
+            exit 1
+          fi
+          test "${secret_scan_status}" -eq 1
 
           export METADATA_PATH="${release_dir}/RELEASE-METADATA.json"
           export BUILD_TIMESTAMP="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
