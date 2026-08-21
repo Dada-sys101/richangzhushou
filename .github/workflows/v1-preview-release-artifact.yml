@@ -1,0 +1,296 @@
+name: V1 Preview release artifact
+
+run-name: V1 Preview artifact from f4439131
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact approved V1 Private Preview source SHA
+        required: true
+        type: string
+        default: f4439131b09fdec05e052536929949437f958986
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-preview-release-artifact-f4439131
+  cancel-in-progress: false
+
+jobs:
+  assemble:
+    name: Assemble Linux x64 release artifact
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_SHA: f4439131b09fdec05e052536929949437f958986
+      SOURCE_PARENT_SHA: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
+      REQUESTED_SOURCE_SHA: ${{ inputs.source_sha }}
+      EXPECTED_NODE_VERSION: 24.19.0
+      EXPECTED_NPM_VERSION: 11.17.0
+      EXPECTED_ARCHITECTURE: x86_64
+      ARTIFACT_BASENAME: daily-assistant-preview-f4439131-linux-x64
+
+    steps:
+      - name: Validate dispatch source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "${REQUESTED_SOURCE_SHA}" = "${SOURCE_SHA}"
+
+      - name: Check out exact Preview source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 2
+          persist-credentials: false
+          lfs: false
+          submodules: false
+
+      - name: Verify source identity and runner platform
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          actual_sha="$(git rev-parse HEAD)"
+          actual_parent_sha="$(git rev-parse HEAD^)"
+          actual_os="$(uname -s)"
+          actual_arch="$(uname -m)"
+
+          test "${actual_sha}" = "${SOURCE_SHA}"
+          test "${actual_parent_sha}" = "${SOURCE_PARENT_SHA}"
+          test "${actual_os}" = "Linux"
+          test "${actual_arch}" = "${EXPECTED_ARCHITECTURE}"
+          test -z "$(git status --short)"
+
+      - name: Set up pinned Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.19.0
+          architecture: x64
+
+      - name: Verify Node.js and npm versions
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          test "$(node --version)" = "v${EXPECTED_NODE_VERSION}"
+          test "$(npm --version)" = "${EXPECTED_NPM_VERSION}"
+
+      - name: Install locked build dependencies
+        shell: bash
+        run: npm ci
+
+      - name: Build shared workspace packages
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          npm run build --workspace @daily-assistant/api-contracts
+          npm run build --workspace @daily-assistant/config
+
+      - name: Generate Prisma client
+        shell: bash
+        run: npm run prisma:generate --workspace @daily-assistant/api
+
+      - name: Build API
+        shell: bash
+        run: npm run build --workspace @daily-assistant/api
+
+      - name: Build Web
+        shell: bash
+        run: npm run build --workspace @daily-assistant/web
+
+      - name: Build Admin
+        shell: bash
+        run: npm run build --workspace @daily-assistant/admin
+
+      - name: Verify build outputs and unchanged source
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          test -f apps/api/dist/main.js
+          test -f apps/api/dist/generated/prisma/client.js
+          test -f apps/web/dist/index.html
+          test -n "$(find apps/web/dist -type f -print -quit)"
+          test -f apps/admin/dist/index.html
+          test -n "$(find apps/admin/dist -type f -print -quit)"
+          test -f packages/api-contracts/dist/index.js
+          test -f packages/config/dist/index.js
+          test -z "$(git status --short)"
+
+      - name: Install locked production dependencies
+        shell: bash
+        run: npm ci --omit=dev
+
+      - name: Validate Linux production dependencies
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          npm ls --omit=dev argon2 @prisma/client @prisma/adapter-mariadb \
+            @daily-assistant/api-contracts
+
+          mapfile -d '' argon2_binaries < <(
+            find node_modules/argon2 -type f -name '*.node' -print0
+          )
+          test "${#argon2_binaries[@]}" -gt 0
+
+          for binary in "${argon2_binaries[@]}"; do
+            file "${binary}" | grep -Eq 'ELF 64-bit.*x86-64'
+            if ldd "${binary}" | grep -Fq 'not found'; then
+              exit 1
+            fi
+          done
+
+          node -e "const argon2 = require('argon2'); if (typeof argon2.hash !== 'function') process.exit(1)"
+          node -e "const client = require('./apps/api/dist/generated/prisma/client.js'); if (typeof client.PrismaClient !== 'function') process.exit(1)"
+          test -z "$(git status --short)"
+
+      - name: Assemble release directory
+        id: assemble
+        shell: bash
+        env:
+          REPOSITORY: ${{ github.repository }}
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+          WORKFLOW_EVENT_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+
+          release_root="${RUNNER_TEMP}/release-staging"
+          output_root="${RUNNER_TEMP}/release-output"
+          release_dir="${release_root}/${ARTIFACT_BASENAME}"
+
+          test ! -e "${release_root}"
+          test ! -e "${output_root}"
+          install -d -m 0755 \
+            "${release_dir}/apps/api" \
+            "${release_dir}/apps/web" \
+            "${release_dir}/apps/admin" \
+            "${release_dir}/packages/api-contracts" \
+            "${release_dir}/packages/config" \
+            "${output_root}"
+
+          install -m 0644 package.json package-lock.json "${release_dir}/"
+          install -m 0644 apps/api/package.json "${release_dir}/apps/api/"
+          install -m 0644 apps/web/package.json "${release_dir}/apps/web/"
+          install -m 0644 apps/admin/package.json "${release_dir}/apps/admin/"
+          install -m 0644 packages/api-contracts/package.json \
+            "${release_dir}/packages/api-contracts/"
+          install -m 0644 packages/config/package.json \
+            "${release_dir}/packages/config/"
+
+          cp -a apps/api/dist "${release_dir}/apps/api/dist"
+          cp -a apps/api/prisma "${release_dir}/apps/api/prisma"
+          cp -a apps/web/dist "${release_dir}/apps/web/dist"
+          cp -a apps/admin/dist "${release_dir}/apps/admin/dist"
+          cp -a packages/api-contracts/dist \
+            "${release_dir}/packages/api-contracts/dist"
+          cp -a packages/api-contracts/openapi \
+            "${release_dir}/packages/api-contracts/openapi"
+          cp -a packages/config/dist "${release_dir}/packages/config/dist"
+          cp -a packages/config/eslint "${release_dir}/packages/config/eslint"
+          cp -a packages/config/typescript "${release_dir}/packages/config/typescript"
+          cp -a node_modules "${release_dir}/node_modules"
+
+          export METADATA_PATH="${release_dir}/RELEASE-METADATA.json"
+          export BUILD_TIMESTAMP="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          node <<'NODE'
+          const fs = require("node:fs");
+
+          const metadata = {
+            schemaVersion: 1,
+            product: "Daily Assistant V1 Private Preview",
+            sourceSha: process.env.SOURCE_SHA,
+            sourceParentSha: process.env.SOURCE_PARENT_SHA,
+            platform: "linux-x64",
+            runner: "ubuntu-24.04",
+            nodeVersion: process.env.EXPECTED_NODE_VERSION,
+            npmVersion: process.env.EXPECTED_NPM_VERSION,
+            artifactBasename: process.env.ARTIFACT_BASENAME,
+            repository: process.env.REPOSITORY,
+            workflowRef: process.env.WORKFLOW_REF,
+            workflowEventSha: process.env.WORKFLOW_EVENT_SHA,
+            runId: process.env.RUN_ID,
+            runAttempt: process.env.RUN_ATTEMPT,
+            buildTimestamp: process.env.BUILD_TIMESTAMP,
+            deploymentPerformed: false,
+          };
+
+          fs.writeFileSync(
+            process.env.METADATA_PATH,
+            `${JSON.stringify(metadata, null, 2)}\n`,
+            { encoding: "utf8", mode: 0o644 },
+          );
+          NODE
+
+          (
+            cd "${release_dir}"
+            find . -mindepth 1 -printf '%y %p -> %l\n' \
+              | LC_ALL=C sort > RELEASE-INVENTORY.txt
+            find . -type f ! -name SHA256SUMS -print0 \
+              | LC_ALL=C sort -z \
+              | xargs -0 -r sha256sum > SHA256SUMS
+          )
+
+          test -s "${release_dir}/RELEASE-METADATA.json"
+          test -s "${release_dir}/RELEASE-INVENTORY.txt"
+          test -s "${release_dir}/SHA256SUMS"
+          grep -Fq ' ./apps/api/dist/main.js' "${release_dir}/SHA256SUMS"
+          grep -Fq ' ./apps/web/dist/index.html' "${release_dir}/SHA256SUMS"
+          grep -Fq ' ./apps/admin/dist/index.html' "${release_dir}/SHA256SUMS"
+          (
+            cd "${release_dir}"
+            sha256sum --check SHA256SUMS
+          )
+
+          source_date_epoch="$(git show -s --format=%ct "${SOURCE_SHA}")"
+          archive_path="${output_root}/${ARTIFACT_BASENAME}.tar.gz"
+          tar \
+            --sort=name \
+            --mtime="@${source_date_epoch}" \
+            --owner=0 \
+            --group=0 \
+            --numeric-owner \
+            -C "${release_root}" \
+            -czf "${archive_path}" \
+            "${ARTIFACT_BASENAME}"
+
+          (
+            cd "${output_root}"
+            sha256sum "${ARTIFACT_BASENAME}.tar.gz" \
+              > "${ARTIFACT_BASENAME}.tar.gz.sha256"
+            sha256sum --check "${ARTIFACT_BASENAME}.tar.gz.sha256"
+          )
+
+          archive_inventory="${output_root}/ARCHIVE-CONTENTS.txt"
+          tar -tzf "${archive_path}" > "${archive_inventory}"
+          grep -Fxq "${ARTIFACT_BASENAME}/apps/api/dist/main.js" \
+            "${archive_inventory}"
+          grep -Fxq "${ARTIFACT_BASENAME}/apps/web/dist/index.html" \
+            "${archive_inventory}"
+          grep -Fxq "${ARTIFACT_BASENAME}/apps/admin/dist/index.html" \
+            "${archive_inventory}"
+          rm -- "${archive_inventory}"
+
+          test -z "$(git status --short)"
+
+          echo "artifact_path=${archive_path}" >> "${GITHUB_OUTPUT}"
+          echo "checksum_path=${archive_path}.sha256" >> "${GITHUB_OUTPUT}"
+
+      - name: Upload verified release artifact
+        if: ${{ success() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: daily-assistant-preview-f4439131-linux-x64
+          path: |
+            ${{ steps.assemble.outputs.artifact_path }}
+            ${{ steps.assemble.outputs.checksum_path }}
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+          overwrite: false
