@@ -133,19 +133,59 @@ jobs:
           npm ls --omit=dev argon2 @prisma/client @prisma/adapter-mariadb \
             @daily-assistant/api-contracts
 
-          mapfile -d '' argon2_binaries < <(
-            find node_modules/argon2 -type f -name '*.node' -print0
-          )
-          test "${#argon2_binaries[@]}" -gt 0
+          argon2_binary="$(
+            node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
 
-          for binary in "${argon2_binaries[@]}"; do
-            file "${binary}" | grep -Eq 'ELF 64-bit.*x86-64'
-            if ldd "${binary}" | grep -Fq 'not found'; then
-              exit 1
-            fi
-          done
+          const entryPath = fs.realpathSync(require.resolve("argon2"));
+          const packageDirectory = path.dirname(entryPath);
+          const cacheBeforeLoad = new Set(Object.keys(require.cache));
+          const argon2 = require("argon2");
 
-          node -e "const argon2 = require('argon2'); if (typeof argon2.hash !== 'function') process.exit(1)"
+          if (typeof argon2.hash !== "function") {
+            throw new Error("argon2.hash is unavailable");
+          }
+
+          const loadedBinaries = Object.keys(require.cache)
+            .filter(
+              (candidate) =>
+                !cacheBeforeLoad.has(candidate) && candidate.endsWith(".node"),
+            )
+            .map((candidate) => fs.realpathSync(candidate));
+
+          if (loadedBinaries.length !== 1) {
+            throw new Error(
+              `expected exactly one argon2 native binary, found ${loadedBinaries.length}`,
+            );
+          }
+
+          const binaryPath = loadedBinaries[0];
+          const relativeBinaryPath = path.relative(packageDirectory, binaryPath);
+
+          if (
+            !relativeBinaryPath ||
+            relativeBinaryPath === ".." ||
+            relativeBinaryPath.startsWith(`..${path.sep}`) ||
+            path.isAbsolute(relativeBinaryPath)
+          ) {
+            throw new Error("argon2 loaded a native binary outside its package");
+          }
+
+          process.stdout.write(binaryPath);
+          NODE
+          )"
+
+          test -n "${argon2_binary}"
+          test -f "${argon2_binary}"
+          echo "argon2 native binary: ${argon2_binary}"
+          file "${argon2_binary}" | grep -Eq 'ELF 64-bit.*x86-64'
+
+          ldd_output="$(ldd "${argon2_binary}")"
+          if grep -Fq 'not found' <<< "${ldd_output}"; then
+            exit 1
+          fi
+
           node -e "const client = require('./apps/api/dist/generated/prisma/client.js'); if (typeof client.PrismaClient !== 'function') process.exit(1)"
           test -z "$(git status --short)"
 
