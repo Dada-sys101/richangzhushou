@@ -43,8 +43,15 @@ import {
   AiRouterSelectionError,
   type AiProviderAdapter,
   type AiProviderResponse,
+  type AiProviderUsage,
 } from "./ai-provider-router.js";
 import { FakeAiProviderAdapter } from "./fake-provider/fake-ai-provider.adapter.js";
+import {
+  createDeepSeekAiProviderAdapter,
+  DeepSeekProviderConfigurationError,
+  type DeepSeekTransport,
+  RealAiProviderError,
+} from "./deepseek-provider/deepseek-ai-provider.adapter.js";
 import { AiProposalApplicationPort } from "./ai-proposal.application-port.js";
 import { sha256Fingerprint } from "./ai-proposal.fingerprint.js";
 import {
@@ -80,6 +87,7 @@ export interface AiProposalRuntimeOptions {
   breaker?: AiCircuitBreaker;
   budgetGate?: AiBudgetGate;
   clock?: { now(): Date };
+  deepSeekTransport?: DeepSeekTransport;
   providerEnvironment?: AiProviderConfigurationEnvironment;
   providerRouter?: AiProviderRouter;
   retryDelayMs?: number;
@@ -108,6 +116,7 @@ interface NormalizedProviderResult {
   operations: NormalizedOperation[];
   providerId: string;
   responseFingerprint: string;
+  usage: AiProviderUsage;
 }
 
 @Injectable()
@@ -134,7 +143,12 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     this.providerEnvironment = runtime.providerEnvironment ?? process.env;
     this.providerRouter =
       runtime.providerRouter ??
-      new AiProviderRouter(new FakeAiProviderAdapter(fakeProviderFactory));
+      new AiProviderRouter(new FakeAiProviderAdapter(fakeProviderFactory), () =>
+        createDeepSeekAiProviderAdapter(
+          this.providerEnvironment,
+          runtime.deepSeekTransport,
+        ),
+      );
     this.retryDelayMs = runtime.retryDelayMs ?? RETRY_DELAY_MS;
     this.sleep =
       runtime.sleep ??
@@ -205,21 +219,6 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
       );
     }
 
-    try {
-      await this.featureGate.requireFakeProviderForCreate(this.prisma);
-    } catch (error) {
-      if (error instanceof ApiException && error.code !== "AI_DISABLED") {
-        throw error;
-      }
-      return this.failClaimedAndThrow(
-        claimed,
-        userId,
-        inputFingerprint,
-        "FEATURE_DISABLED",
-        "AI_DISABLED",
-      );
-    }
-
     let budgetDecision;
     try {
       budgetDecision = await this.budgetGate.evaluate();
@@ -236,15 +235,9 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
       );
     }
 
-    let provider: AiProviderAdapter;
+    let configuration;
     try {
-      const configuration = resolveAiProviderConfiguration(
-        this.providerEnvironment,
-      );
-      provider = this.providerRouter.select(
-        configuration.selectedProvider,
-        request.requestType,
-      );
+      configuration = resolveAiProviderConfiguration(this.providerEnvironment);
     } catch (error) {
       if (
         error instanceof ApiException &&
@@ -256,8 +249,43 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
         claimed,
         userId,
         inputFingerprint,
+        error instanceof AiProviderConfigurationError
+          ? error.category
+          : "PROVIDER_UNAVAILABLE",
+        "AI_PROVIDER_ERROR",
+      );
+    }
+
+    try {
+      await this.featureGate.requireProviderForCreate(
+        this.prisma,
+        configuration.selectedProvider,
+      );
+    } catch (error) {
+      if (error instanceof ApiException && error.code !== "AI_DISABLED")
+        throw error;
+      return this.failClaimedAndThrow(
+        claimed,
+        userId,
+        inputFingerprint,
+        "FEATURE_DISABLED",
+        "AI_DISABLED",
+      );
+    }
+
+    let provider: AiProviderAdapter;
+    try {
+      provider = this.providerRouter.select(
+        configuration.selectedProvider,
+        request.requestType,
+      );
+    } catch (error) {
+      return this.failClaimedAndThrow(
+        claimed,
+        userId,
+        inputFingerprint,
         error instanceof AiRouterSelectionError ||
-          error instanceof AiProviderConfigurationError
+          error instanceof DeepSeekProviderConfigurationError
           ? error.category
           : "PROVIDER_UNAVAILABLE",
         "AI_PROVIDER_ERROR",
@@ -337,7 +365,10 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
         ) {
           throw malformedOutputError();
         }
-        normalized = this.normalizeProviderResult(request, response.content);
+        normalized = {
+          ...this.normalizeProviderResult(request, response.content),
+          usage: response.usage,
+        };
         if (
           normalized.providerId !== provider.providerId() ||
           normalized.modelId !== provider.modelId()
@@ -426,20 +457,25 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
   ): Promise<AiProviderResponse> {
     return new Promise((resolve, reject) => {
       let settled = false;
+      const controller = new AbortController();
       const timer = setTimeout(() => {
         if (settled) return;
         settled = true;
+        controller.abort();
         reject(new ProviderTimeoutError());
       }, this.timeoutMs);
 
       Promise.resolve()
         .then(() =>
-          provider.execute({
-            input: request,
-            messages: [{ content: request.userInput, role: "user" }],
-            model: provider.modelId(),
-            requestId,
-          }),
+          provider.execute(
+            {
+              input: request,
+              messages: [{ content: request.userInput, role: "user" }],
+              model: provider.modelId(),
+              requestId,
+            },
+            { signal: controller.signal },
+          ),
         )
         .then(
           (result) => {
@@ -611,6 +647,8 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
         data: {
           completedAt,
           latencyMs: elapsedMilliseconds(startedAt, completedAt),
+          inputTokens: normalized.usage.inputTokens,
+          outputTokens: normalized.usage.outputTokens,
           status: "SUCCEEDED",
         },
         where: { aiRequestId, attemptNo, status: "RUNNING" },
@@ -904,6 +942,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     return {
       ...normalized,
       responseFingerprint: sha256Fingerprint(normalized),
+      usage: { inputTokens: null, outputTokens: null },
     };
   }
 
@@ -1210,6 +1249,20 @@ function isUniqueViolation(error: unknown): boolean {
 }
 
 function classifyProviderFailure(error: unknown): ClassifiedProviderFailure {
+  if (error instanceof RealAiProviderError) {
+    return {
+      breakerSample: error.retryable ? "TECHNICAL_FAILURE" : "NON_TECHNICAL",
+      category: error.category,
+      code:
+        error.category === "TIMEOUT"
+          ? "AI_PROVIDER_TIMEOUT"
+          : error.category === "NETWORK_ERROR"
+            ? "AI_PROVIDER_NETWORK_ERROR"
+            : "AI_PROVIDER_ERROR",
+      httpStatus: error.httpStatus,
+      retryable: error.retryable,
+    };
+  }
   if (error instanceof FakeAiProviderError) {
     return {
       breakerSample: error.retryable ? "TECHNICAL_FAILURE" : "NON_TECHNICAL",

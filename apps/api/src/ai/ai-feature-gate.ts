@@ -8,6 +8,7 @@ import {
 import { ApiException } from "../common/api-error.js";
 import type { PrismaService } from "../prisma/prisma.service.js";
 import { loadDatabaseFeatureFlags } from "./ai-feature-flag-loader.js";
+import type { AiConfiguredProvider } from "./ai-provider-config.js";
 
 export const AI_FEATURE_GATE_SNAPSHOT = Symbol("AI_FEATURE_GATE_SNAPSHOT");
 export const AI_FEATURE_GATE_DATABASE_FLAGS = Symbol(
@@ -95,10 +96,24 @@ export class AiFeatureGate {
    * fakeProvider=true and liveProvider=false.
    */
   async requireFakeProviderForCreate(prisma: PrismaService): Promise<void> {
+    return this.requireProviderForCreate(prisma, "fake");
+  }
+
+  /** Applies the selected-provider gate before any adapter can read a secret. */
+  async requireProviderForCreate(
+    prisma: PrismaService,
+    selectedProvider: AiConfiguredProvider,
+  ): Promise<void> {
     const flags = this.testSnapshot
       ? this.flags
       : resolveProductionFlags(await loadDatabaseFeatureFlags(prisma));
-    if (!flags.proposal || !flags.fakeProvider || flags.liveProvider) {
+    const allowed =
+      selectedProvider === "fake"
+        ? flags.proposal && flags.fakeProvider && !flags.liveProvider
+        : selectedProvider === "deepseek"
+          ? flags.proposal && flags.liveProvider
+          : flags.proposal;
+    if (!allowed) {
       throw aiDisabled();
     }
   }

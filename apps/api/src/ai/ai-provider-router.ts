@@ -29,10 +29,17 @@ export interface AiProviderResponse {
   usage: AiProviderUsage;
 }
 
+export interface AiProviderExecutionContext {
+  signal?: AbortSignal;
+}
+
 export interface AiProviderAdapter {
   modelId(): string;
   providerId(): string;
-  execute(request: AiProviderRequest): Promise<AiProviderResponse>;
+  execute(
+    request: AiProviderRequest,
+    context?: AiProviderExecutionContext,
+  ): Promise<AiProviderResponse>;
 }
 
 export class AiRouterSelectionError extends Error {
@@ -52,7 +59,10 @@ export class AiRouterSelectionError extends Error {
  * live or second provider, and provider selection is not part of ProviderInput.
  */
 export class AiProviderRouter {
-  constructor(private readonly fakeAdapter: AiProviderAdapter) {}
+  constructor(
+    private readonly fakeAdapter: AiProviderAdapter,
+    private readonly deepSeekAdapterFactory?: () => AiProviderAdapter,
+  ) {}
 
   select(
     selectedProvider: AiConfiguredProvider,
@@ -61,10 +71,19 @@ export class AiProviderRouter {
     // Scenario selection belongs to the Fake adapter after the unified request
     // envelope is constructed.
     void requestType;
-    if (selectedProvider !== "fake") {
-      throw new AiRouterSelectionError("UNSUPPORTED_PROVIDER");
+    const adapter =
+      selectedProvider === "fake"
+        ? this.fakeAdapter
+        : selectedProvider === "deepseek"
+          ? this.deepSeekAdapterFactory?.()
+          : undefined;
+    if (!adapter) {
+      throw new AiRouterSelectionError(
+        selectedProvider === "openai"
+          ? "UNSUPPORTED_PROVIDER"
+          : "PROVIDER_UNAVAILABLE",
+      );
     }
-    const adapter = this.fakeAdapter;
     let providerId: string;
     let modelId: string;
     try {
@@ -75,7 +94,8 @@ export class AiProviderRouter {
     }
     if (
       !adapter ||
-      providerId !== "fake-provider" ||
+      providerId !==
+        (selectedProvider === "fake" ? "fake-provider" : "deepseek") ||
       typeof modelId !== "string" ||
       modelId.length === 0 ||
       typeof adapter.execute !== "function"

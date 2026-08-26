@@ -25,23 +25,56 @@ describe("PR19 deterministic provider selection boundary", () => {
     },
   );
 
-  it.each(["openai", "deepseek"] as const)(
-    "rejects unsupported provider %s without fake fallback",
-    (selectedProvider) => {
-      const execute = vi.fn();
-      const router = new AiProviderRouter({
-        execute,
+  it("rejects openai without fake fallback", () => {
+    const execute = vi.fn();
+    const router = new AiProviderRouter({
+      execute,
+      modelId: () => "fake-model",
+      providerId: () => "fake-provider",
+    });
+    expect(() => router.select("openai", "TASK")).toThrowError(
+      expect.objectContaining<Partial<AiRouterSelectionError>>({
+        category: "UNSUPPORTED_PROVIDER",
+      }),
+    );
+    expect(execute).not.toHaveBeenCalled();
+  });
+
+  it("selects a lazy DeepSeek adapter without touching the fake adapter", () => {
+    const fakeExecute = vi.fn();
+    const deepSeek = {
+      execute: vi.fn(),
+      modelId: () => "deepseek-test-model",
+      providerId: () => "deepseek",
+    };
+    const factory = vi.fn(() => deepSeek);
+    const router = new AiProviderRouter(
+      {
+        execute: fakeExecute,
         modelId: () => "fake-model",
         providerId: () => "fake-provider",
-      });
-      expect(() => router.select(selectedProvider, "TASK")).toThrowError(
-        expect.objectContaining<Partial<AiRouterSelectionError>>({
-          category: "UNSUPPORTED_PROVIDER",
-        }),
-      );
-      expect(execute).not.toHaveBeenCalled();
-    },
-  );
+      },
+      factory,
+    );
+    expect(router.select("deepseek", "TASK")).toBe(deepSeek);
+    expect(factory).toHaveBeenCalledOnce();
+    expect(fakeExecute).not.toHaveBeenCalled();
+  });
+
+  it("does not fallback when a DeepSeek factory is unavailable", () => {
+    const execute = vi.fn();
+    const router = new AiProviderRouter({
+      execute,
+      modelId: () => "fake-model",
+      providerId: () => "fake-provider",
+    });
+    expect(() => router.select("deepseek", "TASK")).toThrowError(
+      expect.objectContaining<Partial<AiRouterSelectionError>>({
+        category: "PROVIDER_UNAVAILABLE",
+      }),
+    );
+    expect(execute).not.toHaveBeenCalled();
+  });
 
   it("fails closed for an unavailable or invalid fake adapter", () => {
     expect(() =>
