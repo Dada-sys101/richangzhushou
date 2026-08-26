@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { AiFakeProviderFactory } from "./ai-fake-provider.factory.js";
+import { FakeAiProviderAdapter } from "./fake-provider/fake-ai-provider.adapter.js";
 import {
   AiProviderRouter,
   AiRouterSelectionError,
@@ -16,49 +17,54 @@ describe("PR19 deterministic provider selection boundary", () => {
   ] as const)(
     "selects only the explicit fake adapter for %s",
     (requestType) => {
-      const adapter = new AiProviderRouter(new AiFakeProviderFactory()).select(
-        requestType,
-      );
-      expect(adapter).toMatchObject({
-        modelId: "fake-model",
-        providerId: "fake-provider",
-      });
+      const adapter = new AiProviderRouter(
+        new FakeAiProviderAdapter(new AiFakeProviderFactory()),
+      ).select(requestType);
+      expect(adapter.providerId()).toBe("fake-provider");
+      expect(adapter.modelId()).toBe("fake-model");
     },
   );
 
-  it("rejects an unsupported configured provider without fake fallback", () => {
-    const create = vi.fn();
-    const router = new AiProviderRouter(
-      { create } as unknown as AiFakeProviderFactory,
-      "live-provider",
-    );
-    expect(() => router.select("TASK")).toThrowError(
-      expect.objectContaining<Partial<AiRouterSelectionError>>({
-        category: "UNSUPPORTED_PROVIDER",
-      }),
-    );
-    expect(create).not.toHaveBeenCalled();
-  });
+  it.each(["openai", "deepseek", "unknown"])(
+    "rejects unsupported provider %s without fake fallback",
+    (selectedProvider) => {
+      const execute = vi.fn();
+      const router = new AiProviderRouter(
+        {
+          execute,
+          modelId: () => "fake-model",
+          providerId: () => "fake-provider",
+        },
+        selectedProvider,
+      );
+      expect(() => router.select("TASK")).toThrowError(
+        expect.objectContaining<Partial<AiRouterSelectionError>>({
+          category: "UNSUPPORTED_PROVIDER",
+        }),
+      );
+      expect(execute).not.toHaveBeenCalled();
+    },
+  );
 
   it("fails closed for an unavailable or invalid fake adapter", () => {
     expect(() =>
       new AiProviderRouter({
-        create: () => {
+        execute: vi.fn(),
+        modelId: () => "fake-model",
+        providerId: () => {
           throw new Error("unavailable");
         },
-      } as unknown as AiFakeProviderFactory).select("TASK"),
+      }).select("TASK"),
     ).toThrowError(
       expect.objectContaining({ category: "PROVIDER_UNAVAILABLE" }),
     );
 
     expect(() =>
       new AiProviderRouter({
-        create: () => ({
-          generate: vi.fn(),
-          modelId: "unexpected-model",
-          providerId: "live-provider",
-        }),
-      } as unknown as AiFakeProviderFactory).select("TASK"),
+        execute: vi.fn(),
+        modelId: () => "unexpected-model",
+        providerId: () => "live-provider",
+      }).select("TASK"),
     ).toThrowError(
       expect.objectContaining({ category: "INVALID_PROVIDER_CONFIG" }),
     );
