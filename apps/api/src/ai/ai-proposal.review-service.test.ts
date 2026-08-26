@@ -216,38 +216,35 @@ describe("PR18 H03 proposal review service", () => {
     },
   );
 
-  it.each(["openai", "deepseek"] as const)(
-    "PR20 rejects unavailable real provider %s without adapter or network fallback",
-    async (selectedProvider) => {
-      const harness = buildCreateHarness();
-      const create = vi.fn();
-      const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(() => {
-        throw new Error("network access attempted");
+  it("PR20 rejects deepseek before adapter or network when the live gate is closed", async () => {
+    const harness = buildCreateHarness();
+    const create = vi.fn();
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(() => {
+      throw new Error("network access attempted");
+    });
+    try {
+      await expect(
+        createService(
+          harness.prisma,
+          providerFactoryWithGenerate(create),
+          undefined,
+          { providerEnvironment: { AI_PROVIDER: "deepseek" } },
+        ).create("user_1", "k".repeat(16), INPUT),
+      ).rejects.toMatchObject({
+        code: "AI_DISABLED",
+        statusCode: 403,
       });
-      try {
-        await expect(
-          createService(
-            harness.prisma,
-            providerFactoryWithGenerate(create),
-            undefined,
-            { providerEnvironment: { AI_PROVIDER: selectedProvider } },
-          ).create("user_1", "k".repeat(16), INPUT),
-        ).rejects.toMatchObject({
-          code: "AI_PROVIDER_ERROR",
-          statusCode: 502,
-        });
-        expect(harness.request).toMatchObject({
-          failureCategory: "UNSUPPORTED_PROVIDER",
-          status: "FAILED",
-        });
-        expect(harness.attempts).toHaveLength(0);
-        expect(create).not.toHaveBeenCalled();
-        expect(fetchSpy).not.toHaveBeenCalled();
-      } finally {
-        fetchSpy.mockRestore();
-      }
-    },
-  );
+      expect(harness.request).toMatchObject({
+        failureCategory: "FEATURE_DISABLED",
+        status: "FAILED",
+      });
+      expect(harness.attempts).toHaveLength(0);
+      expect(create).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      fetchSpy.mockRestore();
+    }
+  });
 
   it("PR20 live gate does not enable a configured real provider", async () => {
     const harness = buildCreateHarness();
@@ -263,13 +260,59 @@ describe("PR18 H03 proposal review service", () => {
         }),
         { providerEnvironment: { AI_PROVIDER: "openai" } },
       ).create("user_1", "k".repeat(16), INPUT),
-    ).rejects.toMatchObject({ code: "AI_DISABLED", statusCode: 403 });
+    ).rejects.toMatchObject({ code: "AI_PROVIDER_ERROR", statusCode: 502 });
     expect(harness.request).toMatchObject({
-      failureCategory: "FEATURE_DISABLED",
+      failureCategory: "UNSUPPORTED_PROVIDER",
       status: "FAILED",
     });
     expect(harness.attempts).toHaveLength(0);
     expect(create).not.toHaveBeenCalled();
+  });
+
+  it("PR20-03A reaches the injected DeepSeek transport only after the live gate and persists usage", async () => {
+    const harness = buildCreateHarness();
+    const post = vi.fn(async () => ({
+      json: async () => ({
+        choices: [
+          {
+            finish_reason: "stop",
+            message: {
+              content: JSON.stringify({
+                modelId: "deepseek-test",
+                clarification: "请补充会议详情",
+                missingFields: ["title"],
+                operations: [],
+                providerId: "deepseek",
+                resultType: "UNCERTAIN",
+              }),
+            },
+          },
+        ],
+        usage: { completion_tokens: 3, prompt_tokens: 5 },
+      }),
+      status: 200,
+    }));
+    const result = await createService(
+      harness.prisma,
+      providerFactoryWithGenerate(vi.fn()),
+      AiFeatureGate.forTesting({ liveProvider: true, proposal: true }),
+      {
+        deepSeekTransport: { post },
+        providerEnvironment: {
+          AI_PROVIDER: "deepseek",
+          DEEPSEEK_API_KEY: "test-secret",
+          DEEPSEEK_MODEL: "deepseek-test",
+        },
+      },
+    ).create("user_1", "k".repeat(16), INPUT);
+    expect(result.request.status).toBe("SUCCEEDED");
+    expect(post).toHaveBeenCalledOnce();
+    expect(harness.attempt).toMatchObject({
+      inputTokens: 5,
+      outputTokens: 3,
+      providerId: "deepseek",
+    });
+    expect(JSON.stringify(harness)).not.toContain("test-secret");
   });
 
   it("PR20 rejects invalid provider configuration before adapter execution", async () => {
