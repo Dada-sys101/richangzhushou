@@ -37,7 +37,9 @@ import {
   AiProviderRouter,
   AiRouterSelectionError,
   type AiProviderAdapter,
+  type AiProviderResponse,
 } from "./ai-provider-router.js";
+import { FakeAiProviderAdapter } from "./fake-provider/fake-ai-provider.adapter.js";
 import { AiProposalApplicationPort } from "./ai-proposal.application-port.js";
 import { sha256Fingerprint } from "./ai-proposal.fingerprint.js";
 import {
@@ -123,7 +125,8 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     this.budgetGate = runtime.budgetGate ?? new AllowFakeAiBudgetGate();
     this.clock = runtime.clock ?? { now: () => new Date() };
     this.providerRouter =
-      runtime.providerRouter ?? new AiProviderRouter(fakeProviderFactory);
+      runtime.providerRouter ??
+      new AiProviderRouter(new FakeAiProviderAdapter(fakeProviderFactory));
     this.retryDelayMs = runtime.retryDelayMs ?? RETRY_DELAY_MS;
     this.sleep =
       runtime.sleep ??
@@ -287,6 +290,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
       provider,
       breakerResult.permit,
       firstStartedAt,
+      claimed.requestId,
     );
   }
 
@@ -298,6 +302,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     provider: AiProviderAdapter,
     breakerPermit: AiBreakerPermit,
     firstStartedAt: Date,
+    requestId: string,
   ): Promise<AiProposalCreateResponse> {
     let attemptNo = 1;
     let attemptStartedAt = firstStartedAt;
@@ -305,11 +310,22 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     for (;;) {
       let normalized: NormalizedProviderResult;
       try {
-        const result = await this.invokeProvider(provider, request);
-        normalized = this.normalizeProviderResult(request, result);
+        const response = await this.invokeProvider(
+          provider,
+          requestId,
+          request,
+        );
         if (
-          normalized.providerId !== provider.providerId ||
-          normalized.modelId !== provider.modelId
+          response.requestId !== requestId ||
+          response.providerName !== provider.providerId() ||
+          response.model !== provider.modelId()
+        ) {
+          throw malformedOutputError();
+        }
+        normalized = this.normalizeProviderResult(request, response.content);
+        if (
+          normalized.providerId !== provider.providerId() ||
+          normalized.modelId !== provider.modelId()
         ) {
           throw malformedOutputError();
         }
@@ -390,8 +406,9 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
 
   private async invokeProvider(
     provider: AiProviderAdapter,
+    requestId: string,
     request: AiProposalCreateRequest,
-  ): Promise<FakeAiProviderResult> {
+  ): Promise<AiProviderResponse> {
     return new Promise((resolve, reject) => {
       let settled = false;
       const timer = setTimeout(() => {
@@ -401,7 +418,14 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
       }, this.timeoutMs);
 
       Promise.resolve()
-        .then(() => provider.generate(request))
+        .then(() =>
+          provider.execute({
+            input: request,
+            messages: [{ content: request.userInput, role: "user" }],
+            model: provider.modelId(),
+            requestId,
+          }),
+        )
         .then(
           (result) => {
             if (settled) return;
@@ -472,8 +496,8 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
         data: {
           aiRequestId,
           attemptNo,
-          modelId: provider.modelId,
-          providerId: provider.providerId,
+          modelId: provider.modelId(),
+          providerId: provider.providerId(),
           startedAt,
           status: "RUNNING",
         },
