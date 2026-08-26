@@ -19,25 +19,22 @@ describe("PR19 deterministic provider selection boundary", () => {
     (requestType) => {
       const adapter = new AiProviderRouter(
         new FakeAiProviderAdapter(new AiFakeProviderFactory()),
-      ).select(requestType);
+      ).select("fake", requestType);
       expect(adapter.providerId()).toBe("fake-provider");
       expect(adapter.modelId()).toBe("fake-model");
     },
   );
 
-  it.each(["openai", "deepseek", "unknown"])(
+  it.each(["openai", "deepseek"] as const)(
     "rejects unsupported provider %s without fake fallback",
     (selectedProvider) => {
       const execute = vi.fn();
-      const router = new AiProviderRouter(
-        {
-          execute,
-          modelId: () => "fake-model",
-          providerId: () => "fake-provider",
-        },
-        selectedProvider,
-      );
-      expect(() => router.select("TASK")).toThrowError(
+      const router = new AiProviderRouter({
+        execute,
+        modelId: () => "fake-model",
+        providerId: () => "fake-provider",
+      });
+      expect(() => router.select(selectedProvider, "TASK")).toThrowError(
         expect.objectContaining<Partial<AiRouterSelectionError>>({
           category: "UNSUPPORTED_PROVIDER",
         }),
@@ -54,7 +51,7 @@ describe("PR19 deterministic provider selection boundary", () => {
         providerId: () => {
           throw new Error("unavailable");
         },
-      }).select("TASK"),
+      }).select("fake", "TASK"),
     ).toThrowError(
       expect.objectContaining({ category: "PROVIDER_UNAVAILABLE" }),
     );
@@ -64,7 +61,7 @@ describe("PR19 deterministic provider selection boundary", () => {
         execute: vi.fn(),
         modelId: () => "unexpected-model",
         providerId: () => "live-provider",
-      }).select("TASK"),
+      }).select("fake", "TASK"),
     ).toThrowError(
       expect.objectContaining({ category: "INVALID_PROVIDER_CONFIG" }),
     );

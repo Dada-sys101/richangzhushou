@@ -1,5 +1,6 @@
 import type { AiProviderInput } from "@daily-assistant/api-contracts";
 
+import type { AiConfiguredProvider } from "./ai-provider-config.js";
 import type { FakeAiProviderResult } from "./fake-provider/fake-ai-provider.types.js";
 
 export interface AiProviderMessage {
@@ -51,16 +52,16 @@ export class AiRouterSelectionError extends Error {
  * live or second provider, and provider selection is not part of ProviderInput.
  */
 export class AiProviderRouter {
-  constructor(
-    private readonly fakeAdapter: AiProviderAdapter,
-    private readonly selectedProvider: string = "fake",
-  ) {}
+  constructor(private readonly fakeAdapter: AiProviderAdapter) {}
 
-  select(requestType: string): AiProviderAdapter {
-    // Kept for the PR19 call signature; scenario selection belongs to the
-    // Fake adapter after the unified request envelope is constructed.
+  select(
+    selectedProvider: AiConfiguredProvider,
+    requestType: string,
+  ): AiProviderAdapter {
+    // Scenario selection belongs to the Fake adapter after the unified request
+    // envelope is constructed.
     void requestType;
-    if (this.selectedProvider !== "fake") {
+    if (selectedProvider !== "fake") {
       throw new AiRouterSelectionError("UNSUPPORTED_PROVIDER");
     }
     const adapter = this.fakeAdapter;
