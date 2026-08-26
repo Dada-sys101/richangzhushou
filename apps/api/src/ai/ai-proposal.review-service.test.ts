@@ -192,6 +192,108 @@ describe("PR18 H03 proposal review service", () => {
     expect(harness.attempt.status).toBe("FAILED");
   });
 
+  it.each([
+    ["missing", {}],
+    ["explicit fake", { AI_PROVIDER: "fake" }],
+  ] as const)(
+    "PR20 keeps the Fake flow for %s provider configuration",
+    async (_label, providerEnvironment) => {
+      const harness = buildCreateHarness();
+      const create = vi.fn((input: AiProposalCreateRequest) =>
+        new FakeAiProvider({ scenario: "CALENDAR_EVENT_SUCCESS" }).generate(
+          input,
+        ),
+      );
+      const result = await createService(
+        harness.prisma,
+        providerFactoryWithGenerate(create),
+        undefined,
+        { providerEnvironment },
+      ).create("user_1", "k".repeat(16), INPUT);
+
+      expect(result.request.status).toBe("SUCCEEDED");
+      expect(create).toHaveBeenCalledOnce();
+    },
+  );
+
+  it.each(["openai", "deepseek"] as const)(
+    "PR20 rejects unavailable real provider %s without adapter or network fallback",
+    async (selectedProvider) => {
+      const harness = buildCreateHarness();
+      const create = vi.fn();
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(() => {
+        throw new Error("network access attempted");
+      });
+      try {
+        await expect(
+          createService(
+            harness.prisma,
+            providerFactoryWithGenerate(create),
+            undefined,
+            { providerEnvironment: { AI_PROVIDER: selectedProvider } },
+          ).create("user_1", "k".repeat(16), INPUT),
+        ).rejects.toMatchObject({
+          code: "AI_PROVIDER_ERROR",
+          statusCode: 502,
+        });
+        expect(harness.request).toMatchObject({
+          failureCategory: "UNSUPPORTED_PROVIDER",
+          status: "FAILED",
+        });
+        expect(harness.attempts).toHaveLength(0);
+        expect(create).not.toHaveBeenCalled();
+        expect(fetchSpy).not.toHaveBeenCalled();
+      } finally {
+        fetchSpy.mockRestore();
+      }
+    },
+  );
+
+  it("PR20 live gate does not enable a configured real provider", async () => {
+    const harness = buildCreateHarness();
+    const create = vi.fn();
+    await expect(
+      createService(
+        harness.prisma,
+        providerFactoryWithGenerate(create),
+        AiFeatureGate.forTesting({
+          fakeProvider: true,
+          liveProvider: true,
+          proposal: true,
+        }),
+        { providerEnvironment: { AI_PROVIDER: "openai" } },
+      ).create("user_1", "k".repeat(16), INPUT),
+    ).rejects.toMatchObject({ code: "AI_DISABLED", statusCode: 403 });
+    expect(harness.request).toMatchObject({
+      failureCategory: "FEATURE_DISABLED",
+      status: "FAILED",
+    });
+    expect(harness.attempts).toHaveLength(0);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("PR20 rejects invalid provider configuration before adapter execution", async () => {
+    const harness = buildCreateHarness();
+    const create = vi.fn();
+    await expect(
+      createService(
+        harness.prisma,
+        providerFactoryWithGenerate(create),
+        undefined,
+        { providerEnvironment: { AI_PROVIDER: "unknown" } },
+      ).create("user_1", "k".repeat(16), INPUT),
+    ).rejects.toMatchObject({
+      code: "AI_PROVIDER_ERROR",
+      statusCode: 502,
+    });
+    expect(harness.request).toMatchObject({
+      failureCategory: "INVALID_PROVIDER_CONFIG",
+      status: "FAILED",
+    });
+    expect(harness.attempts).toHaveLength(0);
+    expect(create).not.toHaveBeenCalled();
+  });
+
   it("H03-U09: edit changes fields without changing status/type/confidence", async () => {
     const harness = buildMutationHarness("PENDING_REVIEW", "PENDING", 1);
     const service = createService(harness.prisma);

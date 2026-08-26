@@ -34,6 +34,11 @@ import { AllowFakeAiBudgetGate, type AiBudgetGate } from "./ai-budget-gate.js";
 import { AiFeatureGate } from "./ai-feature-gate.js";
 import { validateAiOperationFields } from "./ai-formal-write.orchestrator.js";
 import {
+  AiProviderConfigurationError,
+  resolveAiProviderConfiguration,
+  type AiProviderConfigurationEnvironment,
+} from "./ai-provider-config.js";
+import {
   AiProviderRouter,
   AiRouterSelectionError,
   type AiProviderAdapter,
@@ -75,6 +80,7 @@ export interface AiProposalRuntimeOptions {
   breaker?: AiCircuitBreaker;
   budgetGate?: AiBudgetGate;
   clock?: { now(): Date };
+  providerEnvironment?: AiProviderConfigurationEnvironment;
   providerRouter?: AiProviderRouter;
   retryDelayMs?: number;
   sleep?: (milliseconds: number) => Promise<void>;
@@ -109,6 +115,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
   private readonly breaker: AiCircuitBreaker;
   private readonly budgetGate: AiBudgetGate;
   private readonly clock: { now(): Date };
+  private readonly providerEnvironment: AiProviderConfigurationEnvironment;
   private readonly providerRouter: AiProviderRouter;
   private readonly retryDelayMs: number;
   private readonly sleep: (milliseconds: number) => Promise<void>;
@@ -124,6 +131,7 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     this.breaker = runtime.breaker ?? new AiCircuitBreaker();
     this.budgetGate = runtime.budgetGate ?? new AllowFakeAiBudgetGate();
     this.clock = runtime.clock ?? { now: () => new Date() };
+    this.providerEnvironment = runtime.providerEnvironment ?? process.env;
     this.providerRouter =
       runtime.providerRouter ??
       new AiProviderRouter(new FakeAiProviderAdapter(fakeProviderFactory));
@@ -230,7 +238,13 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
 
     let provider: AiProviderAdapter;
     try {
-      provider = this.providerRouter.select(request.requestType);
+      const configuration = resolveAiProviderConfiguration(
+        this.providerEnvironment,
+      );
+      provider = this.providerRouter.select(
+        configuration.selectedProvider,
+        request.requestType,
+      );
     } catch (error) {
       if (
         error instanceof ApiException &&
@@ -242,7 +256,8 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
         claimed,
         userId,
         inputFingerprint,
-        error instanceof AiRouterSelectionError
+        error instanceof AiRouterSelectionError ||
+          error instanceof AiProviderConfigurationError
           ? error.category
           : "PROVIDER_UNAVAILABLE",
         "AI_PROVIDER_ERROR",
