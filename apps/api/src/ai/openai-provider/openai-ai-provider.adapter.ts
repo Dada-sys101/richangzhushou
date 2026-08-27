@@ -186,11 +186,7 @@ const TRIP_FIELDS_SCHEMA = {
 
 function operationSchema(
   operationType:
-    | "TRANSACTION"
-    | "CALENDAR_EVENT"
-    | "TASK"
-    | "REMINDER"
-    | "TRIP",
+    "TRANSACTION" | "CALENDAR_EVENT" | "TASK" | "REMINDER" | "TRIP",
   fields: Record<string, unknown>,
 ) {
   return {

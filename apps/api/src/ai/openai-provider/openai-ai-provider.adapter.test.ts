@@ -260,7 +260,9 @@ function expectClosedObjects(value: unknown): void {
     if (!isRecord(value.properties) || !Array.isArray(value.required)) {
       throw new Error("Expected strict object schema properties and required");
     }
-    expect([...value.required].sort()).toEqual(Object.keys(value.properties).sort());
+    expect([...value.required].sort()).toEqual(
+      Object.keys(value.properties).sort(),
+    );
   }
   Object.values(value).forEach(expectClosedObjects);
 }
