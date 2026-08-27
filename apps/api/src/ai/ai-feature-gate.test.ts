@@ -229,43 +229,46 @@ describe("PR18 H04 AI feature gates", () => {
     }
   });
 
-  it("PR20-03A permits DeepSeek only when the live environment and DB gates both resolve true", async () => {
-    const previousAi = process.env.V15_AI_ALLOWED;
-    const previousLive = process.env.V15_LIVE_AI_ALLOWED;
-    process.env.V15_AI_ALLOWED = "true";
-    process.env.V15_LIVE_AI_ALLOWED = "true";
-    try {
-      const enabled = {
-        systemSetting: {
-          findUnique: vi.fn().mockResolvedValue({
-            featureFlags: {
-              "v15.ai.liveProvider": true,
-              "v15.ai.proposal": true,
-            },
-          }),
-        },
-      } as unknown as PrismaService;
-      await expect(
-        new AiFeatureGate().requireProviderForCreate(enabled, "deepseek"),
-      ).resolves.toBeUndefined();
-      const disabled = {
-        systemSetting: {
-          findUnique: vi.fn().mockResolvedValue({
-            featureFlags: {
-              "v15.ai.liveProvider": false,
-              "v15.ai.proposal": true,
-            },
-          }),
-        },
-      } as unknown as PrismaService;
-      await expect(
-        new AiFeatureGate().requireProviderForCreate(disabled, "deepseek"),
-      ).rejects.toMatchObject({ code: "AI_DISABLED" });
-    } finally {
-      if (previousAi === undefined) delete process.env.V15_AI_ALLOWED;
-      else process.env.V15_AI_ALLOWED = previousAi;
-      if (previousLive === undefined) delete process.env.V15_LIVE_AI_ALLOWED;
-      else process.env.V15_LIVE_AI_ALLOWED = previousLive;
-    }
-  });
+  it.each(["deepseek", "openai"] as const)(
+    "PR20 live providers require both the live environment and DB gates: %s",
+    async (provider) => {
+      const previousAi = process.env.V15_AI_ALLOWED;
+      const previousLive = process.env.V15_LIVE_AI_ALLOWED;
+      process.env.V15_AI_ALLOWED = "true";
+      process.env.V15_LIVE_AI_ALLOWED = "true";
+      try {
+        const enabled = {
+          systemSetting: {
+            findUnique: vi.fn().mockResolvedValue({
+              featureFlags: {
+                "v15.ai.liveProvider": true,
+                "v15.ai.proposal": true,
+              },
+            }),
+          },
+        } as unknown as PrismaService;
+        await expect(
+          new AiFeatureGate().requireProviderForCreate(enabled, provider),
+        ).resolves.toBeUndefined();
+        const disabled = {
+          systemSetting: {
+            findUnique: vi.fn().mockResolvedValue({
+              featureFlags: {
+                "v15.ai.liveProvider": false,
+                "v15.ai.proposal": true,
+              },
+            }),
+          },
+        } as unknown as PrismaService;
+        await expect(
+          new AiFeatureGate().requireProviderForCreate(disabled, provider),
+        ).rejects.toMatchObject({ code: "AI_DISABLED" });
+      } finally {
+        if (previousAi === undefined) delete process.env.V15_AI_ALLOWED;
+        else process.env.V15_AI_ALLOWED = previousAi;
+        if (previousLive === undefined) delete process.env.V15_LIVE_AI_ALLOWED;
+        else process.env.V15_LIVE_AI_ALLOWED = previousLive;
+      }
+    },
+  );
 });

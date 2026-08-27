@@ -246,27 +246,85 @@ describe("PR18 H03 proposal review service", () => {
     }
   });
 
-  it("PR20 live gate does not enable a configured real provider", async () => {
+  it("PR20-03B rejects OpenAI before factory, secret, or transport when the live gate is closed", async () => {
     const harness = buildCreateHarness();
     const create = vi.fn();
+    const post = vi.fn();
+    const readOpenAiSecret = vi.fn();
+    const environment = {
+      AI_PROVIDER: "openai",
+      get OPENAI_API_KEY() {
+        readOpenAiSecret();
+        return "test-secret";
+      },
+      OPENAI_MODEL: "openai-test",
+    };
     await expect(
       createService(
         harness.prisma,
         providerFactoryWithGenerate(create),
-        AiFeatureGate.forTesting({
-          fakeProvider: true,
-          liveProvider: true,
-          proposal: true,
-        }),
-        { providerEnvironment: { AI_PROVIDER: "openai" } },
+        undefined,
+        { openAiTransport: { post }, providerEnvironment: environment },
       ).create("user_1", "k".repeat(16), INPUT),
-    ).rejects.toMatchObject({ code: "AI_PROVIDER_ERROR", statusCode: 502 });
+    ).rejects.toMatchObject({ code: "AI_DISABLED", statusCode: 403 });
     expect(harness.request).toMatchObject({
-      failureCategory: "UNSUPPORTED_PROVIDER",
+      failureCategory: "FEATURE_DISABLED",
       status: "FAILED",
     });
     expect(harness.attempts).toHaveLength(0);
     expect(create).not.toHaveBeenCalled();
+    expect(readOpenAiSecret).not.toHaveBeenCalled();
+    expect(post).not.toHaveBeenCalled();
+  });
+
+  it("PR20-03B routes enabled OpenAI mock output and persists normalized usage", async () => {
+    const harness = buildCreateHarness();
+    const post = vi.fn(async () => ({
+      json: async () => ({
+        output: [
+          {
+            content: [
+              {
+                text: JSON.stringify({
+                  clarification: "请补充会议详情",
+                  missingFields: ["title"],
+                  modelId: "openai-test",
+                  operations: [],
+                  providerId: "openai",
+                  resultType: "UNCERTAIN",
+                }),
+                type: "output_text",
+              },
+            ],
+            type: "message",
+          },
+        ],
+        status: "completed",
+        usage: { input_tokens: 5, output_tokens: 3 },
+      }),
+      status: 200,
+    }));
+    const result = await createService(
+      harness.prisma,
+      providerFactoryWithGenerate(vi.fn()),
+      AiFeatureGate.forTesting({ liveProvider: true, proposal: true }),
+      {
+        openAiTransport: { post },
+        providerEnvironment: {
+          AI_PROVIDER: "openai",
+          OPENAI_API_KEY: "test-secret",
+          OPENAI_MODEL: "openai-test",
+        },
+      },
+    ).create("user_1", "k".repeat(16), INPUT);
+    expect(result.request.status).toBe("SUCCEEDED");
+    expect(post).toHaveBeenCalledOnce();
+    expect(harness.attempt).toMatchObject({
+      inputTokens: 5,
+      outputTokens: 3,
+      providerId: "openai",
+    });
+    expect(JSON.stringify(harness)).not.toContain("test-secret");
   });
 
   it("PR20-03A reaches the injected DeepSeek transport only after the live gate and persists usage", async () => {

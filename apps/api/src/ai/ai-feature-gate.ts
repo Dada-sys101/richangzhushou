@@ -110,9 +110,9 @@ export class AiFeatureGate {
     const allowed =
       selectedProvider === "fake"
         ? flags.proposal && flags.fakeProvider && !flags.liveProvider
-        : selectedProvider === "deepseek"
+        : selectedProvider === "deepseek" || selectedProvider === "openai"
           ? flags.proposal && flags.liveProvider
-          : flags.proposal;
+          : false;
     if (!allowed) {
       throw aiDisabled();
     }

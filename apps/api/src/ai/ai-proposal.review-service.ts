@@ -52,6 +52,11 @@ import {
   type DeepSeekTransport,
   RealAiProviderError,
 } from "./deepseek-provider/deepseek-ai-provider.adapter.js";
+import {
+  createOpenAiProviderAdapter,
+  OpenAiProviderConfigurationError,
+  type OpenAiTransport,
+} from "./openai-provider/openai-ai-provider.adapter.js";
 import { AiProposalApplicationPort } from "./ai-proposal.application-port.js";
 import { sha256Fingerprint } from "./ai-proposal.fingerprint.js";
 import {
@@ -88,6 +93,7 @@ export interface AiProposalRuntimeOptions {
   budgetGate?: AiBudgetGate;
   clock?: { now(): Date };
   deepSeekTransport?: DeepSeekTransport;
+  openAiTransport?: OpenAiTransport;
   providerEnvironment?: AiProviderConfigurationEnvironment;
   providerRouter?: AiProviderRouter;
   retryDelayMs?: number;
@@ -143,11 +149,18 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
     this.providerEnvironment = runtime.providerEnvironment ?? process.env;
     this.providerRouter =
       runtime.providerRouter ??
-      new AiProviderRouter(new FakeAiProviderAdapter(fakeProviderFactory), () =>
-        createDeepSeekAiProviderAdapter(
-          this.providerEnvironment,
-          runtime.deepSeekTransport,
-        ),
+      new AiProviderRouter(
+        new FakeAiProviderAdapter(fakeProviderFactory),
+        () =>
+          createDeepSeekAiProviderAdapter(
+            this.providerEnvironment,
+            runtime.deepSeekTransport,
+          ),
+        () =>
+          createOpenAiProviderAdapter(
+            this.providerEnvironment,
+            runtime.openAiTransport,
+          ),
       );
     this.retryDelayMs = runtime.retryDelayMs ?? RETRY_DELAY_MS;
     this.sleep =
@@ -285,7 +298,8 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
         userId,
         inputFingerprint,
         error instanceof AiRouterSelectionError ||
-          error instanceof DeepSeekProviderConfigurationError
+          error instanceof DeepSeekProviderConfigurationError ||
+          error instanceof OpenAiProviderConfigurationError
           ? error.category
           : "PROVIDER_UNAVAILABLE",
         "AI_PROVIDER_ERROR",
