@@ -10,9 +10,10 @@ Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基
 
 > 当前阶段：PR19 已通过 GitHub PR #18 合入 Integration，PR20 adapter integration 已通过
 > PR #20/#21/#22/#23 合入；Integration HEAD 为
-> `56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`。PR20 live Provider validation 仍为
+> `d53f84a4ff99208f69d209e98a1d3f07c588d760`。PR20 live Provider validation 仍为
 > `BLOCKED / H7`，H7 为 `OPEN`，R1 Quality Gate 为 `BLOCKED / NOT_READY`。当前执行
-> `QUALITY-R1-GOVERNANCE-RECONCILIATION` Gate 1，本地文档草案未提交；Staging 未创建，生产未部署。
+> `QUALITY-R1-GOVERNANCE-RECONCILIATION` 的规范冻结 post-write review，ADR-028 已 Accepted；
+> 本地文档写入未提交；Staging 未创建，生产未部署。
 
 ## 工程结构
 
@@ -93,7 +94,7 @@ Vitest 子进程。完整安全边界和验收证据见 `docs/41-pr6a-mysql84-va
 - `.project/context.md`：长期状态；`.project/session.md`：当前/暂停任务；
   `.project/decisions.md`：ADR 索引。
 - 当前任务契约：`tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`。
-- PR19 V10 契约：`tasks/PR19.md`；PR20/H7 边界提案：`docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md`。
+- PR19 V10 契约：`tasks/PR19.md`；Accepted PR20/H7 边界：`docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md`。
 - 校验：`npm run check:context`（已并入 `npm run quality`）。
 
 ## 当前首发边界
@@ -104,8 +105,10 @@ Vitest 子进程。完整安全边界和验收证据见 `docs/41-pr6a-mysql84-va
 - 云端同步，同时保留本地缓存和离线写入能力。
 - R1 不包含家庭共享。
 - AI 正式写入必须经用户确认和审计；真实 Provider 未通过 H7 时不得上线 R1。
-- Gate 1 只记录 PR20 adapter integration 已合入的事实与待批准的两阶段语义；不关闭 H7、不让
-  新规范生效。CI 绿色不等于真实 Provider 验证，且 run `33035100661` 的 browser report upload 被跳过。
+- ADR-028 已使 PR20 adapter integration `DONE_INTEGRATION` 与 live Provider validation
+  `BLOCKED / H7` 的双轨语义生效；H7 仍阻塞真实 Provider calls、real credential/secret use、
+  real-data/provider evaluation、Provider enablement、REL-04 和 R1 advancement。CI 绿色不等于
+  真实 Provider 验证，且 run `33043413216` 的 Playwright report upload 被跳过。
 - ADR-027 仅冻结 Provider/模型候选、服务端接入、安全/预算/韧性和评测策略；当前不冻结唯一
   Provider，PR20 受控真实评测后的 final provider/model/effect thresholds 仍需再次人工批准。
 - Import、新 RRULE 切换、完整 IndexedDB 加密迁移和 Shrink 在 R2/R3，后移不取消。
@@ -116,13 +119,13 @@ Vitest 子进程。完整安全边界和验收证据见 `docs/41-pr6a-mysql84-va
 - [V1.5 执行状态快照](.project/v15-execution-state.md)
 - [当前任务契约](tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md)
 - [PR19 V10 契约](tasks/PR19.md)
-- [ADR-028 H7 边界提案](docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md)
+- [Accepted ADR-028 H7 边界](docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md)
 - [Accepted ADR-027](docs/adr/ADR-027-ai-provider-evaluation-policy.md)
 - [PR6a MySQL 8.4 验收](docs/41-pr6a-mysql84-validation.md)
 - [文档索引](docs/README.md)
 - [总体计划](MASTER_PLAN.md)
 - [当前状态](PROJECT_STATUS.md)
-- [冻结基线 V1.1](docs/40-v15-final-development-baseline.md)
+- [冻结基线 V1.2](docs/40-v15-final-development-baseline.md)
 - [Accepted ADR-026](docs/adr/ADR-026-v15-release-scope-r1.md)
 
 ## 仓库边界

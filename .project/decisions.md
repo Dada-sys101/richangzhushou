@@ -359,26 +359,27 @@
   `tasks/AI-DECISION-001.md`、`PLANS.md`
 - Related Commit: not created; AI-DECISION-001 is `DONE / DONE_LOCAL`
 
-## ADR-028: PR20 Adapter Integration 与 H7 真实验证边界（Proposed）
+## ADR-028: PR20 Adapter Integration 与 H7 真实验证边界
 
 - Date: 2026-08-27
-- Status: `PROPOSED / AWAITING_DADA_APPROVAL`
+- Status: `Accepted`
+- Accepted by: Dada（明确批准，2026-08-27）
 - Context: PR20-01/#20、PR20-02/#21、PR20-03A/#22、PR20-03B/#23 已进入 Integration，
   而现行规则仍将 H7 同时作为 PR20 merge gate 与 R1 blocker；需要登记历史偏离并区分
   adapter integration 与 live Provider validation。
 - Observed facts: `origin/codex/v15-integration-foundation` 已重新核验到
-  `56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`；PR19 为 PR #18 merge
-  `c42c19ecb606893b1384fab4a13af2afb6b9981c`；Integration CI run `33035100661` 的
+  `d53f84a4ff99208f69d209e98a1d3f07c588d760`；PR19 为 PR #18 merge
+  `c42c19ecb606893b1384fab4a13af2afb6b9981c`；Integration CI run `33043413216` 的
   `quality`、`db-validation`、`browser-qa` 均 SUCCESS，但 browser report upload 被跳过。
-- Proposed decision: `PR20 Adapter Integration = DONE_INTEGRATION`；`PR20 Live Provider
+- Decision: `PR20 Adapter Integration = DONE_INTEGRATION`；`PR20 Live Provider
   Validation = BLOCKED / H7`。H7 继续阻塞真实调用、真实凭据使用、真实数据/Provider 评测、
-  Provider enablement、REL-04 和 R1 advancement；该边界在 Gate 2 前不生效。
-- Scope deviations: PR20-03A/#22 与 PR20-03B/#23 均为 `PENDING_DADA_DISPOSITION`；
-  `KEEP_AND_RECONCILE` 仅为推荐处置，不是批准结果。GitHub PR #22/#23 不等于 canonical R3 task PR22/PR23。
+  Provider enablement、REL-04 和 R1 advancement；该边界自本次批准起生效。
+- Scope deviations: PR20-03A/#22 与 PR20-03B/#23 均为 `KEEP_AND_RECONCILE`，获 Dada 批准。
+  GitHub PR #22/#23 不等于 canonical R3 task PR22/PR23。
 - Alternatives Considered: 追溯改写已合入提交或把 CI 绿灯当作真实 Provider 验证（均不采用，
   会丢失历史事实或扩大证据含义）。
-- Consequences: Gate 1 只物化事实和提案；ADR-028、docs/40 V1.2、PLANS active rule 与
-  deviation disposition 必须分开由 Dada 在 Gate 2 决定。
+- Consequences: ADR-028、docs/40 V1.2、PLANS active rule 与 deviation disposition 已写入
+  本地规范冻结；H7 仍 `OPEN`，R1 Quality Gate 仍 `BLOCKED / NOT_READY`。
 - Related Files: `docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md`、
   `tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`、`PLANS.md`、`.project/v15-execution-state.md`
-- Related Commit: not created; Gate 1 draft is uncommitted and awaiting commit authorization
+- Related Commit: not created; normative freeze write is local and awaiting post-write review

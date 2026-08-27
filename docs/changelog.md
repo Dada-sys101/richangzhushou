@@ -1,10 +1,24 @@
 # 变更日志（Changelog）
 
-文档版本：1.0
-更新：2026-08-11
+文档版本：1.1
+更新：2026-08-27
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
-## 2026-08-27 — QUALITY-R1 Governance Reconciliation Gate 1（本地未提交）
+## 2026-08-27 — QUALITY-R1 Governance Approval / Normative Freeze Write（本地未提交）
+
+- Dada 明确批准 ADR-028、PR20-03A/#22 与 PR20-03B/#23 的 `KEEP_AND_RECONCILE` disposition，
+  并授权规范 Markdown 冻结写入。
+- 当前 Integration 为 `codex/v15-integration-foundation@d53f84a…`；PR20 Adapter Integration
+  为 `DONE_INTEGRATION`，PR20 Live Provider Validation 为 `BLOCKED / H7`。
+- H7 保持 `OPEN`，继续阻塞真实 Provider calls、real credential/secret use、real-data/provider
+  evaluation、Provider enablement、REL-04 和 R1 advancement；R1 Quality Gate 仍为
+  `BLOCKED / NOT_READY`；REL-02/03/04 仍为 `BLOCKED / NOT_STARTED`。
+- Integration CI run `33043413216` 的 `quality`、`db-validation`、`browser-qa` 均 SUCCESS；
+  `supply-chain-governance` 与 `pr6a-mysql84-evidence` 存在，但 Playwright report upload 被跳过。
+- docs/40 升为 V1.2；ADR-026/027 normative content、PR19 V10 scope、实现/数据库/CI/环境、
+  commit、push、PR、merge、部署和 stash 未改；当前停在 `NORMATIVE FREEZE POST-WRITE REVIEW GATE`。
+
+## 2026-08-27 — QUALITY-R1 Governance Reconciliation Gate 1（历史前置记录）
 
 - 从远端只读重新核验 `codex/v15-integration-foundation@56ffd3dc…`，在独立
   `D:\daily-assistant-worktrees\quality-r1-governance-draft-write` worktree 执行治理草案写入。

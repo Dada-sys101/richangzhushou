@@ -1,8 +1,8 @@
 # 技术决策记录（Decisions）
 
-文档版本：1.0
+文档版本：1.1
 状态：已与代码、Git 历史交叉核对
-更新：2026-08-11
+更新：2026-08-27
 说明：仅记录可从代码、文档或 Git 历史确认的决策；原因无法从仓库确认的标记“原因待确认”。来源标记：`[代码]`、`[文档]`、`[Git]`。
 
 ## 已确认决策
@@ -56,7 +56,7 @@
 | DEC-137 | OPEN-009：Playwright 浏览器 QA 自动化——`tests/e2e` smoke（Chromium 桌面+移动）与完整矩阵（Firefox/WebKit/1440/375/430）、独立 CI `browser-qa` job、失败截图/trace/video 上传；web 客户端对 401 做单飞刷新重试 | `playwright.config.ts`、`tests/e2e/*`、`scripts/start-e2e-services.mjs`、`.github/workflows/ci.yml`、`apps/web/src/api/{client,session}.ts` | 核心冒烟不再依赖手工 playwright-cli |
 | DEC-138 | PR #3 合并：V1 发布决策（OPEN-001/005/011）与 OPEN-009 以 squash 合并到 main（`4fcc613`）；合并后 browser-qa 暴露 E2E 时间助手 12/24 小时制缺陷，以 24 小时制修复并经 PR #4 合并到 main（`47c40c9`），main CI 全绿 | `[Git] 4fcc613`、`47c40c9`、`tests/e2e/helpers/e2e.ts` | 测试确定性：结束时间跨正午边界时不得被格式化为 01:xx |
 | DEC-139 | OPEN-006 对象存储接入：新增 `AliyunOssStorageAdapter`（实现 `put/get/delete`，缺失对象删除幂等，错误不泄漏 AccessKey/正文）与 `STORAGE_PROVIDER=local|oss` 配置切换；`NODE_ENV=production` 禁止 local、缺失 OSS 配置启动失败；新附件键 `users/{userId}/attachments/{fileId}`，旧 `attachments/` 键保留兼容；上传仍由 API 代理，无需 OSS CORS | `[代码] apps/api/src/integrations/{aliyun-oss-storage.adapter,storage.config,storage-key.service}.ts`、`apps/api/src/attachments/attachments.service.ts` | 私有 Bucket + 最小权限；未配置时不得意外连接 OSS；staging 门禁阻止误用本地临时存储 |
-| DEC-140 | ADR-026 Accepted：V1.5 发布映射为 AI R1、Push R1.1、新 RRULE/Import R2、完整 IndexedDB 迁移/Shrink R3；H1/H2/H7 阻塞 R1，H6/H8 只阻塞 Push；REL-01 可提前设计但不建资源，REL-02 等待 R1 Quality Gate；Production 必须经 integration RC→main PR→main/tag | `PLANS.md` v2.1.1、`docs/adr/ADR-026-v15-release-scope-r1.md`、`docs/40-v15-final-development-baseline.md` V1.1 | 2026-08-10 人工批准；不构成 commit、资源、真实调用、merge 或部署授权 |
+| DEC-140 | ADR-026 Accepted：V1.5 发布映射为 AI R1、Push R1.1、新 RRULE/Import R2、完整 IndexedDB 迁移/Shrink R3；H1/H2/H7 阻塞 R1，H6/H8 只阻塞 Push；REL-01 可提前设计但不建资源，REL-02 等待 R1 Quality Gate；Production 必须经 integration RC→main PR→main/tag | `PLANS.md` v2.1.1、`docs/adr/ADR-026-v15-release-scope-r1.md`、`docs/40-v15-final-development-baseline.md` V1.1（后由 ADR-028 有限修订为 V1.2） | 2026-08-10 人工批准；不构成 commit、资源、真实调用、merge 或部署授权 |
 | DEC-141 | ADR-027 v1.0 Final Accepted：冻结 AI Provider/模型候选、服务端接入、credential/唯一字段白名单/日志/保留边界、预算与 timeout/retry/breaker、200 条非真实评测数据、Schema success `>=99%`、无需完全重录 `>=85%` 及四项不可降低安全阈值 | `docs/adr/ADR-027-ai-provider-evaluation-policy.md`、`tasks/AI-DECISION-001.md`、`PLANS.md` 6.1 | 2026-08-11 人工批准；当前不冻结唯一 Provider，不执行真实评测/实现；PR20 后 final provider/model/effect thresholds 需再次人工批准 |
 
 ## 尚未确定的决策
@@ -89,15 +89,18 @@
 
 ### DEC-142 / ADR-028：PR20 Adapter Integration 与 H7 真实验证边界
 
-- **状态**：`PROPOSED / AWAITING_DADA_APPROVAL`；不是 Accepted 决策。
-- **事实依据**：`codex/v15-integration-foundation@56ffd3dc…`、GitHub PR #18、#20、#21、#22、#23，
-  以及 Integration CI run `33035100661`。
-- **提案**：将 PR20 的 Integration 交付与 live Provider validation 分成两阶段；前者记录为
-  `DONE_INTEGRATION`，后者继续为 `BLOCKED / H7`。Gate 1 不使该提案生效。
+- **状态**：`Accepted`；Dada 于 2026-08-27 明确批准。
+- **事实依据**：`codex/v15-integration-foundation@d53f84a…`、GitHub PR #18、#20、#21、#22、#23，
+  以及 Integration CI run `33043413216`。
+- **决策**：将 PR20 的 Integration 交付与 live Provider validation 分成两阶段；前者记录为
+  `DONE_INTEGRATION`，后者继续为 `BLOCKED / H7`。该有限边界自本次批准起生效。
 - **历史偏离**：PR20-03A/#22 和 PR20-03B/#23 在 H7 关闭前已合入 Integration；两项 deviation
-  均为 `PENDING_DADA_DISPOSITION`，`KEEP_AND_RECONCILE` 仅为建议值。
+  均为 `KEEP_AND_RECONCILE`，获 Dada 批准。
 - **编号澄清**：GitHub PR #22/#23 是 PR20 实现切片，不是 canonical R3 task PR22/PR23；后者本轮未变更。
+- **H7 blockingScope**：real Provider calls、real credential/secret use、real-data/provider evaluation、
+  Provider enablement、REL-04 和 R1 advancement；H7 仍 `OPEN`，R1 Quality Gate 仍
+  `BLOCKED / NOT_READY`。
 - **安全边界**：H7、用户最终确认、Provider output 不直写业务表、credential 隔离和不可降低安全阈值
-  均不因本提案而放宽。
+  均不因本决策而放宽。
 - **关联文件**：`docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md`、
   `tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`。

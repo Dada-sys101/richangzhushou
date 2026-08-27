@@ -1,23 +1,24 @@
 # 日常助手 V1.5 最终开发需求与集成基线
 
 > 文档路径：`docs/40-v15-final-development-baseline.md`  
-> 文档版本：V1.1
-> 当前状态：`FROZEN — AMENDED_BY_ACCEPTED_ADR_026`
+> 文档版本：V1.2
+> 当前状态：`FROZEN — AMENDED_BY_ACCEPTED_ADR_026_AND_ADR_028`
 > 确认人：Dada  
 > 确认日期：2026-08-09  
-> 增量修订批准日期：2026-08-10
+> 增量修订批准日期：2026-08-10；ADR-028 有限边界修订批准日期：2026-08-27
 > 生效分支：`codex/v15-integration-foundation`  
 > 取代文档：PoC 证据分支中的 `docs/30-v15-technology-selection-freeze-draft.md`  
 > PoC 证据分支：`codex/v15-tech-selection-poc`  
 > PoC 关闭提交：`abeaa6444c116a59f5c139b2f56488a2f97b53f4`
 
 > [!CAUTION]
-> **本文档冻结 V1.5 核心技术架构；Accepted ADR-026 正式增量修订发布范围和门禁映射。**
+> **本文档冻结 V1.5 核心技术架构；Accepted ADR-026 正式增量修订发布范围和门禁映射，Accepted ADR-028 对 PR20 历史边界作有限补充。**
 >
 > **AI 属 R1，Push 属 R1.1，新 RRULE/Import 属 R2，完整 IndexedDB 迁移与 Shrink 属 R3。**
 > **各能力必须满足其 blockingScope；所有新能力默认关闭。Production 只能部署已通过
 > integration→main 发布 PR、main HEAD 核验和 release tag 的 commit。真实 AI/Push、云资源、
-> migration、数据清理和部署仍分别需要独立授权。**
+> migration、数据清理和部署仍分别需要独立授权。ADR-028 不关闭 H7，不授权真实 Provider 或
+> Provider enablement。**
 
 ## 0. 文档适用范围
 
@@ -45,7 +46,7 @@
 
 ```text
 实时 GitHub / Git / CI / 部署事实
-→ 本文件冻结的核心技术架构 + Accepted ADR-026 的发布/门禁增量修订
+→ 本文件冻结的核心技术架构 + Accepted ADR-026 的发布/门禁增量修订 + Accepted ADR-028 的 PR20 历史边界补充
 → PLANS.md 的 canonical 任务定义
 → V1.5 PR 验收标准和仓库内 execution-state 快照
 → 旧版需求或技术选型文档
@@ -918,7 +919,7 @@ blockingScope 判断；不得再使用“H1～H8 全部关闭”作为所有版�
 | PR17 | 真实 Web Push Provider、重试和失效订阅处理 | PR16、PR6 | 门禁6、8；未关闭不得合并 | 真实发送强制关闭 |
 | PR18 | AiProposal/AiOperation Service、确认 UI、Fake Provider | PR2、PR5 | 无真实 AI 调用 | 仅 Fake，功能关闭 |
 | PR19 | AI Router、能力缓存、超时、熔断和 Stub Provider | PR18、PR6 | 无真实 AI 调用 | live provider 关闭 |
-| PR20 | 真实 AI Provider 配置与调用适配 | developmentDependency：PR19 | humanValidationGate/mergeGate：门禁7；人工关闭前不得合并 | 真实 Provider 强制关闭 |
+| PR20 | 真实 AI Provider 配置与调用适配 | developmentDependency：PR19 | Adapter integration 可按 Accepted ADR-028 记录 `DONE_INTEGRATION`；live validation 与 enablement 仍受 H7 和独立授权约束 | Adapter integration 代码默认关闭；真实 Provider 强制关闭 |
 | PR21 | Cutover 观测和管理页：parity、迁移、Import、Push、AI 指标 | PR12、PR13、PR15、PR17、PR20 | 继承各模块门禁 | 管理入口关闭 |
 | PR22 | Shrink 准备、清理资格检查和回滚演练，不删除结构 | PR21 | R3 对应迁移/清理门禁 | 不执行 Shrink |
 | PR23 | 最终 Shrink：停止旧写入、清理合格 v1；旧数据库字段删除另行批准 | PR22 | 全部清理资格及单独不可逆批准 | 默认关闭，逐项批准 |
@@ -936,8 +937,11 @@ PR18 的正式范围包括 Proposal/Operation、Fake Provider 和完整确认 UI
 编辑、接受/拒绝、最终确认、调用现有领域 Service，以及重复确认、网络失败、浏览器返回、输入恢复、
 用户隔离和幂等。AI 不得自动确认，Provider 输出不得直接写业务表或调用正式写接口。
 
-PR20 在 PR19 合入 integration 后可以开发 Adapter 并使用 Fake/Stub 测试；获得真实 AI 调用授权后
-才可受控验证。代码任务不得自动关闭 H7；只有人工确认 H7 关闭后，PR20 才允许合入 integration。
+PR20 在 PR19 合入 integration 后可以开发 Adapter 并使用 Fake/Stub 测试；已合入的 adapter
+integration 依据 Accepted ADR-028 记录为 `DONE_INTEGRATION`。H7 仍保持 `OPEN`，并继续阻塞
+真实 Provider calls、真实 credential/secret use、真实-data/provider evaluation、Provider
+enablement、REL-04 和 R1 advancement。获得真实 AI 调用授权后才可受控验证；代码任务不得自动
+关闭 H7，也不得把 adapter integration 记录解释为 live validation 或 Provider enablement。
 
 # 五、人工门禁现状
 
@@ -1006,23 +1010,32 @@ PR20 在 PR19 合入 integration 后可以开发 Adapter 并使用 Fake/Stub 测
 
 ### AI
 
-PR20 的开发依赖与人工门禁分开记录：
+PR20 的开发依赖与人工门禁分开记录；Accepted ADR-028 对已合入历史作有限解释：
 
 ```text
 developmentDependency: PR19
-humanValidationGate: 门禁7
-mergeGate: 门禁7
+adapterIntegrationStatus: DONE_INTEGRATION
+liveProviderValidationStatus: BLOCKED / H7
+humanValidationGate: 门禁7（真实验证）
+mergeGate: 已合入 adapter integration 的历史由 ADR-028 归一；live validation/enablement 仍受门禁7
 ```
 
 门禁未关闭：
 
-- 可以实现 Adapter 并以 Fake/Stub 测试；
+- 可以实现 Adapter 并以 Fake/Stub 测试；已合入 adapter integration 记录为 `DONE_INTEGRATION`；
 - 未获独立授权不得执行真实 Provider 调用；
 - 只能使用 Fake/Stub；
 - 不允许配置生产密钥；
-- 不得合并为可启用状态或向真实用户开放；
+- 不得启用 Provider 或向真实用户开放；
 - `V15_LIVE_AI_ALLOWED=false`；
 - `v15.ai.liveProvider=false`。
+
+H7 `OPEN` 的 blockingScope 为真实 Provider calls、真实 credential/secret use、真实-data/provider
+evaluation、Provider enablement、REL-04 和 R1 advancement。R1 Quality Gate 仍为
+`BLOCKED / NOT_READY`；adapter integration、mock-only implementation 和 injected-transport tests
+不构成 H7 关闭证据。
+REL-02、REL-03、REL-04 仍为 `BLOCKED / NOT_STARTED`；本次规范冻结不构成资源、部署或真实服务授权，
+也不表示这些任务已完成。
 
 受控真实评测满足门禁7关闭标准后，必须由人工确认关闭；PR20 代码本身不得自动关闭门禁7。
 
@@ -1225,12 +1238,14 @@ main@13bfad4d32157166fa6e8f5215ce5f813a1ad67c
 # 九、冻结确认
 
 ```text
-version: V1.1
-status: FROZEN — AMENDED_BY_ACCEPTED_ADR_026
+version: V1.2
+status: FROZEN — AMENDED_BY_ACCEPTED_ADR_026_AND_ADR_028
 confirmedBy: Dada
 confirmedAt: 2026-08-09
 amendmentAcceptedAt: 2026-08-10
+adr028AcceptedAt: 2026-08-27
+adr028Scope: limited PR20 historical boundary reconciliation; H7 remains OPEN and R1 remains BLOCKED / NOT_READY
 ```
 
-冻结后，Codex 的正式开发任务必须读取本文件、Accepted ADR-026 和 `PLANS.md`，不再以 PoC 证据分支中的
+冻结后，Codex 的正式开发任务必须读取本文件、Accepted ADR-026、Accepted ADR-027、Accepted ADR-028 和 `PLANS.md`，不再以 PoC 证据分支中的
 `docs/30-v15-technology-selection-freeze-draft.md` 作为实现依据。本文件与 Accepted ADR 不得存在相互冲突的有效规则。

@@ -55,8 +55,11 @@
 - V2EncryptedRepository、MigrationCoordinator、dual-read/write；
 - Cutover 完整管理页、Shrink 和生产发布。
 
-PR20 adapter integration 的代码存在不等于真实 Provider、真实凭据或真实数据评测已经批准；
-相关 live validation 仍是 `BLOCKED / H7`。相关 PoC 只作为选型与边界证据，不等于生产批准。
+当前 `codex/v15-integration-foundation` HEAD 为
+`d53f84a4ff99208f69d209e98a1d3f07c588d760`；PR20 adapter integration 已按 Accepted ADR-028
+记录为 `DONE_INTEGRATION`，但这不等于真实 Provider、真实凭据或真实数据评测已经批准；相关
+live validation 仍是 `BLOCKED / H7`。
+相关 PoC 只作为选型与边界证据，不等于生产批准。
 
 ## 3. 数据库与数据存储
 
@@ -119,7 +122,7 @@ Reminder → Delivery/Job → InApp 或 WebPushChannel
 ```
 
 以上 AI 流程的 adapter integration 已进入当前 Integration；真实 Provider validation 仍是
-ADR-028 提案范围且尚未生效。浏览器不得直连 Provider 或持有 credential；
+`BLOCKED / H7`。浏览器不得直连 Provider 或持有 credential；
 R1 禁止自动跨 Provider fallback，只允许服务端受控配置切换。Provider output 不得直接写业务表、
 直接调用业务写 API 或绕过正式 domain service，正式写入必须 100% 经用户最终确认。
 
@@ -142,7 +145,7 @@ AI 和 Push 均不得绕过 Feature Flag、审计、幂等和人工门禁。
 ## 9. 当前架构风险
 
 - H7 未关闭：真实 AI Provider 的网络、额度、费用、延迟和结构化输出未验证；CI 绿灯不替代
-  真实 Provider 证据，且 Integration run `33035100661` 的 browser report upload 被跳过；
+  真实 Provider 证据，且 Integration run `33043413216` 的 Playwright report upload 被跳过；
 - H6/H8 未关闭：真实 Push 送达和 MPL-2.0 评审未完成；
 - Staging、域名/隧道、备份恢复和正式监控尚未建立；
 - iPhone PWA/离线门禁需正式归档；

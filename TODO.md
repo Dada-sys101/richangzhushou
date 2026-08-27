@@ -96,10 +96,13 @@
 | DA-1508 | PR20 Live Provider Validation（H7） | BLOCKED | V1.5 |
 | DA-1509 | R1 Quality Gate | BLOCKED | V1.5 |
 
-## V1.5 Gate 1 note
+## V1.5 Governance Approval / Normative Freeze note
 
-- Integration HEAD：`56ffd3dc…`；H7：`OPEN`；R1 Quality Gate：`BLOCKED / NOT_READY`。
-- ADR-028：`PROPOSED / AWAITING_DADA_APPROVAL`；PR20-03A/#22、PR20-03B/#23 deviation：
-  `PENDING_DADA_DISPOSITION`。
+- Integration HEAD：`d53f84a…`；H7：`OPEN`；R1 Quality Gate：`BLOCKED / NOT_READY`。
+- ADR-028：`Accepted`；PR20-03A/#22、PR20-03B/#23 deviation：
+  `KEEP_AND_RECONCILE`（Dada 已批准）。
 - GitHub PR #22/#23 是 PR20 实现切片；canonical R3 PR22/PR23 仍未开始且未修改。
-- Gate 1 完成后停在 `COMMIT AUTHORIZATION GATE`，不得自动提交或进入 Gate 2。
+- PR20 Adapter Integration：`DONE_INTEGRATION`；PR20 Live Provider Validation：`BLOCKED / H7`。
+- REL-02/03/04：`BLOCKED / NOT_STARTED`，不表示已授权或已完成。
+- CI run `33043413216` 的 `quality`、`db-validation`、`browser-qa` SUCCESS；Playwright report upload skipped。
+- 规范冻结已本地写入但未提交；停在 `NORMATIVE FREEZE POST-WRITE REVIEW GATE`，不得自动提交。
