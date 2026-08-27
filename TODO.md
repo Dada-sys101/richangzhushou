@@ -90,3 +90,16 @@
 | DA-1502 | PR6a 临时 MySQL 8.4 安全入口、scoped user、失败/信号 cleanup、重复执行与 evidence | DONE | V1.5 |
 | DA-1503 | AI-DECISION-001：ADR-027 v1.0 Final 接入、安全、预算、韧性与评测策略本地落地 | DONE | V1.5 |
 | DA-1504 | PR2 AI DB Expand：schema 五枚举+四表、additive migration、MySQL 8.4.9 专项测试、account deletion 适配 | DONE | V1.5 |
+| DA-1505 | PR19 AI Router/Stub/安全降级合入 Integration（GitHub PR #18） | DONE | V1.5 |
+| DA-1506 | PR20 adapter integration：foundation/configuration/DeepSeek/OpenAI（GitHub PR #20/#21/#22/#23） | DONE | V1.5 |
+| DA-1507 | QUALITY-R1-GOVERNANCE-RECONCILIATION Gate 1：事实、ADR-028 草案、状态/镜像同步 | DONE | V1.5 |
+| DA-1508 | PR20 Live Provider Validation（H7） | BLOCKED | V1.5 |
+| DA-1509 | R1 Quality Gate | BLOCKED | V1.5 |
+
+## V1.5 Gate 1 note
+
+- Integration HEAD：`56ffd3dc…`；H7：`OPEN`；R1 Quality Gate：`BLOCKED / NOT_READY`。
+- ADR-028：`PROPOSED / AWAITING_DADA_APPROVAL`；PR20-03A/#22、PR20-03B/#23 deviation：
+  `PENDING_DADA_DISPOSITION`。
+- GitHub PR #22/#23 是 PR20 实现切片；canonical R3 PR22/PR23 仍未开始且未修改。
+- Gate 1 完成后停在 `COMMIT AUTHORIZATION GATE`，不得自动提交或进入 Gate 2。

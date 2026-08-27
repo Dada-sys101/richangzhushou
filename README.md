@@ -8,10 +8,11 @@ Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基
 保持 Feature Flag 关闭，不阻塞 R1 基础上线。AI 是 R1 首发硬门禁，只能生成
 待确认 Proposal，不得直接写正式业务记录。
 
-> 当前阶段：V1 核心应用和 OSS Adapter 已进入 main；PR6a 已通过 PR #11 达到
-> `DONE / DONE_INTEGRATION`，integration HEAD 为 `01292ef7a6bcf97addfd139fe39a3576fc05f9c9`。
-> 当前 AI-DECISION-001 已完成 ADR-027 v1.0 Final 本地策略落地，状态为 `DONE / DONE_LOCAL`；
-> 尚未 add、commit、push 或创建 PR，未执行真实 AI 评测/实现。Staging 未创建，生产未部署。
+> 当前阶段：PR19 已通过 GitHub PR #18 合入 Integration，PR20 adapter integration 已通过
+> PR #20/#21/#22/#23 合入；Integration HEAD 为
+> `56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`。PR20 live Provider validation 仍为
+> `BLOCKED / H7`，H7 为 `OPEN`，R1 Quality Gate 为 `BLOCKED / NOT_READY`。当前执行
+> `QUALITY-R1-GOVERNANCE-RECONCILIATION` Gate 1，本地文档草案未提交；Staging 未创建，生产未部署。
 
 ## 工程结构
 
@@ -91,7 +92,8 @@ Vitest 子进程。完整安全边界和验收证据见 `docs/41-pr6a-mysql84-va
 - `.project/v15-execution-state.md`：唯一仓库内执行状态快照，不是 GitHub/CI 实时镜像。
 - `.project/context.md`：长期状态；`.project/session.md`：当前/暂停任务；
   `.project/decisions.md`：ADR 索引。
-- 当前任务契约：`tasks/AI-DECISION-001.md`。
+- 当前任务契约：`tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`。
+- PR19 V10 契约：`tasks/PR19.md`；PR20/H7 边界提案：`docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md`。
 - 校验：`npm run check:context`（已并入 `npm run quality`）。
 
 ## 当前首发边界
@@ -102,6 +104,8 @@ Vitest 子进程。完整安全边界和验收证据见 `docs/41-pr6a-mysql84-va
 - 云端同步，同时保留本地缓存和离线写入能力。
 - R1 不包含家庭共享。
 - AI 正式写入必须经用户确认和审计；真实 Provider 未通过 H7 时不得上线 R1。
+- Gate 1 只记录 PR20 adapter integration 已合入的事实与待批准的两阶段语义；不关闭 H7、不让
+  新规范生效。CI 绿色不等于真实 Provider 验证，且 run `33035100661` 的 browser report upload 被跳过。
 - ADR-027 仅冻结 Provider/模型候选、服务端接入、安全/预算/韧性和评测策略；当前不冻结唯一
   Provider，PR20 受控真实评测后的 final provider/model/effect thresholds 仍需再次人工批准。
 - Import、新 RRULE 切换、完整 IndexedDB 加密迁移和 Shrink 在 R2/R3，后移不取消。
@@ -110,7 +114,9 @@ Vitest 子进程。完整安全边界和验收证据见 `docs/41-pr6a-mysql84-va
 
 - [执行总规划](PLANS.md)
 - [V1.5 执行状态快照](.project/v15-execution-state.md)
-- [当前任务契约](tasks/AI-DECISION-001.md)
+- [当前任务契约](tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md)
+- [PR19 V10 契约](tasks/PR19.md)
+- [ADR-028 H7 边界提案](docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md)
 - [Accepted ADR-027](docs/adr/ADR-027-ai-provider-evaluation-policy.md)
 - [PR6a MySQL 8.4 验收](docs/41-pr6a-mysql84-validation.md)
 - [文档索引](docs/README.md)

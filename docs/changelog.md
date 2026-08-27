@@ -4,6 +4,23 @@
 更新：2026-08-11
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-08-27 — QUALITY-R1 Governance Reconciliation Gate 1（本地未提交）
+
+- 从远端只读重新核验 `codex/v15-integration-foundation@56ffd3dc…`，在独立
+  `D:\daily-assistant-worktrees\quality-r1-governance-draft-write` worktree 执行治理草案写入。
+- 记录 PR19（GitHub PR #18）已达到 `DONE_INTEGRATION`，以及 PR20-01/#20、PR20-02/#21、
+  PR20-03A/#22、PR20-03B/#23 已进入 Integration 的 adapter integration 事实。
+- 新增 ADR-028（`PROPOSED / AWAITING_DADA_APPROVAL`）和
+  `QUALITY-R1-GOVERNANCE-RECONCILIATION`（`DRAFT / AWAITING_APPROVAL`）；提出但未生效的
+  两阶段语义为 adapter integration `DONE_INTEGRATION`、live Provider validation `BLOCKED / H7`。
+- PR20-03A/#22 与 PR20-03B/#23 historical scope deviation 保持
+  `PENDING_DADA_DISPOSITION`；`KEEP_AND_RECONCILE` 仅为建议值。canonical R3 PR22/PR23 未修改。
+- Integration CI run `33035100661` 的 `quality`、`db-validation`、`browser-qa` 均 SUCCESS；
+  artifacts 为 `supply-chain-governance` 与 `pr6a-mysql84-evidence`，browser report upload 被跳过。
+- H7 保持 `OPEN`，R1 Quality Gate 保持 `BLOCKED / NOT_READY`；docs/40 V1.1、ADR-026/027、
+  apps、packages、Prisma/migration、CI、环境、commit、push、PR、merge、部署和 stash 未改动。
+- Gate 1 在 `COMMIT AUTHORIZATION GATE` 停止。
+
 ## 2026-08-12 — PR2 AI DB Expand 最终本地验收（DONE / DONE_LOCAL / UNCOMMITTED）
 
 - AI-DECISION-001 已通过 PR #12 合入 integration（`c4cca65bcd2ba71d93f948bf1c8731179fbb7fad`，

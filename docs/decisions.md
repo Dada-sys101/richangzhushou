@@ -84,3 +84,20 @@
 
 - 技术栈选型（NestJS/Prisma/Vue/Element Plus）的具体商业或团队原因未在仓库中成文，统一标记“原因待确认”，不得编造。
 - WP0 文档中“用户确认”“已确认事实”的口径来自规划文档本身，代码尚无可验证实现。
+
+## 待批准提案
+
+### DEC-142 / ADR-028：PR20 Adapter Integration 与 H7 真实验证边界
+
+- **状态**：`PROPOSED / AWAITING_DADA_APPROVAL`；不是 Accepted 决策。
+- **事实依据**：`codex/v15-integration-foundation@56ffd3dc…`、GitHub PR #18、#20、#21、#22、#23，
+  以及 Integration CI run `33035100661`。
+- **提案**：将 PR20 的 Integration 交付与 live Provider validation 分成两阶段；前者记录为
+  `DONE_INTEGRATION`，后者继续为 `BLOCKED / H7`。Gate 1 不使该提案生效。
+- **历史偏离**：PR20-03A/#22 和 PR20-03B/#23 在 H7 关闭前已合入 Integration；两项 deviation
+  均为 `PENDING_DADA_DISPOSITION`，`KEEP_AND_RECONCILE` 仅为建议值。
+- **编号澄清**：GitHub PR #22/#23 是 PR20 实现切片，不是 canonical R3 task PR22/PR23；后者本轮未变更。
+- **安全边界**：H7、用户最终确认、Provider output 不直写业务表、credential 隔离和不可降低安全阈值
+  均不因本提案而放宽。
+- **关联文件**：`docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md`、
+  `tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`。

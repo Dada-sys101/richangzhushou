@@ -1,38 +1,52 @@
 # Project Status
 
-updatedAt: 2026-08-12
+updatedAt: 2026-08-27
 repository: Dada-sys101/richangzhushou
-mainHead: 13bfad4d32157166fa6e8f5215ce5f813a1ad67c
-integrationHead: c4cca65bcd2ba71d93f948bf1c8731179fbb7fad
-activeBranch: codex/v15-pr2-ai-db-expand
-activeTask: NONE
+mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
+integrationBranch: codex/v15-integration-foundation
+integrationHead: 56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172
+activeBranch: codex/v15-integration-foundation
+activeWorktree: D:\daily-assistant-worktrees\quality-r1-governance-draft-write
+activeTask: QUALITY-R1-GOVERNANCE-RECONCILIATION
 executionStatus: DONE
-deliveryStatus: DONE_LOCAL
-nextCanonicalTask: PR5
-nextCanonicalTaskAfterCompletion: PR5
+deliveryStatus: DONE_LOCAL / UNCOMMITTED
+nextCanonicalTask: QUALITY-R1-GOVERNANCE-RECONCILIATION
+nextCanonicalTaskAfterCompletion: QUALITY-R1-GOVERNANCE-APPROVAL / NORMATIVE FREEZE
 localRevision: MODIFIED_UNCOMMITTED
 staging: NOT_CREATED
 production: NOT_DEPLOYED
 
 ## Completed
 
-- V1 核心；PR #8 / PR1；PR #9 / V15-CTRL-001a；PR #10 / V15-CTRL-001；PR #11 / PR6a；
-  PR #12 / AI-DECISION-001 已合入 integration 并核验 HEAD `c4cca65...`（CI 218 SUCCESS）。
+- PR19 对应 GitHub PR #18，已合入 Integration，merge `c42c19ec...`，状态
+  `DONE / DONE_INTEGRATION`。
+- PR20 adapter foundation/configuration/DeepSeek/OpenAI 已通过 PR #20/#21/#22/#23
+  合入 Integration，adapter integration 状态为 `DONE_INTEGRATION`。
+- 最新 Integration CI run `33035100661` 的 `quality`、`db-validation`、`browser-qa`
+  均 SUCCESS；artifacts 为 `supply-chain-governance` 与 `pr6a-mysql84-evidence`。
 
 ## Current
 
-PR2（AI DB Expand）已达到 `DONE / DONE_LOCAL / UNCOMMITTED`：schema 五枚举 + 冻结四表、
-单一 additive migration、focused/account-deletion tests 与最小 service 适配落地；Oracle MySQL 8.4.9
-最终验收通过。未 add/commit/push/创建 PR/merge/部署；下一 canonical task 为 PR5，但未启动。
+Gate 1 `QUALITY-R1-GOVERNANCE-DRAFT-WRITE` 已在独立 worktree 本地物化：新增 ADR-028
+（`PROPOSED / AWAITING_DADA_APPROVAL`）和治理 task contract（`DRAFT / AWAITING_APPROVAL`），
+并同步 canonical/derived 状态。当前停在 `COMMIT AUTHORIZATION GATE`，没有提交。
 
 ## Validation
 
-- PR #12 merge / integration HEAD / CI 218：PASS。
-- `prisma format/validate/generate`：PASS；API typecheck：PASS。
-- Fresh empty DB 10 migrations PASS；focused AI 12/12、account deletion 11/11、full DB integration 15 files / 117 tests PASS，0 skipped。
-- 四表 account deletion residual 0，User tombstone `DELETED`；`quality` / `check:context` / `git diff --check` / final review PASS，临时资源 residual 0。
-- Commit/push/PR/deploy：NOT_RUN。
+- Remote Integration ref re-read：PASS，精确为 `56ffd3dc...`。
+- GitHub PR/CI fact check：PASS；PR #18、#20、#21、#22、#23 已合入，run `33035100661`
+  三个 job SUCCESS。
+- Browser limitation：browser report upload 步骤被跳过；完整浏览器报告 NOT_CONFIRMED。
+- `npm run check:context`：PASS。
+- `git diff --check`：PASS；新文件尾随空白检查 PASS。
+- Commit/push/PR/Ready/merge/deploy/real Provider：NOT_RUN，且未获授权。
 
 ## Blocking
 
-- PR2 无本地实现或验证 blocker；H7 保持 OPEN；commit/push/PR/merge、外部资源、真实服务、非临时数据库与发布需独立授权。
+- H7：OPEN；当前有效规则仍将 H7 作为 PR20 merge gate 与 R1 blocker，PLANS 标记为
+  `CURRENT RULE / RECONCILIATION PROPOSED`。
+- PR20 Live Provider Validation：BLOCKED / H7。
+- R1 Quality Gate：BLOCKED / NOT_READY。
+- PR20-03A/#22 与 PR20-03B/#23 historical deviation：PENDING_DADA_DISPOSITION；
+  ADR-028 尚未 Accepted。
+- docs/40 保持 V1.1；ADR-026/027、apps、packages、Prisma/migration、CI、环境和 stash 未改。

@@ -1,27 +1,30 @@
 # Documentation Index
 
-版本：0.6
-状态：已同步 PR2 `DONE / DONE_LOCAL / UNCOMMITTED`（AI-DECISION-001 `DONE_INTEGRATION`）/ v2.1.1 Final / docs/40 V1.1 / Accepted ADR-026/027
-更新：2026-08-12
+版本：0.7
+状态：已同步 Integration `56ffd3dc…`、PR19/PR20 历史事实与
+`QUALITY-R1-GOVERNANCE-RECONCILIATION` Gate 1 草案；docs/40 仍为 V1.1，ADR-028 仍为 Proposed
+更新：2026-08-27
 
 ## V1.5 接手与状态恢复导航
 
 1. `../AGENTS.md`：强制约束、恢复顺序和授权边界。
 2. `../PLANS.md`：V1.5 唯一执行总路线。
 3. `../.project/v15-execution-state.md`：唯一仓库内执行状态快照，不是 GitHub/CI 实时镜像。
-4. `../tasks/PR2.md`：当前任务执行契约。
-5. `adr/ADR-027-ai-provider-evaluation-policy.md`：AI Stage 1 接入、安全与评测策略（Accepted）。
-6. `41-pr6a-mysql84-validation.md`：临时 MySQL 8.4 入口、边界与已集成验收。
-7. `40-v15-final-development-baseline.md`：V1.1 冻结技术与开发基线。
-8. `adr/ADR-026-v15-release-scope-r1.md`：发布范围与门禁增量修订（Accepted）。
-9. `../.project/context.md`：长期项目状态。
-10. `../.project/session.md`：当前或暂停任务。
-11. `project-overview.md`：项目概述。
-12. `architecture.md`：当前实际架构与规划架构对照。
-13. `progress.md`：完成度与已知问题。
-14. `roadmap.md`：当前发布路线。
-15. `decisions.md`：已确认与未决决策。
-16. `changelog.md`：变更历史。
+4. `../tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`：当前 Gate 1 治理归一契约草案。
+5. `../tasks/PR19.md`：PR19 V10 冻结契约及非规范事实附录。
+6. `adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md`：PR20/H7 边界提案（Proposed）。
+7. `adr/ADR-027-ai-provider-evaluation-policy.md`：AI Stage 1 接入、安全与评测策略（Accepted）。
+8. `41-pr6a-mysql84-validation.md`：临时 MySQL 8.4 入口、边界与已集成验收。
+9. `40-v15-final-development-baseline.md`：V1.1 冻结技术与开发基线（Gate 1 未升级）。
+10. `adr/ADR-026-v15-release-scope-r1.md`：发布范围与门禁增量修订（Accepted，规范未改）。
+11. `../.project/context.md`：长期项目状态。
+12. `../.project/session.md`：当前或暂停任务。
+13. `project-overview.md`：项目概述。
+14. `architecture.md`：当前实际架构与规划架构对照。
+15. `progress.md`：完成度与已知问题。
+16. `roadmap.md`：当前发布路线。
+17. `decisions.md`：已确认与待批准决策。
+18. `changelog.md`：变更历史。
 
 优先级：
 

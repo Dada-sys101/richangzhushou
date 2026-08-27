@@ -5,14 +5,18 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前 canonical 任务：`PR19`（Contract `V10 / FROZEN / GPT_ACCEPT`；landing commit `LOCAL_COMMITTED / NOT_PUSHED`；implementation `NOT_STARTED / NOT_AUTHORIZED`）
-PR18 Integration：`7caf892022c9bb6833c7316893bfddeb169b7243`
-Integration CI #264：`SUCCESS`
-PR19 Contract：`tasks/PR19.md`（`PR19-CONTRACT-REVIEW09 = ACCEPT`；landing commit `bc8bc413c6862e0d92247d7e6608dd6e99f505d7`）
-Remote Integration：`50f4f936a4ce46ac746f23478a929287d6e17c94`；local `AHEAD 1 / BEHIND 0`
-Repository Persisted Gate：`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`
-Repository landing state：`WORKTREE_FIXED / UNCOMMITTED`
-Persisted Successor Gate：`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`
+当前 canonical 任务：`QUALITY-R1-GOVERNANCE-RECONCILIATION`（Gate 1：`DRAFT / AWAITING_APPROVAL`；本地写入完成，等待提交授权）
+PR18 Integration：`7caf892022c9bb6833c7316893bfddeb169b7243`（PR #17，历史事实）
+PR19 Integration：`c42c19ecb606893b1384fab4a13af2afb6b9981c`（PR #18，`DONE_INTEGRATION`）
+PR20 Adapter Integration：`56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`（PR #20/#21/#22/#23，`DONE_INTEGRATION`）
+Historical PR18 Integration CI #264：`SUCCESS`
+Latest Integration CI run `33035100661`：`quality` / `db-validation` / `browser-qa` `SUCCESS`
+PR19 Contract：`tasks/PR19.md`（`V10 / FROZEN / GPT_ACCEPT`；规范范围未改，历史实现已合入）
+Remote Integration：`56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`；draft worktree 与远端提交精确相同
+Current Governance Gate：`QUALITY-R1-GOVERNANCE-DRAFT-WRITE`
+Governance draft state：`DONE_LOCAL / UNCOMMITTED`
+Commit authorization：`NOT_GRANTED`
+Persisted Successor Gate：`QUALITY-R1-GOVERNANCE-APPROVAL / NORMATIVE FREEZE`
 
 ## 1. 版本目标与边界
 
@@ -76,7 +80,7 @@ deliveryStatus: NOT_STARTED | DONE_LOCAL | DONE_COMMITTED | DONE_PUSHED | PR_OPE
 |---|---|---|---|
 | 0 治理收口 | 状态源、发布范围、冻结基线一致 | V15-CTRL-001 | PR #10 经批准、CI、独立 merge 授权，合入并核验 integration HEAD |
 | 1 基础能力 | DB 验证、AI 决策、契约、CI、Repository 基础 | PR6a、AI-DECISION-001、PR2、PR5、PR6、PR9；REL-01 可提前 | 空库/CI/契约/Repository 证据齐全，REL-01 仅冻结方案 |
-| 2 R1 AI 核心 | Proposal、安全路由、受控真实 Provider | PR18、PR19、PR20 | Fake 全流程通过；H7 人工关闭后 PR20 才可合入 |
+| 2 R1 AI 核心 | Proposal、安全路由、受控真实 Provider | PR18、PR19、PR20 | 现行规则仍为 H7 关闭后 PR20 才可合入；PR20 历史合入事实与边界归一提案见 ADR-028 |
 | 3 质量安全 | E2E、安全、License/SBOM、恢复验证 | 由 PR6、REL-03/04 及各任务验收覆盖 | R1 Quality Gate 全绿且证据归档 |
 | 4 Staging | 资源、部署、监控、备份、回滚 | REL-01～REL-04 | REL-02 获独立授权后创建资源；Staging 全流程通过 |
 | 5 试用 | 3→5→约 10 人，累计至少 7 个有效日历日 | REL-05 | 每阶段版本可追溯，无未解决 P0/P1、数据丢失或串号 |
@@ -118,8 +122,8 @@ deliveryStatus: NOT_STARTED | DONE_LOCAL | DONE_COMMITTED | DONE_PUSHED | PR_OPE
 | PR16 | Push 契约、订阅 API、权限 UI、SW | R1.1 | PR3、PR5 |
 | PR17 | 真实 Push Provider | R1.1 | PR16、PR6；H6、H8 merge/enable gate |
 | PR18 | AI Proposal / Operation、确认 UI 与 Fake Provider | R1 | PR2、PR5 |
-| PR19 | AI Router、Stub 与安全降级 | R1 | PR18、PR6 |
-| PR20 | 真实 AI Provider Adapter | R1 | `developmentDependency: PR19`；`humanValidationGate/mergeGate: H7` |
+| PR19 | AI Router、Stub 与安全降级 | R1 | PR18、PR6；事实状态 `DONE_INTEGRATION`（PR #18），V10 规范范围不变 |
+| PR20 | 真实 AI Provider Adapter | R1 | `developmentDependency: PR19`；当前有效 `humanValidationGate/mergeGate: H7`；adapter integration 事实 `DONE_INTEGRATION`，live validation `BLOCKED / H7`，边界归一待批准 |
 | PR21 | Cutover 观测与管理页 | R2 | PR12、PR13、PR15、PR17、PR20 |
 | PR22 | Shrink 准备与回滚演练 | R3 | PR21；对应迁移/清理门禁 |
 | PR23 | 最终 Shrink | R3 | PR22；全部清理资格和独立不可逆授权 |
@@ -144,12 +148,38 @@ deliveryStatus: NOT_STARTED | DONE_LOCAL | DONE_COMMITTED | DONE_PUSHED | PR_OPE
 | H4 | Android Chrome Smoke | OPEN | Android 正式支持声明 |
 | H5 | iOS 长期存储观察 | OPEN | 非阻塞观察/后续迁移策略 |
 | H6 | 真实 Push 送达 | OPEN | Push merge/enable |
-| H7 | 真实 AI Provider 受控验证 | OPEN | PR20 merge、R1 |
+| H7 | 真实 AI Provider 受控验证 | OPEN | PR20 merge、R1（`CURRENT RULE / RECONCILIATION PROPOSED`） |
 | H8 | MPL-2.0 人工评审 | OPEN | Push merge/enable |
 | H9 | PoC 集成评审 | CLOSED | 已满足 |
 
 H1/H2/H7 阻塞 R1；H6/H8 只阻塞 Push；H4 只阻塞 Android 支持声明；H3/H5 必须记录，
 但不自动阻塞 R1。任何门禁都不得由代码任务自行关闭。
+
+### 6.2 R1 Quality Gate 与 PR20 两阶段语义提案
+
+当前 `R1 Quality Gate = BLOCKED / NOT_READY`。H7 仍为 R1 blocking gate；Integration CI
+run `33035100661` 的绿色结果只证明该提交的代码、数据库校验和浏览器 Smoke job 成功，
+不能替代真实 Provider、真实凭据或真实数据评测证据。`browser-qa` 成功时 Playwright 报告
+上传步骤被跳过，因此不能把 CI 绿灯表述为存在完整浏览器报告。
+
+PR20 的以下两阶段语义在本 Gate 仅为 `RECONCILIATION PROPOSED / NOT_EFFECTIVE`：
+
+```text
+PR20 Adapter Integration
+= DONE_INTEGRATION
+
+PR20 Live Provider Validation
+= BLOCKED / H7
+```
+
+建议的 H7 blockingScope（待 Gate 2 批准）为 real Provider calls、real credential/secret
+use、real-data/provider evaluation、Provider enablement、REL-04 和 R1 advancement。
+该建议不追溯性否定已经合入 Integration 的 mock-only adapter implementation、
+injected-transport tests 或 adapter integration；但 Gate 1 不使建议规则生效。
+
+Gate 1 期间的有效规则仍是：H7 作为 PR20 merge gate 并阻塞 R1。ADR-028 必须保持
+`PROPOSED / AWAITING_DADA_APPROVAL`，PR20-03A/#22 与 PR20-03B/#23 的 deviation 必须
+保持 `PENDING_DADA_DISPOSITION`。Gate 2 单独获批后，才可把两阶段语义写入有效规范。
 
 ### 6.1 AI-DECISION-001 两层冻结
 
@@ -303,6 +333,23 @@ mergeGate:
 - **验证/完成标准**：真实结果用于提出最终效果阈值；人工批准 AI ADR；安全阈值不变；代码/测试/文档/状态证据齐全。
 - **风险**：把代码完成误当 H7 关闭，形成循环依赖或未授权真实调用。
 
+### QUALITY-R1-GOVERNANCE-RECONCILIATION — Gate 1 治理归一草案
+
+- **目标**：将 PR19 与 PR20 adapter slices 的 Integration 事实、H7 真实验证边界和历史
+  scope deviation 分层记录，避免把 CI 绿色误写成真实 Provider 验证。
+- **状态**：`DRAFT / AWAITING_APPROVAL`；当前执行 Gate 为
+  `QUALITY-R1-GOVERNANCE-DRAFT-WRITE`；本地写入后停在 `COMMIT AUTHORIZATION GATE`。
+- **允许修改**：ADR-028、task contract、治理状态文件、决策登记、索引和必要的派生状态镜像。
+- **Gate 1 禁止项**：ADR-028 Accepted、deviation disposition 批准、H7 closure、R1
+  advancement、docs/40 V1.2 生效、ADR-026/027 normative change、真实 Provider/credential、
+  业务代码/Prisma/migration/CI/环境/部署、commit/push/PR/merge。
+- **Gate 1 事实状态**：PR19 `DONE_INTEGRATION`；PR20 Adapter Integration
+  `DONE_INTEGRATION`；PR20 Live Provider Validation `BLOCKED / H7`；H7 `OPEN`；R1 Quality
+  Gate `BLOCKED / NOT_READY`；PR20-03A/#22 和 PR20-03B/#23 deviation 均
+  `PENDING_DADA_DISPOSITION`。
+- **Gate 2 前置**：Dada 单独批准 ADR-028、两项 deviation disposition 和两阶段 PR20
+  语义后，才可修改 docs/40、提升规范版本并冻结新 H7 boundary。
+
 ## 8. 其余 canonical 任务卡
 
 以下卡片与第 5.1 节依赖共同构成完整任务定义。每项均只允许修改其模块实现、测试、契约和文档；
@@ -407,25 +454,28 @@ AI-DECISION-001 已完成 ADR-027 v1.0 Final Accepted，当前为 `DONE / DONE_I
 8. R3。
 
 ```yaml
-currentTask: PR19
-nextCanonicalTask: PR19
-nextCanonicalTaskAfterCompletion: PR19
+currentTask: QUALITY-R1-GOVERNANCE-RECONCILIATION
+nextCanonicalTask: QUALITY-R1-GOVERNANCE-RECONCILIATION
+nextCanonicalTaskAfterCompletion: QUALITY-R1-GOVERNANCE-APPROVAL / NORMATIVE FREEZE
 ```
 
-当前交付/执行门禁：PR18 已达到 `DONE / DONE_INTEGRATION`；source HEAD 为
-`9bee2f8fb1401caaeebff96912a21e01e57c655c`，PR #17 已 Squash Merge 到
-Integration，merge SHA 为 `7caf892022c9bb6833c7316893bfddeb169b7243`，
-Integration CI #264 SUCCESS。PR19 依赖已满足，状态为
-`READY / NOT_STARTED`；V10 契约已获得 `PR19-CONTRACT-REVIEW09 = ACCEPT`，
-landing commit 为 `bc8bc413c6862e0d92247d7e6608dd6e99f505d7`
-(`LOCAL_COMMITTED / NOT_PUSHED`)，remote Integration 为 `50f4f936...`，
-local `AHEAD 1 / BEHIND 0`。Repository Persisted Gate 为
-`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`，Repository landing
-state 为 `WORKTREE_FIXED / UNCOMMITTED`，Persisted Successor Gate 为
-`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`。只读 review 可消费
-该 successor 而不修改仓库；GPT Active Gate 的后续推进本身不构成不一致，也不授权
-implementation、额外 commit、push 或 PR operation；不改写 PLANS v2.1.1 冻结
-依赖图。
+当前交付/执行门禁：PR19 已达到 `DONE / DONE_INTEGRATION`；PR20 adapter integration
+已通过 PR #20/#21/#22/#23 达到 `DONE_INTEGRATION`，当前 Integration HEAD 为
+`56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`。最新 Integration CI run `33035100661`
+的 `quality`、`db-validation`、`browser-qa` 均 SUCCESS；`browser-qa` 报告上传步骤被
+跳过，不能宣称存在完整浏览器报告。
+
+当前 canonical task 为 `QUALITY-R1-GOVERNANCE-RECONCILIATION`，契约为
+`tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`（`DRAFT / AWAITING_APPROVAL`）。
+Gate 1 本地写入状态为 `DONE_LOCAL / UNCOMMITTED`，当前停在
+`COMMIT AUTHORIZATION GATE`。ADR-028 保持 `PROPOSED / AWAITING_DADA_APPROVAL`；
+PR20 live Provider validation 保持 `BLOCKED / H7`；H7 保持 `OPEN`；R1 Quality Gate
+保持 `BLOCKED / NOT_READY`。PR20-03A/#22 与 PR20-03B/#23 的 historical scope deviation
+均保持 `PENDING_DADA_DISPOSITION`。Gate 1 不改写 docs/40 V1.1、ADR-026/027 或
+PLANS v2.1.1 的其他冻结依赖。
+
+Remote Integration 必须在后续 Git 动作前重新读取；当前 draft worktree 基于精确
+`56ffd3dc…`，未创建 commit、push、PR 或 merge 操作。
 多个任务同时 READY 时仍不得自动并行：先比较 R1 关键路径影响，再遵循明确 next 指针，
 决策阻塞优先于非阻塞工程；仍无法唯一确定时停止并请求人工选择。
 

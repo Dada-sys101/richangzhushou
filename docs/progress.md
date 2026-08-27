@@ -1,31 +1,36 @@
 # 项目进度（派生摘要）
 
-updatedAt: 2026-08-12
+updatedAt: 2026-08-27
 
 ## Current
 
-- AI-DECISION-001 已通过 PR #12 达到 `DONE / DONE_INTEGRATION`，integration HEAD 为
-  `c4cca65bcd2ba71d93f948bf1c8731179fbb7fad`；CI 218 SUCCESS。
-- PR2（AI DB Expand）：`DONE / DONE_LOCAL`（UNCOMMITTED）。schema 五枚举 + 冻结四表、
-  单一 additive migration `20260812120000_v15_expand_ai`、`v15-ai-expand.integration.test.ts`
-  与 account-deletion service/test 最小适配已落地，Oracle MySQL 8.4.9 最终验收通过。
-- PR2 未 add/commit/push/创建 PR/merge/部署。
+- Integration `codex/v15-integration-foundation` 已重新只读核验到
+  `56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`。
+- PR19 对应 GitHub PR #18，已合入 Integration，merge
+  `c42c19ecb606893b1384fab4a13af2afb6b9981c`，状态为 `DONE_INTEGRATION`。
+- PR20 adapter integration 已通过 PR #20/#21/#22/#23 合入 Integration，状态为
+  `DONE_INTEGRATION`；PR20 live Provider validation 仍为 `BLOCKED / H7`。
+- H7 保持 `OPEN`；R1 Quality Gate 保持 `BLOCKED / NOT_READY`。
+- 当前 canonical task 为 `QUALITY-R1-GOVERNANCE-RECONCILIATION`，Gate 1 草案为
+  `DRAFT / AWAITING_APPROVAL`，本地写入未提交，等待 `COMMIT AUTHORIZATION GATE`。
 
 ## Evidence
 
-- PR #8 / PR1、PR #9 / V15-CTRL-001a、PR #10 / V15-CTRL-001、PR #11 / PR6a、
-  PR #12 / AI-DECISION-001：`DONE_INTEGRATION`。
-- PR6a MySQL 8.4.9 两轮 9 migrations、14 files / 105 DB tests、权限隔离与 cleanup verified；
-  evidence SHA256 4/4 匹配；临时实例已回收。
-- PR2：fresh empty DB 10 migrations PASS；focused AI 12/12、account deletion 11/11、
-  full DB integration 15 files / 117 tests PASS，0 skipped；四表 residual 0，tombstone `DELETED`。
-- `quality`、`check:context`、`git diff --check`、final net diff review PASS；临时资源 residual 0。
+- Integration CI run `33035100661`：`quality`、`db-validation`、`browser-qa` 均 SUCCESS。
+- CI artifacts：`supply-chain-governance`、`pr6a-mysql84-evidence`；browser-qa 成功时
+  Playwright 报告上传步骤被跳过，因此不能宣称存在完整浏览器报告。
+- PR20-03A/#22 与 PR20-03B/#23 的历史 scope deviation 已记录，均为
+  `PENDING_DADA_DISPOSITION`；`KEEP_AND_RECONCILE` 仅为建议值。
+- GitHub PR #22/#23 是 PR20 实现切片；canonical R3 PR22/PR23 未修改。
 
 ## Open Gates
 
-H1/H2/H7；云资源、非临时/生产 migration、真实服务、Staging 和 Production 独立授权；
-PR2 无本地验证 blocker；commit/push/PR/merge 仍需独立授权。
+- Gate 1：ADR-028 `PROPOSED / AWAITING_DADA_APPROVAL`、task contract `DRAFT / AWAITING_APPROVAL`；
+  commit/push/PR/merge 均未授权。
+- Gate 2：等待 Dada 单独批准 ADR-028、两项 deviation、PR20 两阶段语义及 docs/40 V1.2。
+- H1/H2/H7、Staging/Production、真实服务和外部资源仍按各自门禁执行。
 
 ## Next
 
-等待 PR2 独立 commit 授权。下一 canonical task 为 PR5，但不得自动开始；commit、push、PR、merge 均需独立授权。
+完成 `npm run check:context`、`git diff --check` 和完整 diff review 后，停在
+`COMMIT AUTHORIZATION GATE`；不得在本轮自动提交、推送、创建/更新 PR、合并、部署或关闭 H7。

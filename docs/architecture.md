@@ -1,8 +1,8 @@
 # 架构说明（Architecture）
 
-文档版本：1.1
+文档版本：1.2
 状态：已与代码、Git 历史和 V1.5 集成线交叉核对
-更新：2026-08-11
+更新：2026-08-27
 说明：本文件描述“当前实际架构”；目标/规划架构见 `docs/07-technical-architecture-and-security.md`、根目录 `ARCHITECTURE.md`、`docs/40-v15-final-development-baseline.md` 与 `PLANS.md`。规划但未实现的组件均明确标注。
 
 ## 1. 前端架构
@@ -43,18 +43,20 @@
   - Aliyun OSS Adapter：已进入 main，真实资源/连通仍未验证。
 - WP9 已删除 Invite/邮件恢复/OCR 业务实现。
 
-### V1.5 尚未正式实现
+### V1.5 Integration 现状与验证边界
 
 - AI 正式数据库 schema/migration 已随 PR2 落地（`ai_requests`/`ai_proposals`/
-  `ai_operations`/`ai_provider_attempts`），Proposal/Operation API/UI、Router 和真实
-  Provider 尚未实现；
+  `ai_operations`/`ai_provider_attempts`）；Proposal/Operation API/UI、PR19 Router 与
+  PR20 adapter integration 已进入 Integration（PR19 对应 PR #18，PR20 adapter slices 对应
+  PR #20/#21/#22/#23）。真实 Provider validation 尚未完成，仍受 H7 阻塞；
 - Push 正式数据库、订阅 API、自定义 Service Worker 和真实投递；
 - 新 RRULE 引擎的正式读写、backfill/parity 和调度切换；
 - CSV/XLSX 正式导入；
 - V2EncryptedRepository、MigrationCoordinator、dual-read/write；
 - Cutover 完整管理页、Shrink 和生产发布。
 
-相关 PoC 只作为选型与边界证据，不等于正式实现或生产批准。
+PR20 adapter integration 的代码存在不等于真实 Provider、真实凭据或真实数据评测已经批准；
+相关 live validation 仍是 `BLOCKED / H7`。相关 PoC 只作为选型与边界证据，不等于生产批准。
 
 ## 3. 数据库与数据存储
 
@@ -70,7 +72,8 @@
 - 契约文件：`packages/api-contracts/openapi/openapi.yaml`（OpenAPI 3.1）；共享 TypeScript 类型/枚举由契约包维护。
 - 认证：短期 access token、HttpOnly refresh Cookie、可撤销快捷指令设备凭证。
 - 已实现 V1 端点覆盖 auth/account/admin/finance/drafts/shortcuts/attachments/calendar/tasks/reminders/trips/sync。
-- V1.5 AI、Push 和 Import 契约尚未进入正式实现；按 PR5、PR16、PR4/PR14 的职责分别补充。
+- V1.5 AI Proposal/Router/adapter integration 已在当前 Integration 线存在；真实 Provider
+  调用仍未验证。Push 和 Import 仍按 PR16、PR4/PR14 的职责补充。
 
 ## 5. 模块依赖关系
 
@@ -103,7 +106,7 @@ apps/api ──► Prisma / StorageAdapter / NotificationAdapter / 后续 AiProv
 提醒 → 现有 scheduler → NotificationAdapter / 站内状态
 ```
 
-### V1.5 规划
+### V1.5 AI 数据流与验证边界
 
 ```text
 Browser/PWA → Daily Assistant API → AiProviderAdapter → Provider HTTPS
@@ -115,7 +118,8 @@ Provider response → parse → JSON Schema validation → domain validation →
 Reminder → Delivery/Job → InApp 或 WebPushChannel
 ```
 
-以上 AI 流程是 ADR-027 已冻结但尚未实现的目标架构。浏览器不得直连 Provider 或持有 credential；
+以上 AI 流程的 adapter integration 已进入当前 Integration；真实 Provider validation 仍是
+ADR-028 提案范围且尚未生效。浏览器不得直连 Provider 或持有 credential；
 R1 禁止自动跨 Provider fallback，只允许服务端受控配置切换。Provider output 不得直接写业务表、
 直接调用业务写 API 或绕过正式 domain service，正式写入必须 100% 经用户最终确认。
 
@@ -124,7 +128,8 @@ AI 和 Push 均不得绕过 Feature Flag、审计、幂等和人工门禁。
 ## 8. V1.5 扩展边界
 
 - `AiProviderAdapter`：候选顺序为 DeepSeek、阿里云百炼 / Qwen、OpenAI（仅对照）；当前不冻结
-  唯一 Provider。PR20 受控真实评测后 final provider/model/effect thresholds 仍需人工批准。
+  唯一 Provider。PR20 adapter integration 已合入 Integration；live validation、final provider/
+  model/effect thresholds 仍需 H7 与再次人工批准。
 - AI credential 仅允许 server secret/env reference 或未来经批准的 secret manager；唯一字段白名单、
   raw response 不持久化、正文不入普通日志、预算与 timeout/retry/breaker 见 ADR-027。
 - Notification：站内提醒为保底；Web Push 为 R1.1，可关闭。
@@ -136,7 +141,8 @@ AI 和 Push 均不得绕过 Feature Flag、审计、幂等和人工门禁。
 
 ## 9. 当前架构风险
 
-- H7 未关闭：真实 AI Provider 的网络、额度、费用、延迟和结构化输出未验证；
+- H7 未关闭：真实 AI Provider 的网络、额度、费用、延迟和结构化输出未验证；CI 绿灯不替代
+  真实 Provider 证据，且 Integration run `33035100661` 的 browser report upload 被跳过；
 - H6/H8 未关闭：真实 Push 送达和 MPL-2.0 评审未完成；
 - Staging、域名/隧道、备份恢复和正式监控尚未建立；
 - iPhone PWA/离线门禁需正式归档；

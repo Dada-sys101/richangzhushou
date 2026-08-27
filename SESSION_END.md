@@ -1,5 +1,22 @@
 # Session End
 
+## 2026-08-27 — QUALITY-R1 Governance Reconciliation Gate 1（COMMIT AUTHORIZATION GATE）
+
+- 从 `origin/codex/v15-integration-foundation` 只读核验 Integration HEAD 为
+  `56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`，并在独立 worktree
+  `D:\daily-assistant-worktrees\quality-r1-governance-draft-write` 执行；旧 PR20-03A worktree 未修改。
+- PR19（GitHub PR #18）已是 `DONE / DONE_INTEGRATION`；PR20 adapter integration 已通过
+  #20/#21/#22/#23 进入 Integration；PR20 live Provider validation 仍为 `BLOCKED / H7`。
+- 新增 ADR-028（`PROPOSED / AWAITING_DADA_APPROVAL`）及
+  `QUALITY-R1-GOVERNANCE-RECONCILIATION`（`DRAFT / AWAITING_APPROVAL`），同步项目状态与派生镜像。
+- PR20-03A/#22、PR20-03B/#23 deviation 保持 `PENDING_DADA_DISPOSITION`；canonical R3 PR22/PR23
+  未修改；H7 `OPEN`；R1 Quality Gate `BLOCKED / NOT_READY`。
+- Integration CI run `33035100661` 的 `quality`、`db-validation`、`browser-qa` 均 SUCCESS；
+  `supply-chain-governance`、`pr6a-mysql84-evidence` 存在，但 browser report upload 被跳过。
+- docs/40 保持 V1.1，ADR-026/027 与实现/数据库/CI/环境文件未改；未 commit、push、PR、merge、部署，
+  未使用真实 Provider/凭据，未触碰 stash。
+- 下一步仅为完整 diff 审查与 `npm run check:context`、`git diff --check`，随后保持在提交授权门前。
+
 ## 2026-08-12 — PR2 AI DB Expand 最终本地验收
 
 - 分支：`codex/v15-pr2-ai-db-expand`，基于已核验 integration HEAD

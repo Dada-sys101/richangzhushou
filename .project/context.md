@@ -2,209 +2,136 @@
 
 ## Last Updated
 
-2026-08-19 17:25 +08:00: PR18 is complete and integrated. Source HEAD is
-`9bee2f8fb1401caaeebff96912a21e01e57c655c`; PR #17 was squash merged into
-Integration at `7caf892022c9bb6833c7316893bfddeb169b7243`. The governance-close
-commit `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd` is committed and pushed, and
-the current verified Integration ref is
-`50f4f936a4ce46ac746f23478a929287d6e17c94`. PR19 Contract V10 is frozen and
-GPT-accepted; landing commit `bc8bc413c6862e0d92247d7e6608dd6e99f505d7` is
-`LOCAL_COMMITTED / NOT_PUSHED` (local AHEAD 1 / BEHIND 0). Repository Persisted
-Gate is `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`; Repository
-landing state is `WORKTREE_FIXED / UNCOMMITTED`; Persisted Successor Gate is
-`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`. PR19 implementation
-remains not started and not authorized.
+2026-08-27 12:04 +08:00：已在独立 worktree 执行
+`QUALITY-R1-GOVERNANCE-DRAFT-WRITE`。远端 Integration 已重新只读核验到
+`56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`。本地治理草案已写入但未提交，当前停在
+`COMMIT AUTHORIZATION GATE`；ADR-028 和两项 PR20 historical deviation 尚未获批准。
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
-- Main: `13bfad4d32157166fa6e8f5215ce5f813a1ad67c`
-- Last verified Integration governance-close anchor:
-  `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd`
-  (PR #17 functional Squash Merge remains
-  `7caf892022c9bb6833c7316893bfddeb169b7243`; Integration CI #264 SUCCESS)
-- Current verified Integration ref: `50f4f936a4ce46ac746f23478a929287d6e17c94`
-- Current local HEAD: `bc8bc413c6862e0d92247d7e6608dd6e99f505d7`
-- PR19 landing relation: `AHEAD 1 / BEHIND 0`; landing commit is
-  `LOCAL_COMMITTED / NOT_PUSHED`
-- Source branch: `codex/v15-pr18-ai-proposal-fake-provider`
-- Source HEAD: `9bee2f8fb1401caaeebff96912a21e01e57c655c`
-- Base: `codex/v15-integration-foundation@7caf892022c9bb6833c7316893bfddeb169b7243`
-- PR #17: `MERGED / CLOSED`; source branch remains present
-- Governance close: commit `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd` is
-  committed and pushed; the local checkout was verified clean with no staged
-  changes.
-- Staging / production: not created / not deployed
+- Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
+- Integration branch: `codex/v15-integration-foundation`
+- Verified Integration HEAD: `56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`
+- Independent draft worktree: `D:\daily-assistant-worktrees\quality-r1-governance-draft-write`
+- Independent draft branch: `codex/v15-integration-foundation`
+- Draft worktree HEAD: `56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`；未创建新提交
+- Older PR20-03A worktree: `D:\daily-assistant`，保持原分支与原状态，未在其上修改
+- `stash@{0}`: `36039201ec2a4b6100eca4dcb4d77138d35be801`，Gate 1 前后必须保持不变
+- Staging: `NOT_CREATED`
+- Production: `NOT_DEPLOYED`
 
 ## Project Summary
 
-V1 core is on main. V1.5 is incremental: AI is R1, Push R1.1, new RRULE/Import
-R2, and full local encryption migration/Shrink R3. `PLANS.md` is the canonical
-task definition; Git/GitHub/CI/environment remain the live facts.
+V1.5 继续采用增量集成：AI 为 R1，Push 为 R1.1，新 RRULE/Import 为 R2，完整本地加密迁移与
+Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环境是实时事实源；
+`.project/v15-execution-state.md` 是仓库快照，不是实时分支镜像。
 
 ## Last Completed Task
 
-- H05 scoped dependency audit exception: implemented and reviewed `ACCEPT`.
-- PR18 implementation commit: `f574a79cdba289c5a210f6efad9f26b3a45be4df`.
-- PR18 source HEAD: `9bee2f8fb1401caaeebff96912a21e01e57c655c`.
-- PR #17: `MERGED / CLOSED` by Squash Merge
-  `7caf892022c9bb6833c7316893bfddeb169b7243`.
-- CI #263 (`32122546919`) and Integration CI #264 (`32204580996`) passed with
-  `quality`, `browser-qa` and `db-validation` SUCCESS.
-- Final Acceptance Review02: `ACCEPT`; P0/P1/P2: none.
-- Ready-for-review, merge and post-merge Integration verification: `ACCEPT`.
-- Scope Deviation Decision01 and Authorization01: completed; both deviations
-  remain recorded below.
+- PR19 已通过 GitHub PR #18 合入 Integration，merge
+  `c42c19ecb606893b1384fab4a13af2afb6b9981c`，交付状态为 `DONE / DONE_INTEGRATION`。
+- PR20 adapter integration 已通过 PR #20/#21/#22/#23 进入 Integration；当前 HEAD 为
+  `56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`。
+- Integration CI run `33035100661` 的 `quality`、`db-validation`、`browser-qa` 均 SUCCESS；
+  artifact 为 `supply-chain-governance` 与 `pr6a-mysql84-evidence`。
+- `browser-qa` 成功时 Playwright 报告上传步骤被跳过，不能据此宣称存在完整浏览器报告。
 
 ## Current Task
 
-- ID: `PR19`
-- Name: AI Router、Stub 与安全降级
-- Phase: Phase 2 / R1 AI Core
-- Status: `READY / NOT_STARTED`
-- Checkout: detached at `bc8bc413c6862e0d92247d7e6608dd6e99f505d7`; remote Integration remains `50f4f936a4ce46ac746f23478a929287d6e17c94`; local relation `AHEAD 1 / BEHIND 0`
-- Contract: `tasks/PR19.md`
-- Contract status: `V10 / FROZEN / GPT_ACCEPT`
-- Contract review: `PR19-CONTRACT-REVIEW09 = ACCEPT`
-- Contract landing commit: `bc8bc413c6862e0d92247d7e6608dd6e99f505d7` (`LOCAL_COMMITTED / NOT_PUSHED`)
-- Implementation: `NOT_STARTED / NOT_AUTHORIZED`
-- Repository Persisted Gate: `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`
-- Repository landing state: `WORKTREE_FIXED / UNCOMMITTED`
-- Persisted Successor Gate: `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`
-- Commit: `COMPLETED / LOCAL_COMMITTED`
-- Push: `NOT_AUTHORIZED`
-- PR operation: `NOT_AUTHORIZED`
+- ID: `QUALITY-R1-GOVERNANCE-RECONCILIATION`
+- Name: QUALITY-R1 Governance Reconciliation
+- Phase: Phase 2 / R1 AI Core governance reconciliation
+- Status: `DONE / DONE_LOCAL / UNCOMMITTED`
+- Contract: `tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`
+- Contract status: `DRAFT / AWAITING_APPROVAL`
+- Current gate: `QUALITY-R1-GOVERNANCE-DRAFT-WRITE`
+- Base: `codex/v15-integration-foundation@56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`
+- Allowed output: factual reconciliation, ADR-028 proposal, state/index/decision mirrors
+- Commit authorization: `NOT_GRANTED`
+- Next gate: `QUALITY-R1-GOVERNANCE-APPROVAL / NORMATIVE FREEZE`
 
 ## Completed Work
 
-- PR2 and PR5 dependencies are `DONE_INTEGRATION`.
-- PR9 repository abstraction is `DONE_INTEGRATION`.
-- The PR18 branch was created from the exact Integration baseline and now contains
-  the completed Proposal / Operation / confirmation implementation.
-- The PR18 contract freezes user flow, safety, contract/whitelist, Fake
-  Provider and acceptance boundaries.
-- `CONTRACT_CHANGE_REQUIRED -> KEEP_AND_AUTHORIZE` is approved for the shared
-  Proposal HTTP contract and OpenAPI.
-- `SCHEMA_CHANGE_REQUIRED` is currently `AUTHORIZED MINIMAL SLICE` for the
-  minimal `SystemSetting.feature_flags` persistence slice;
-  `PR4 full management = DEFERRED / NOT AUTHORIZED IN PR18`.
-- PR19 V10 is separately accepted and records the authorized minimal
-  `originalUserInput` / `originalInputExpiresAt` persistence plus expiry index;
-  existing `AiRequest.locale` and `AiRequest.timeZoneId` persistence remain
-  unchanged.
-- PR19 V10 landing commit `bc8bc413c6862e0d92247d7e6608dd6e99f505d7` contains
-  only the task/governance carriers and remains `LOCAL_COMMITTED / NOT_PUSHED`.
+- V15-CTRL-001、PR6a、AI-DECISION-001、PR2、PR5、PR6、PR9、PR18、PR19 已达到
+  `DONE_INTEGRATION`，具体 merge/CI 证据见 execution state。
+- PR20 的 adapter foundation、provider configuration、DeepSeek adapter 和 OpenAI adapter
+  已进入 Integration；这只证明代码/集成历史事实，不证明 H7 已完成。
+- PR20-03A/#22 与 PR20-03B/#23 的 historical scope deviation 已登记，当前均为
+  `PENDING_DADA_DISPOSITION`；`KEEP_AND_RECONCILE` 仅为建议值。
+- GitHub PR #22/#23 是 PR20 实现切片，不是 canonical R3 task PR22/PR23；canonical
+  PR22/PR23 未修改。
 
 ## Remaining Work
 
-- Repository Persisted Gate is
-  `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`; its materialized
-  landing state is `WORKTREE_FIXED / UNCOMMITTED`. Persisted Successor Gate is
-  `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`.
-  PR19 implementation remains `NOT_STARTED / NOT_AUTHORIZED` and requires a
-  separate implementation gate; it must not start automatically.
-- PR18 post-merge PR metadata close, if required, remains a separate metadata
-  gate and is not part of this five-file synchronization.
-- PR10 remains `NOT STARTED`.
-- Deploy remains `NOT AUTHORIZED`.
+- Gate 1 的本地校验与完整 diff 审查已完成，等待 `COMMIT AUTHORIZATION GATE`；本轮不创建提交。
+- Gate 2 需要 Dada 单独决定 ADR-028、两项 deviation、PR20 两阶段语义与 docs/40 V1.2。
+- PR20 live Provider validation 尚未完成；真实调用、真实凭据和真实数据评测仍需独立授权。
+- R1 Quality Gate 保持 `BLOCKED / NOT_READY`；H7 保持 `OPEN`。
 
 ## Blockers
 
-- No PR18 source, merge or Integration verification blocker remains.
-- PR19 contract landing state semantics are awaiting the recorded Next
-  Orchestration Gate.
-  Implementation, push and PR operation remain unauthorized; no additional
-  commit is authorized.
-- H1/H2/H7 retain their existing R1 blocking semantics; no human gate was
-  changed.
+- H7 `OPEN`，当前有效规则仍将 H7 作为 PR20 merge gate 与 R1 blocker；Gate 1 仅标记
+  `CURRENT RULE / RECONCILIATION PROPOSED`，没有使新规则生效。
+- R1 Quality Gate `BLOCKED / NOT_READY`。
+- ADR-028 `PROPOSED / AWAITING_DADA_APPROVAL`；PR20-03A/#22、PR20-03B/#23 deviation
+  均 `PENDING_DADA_DISPOSITION`。
+- 不存在本地实现阻塞；当前阻塞是治理批准和独立 Git 授权，不得通过 CI 绿灯自动关闭。
 
 ## Known Issues
 
-- Real AI Provider behavior remains unvalidated and belongs to PR20/H7.
-- `PR4 full management = DEFERRED / NOT AUTHORIZED IN PR18`; PR18 retains only
-  the authorized minimal `SystemSetting.feature_flags` slice and migration.
-- The Web client still contains local AI type copies; resolving that duplication
-  is not authorized in this governance-sync gate and must not change the lockfile.
+- Integration CI run `33035100661` 的 browser report upload 被跳过，因此浏览器报告完整性仍未确认。
+- PR20 adapter code 已集成，但真实 Provider 网络、额度、费用、延迟和结构化输出尚未通过 H7
+  受控验证。
+- `docs/40-v15-final-development-baseline.md` 保持 V1.1；在 Gate 2 前不得升级为 V1.2。
+- Staging、真实外部资源和 Production 均未创建或部署。
 
 ## Verification Status
 
-- Source HEAD: `9bee2f8fb1401caaeebff96912a21e01e57c655c`.
-- PR #17: `MERGED / CLOSED`; Squash Merge
-  `7caf892022c9bb6833c7316893bfddeb169b7243`.
-- Last verified Integration governance-close anchor:
-  `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd`.
-- CI #263 (`32122546919`) and Integration CI #264 (`32204580996`):
-  `quality`, `browser-qa` and `db-validation` SUCCESS.
-- Final Acceptance Review02, Ready-for-review, merge and post-merge
-  Integration verification: `ACCEPT`.
-- Governance-close commit `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd` was
-  pushed to Integration; governance-close CI verification is `ACCEPT / PASSING`
-  from the Integration branch status badge captured at verification time.
-- PR19 V10 contract landing commit `bc8bc413c6862e0d92247d7e6608dd6e99f505d7`
-  is `LOCAL_COMMITTED / NOT_PUSHED`; no production implementation, migration,
-  test or external operation was performed.
-- Shared AI Operation types, statuses and eight-field whitelist: VERIFIED against
-  `packages/api-contracts/src/ai.ts` and `packages/api-contracts/src/enums.ts`.
-- Governance-state synchronization `git diff --check` and
-  `npm run check:context`: PASS.
-- V10 landing scope contains only task/governance documentation; no source,
-  test, package, Prisma, migration, OpenAPI implementation or CI workflow file
-  was changed.
+- Remote ref re-read: `PASS`；`origin/codex/v15-integration-foundation` 精确为
+  `56ffd3dc0c9c46bae7a9b47d80e6ba8bcd0f2172`。
+- GitHub PR/CI fact check: `PASS`；PR #18、#20、#21、#22、#23 已合入；run `33035100661`
+  的三个 job 为 SUCCESS。
+- Independent worktree/base check: `PASS`；HEAD 精确绑定 Integration，旧 PR20-03A worktree
+  未修改。
+- Local Gate 1 validation: `PASS`；`npm run check:context`、`git diff --check` 与新文件尾随空白检查均通过。
+- Commit/push/PR/Ready/merge/deploy/real Provider: `NOT_RUN` and not authorized。
 
 ## Recent Changes
 
-- PR18 implementation, H05 exception, final acceptance, Ready, Squash Merge,
-  governance-close commit/push and Integration verification are complete.
-- PR18 remains `DONE / DONE_INTEGRATION`.
-- PR19 V10 contract is `FROZEN / GPT_ACCEPT`; landing commit is
-  `LOCAL_COMMITTED / NOT_PUSHED`; implementation has not started.
+- Added ADR-028 as `PROPOSED / AWAITING_DADA_APPROVAL`.
+- Added `QUALITY-R1-GOVERNANCE-RECONCILIATION` as `DRAFT / AWAITING_APPROVAL`.
+- Reconciled Integration HEAD, PR19/PR20 delivery facts, H7, R1 Quality Gate and pending
+  deviations across canonical and derived governance documents.
+- Kept docs/40 V1.1, ADR-026/027 normative content, implementation files, Prisma/migration,
+  CI workflow, package/lockfile, environment and stash unchanged.
 
 ## Next Recommended Task
 
-`PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`
+`COMMIT AUTHORIZATION GATE`
 
-Review the repository state semantics. This review does not authorize PR19
-implementation, an additional commit, push, PR operation, PR20, H7 closure or
-deployment.
+Review the complete Gate 1 diff and authorize a commit only as a separate action. After that,
+the next governance decision is `QUALITY-R1-GOVERNANCE-APPROVAL / NORMATIVE FREEZE`; no Gate 2
+normative update is implied by this local draft.
 
 ## Important Constraints
 
-- Accept Proposal is not Final Confirm Business Write.
-- Formal writes require final user confirmation and existing Domain Services.
-- Real Provider/network/credentials and PR19 Router remain outside PR18.
-- PR19 V10 landing commit is `LOCAL_COMMITTED / NOT_PUSHED`; implementation is
-  `NOT_STARTED / NOT_AUTHORIZED`.
-- No additional commit, push or PR operation is authorized by this Gate.
-- **READ_ONLY_GATE_PERSISTENCE_RULE**: `REPOSITORY_PERSISTED_GATE` is the last
-  repository write checkpoint materialized into governance files;
-  `PERSISTED_SUCCESSOR_GATE` is its immediate expected orchestration gate; and
-  `GPT_ACTIVE_GATE` is externally controlled. A Write Gate records both. A
-  read-only Review may consume the successor without repository mutation; it
-  may remain recorded until a later authorized Write Gate materializes new
-  state. A Review must not `REQUEST_CHANGES` solely because GPT Active Gate
-  differs from Repository Persisted Gate or has advanced beyond a consumed
-  successor. A successor is inconsistent only if stale when its checkpoint was
-  produced.
-- Only the authorized minimal `SystemSetting.feature_flags` slice is retained;
-  `PR4 full management = DEFERRED / NOT AUTHORIZED IN PR18`.
-- The H05 `deepmerge-ts` exception is scoped and expires on `2026-09-01`.
+- H7 remains open; no real Provider call, real credential use, real-data evaluation or Provider
+  enablement is authorized.
+- Formal business writes still require final user confirmation; Provider output cannot directly
+  write business tables.
+- Do not modify ADR-026/027, docs/40, docs/42, apps, packages, CI workflow, package/lockfile,
+  Prisma/migration or environment files in this Gate.
+- Do not commit, push, create/update PR, mark Ready, merge, rebase, reset, cherry-pick, force,
+  deploy, create resources or mutate `stash@{0}`.
 
 ## Handoff Instructions
 
-1. Read `PLANS.md`, this context, execution state, session and `tasks/PR19.md`.
-2. Treat PR18 as `DONE / DONE_INTEGRATION`; use
-   `f90f4eaff40d0859ee5eec4f8deb6959fc3ce7dd` as the verified PR18
-   governance-close anchor and retain the functional squash merge SHA
-   `7caf892022c9bb6833c7316893bfddeb169b7243` separately.
-3. Re-read the live Integration ref from Git/GitHub before any future Git action;
-   this repository snapshot is not a realtime branch-ref mirror.
-4. Treat V10 landing commit `bc8bc413...` as `LOCAL_COMMITTED / NOT_PUSHED`.
-   Repository Persisted Gate is
-   `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-FIX02`; the repository
-   landing state is `WORKTREE_FIXED / UNCOMMITTED`; Persisted Successor Gate is
-   `PR19-TASK-CONTRACT-LAND-COMMIT-STATE-SEMANTICS-REVIEW02`. A read-only
-   review may consume that successor without mutation; a later GPT Active Gate
-   does not itself make the repository state inconsistent. Do not start
-   implementation without a separate implementation authorization.
-5. Keep Deploy `NOT AUTHORIZED`, H1/H2/H7 semantics unchanged, and do not
-   modify PR4 full management scope.
+1. Treat `56ffd3dc…` as the re-verified Integration baseline only for this Gate 1 draft.
+2. Treat PR19 as `DONE / DONE_INTEGRATION` and PR20 adapter integration as historical
+   `DONE_INTEGRATION`; keep PR20 live validation `BLOCKED / H7`.
+3. Keep ADR-028 Proposed and both PR20-03A/#22 and PR20-03B/#23 deviations pending.
+4. Keep canonical R3 PR22/PR23 distinct and untouched.
+5. Re-read Git/GitHub/CI before any later Git action; this snapshot is not realtime.
+6. A later Gate 2 action requires explicit Dada approval and must separately decide normative
+   freeze, docs/40 V1.2 and deviation dispositions.
