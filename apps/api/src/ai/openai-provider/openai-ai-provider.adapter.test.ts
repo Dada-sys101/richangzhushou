@@ -34,7 +34,7 @@ function successContent() {
       {
         clarification: null,
         confidence: "0.9000",
-        fields: { title: "会议" },
+        fields: { dueAt: null, priority: null, title: "会议" },
         operationType: "TASK",
         status: "PENDING",
       },
@@ -257,6 +257,10 @@ function expectClosedObjects(value: unknown): void {
   const type = value.type;
   if (type === "object" || (Array.isArray(type) && type.includes("object"))) {
     expect(value.additionalProperties).toBe(false);
+    if (!isRecord(value.properties) || !Array.isArray(value.required)) {
+      throw new Error("Expected strict object schema properties and required");
+    }
+    expect([...value.required].sort()).toEqual(Object.keys(value.properties).sort());
   }
   Object.values(value).forEach(expectClosedObjects);
 }
