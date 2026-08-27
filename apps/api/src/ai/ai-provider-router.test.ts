@@ -61,6 +61,30 @@ describe("PR19 deterministic provider selection boundary", () => {
     expect(fakeExecute).not.toHaveBeenCalled();
   });
 
+  it("selects a lazy OpenAI adapter without touching fake or DeepSeek", () => {
+    const fakeExecute = vi.fn();
+    const deepSeekFactory = vi.fn();
+    const openAi = {
+      execute: vi.fn(),
+      modelId: () => "openai-test-model",
+      providerId: () => "openai",
+    };
+    const openAiFactory = vi.fn(() => openAi);
+    const router = new AiProviderRouter(
+      {
+        execute: fakeExecute,
+        modelId: () => "fake-model",
+        providerId: () => "fake-provider",
+      },
+      deepSeekFactory,
+      openAiFactory,
+    );
+    expect(router.select("openai", "TASK")).toBe(openAi);
+    expect(openAiFactory).toHaveBeenCalledOnce();
+    expect(deepSeekFactory).not.toHaveBeenCalled();
+    expect(fakeExecute).not.toHaveBeenCalled();
+  });
+
   it("does not fallback when a DeepSeek factory is unavailable", () => {
     const execute = vi.fn();
     const router = new AiProviderRouter({

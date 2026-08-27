@@ -62,6 +62,7 @@ export class AiProviderRouter {
   constructor(
     private readonly fakeAdapter: AiProviderAdapter,
     private readonly deepSeekAdapterFactory?: () => AiProviderAdapter,
+    private readonly openAiAdapterFactory?: () => AiProviderAdapter,
   ) {}
 
   select(
@@ -76,7 +77,9 @@ export class AiProviderRouter {
         ? this.fakeAdapter
         : selectedProvider === "deepseek"
           ? this.deepSeekAdapterFactory?.()
-          : undefined;
+          : selectedProvider === "openai"
+            ? this.openAiAdapterFactory?.()
+            : undefined;
     if (!adapter) {
       throw new AiRouterSelectionError(
         selectedProvider === "openai"
@@ -95,7 +98,7 @@ export class AiProviderRouter {
     if (
       !adapter ||
       providerId !==
-        (selectedProvider === "fake" ? "fake-provider" : "deepseek") ||
+        (selectedProvider === "fake" ? "fake-provider" : selectedProvider) ||
       typeof modelId !== "string" ||
       modelId.length === 0 ||
       typeof adapter.execute !== "function"

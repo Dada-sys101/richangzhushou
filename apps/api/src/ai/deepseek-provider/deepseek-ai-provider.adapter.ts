@@ -47,6 +47,7 @@ export class RealAiProviderError extends Error {
       | "NETWORK_ERROR"
       | "PROVIDER_5XX"
       | "RATE_LIMIT"
+      | "SCHEMA_INVALID"
       | "TIMEOUT"
       | "UNKNOWN_PROVIDER_ERROR",
     readonly retryable: boolean,
