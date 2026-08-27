@@ -53,7 +53,159 @@ interface OpenAiConfiguration {
   model: string;
 }
 
-const PROPOSAL_RESULT_SCHEMA = {
+const NULLABLE_STRING = { type: ["string", "null"] } as const;
+
+const OPERATION_PROPERTIES = {
+  clarification: { type: ["string", "null"] },
+  confidence: { type: "string" },
+  status: { const: "PENDING", type: "string" },
+} as const;
+
+const OPERATION_REQUIRED = [
+  "clarification",
+  "confidence",
+  "fields",
+  "operationType",
+  "status",
+] as const;
+
+const TRANSACTION_FIELDS_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    accountId: NULLABLE_STRING,
+    amount: { type: "string" },
+    categoryId: NULLABLE_STRING,
+    currency: NULLABLE_STRING,
+    isUnlinkedRefund: { type: ["boolean", "null"] },
+    merchant: NULLABLE_STRING,
+    note: NULLABLE_STRING,
+    occurredAt: NULLABLE_STRING,
+    originalTransactionId: NULLABLE_STRING,
+    source: { const: "TEXT", type: "string" },
+    tripId: NULLABLE_STRING,
+    type: { enum: ["EXPENSE", "INCOME", "REFUND"], type: "string" },
+  },
+  required: [
+    "accountId",
+    "amount",
+    "categoryId",
+    "currency",
+    "isUnlinkedRefund",
+    "merchant",
+    "note",
+    "occurredAt",
+    "originalTransactionId",
+    "source",
+    "tripId",
+    "type",
+  ],
+  type: "object",
+} as const;
+
+const CALENDAR_EVENT_FIELDS_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    allDay: { type: ["boolean", "null"] },
+    endsAt: { type: "string" },
+    startsAt: { type: "string" },
+    title: { type: "string" },
+  },
+  required: ["allDay", "endsAt", "startsAt", "title"],
+  type: "object",
+} as const;
+
+const TASK_FIELDS_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    dueAt: NULLABLE_STRING,
+    priority: {
+      enum: ["LOW", "MEDIUM", "HIGH", null],
+      type: ["string", "null"],
+    },
+    title: { type: "string" },
+  },
+  required: ["dueAt", "priority", "title"],
+  type: "object",
+} as const;
+
+const REMINDER_RECURRENCE_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    dayOfMonth: { type: ["integer", "null"] },
+    interval: { type: ["integer", "null"] },
+    until: NULLABLE_STRING,
+    weekdays: { items: { type: "integer" }, type: ["array", "null"] },
+  },
+  required: ["dayOfMonth", "interval", "until", "weekdays"],
+  type: "object",
+} as const;
+
+const REMINDER_FIELDS_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    note: NULLABLE_STRING,
+    recurrence: {
+      anyOf: [REMINDER_RECURRENCE_SCHEMA, { type: "null" }],
+    },
+    scheduleType: {
+      enum: ["ONCE", "DAILY", "WEEKLY", "MONTHLY"],
+      type: "string",
+    },
+    startsAt: { type: "string" },
+    targetId: NULLABLE_STRING,
+    targetType: {
+      enum: ["CALENDAR_EVENT", "TASK", "STANDALONE", null],
+      type: ["string", "null"],
+    },
+    title: { type: "string" },
+  },
+  required: [
+    "note",
+    "recurrence",
+    "scheduleType",
+    "startsAt",
+    "targetId",
+    "targetType",
+    "title",
+  ],
+  type: "object",
+} as const;
+
+const TRIP_FIELDS_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    budgetAmount: NULLABLE_STRING,
+    destination: { type: "string" },
+    endDate: { type: "string" },
+    startDate: { type: "string" },
+    title: { type: "string" },
+  },
+  required: ["budgetAmount", "destination", "endDate", "startDate", "title"],
+  type: "object",
+} as const;
+
+function operationSchema(
+  operationType:
+    | "TRANSACTION"
+    | "CALENDAR_EVENT"
+    | "TASK"
+    | "REMINDER"
+    | "TRIP",
+  fields: Record<string, unknown>,
+) {
+  return {
+    additionalProperties: false,
+    properties: {
+      ...OPERATION_PROPERTIES,
+      fields,
+      operationType: { const: operationType, type: "string" },
+    },
+    required: OPERATION_REQUIRED,
+    type: "object",
+  } as const;
+}
+
+export const OPENAI_PROPOSAL_RESULT_SCHEMA = {
   additionalProperties: false,
   properties: {
     clarification: { type: ["string", "null"] },
@@ -61,25 +213,13 @@ const PROPOSAL_RESULT_SCHEMA = {
     modelId: { type: "string" },
     operations: {
       items: {
-        additionalProperties: false,
-        properties: {
-          clarification: { type: ["string", "null"] },
-          confidence: { type: "string" },
-          fields: { additionalProperties: true, type: "object" },
-          operationType: {
-            enum: ["TRANSACTION", "CALENDAR_EVENT", "TASK", "REMINDER", "TRIP"],
-            type: "string",
-          },
-          status: { const: "PENDING", type: "string" },
-        },
-        required: [
-          "clarification",
-          "confidence",
-          "fields",
-          "operationType",
-          "status",
+        anyOf: [
+          operationSchema("TRANSACTION", TRANSACTION_FIELDS_SCHEMA),
+          operationSchema("CALENDAR_EVENT", CALENDAR_EVENT_FIELDS_SCHEMA),
+          operationSchema("TASK", TASK_FIELDS_SCHEMA),
+          operationSchema("REMINDER", REMINDER_FIELDS_SCHEMA),
+          operationSchema("TRIP", TRIP_FIELDS_SCHEMA),
         ],
-        type: "object",
       },
       type: "array",
     },
@@ -143,7 +283,7 @@ export class OpenAiProviderAdapter implements AiProviderAdapter {
           text: {
             format: {
               name: "ai_proposal_result",
-              schema: PROPOSAL_RESULT_SCHEMA,
+              schema: OPENAI_PROPOSAL_RESULT_SCHEMA,
               strict: true,
               type: "json_schema",
             },
