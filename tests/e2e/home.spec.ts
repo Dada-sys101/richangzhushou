@@ -31,16 +31,16 @@ test("首页与核心业务创建、刷新持久化且无阻塞错误", async ({
   await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
   await page.waitForURL("**/account");
   await navLink(page, "首页").click();
-  await expect(page.getByRole("heading", { name: "今日概览" })).toBeVisible();
-  await expect(page.getByText("今日安排")).toBeVisible();
+  await expect(page.locator("#home-title")).toBeVisible();
+  await expect(page.getByText("今日时间轴")).toBeVisible();
 
-  await navLink(page, "待办").click();
+  await page.goto("/tasks");
   await page.getByLabel("标题").fill(taskTitle);
   await page.getByRole("button", { name: "新建待办" }).click();
   await expect(page.getByText("待办已创建")).toBeVisible();
   await expect(page.getByText(taskTitle)).toBeVisible();
 
-  await navLink(page, "日程").click();
+  await page.goto("/calendar");
   await page.getByLabel("标题").fill(eventTitle);
   const start = shanghaiLocalInput(new Date(Date.now() + 3_600_000));
   const end = shanghaiLocalInput(new Date(Date.now() + 7_200_000));
@@ -51,10 +51,7 @@ test("首页与核心业务创建、刷新持久化且无阻塞错误", async ({
   await expect(page.getByText(eventTitle)).toBeVisible();
 
   await navLink(page, "首页").click();
-  await page
-    .locator(".quick-actions-grid")
-    .getByRole("link", { name: /^记一笔/ })
-    .click();
+  await page.goto("/transactions/new");
   await page.getByLabel("金额（元）").fill("12.34");
   await page.getByLabel("时间").fill(start);
   await page.getByLabel("商户/说明").fill(merchant);
@@ -64,7 +61,10 @@ test("首页与核心业务创建、刷新持久化且无阻塞错误", async ({
 
   await page.reload();
   await expect(page.getByText(merchant)).toBeVisible();
-  await navLink(page, "待办").click();
+  await page.goto("/");
+  await expect(page.locator("#home-title")).toBeVisible();
+  await expect(page.getByText("今日时间轴")).toBeVisible();
+  await page.goto("/tasks");
   await expect(page.getByText(taskTitle)).toBeVisible();
 
   const unexpected = blocking.filter((text) =>

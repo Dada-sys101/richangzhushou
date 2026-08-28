@@ -14,10 +14,12 @@ import LoginView from "./views/LoginView.vue";
 import NotFoundView from "./views/NotFoundView.vue";
 import ProposalReviewView from "./views/ProposalReviewView.vue";
 import QuickCaptureView from "./views/QuickCaptureView.vue";
+import RecordsView from "./views/RecordsView.vue";
 import RemindersView from "./views/RemindersView.vue";
 import ShortcutsView from "./views/ShortcutsView.vue";
 import SyncConflictsView from "./views/SyncConflictsView.vue";
 import TasksView from "./views/TasksView.vue";
+import PlanView from "./views/PlanView.vue";
 import TransactionFormView from "./views/TransactionFormView.vue";
 import TransactionsView from "./views/TransactionsView.vue";
 import TripDetailView from "./views/TripDetailView.vue";
@@ -71,6 +73,18 @@ export const router = createRouter({
       path: "/capture",
       name: "capture",
       component: QuickCaptureView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/records",
+      name: "records",
+      component: RecordsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/plan",
+      name: "plan",
+      component: PlanView,
       meta: { requiresAuth: true },
     },
     {

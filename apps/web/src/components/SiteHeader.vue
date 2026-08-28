@@ -15,15 +15,10 @@ const moreRef = ref<HTMLElement | null>(null);
 
 const moreItems = computed(() => {
   const items = [
-    { icon: "pen", label: "快捷记录", to: "/capture" },
-    { icon: "zap", label: "AI 助手", to: "/ai" },
     { icon: "file", label: "草稿中心", to: "/drafts" },
+    { icon: "zap", label: "AI 助手", to: "/ai" },
+    { icon: "trip", label: "行程", to: "/trips" },
     { icon: "zap", label: "快捷指令", to: "/shortcuts" },
-    { icon: "bell", label: "提醒", to: "/reminders" },
-    { icon: "budget", label: "预算", to: "/finance/budgets" },
-    { icon: "tags", label: "分类", to: "/finance/categories" },
-    { icon: "card", label: "资金账户", to: "/finance/accounts" },
-    { icon: "settings", label: "个人设置", to: "/account" },
   ];
   if (sync.conflictCount > 0) {
     items.push({ icon: "alert", label: "同步冲突", to: "/sync/conflicts" });
@@ -71,10 +66,12 @@ onBeforeUnmount(() => {
     <div class="header-right">
       <nav v-if="auth.isAuthenticated" class="site-nav" aria-label="主导航">
         <RouterLink to="/">首页</RouterLink>
-        <RouterLink to="/calendar">日程</RouterLink>
-        <RouterLink to="/tasks">待办</RouterLink>
-        <RouterLink to="/transactions">财务</RouterLink>
-        <RouterLink to="/trips">行程</RouterLink>
+        <RouterLink to="/records">记录</RouterLink>
+        <RouterLink to="/plan">计划</RouterLink>
+        <RouterLink to="/account">我的</RouterLink>
+        <RouterLink class="site-capture-link" to="/capture"
+          >统一录入</RouterLink
+        >
       </nav>
       <div v-if="auth.isAuthenticated" ref="moreRef" class="more-menu">
         <button
