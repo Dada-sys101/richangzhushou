@@ -13,15 +13,15 @@ describe("BottomNav", () => {
     const links = wrapper.findAllComponents(RouterLinkStub);
     expect(links.map((link) => link.props("to"))).toEqual([
       "/",
-      "/calendar",
-      "/transactions/new",
-      "/tasks",
+      "/records",
+      "/capture",
+      "/plan",
       "/account",
     ]);
     expect(wrapper.text()).toContain("首页");
-    expect(wrapper.text()).toContain("日程");
-    expect(wrapper.text()).toContain("待办");
+    expect(wrapper.text()).toContain("记录");
+    expect(wrapper.text()).toContain("计划");
     expect(wrapper.text()).toContain("我的");
-    expect(wrapper.find('[aria-label="记一笔"]').exists()).toBe(true);
+    expect(wrapper.find('[aria-label="统一录入"]').exists()).toBe(true);
   });
 });

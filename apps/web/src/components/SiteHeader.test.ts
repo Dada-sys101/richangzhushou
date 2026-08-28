@@ -39,10 +39,10 @@ describe("SiteHeader", () => {
     expect(links.map((link) => link.text())).toEqual([
       "日常助手",
       "首页",
-      "日程",
-      "待办",
-      "财务",
-      "行程",
+      "记录",
+      "计划",
+      "我的",
+      "统一录入",
     ]);
   });
 
@@ -59,16 +59,7 @@ describe("SiteHeader", () => {
     await wrapper.find(".more-trigger").trigger("click");
     const panel = wrapper.find(".more-panel");
     expect(panel.exists()).toBe(true);
-    for (const label of [
-      "快捷记录",
-      "草稿中心",
-      "快捷指令",
-      "提醒",
-      "预算",
-      "分类",
-      "资金账户",
-      "个人设置",
-    ]) {
+    for (const label of ["草稿中心", "快捷指令", "AI 助手", "行程"]) {
       expect(panel.text()).toContain(label);
     }
     expect(panel.text()).not.toContain("同步冲突");
