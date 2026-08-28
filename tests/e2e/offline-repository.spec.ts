@@ -4,7 +4,6 @@ import {
   createActiveUserViaApi,
   E2E_ACTIVE_PASSWORD,
   loginViaUi,
-  navLink,
   uniqueName,
 } from "./helpers/e2e";
 
@@ -159,7 +158,7 @@ test("offline task create reconnects once and converges local and server state",
 
   await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
   await page.waitForURL("**/account");
-  await navLink(page, "待办").click();
+  await page.goto("/tasks");
   await expect(page.getByRole("heading", { name: "待办事项" })).toBeVisible();
   expect(
     await serverTasksByTitle(request, session.accessToken, taskTitle),

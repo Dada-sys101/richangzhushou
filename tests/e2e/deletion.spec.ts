@@ -17,6 +17,11 @@ test("用户申请删除后管理端可见 DELETION_PENDING，管理员取消后
   await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
   await page.waitForURL("**/account");
 
+  await expect(page.getByRole("heading", { name: "我的" })).toBeVisible();
+  await page
+    .locator("details.account-danger-details")
+    .locator("summary")
+    .click();
   await page.getByRole("button", { name: "选择申请删除" }).click();
   await page.getByLabel("当前密码").fill(E2E_ACTIVE_PASSWORD);
   await page.getByLabel("原因").fill("e2e 删除测试");
@@ -36,5 +41,5 @@ test("用户申请删除后管理端可见 DELETION_PENDING，管理员取消后
 
   await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
   await page.waitForURL("**/account");
-  await expect(page.getByRole("heading", { name: "个人设置" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "我的" })).toBeVisible();
 });
