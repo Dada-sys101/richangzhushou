@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FinanceSummaryResponse, UserSummary } from "../api/client";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
+import { useDraftsStore } from "../stores/drafts";
 import { usePlannerStore } from "../stores/planner";
 import { useTripsStore } from "../stores/trips";
 import HomeView from "./HomeView.vue";
@@ -53,11 +54,13 @@ function mockLoads() {
   const finance = useFinanceStore();
   const planner = usePlannerStore();
   const trips = useTripsStore();
+  const drafts = useDraftsStore();
   vi.spyOn(finance, "loadFinanceData").mockResolvedValue(undefined);
   vi.spyOn(planner, "loadCalendarEvents").mockResolvedValue(undefined);
   vi.spyOn(planner, "loadTasks").mockResolvedValue(undefined);
   vi.spyOn(planner, "loadReminders").mockResolvedValue(undefined);
   vi.spyOn(trips, "loadTrips").mockResolvedValue(undefined);
+  vi.spyOn(drafts, "loadDrafts").mockResolvedValue(undefined);
 }
 
 function createHomeContext() {
@@ -85,7 +88,7 @@ describe("HomeView", () => {
     const pinia = createHomeContext();
     const wrapper = mountHome(pinia);
     await flushPromises();
-    expect(wrapper.text()).toContain("请登录后查看今日数据");
+    expect(wrapper.text()).toContain("请登录后查看今日安排");
     const loginLink = wrapper.findComponent(RouterLinkStub);
     expect(loginLink.props("to")).toEqual({
       name: "login",
@@ -123,7 +126,7 @@ describe("HomeView", () => {
       });
     const wrapper = mountHome(pinia);
     await flushPromises();
-    expect(wrapper.text()).toContain("数据加载失败，请稍后重试");
+    expect(wrapper.text()).toContain("暂时无法加载今天");
     expect(load).toHaveBeenCalledOnce();
 
     await wrapper.find("button").trigger("click");
@@ -131,7 +134,7 @@ describe("HomeView", () => {
     expect(load).toHaveBeenCalledTimes(2);
   });
 
-  it("renders quick actions, monthly finance, today schedule and empty states", async () => {
+  it("renders one V2 home focus and a combined empty timeline", async () => {
     const pinia = createHomeContext();
     const auth = useAuthStore();
     auth.$patch({ accessToken: "token", user: user() });
@@ -156,32 +159,13 @@ describe("HomeView", () => {
     const wrapper = mountHome(pinia);
     await flushPromises();
 
-    expect(wrapper.text()).toContain("今日概览");
-    expect(wrapper.text()).toContain("记一笔");
-    expect(wrapper.text()).toContain("新建待办");
-    expect(wrapper.text()).toContain("新建日程");
-    expect(wrapper.text()).toContain("添加提醒");
-
-    expect(wrapper.text()).toContain("本月财务");
-    expect(wrapper.text()).toContain("¥500.00");
-    expect(wrapper.text()).toContain("¥200.00");
-    expect(wrapper.text()).toContain("¥800.00");
-
-    expect(wrapper.text()).toContain("今日安排");
-    expect(wrapper.text()).toContain("查看今日日程安排");
-    expect(wrapper.text()).toContain("处理今日待办事项");
-    expect(wrapper.text()).toContain("查看今日提醒");
-
-    expect(wrapper.text()).toContain("还没有账单");
-    expect(wrapper.text()).toContain("还没有行程");
+    expect(wrapper.text()).toContain("今日时间轴");
+    expect(wrapper.text()).toContain("今天没有安排");
+    expect(wrapper.text()).toContain("例如：明天 10 点和李想开会");
+    expect(wrapper.findAll(".focus-card")).toHaveLength(0);
     const quickLinks = wrapper.findAllComponents(RouterLinkStub);
-    expect(
-      quickLinks.some(
-        (link) =>
-          link.props("to") === "/transactions/new" &&
-          link.text().includes("记一笔"),
-      ),
-    ).toBe(true);
-    expect(quickLinks.some((link) => link.props("to") === "/trips")).toBe(true);
+    expect(quickLinks.some((link) => link.props("to") === "/capture")).toBe(
+      true,
+    );
   });
 });
