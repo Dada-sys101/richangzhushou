@@ -1,6 +1,6 @@
 # Project Status
 
-updatedAt: 2026-09-02T17:12:32+08:00
+updatedAt: 2026-09-02T17:31:24+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -12,11 +12,12 @@ executionStatus: BLOCKED
 deliveryStatus: NOT_READY
 nextCanonicalTask: R1 Quality Gate
 nextCanonicalTaskAfterCompletion: TBD_AFTER_R1_QUALITY_GATE
-localRevision: MODIFIED_UNCOMMITTED
+localRevision: CLEAN / COMMITTED / PUSHED
 staging: NOT_CREATED
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / FORMAL_PREVIEW_BASELINE / PUBLIC_NOT_READY
 privatePreviewRelease: 299b1f71debbd5a3140d1ee19f9781372e67134b
+releaseCandidate: b7734d093072c400ca9ae9d44b60abb95a45a725 / PR #25 OPEN / NOT_DEPLOYED
 
 ## Completed
 
@@ -42,7 +43,7 @@ privatePreviewRelease: 299b1f71debbd5a3140d1ee19f9781372e67134b
 `SYNC-01-429-BACKOFF-REMEDIATION` 的状态事件拆分、429 自动冷却、普通失败退避和手动重试已由真实后端传播复验；未使用 API mock 代替本轮真实验收。
 `SYNC-API-01` 已修正 `/sync/changes` 增量游标契约：每个非空页（包括非空末页）都返回基于最后一条
 `(updatedAt,id)` 变更生成的非空不透明游标，空页返回 `nextCursor: null`；共享类型、OpenAPI、API 文档和 WP7
-测试已同步。WEB-UX-02/03/03.1 与 SYNC-01 的既有未提交修改完整保留，未修改 Prisma/数据库或部署配置，未创建提交。
+测试已同步。WEB-UX-02/03/03.1 与 SYNC-01 的已验证修改已拆分进入 release candidate；未修改 Prisma/数据库 schema 或生产部署配置，工作区已清洁，候选尚未部署。
 当前 PR20 Live Provider Validation 为 `DONE_LOCAL / H7_CLOSED`；H7 已由 Dada 于 2026-09-01 明确关闭。本轮仅使用合成数据，
 `v15.ai.businessWrite=false`，未启用 Provider 或写入正式业务表。完整证据见 `docs/43-pr20-h7-live-provider-validation.md`。
 R1 依赖审计复核已完成；Prisma 7.10.0/传递依赖候选因 SBOM 将精确依赖声明标为 invalid 而撤回，最终 package/lockfile 无净变更，证据见 `docs/44-r1-dependency-audit-review.md`。H1/H2 填写模板见 `docs/45-r1-manual-device-evidence-template.md`。
@@ -59,6 +60,8 @@ R1 依赖审计复核已完成；Prisma 7.10.0/传递依赖候选因 SBOM 将精
 - Prettier、`npm run check:context`、`git diff --check`：PASS。
 - Root `npm run quality`：FAIL / NOT_GREEN；回滚后依赖树和 SBOM 有效，但 dependency audit 仍 fail-closed，原因包括过期
   `deepmerge-ts` 例外及 Prisma/MariaDB/MySQL2 相关高风险依赖；本轮候选已撤回，最终未留下 package/lockfile 依赖变更。
+- 本轮 release candidate 已提交并推送：`f7fb90a`（Web/同步）、`1545e21`（AI）、`d649ad4`（发布状态/备份运营），合并 Integration 的 `b7734d0`；GitHub PR #25 已创建。
+- PR #25 远端门禁：`db-validation PASS`、`browser-qa PASS`、`quality FAIL_CLOSED`（仅依赖审计）；因此没有绕过门禁发布新代码，Alibaba 私有预览仍运行 `299b1f71`。
 - R1 依赖复核：`npm ci`、`npm ls`、治理测试 `14/14`、SBOM 生成/校验（1044 components）和 license inventory（1163 packages）PASS。
 - Real browser smoke：PASS（本地 Web 登录页、刷新、390px 加载、控制台无错误）；此前 mocked API 的 WEB UX 检查不等同于
   SYNC-01 的双浏览器同步验证。
@@ -75,7 +78,7 @@ R1 依赖审计复核已完成；Prisma 7.10.0/传递依赖候选因 SBOM 将精
 - Sync limitation：此前客户端在同步请求收到 429 后仍继续轮询并形成高频 429；失败退避/限流协同已完成本地修复，真实双浏览器闭环已确认通过。
 - `npm run check:context`：PASS。
 - `git diff --check`：PASS；新文件尾随空白检查 PASS。
-- Governance commit `6adc111...`：existing / 已在 Integration ancestry 中；本轮未创建新的 commit、push、PR 或 merge。
+- Governance commit `6adc111...`：existing / 已在 Integration ancestry 中；本轮未改写该历史提交。
 - PR20 本机合成数据 H7 evaluation：PASS / DONE_LOCAL；`h7-adr027-fixed-v1` DeepSeek 200 条、199 条 schema-valid、
   effect proxy 199/200；`case-146` 失败输入保留且 3/3 复测成功；最终确认在 `businessWrite=false` 下返回 403
   `AI_DISABLED`，评估用户正式业务表均为 0。
@@ -109,5 +112,5 @@ R1 依赖审计复核已完成；Prisma 7.10.0/传递依赖候选因 SBOM 将精
 ## Next
 
 - 当前 canonical task 仍为 `R1 Quality Gate`（`BLOCKED / NOT_READY`）；已有私有预览可继续作为正式预览基线运行。
-- 下一步完成兼容依赖修复并重新通过 audit/SBOM/license/quality；当前私有预览 live AI 和每日备份/7 天清理已按决定与配置对齐，跨位置备份/隔离恢复作为公网增强项；域名审批通过后再切换公网 HTTPS 并复验，扩大公网 Provider 使用范围需另行授权。
-- 真实 iPhone 按用户决定跳过，记录为未验证而非通过；不发布本地混合未提交工作区，不启用生产 Provider，不开放公网注册。
+- 下一步完成兼容依赖修复并重新通过 audit/SBOM/license/quality；门禁变绿后再合并并部署 PR #25 到现有私有预览并复验。当前私有预览 live AI 和每日备份/7 天清理已按决定与配置对齐，跨位置备份/隔离恢复作为公网增强项；域名审批通过后再切换公网 HTTPS 并复验，扩大公网 Provider 使用范围需另行授权。
+- 真实 iPhone 按用户决定跳过，记录为未验证而非通过；不绕过依赖门禁，不启用生产 Provider，不开放公网注册；后续新功能另开分支/PR，不回写 PR #25。

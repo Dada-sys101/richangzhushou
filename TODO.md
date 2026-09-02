@@ -104,6 +104,8 @@
 | DA-1514 | 私有预览每日备份、7 天保留与过期清理 | DONE | RELEASE |
 | DA-1515 | 域名审批后的公网 HTTPS 入口切换与复验 | NOT_STARTED | RELEASE |
 | DA-1516 | 保留私有预览 live AI，并对齐环境/数据库开关与当前用户决定 | DONE | RELEASE |
+| RELEASE-CANDIDATE-01 | 整理已验证修改并形成私有预览发布候选（Web/同步、AI、契约/测试、状态与备份运营） | DONE | RELEASE |
+| PR-25 | GitHub PR #25：Integration 对齐、远端 CI 与候选发布门禁 | BLOCKED | RELEASE |
 | WEB-UX-03 | 核心功能闭环整改（Web；数据库 E2E 未验证） | DONE | UI |
 | WEB-UX-03.1 | 验收收口（删除确认/服务端删除数据/日程提醒测试） | DONE | UI |
 | SYNC-01 | 实时同步整改（前端协调器；真实数据库/双浏览器验收已补齐，完整 Web smoke 已由 WEB-SMOKE-01 收口） | DONE | UI |
@@ -123,7 +125,9 @@
   3 条定向回归和 `case-146` 三次复测通过；Dada 已确认暂定 DeepSeek、接受条款/结果，并批准 ADR-029 的自然月/暂不设金额上限策略；H7 已由 owner 明确关闭。
 - REL-02/03/04：`BLOCKED / NOT_STARTED`，不表示已授权或已完成。
 - CI run `33043413216` 的 `quality`、`db-validation`、`browser-qa` SUCCESS；Playwright report upload skipped。
-- 规范冻结提交 `6adc111...` 已完成 post-write review 并进入 Integration；本轮不得自动创建新的提交。PR20 H7 证据已就绪，
+- 规范冻结提交 `6adc111...` 已完成 post-write review 并进入 Integration；本轮已按用户明确授权创建并推送 release candidate：
+  `f7fb90a`、`1545e21`、`d649ad4`，并以 `b7734d0` 完成 Integration 冲突收口。PR20 H7 证据已就绪，
   `case-146`/不确定样例、Provider 条款和当前评估结果已获确认；H7 已关闭；暂不设金额上限不等于生产预算 enforcement，后续仍受 R1/REL-04 独立门禁约束。
 - 2026-09-02 已完成 WebKit `iPhone 13` 本机模拟验收：H1 核心页面流程通过，H2 离线新增/联网同步收敛通过；离线重开出现 WebKit 资源错误。记录见 `docs/46-r1-webkit-emulation-validation.md`，不替代 H1/H2 真机门禁。
 - 2026-09-02 已通过 `REL-01-DECISION-RECORD-01` 按推荐值批准 D1-D8；`docs/47`/`docs/48` 已同步决策与 REL-02 执行前清单。仍不创建资源、不补充真实记录、不修改部署配置；具体执行参数、R1 通过和独立资源/费用授权仍是 REL-02 前置条件。
+- PR #25 当前 `db-validation`、`browser-qa` 通过，`quality` 在依赖审计处 fail-closed；候选未部署，现有 Alibaba 私有预览仍运行 `299b1f71`。通过依赖门禁后再合并部署，后续新功能另开分支/PR。

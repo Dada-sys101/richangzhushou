@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-02T17:12:32+08:00
+updatedAt: 2026-09-02T17:31:24+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -14,19 +14,20 @@ deliveryStatus: NOT_READY
 currentWork: H7 is closed; Web smoke and real sync evidence are complete locally, while the formal dependency gate remains blocked; the dependency remediation candidate was rejected by SBOM and rolled back; the existing Alibaba private preview at Integration 299b1f71 is operational and has passed release-package, service, health, database, backup and restore checks; the requested daily backup timer with 7-day cleanup is active and verified; current private-preview live AI is retained by explicit user decision; real iPhone evidence is explicitly waived for the current private preview and remains unverified; public domain switching remains pending approval
 nextCanonicalTask: R1 Quality Gate
 nextCanonicalTaskAfterCompletion: TBD_AFTER_R1_QUALITY_GATE
-openPullRequests: []
-repositoryPersistedGate: QUALITY-R1-GOVERNANCE-RECONCILIATION POST-WRITE REVIEW PASS
-repositoryLandingState: DONE_INTEGRATION / ACTIVE_WORKTREE_UNCOMMITTED / API_INTEGRATION_VERIFIED / 429_REMEDIATED / WEB_SMOKE_VERIFIED_LOCAL / CROSS_BROWSER_VERIFIED / H7_CLOSED / DEPENDENCY_AUDIT_REVIEWED / CANDIDATE_REVERTED / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
-persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; private preview operational; dependency candidate rejected by SBOM; iPhone evidence waived only for private preview; live AI retained by explicit user decision; public domain approval remains pending
+openPullRequests: ["#25 OPEN / release: ship verified private-preview improvements"]
+repositoryPersistedGate: QUALITY-R1-GOVERNANCE-RECONCILIATION POST-WRITE REVIEW PASS; RELEASE-CANDIDATE-01 PUSHED / PR-25 OPEN
+repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / PR_OPEN / QUALITY_BLOCKED / API_INTEGRATION_VERIFIED / WEB_SMOKE_VERIFIED / CROSS_BROWSER_VERIFIED / H7_CLOSED / DEPENDENCY_AUDIT_REVIEWED / CANDIDATE_REJECTED / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
+persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is red only at dependency audit while db-validation and browser-qa pass; current private preview remains operational; candidate deployment is held; public domain approval remains pending
 
 ## Current Private Preview Release Assessment
 
 - Baseline: existing server release from Integration `299b1f71debbd5a3140d1ee19f9781372e67134b`.
 - Status: `OPERATIONAL / PRIVATE_FORMAL_PREVIEW / PUBLIC_NOT_READY`.
+- Release candidate: branch `codex/v15-v2-ui-visual-freeze` at merge commit `b7734d093072c400ca9ae9d44b60abb95a45a725`; three logical commits were pushed and are tracked by GitHub PR #25. The candidate has not been deployed; the server remains on `299b1f71`.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
 - H1/H2: `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED` by the current user instruction; never treat this as physical-device pass evidence.
 - Remaining blockers: compatible dependency remediation with audit/SBOM/license/quality revalidation; domain approval before public entry. Local daily backup with 7-day cleanup is configured, and live AI is retained by explicit user decision for the private preview.
-- Local worktree: mixed uncommitted changes remain untouched and are not a release source.
+- Local worktree: clean, committed and pushed; the former mixed worktree was split into logical release commits. No future-feature work was added to PR #25.
 
 ## Active Task
 
@@ -34,18 +35,30 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; private preview ope
 - displayName: R1 Quality Gate
 - branch: codex/v15-v2-ui-visual-freeze
 - baseHead: 299b1f71debbd5a3140d1ee19f9781372e67134b
-- localHead: a75b32f77c3bdeab1d4c4f405ff1ed8187ecdaa8（H7 关闭记录未提交；现有 Web/同步修改保持未提交）
+- localHead: b7734d093072c400ca9ae9d44b60abb95a45a725（release candidate after reconciling Integration 299b1f71; worktree clean）
 - contract: PLANS.md R1 Quality Gate / release gate definitions
 - currentGate: H7 CLOSED; R1 Quality Gate BLOCKED / NOT_READY
-- implementation: R1 release-gate decision remains open; Web smoke was repaired and verified locally, the dependency audit remediation candidate was evaluated, rejected by SBOM, and reverted without a final dependency change; the existing private preview release was verified without deploying the mixed local worktree; a protected database backup was created and restored to a temporary database; WebKit iPhone 13 emulation remains supporting evidence only; `REL-01-DECISION-RECORD-01` approved D1-D8 without creating new resources
+- implementation: Web/sync, AI, contract/test and release-operations changes were split into three logical commits (`f7fb90a`, `1545e21`, `d649ad4`), reconciled with Integration without changing the product scope, and pushed as PR #25; the existing private preview was not replaced; the dependency audit remediation candidate remains rejected by SBOM; `REL-01-DECISION-RECORD-01` approved D1-D8 without creating new resources
 - allowedScope: scoped Web smoke remediation and R1 dependency/audit compatibility review required to remove the current quality-evidence blocker, plus the PLANS.md-permitted REL-01 design-only fallback, R1 approval decision pack and state/evidence updates
-- forbiddenScope: Provider enablement, real user/data evaluation, business writes, commit, push, PR, merge, deployment and changes to ADR-026/027 normative content
-- validation: Web lint, typecheck, unit tests, build, focused checks and full Web smoke `44/44 PASS` completed against disposable MySQL; post-rollback `npm ls`, governance `14/14`, SBOM generation/validation and license inventory passed; dependency audit remains fail-closed; H7 evidence remains PASS; remote release artifact integrity, service status, health checks, database migration state, backup gzip validation and temporary-database restore all passed
-- remaining: obtain a dependency-owner-approved compatible remediation and rerun audit/SBOM/license/quality checks; keep broader/public Provider enablement, REL-04 and R1 advancement behind their independent gates; the temporary no-cap budget policy remains an acknowledged risk and is not production budget enforcement; after domain approval, configure the public HTTPS entry and re-run public smoke checks; consider cross-location backup and isolated restore as a later public-operations enhancement
+- forbiddenScope for the remaining blocked gate: Provider enablement, real user/data evaluation, business writes, unsupported dependency overrides, automatic exception extension, public switch, deployment while quality is red, and changes to ADR-026/027 normative content
+- currentUserAuthorization: the user explicitly authorized this turn's logical commits, push, PR creation and conflict reconciliation for the verified private-preview candidate; this does not authorize bypassing the failed dependency gate
+- validation: Web lint, typecheck, unit tests, build, focused checks and full Web smoke `44/44 PASS` completed against disposable MySQL; post-rollback `npm ls`, governance `14/14`, SBOM generation/validation and license inventory passed; local quality and PR #25 quality fail-closed only at dependency audit; PR #25 `db-validation` and `browser-qa` passed; H7 evidence remains PASS; remote release artifact integrity, service status, health checks, database migration state, backup gzip validation and temporary-database restore all passed
+- remaining: obtain a dependency-owner-approved compatible remediation and rerun audit/SBOM/license/quality checks before deploying the candidate; keep broader/public Provider enablement, REL-04 and R1 advancement behind their independent gates; the temporary no-cap budget policy remains an acknowledged risk and is not production budget enforcement; after domain approval, configure the public HTTPS entry and re-run public smoke checks; consider cross-location backup and isolated restore as a later public-operations enhancement
 - evidence: `docs/46-r1-webkit-emulation-validation.md` records the non-formal WebKit simulation; `docs/47-rel-01-staging-architecture-decision.md` and `docs/48-r1-approval-decision-pack.md` record the REL-01 decision; `docs/49-private-preview-release-assessment.md` records the current private preview release, backup/restore evidence and remaining blockers
 - executionStatus: BLOCKED
-- deliveryStatus: NOT_READY / PRIVATE_PREVIEW_OPERATIONAL
-- commit: NOT_AUTHORIZED
+- deliveryStatus: NOT_READY / PRIVATE_PREVIEW_OPERATIONAL / CANDIDATE_COMMITTED / CANDIDATE_PUSHED / PR_OPEN
+- commits: `f7fb90a08a9f6036a0c5fbce44b674866add88eb`, `1545e213b5a5658d5ecd174f386e779491d53396`, `d649ad4c3afe10f11249ffe7cd4db0e66384c7bd`, merge `b7734d093072c400ca9ae9d44b60abb95a45a725`
+- push: `origin/codex/v15-v2-ui-visual-freeze` updated through `b7734d0`
+- pr: GitHub PR #25 OPEN; quality FAIL, db-validation PASS, browser-qa PASS on run `33614087612` before the conflict-reconciliation rerun
+- candidateDeployment: NOT_RUN / HELD_BY_R1_QUALITY_GATE; existing private preview remains on `299b1f71`
+
+## Latest Release Action
+
+- id: `PRIVATE-PREVIEW-RELEASE-CANDIDATE-01`
+- displayName: Verified private-preview improvements release candidate
+- deliveryStatus: `DONE_PUSHED / PR_OPEN / QUALITY_BLOCKED`
+- scope: committed the verified web/offline-sync, AI prompt/evaluation, contracts/tests and backup/state documentation changes in logical commits; kept future feature work separate
+- result: PR #25 is open against Integration; merge conflicts were reconciled with Integration `299b1f71`; no new code was deployed because the dependency audit gate remains red
 
 ## Latest Completed Work Package
 
@@ -260,18 +273,20 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; private preview ope
 
 ## Last Verified
 
-- liveFactsChecked: origin Integration `codex/v15-integration-foundation` currently resolves to `299b1f71debbd5a3140d1ee19f9781372e67134b` by read-only `git ls-remote` on 2026-09-01; historical PR #23 evidence remains `d53f84a...`; PR #18/PR19 canonical delivery is `c42c19ec...` / `DONE_INTEGRATION`; PR #19 is unrelated Preview workflow
+- liveFactsChecked: origin Integration `codex/v15-integration-foundation` resolves to `299b1f71debbd5a3140d1ee19f9781372e67134b`; active branch is pushed at `b7734d093072c400ca9ae9d44b60abb95a45a725`; historical PR #23 evidence remains `d53f84a...`; PR #18/PR19 canonical delivery is `c42c19ec...` / `DONE_INTEGRATION`; PR #19 is unrelated Preview workflow
 - pr20HistoryChecked: PR #20 `c7914cfe...`, PR #21 `6c903073...`, PR #22 `7445ba3...`, PR #23 `d53f84a...` all MERGED into Integration; this is adapter integration evidence, not H7 evidence
 - integrationCI33043413216: `quality`, `db-validation`, `browser-qa` SUCCESS；`supply-chain-governance` and `pr6a-mysql84-evidence` artifacts exist；Playwright report upload skipped
 - governanceCI33048729907: commit `6adc111...`; `quality`, `db-validation`, `browser-qa` SUCCESS；Playwright report upload skipped
 - latestIntegrationCI33147816383: commit `299b1f7...`; `quality`, `db-validation`, `browser-qa` SUCCESS；Playwright report upload skipped
 - governanceReviewWorktreeChecked: independent worktree `D:\daily-assistant-worktrees\quality-r1-governance-draft-write`; branch `codex/v15-integration-foundation`; HEAD exact `6adc111492dcbeb35e79475a3d69f6a63007e5bb`; parent exact `d53f84a4ff99208f69d209e98a1d3f07c588d760`; checkout clean; 21 changed files are all authorized Markdown; `stash@{0}` remains `36039201ec2a4b6100eca4dcb4d77138d35be801`
 - pr20-03aWorktreeCheck: Git worktree registry contains no `pr20-03a` path and `D:\daily-assistant-worktrees\pr20-03a` is absent; no current registered PR20-03A worktree was modified, but the historical path cannot be independently verified from the current filesystem
-- currentLocalValidation: SYNC-API-01 API lint/typecheck/build, API unit 32 files / 277 tests, WP7 real MySQL integration 17 files / 155 tests PASS, OpenAPI/contract tests, Web sync 2 files / 15 tests, Web unit 21 files / 116 tests, WEB-SMOKE-01 full Chromium desktop/mobile smoke 44/44, real two-browser/offline/conflict/isolation/viewport acceptance, governance worktree `check:context`, `git diff --check` for commit `6adc111`, current Web lint/typecheck/build, Prettier, and current `git diff --check` PASS; root `npm run quality` remains FAIL at the existing dependency audit for unapproved high/critical `@prisma/adapter-mariadb` and `mariadb`; this review created no new commit/push/PR/merge/real Provider/deploy action
+- currentLocalValidation: SYNC-API-01 API lint/typecheck/build, API unit 32 files / 277 tests, WP7 real MySQL integration 17 files / 155 tests PASS, OpenAPI/contract tests, Web sync 2 files / 15 tests, Web unit 21 files / 116 tests, WEB-SMOKE-01 full Chromium desktop/mobile smoke 44/44, real two-browser/offline/conflict/isolation/viewport acceptance, current Web lint/typecheck/build, Prettier, `npm run check:context`, and `git diff --check` PASS; root `npm run quality` remains FAIL only at the existing dependency audit for unapproved high/critical `@prisma/adapter-mariadb`, `mariadb` and `mysql2`; release candidate commits are pushed and PR #25 was opened; no candidate deployment was performed
+- releaseCandidateIntegration: merged `origin/codex/v15-integration-foundation` `299b1f71` into the candidate branch to remove PR conflicts; resolved files retain the candidate's verified V2 navigation, planner detail, return-context, offline-sync and simplified UI behavior; duplicate `/records` and `/plan` routes introduced by the automatic merge were removed and the complete quality sequence was rerun
+- releaseCandidateCi: PR #25 run `33614087612` had `db-validation` PASS and `browser-qa` PASS; `quality` FAIL_CLOSED at dependency audit; the post-reconciliation push triggered a fresh CI run, which is the current remote verification in progress
 - r1ApprovalPackage01Validation: `npm run check:context`, `npm run format:check`, and `git diff --check` PASS; no business, database, browser, dependency-audit, SBOM, license, deployment, or resource tests were repeated in this document-only task
 - dependencyAuditReview: candidate Prisma 7.10.0 plus patched transitive versions was rejected because npm SBOM marked exact Prisma dependency declarations invalid; candidate was reverted; final `npm ls` is valid, governance is 14/14, SBOM generation/validation is PASS with 1044 components, license inventory is PASS with 1163 packages, and `npm run audit:dependencies` remains fail-closed; evidence is `docs/44-r1-dependency-audit-review.md`
 - h7CurrentValidation: focused DeepSeek adapter test 1 file / 6 tests, API lint/typecheck/unit/build PASS; post-hardening local synthetic evaluation `h7-adr027-fixed-v1` 200 total with 199 schema-valid (99.5%), effect proxy 199/200, one retained-input `SCHEMA_INVALID` failure and client p95 1644 ms; case-146 targeted regression 3/3 PASS; formal business write isolation PASS; H7 CLOSED by Dada on 2026-09-01; no commit/push/PR/deploy was created
-- snapshotRule: GitHub/Git/CI/environment facts override this snapshot; synchronize only at the next legal governance update point without creating a CI loop
+- snapshotRule: GitHub/Git/CI/environment facts override this snapshot; synchronize only at the next legal governance update point without creating a CI loop; the release-candidate commit/push/PR facts above are the current authorized delivery action, while deployment remains held by the red quality gate
 
 ## Recovery Rules
 
@@ -287,23 +302,22 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; private preview ope
    current verified value is `299b1f71debbd5a3140d1ee19f9781372e67134b`.
 5. At most one canonical task may be IN_PROGRESS; do not auto-parallelize.
 6. Human gates may only be closed by a human based on evidence.
-7. This state update records the explicit human H7 closure and does not authorize commit, push,
-   PR metadata update, Ready, merge, rebase, reset, cherry-pick, force, real-user/production AI
-   credential/data evaluation, Provider enablement, deployment, or resource creation. The local synthetic
-    Provider evaluation was separately authorized for this task and does not change the gate.
-    It does not
-    modify ADR-026/027 normative content, docs/42, CI, package/lockfile, Prisma/migration,
-    apps or packages; docs/40 was only amended to V1.2 for the limited ADR-028 boundary.
+7. The earlier H7 closure update did not authorize commit, push, PR metadata update, Ready,
+   merge, rebase, reset, cherry-pick, force, real-user/production AI credential/data evaluation,
+   Provider enablement, deployment, or resource creation. The user later explicitly authorized the
+   current release-candidate commits, push, PR creation and conflict reconciliation. That authorization
+   does not authorize bypassing the failed dependency gate, public Provider enablement, production use,
+   or changes to ADR-026/027 normative content.
 8. PR19 V10 remains `FROZEN / GPT_ACCEPT` and its normative scope is unchanged;
    historical implementation delivery is `DONE / DONE_INTEGRATION`. PR20 Adapter
    Integration is a historical `DONE_INTEGRATION` fact; PR20 Live Provider Validation
    is `DONE_LOCAL / H7_CLOSED`; R1 Quality Gate remains `BLOCKED / NOT_READY`.
 9. ADR-028 is `Accepted`; PR20-03A/#22 and PR20-03B/#23 deviations are
    `KEEP_AND_RECONCILE`. Canonical R3 PR22/PR23 remain untouched.
-10. Existing Gate 2 write is committed as `6adc111...` and its post-write review is complete;
-     this update creates no new commit, push, PR, merge, deployment or Provider enablement;
-     the separately authorized local synthetic validation and explicit H7 closure are recorded as
-     `DONE_LOCAL / H7_CLOSED` evidence only.
+10. Existing Gate 2 write is committed as `6adc111...` and its post-write review is complete.
+     The current authorized release action is recorded by commits `f7fb90a`, `1545e21`, `d649ad4`
+     and merge `b7734d0`; the branch is pushed and PR #25 is open. No candidate deployment or
+     Provider expansion was performed while the quality gate remains red.
 11. READ_ONLY_GATE_PERSISTENCE_RULE: REPOSITORY_PERSISTED_GATE is the last
    repository write checkpoint materialized into governance files;
    PERSISTED_SUCCESSOR_GATE is its immediate expected orchestration gate; and

@@ -2,7 +2,7 @@
 
 ## Session Status
 
-WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / REL-01-DECISION-RECORD-01_APPROVED / R1-APPROVAL-PACKAGE-01_DONE_LOCAL / WEB-SMOKE-01_DONE / H7_CLOSED / DEPENDENCY_REVIEWED / BLOCKED / NOT_READY
+WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / REL-01-DECISION-RECORD-01_APPROVED / R1-APPROVAL-PACKAGE-01_DONE_LOCAL / WEB-SMOKE-01_DONE / H7_CLOSED / DEPENDENCY_REVIEWED / RELEASE_CANDIDATE_PUSHED / PR_25_OPEN / BLOCKED / NOT_READY
 
 ## Task
 
@@ -16,12 +16,12 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
 - Current gate: `H7 CLOSED; R1 Quality Gate BLOCKED / NOT_READY`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/v15-v2-ui-visual-freeze`
-- Base/HEAD: `a75b32f77c3bdeab1d4c4f405ff1ed8187ecdaa8`
-- Scope: local Web smoke remediation and R1 dependency/audit compatibility review against disposable test infrastructure, plus verification of the existing private preview release and its backup/restore point, while preserving the already closed H7 evidence and all existing uncommitted work
-- Excluded: real user data, production credential use, Provider enablement, formal business writes, unsupported dependency overrides, automatic exception extension, commit, push, PR, merge and deployment
-- Commit authorization: `NOT_GRANTED`
-- Result: repaired local E2E AI gating, account-close navigation, draft query-string and native confirmation/exact-selector contracts; full Chromium desktop/mobile smoke reached `44/44 PASS`; the tested dependency remediation candidate failed SBOM and was rolled back, leaving the formal dependency gate blocked; the existing Alibaba private preview at Integration `299b1f71` was verified as operational, with artifact, service, health, migration, backup and temporary-restore checks passing; the requested daily backup timer with 7-day cleanup was installed and verified; current private-preview live AI was retained by explicit user decision; real iPhone validation was skipped by explicit instruction and recorded as unverified; added the private preview release assessment in `docs/49-private-preview-release-assessment.md`
-- Next: obtain a dependency-owner-approved compatible remediation and rerun audit/SBOM/license/quality; keep the existing private preview as the formal baseline; the daily backup/7-day cleanup is active, while cross-location backup and a recurring isolated restore drill remain optional public-operations hardening; after domain approval configure public HTTPS/CORS and rerun public smoke checks; H7 is closed, while broader/public Provider enablement, REL-04 and R1 advancement remain separate release gates
+- Base/HEAD: Integration `299b1f71debbd5a3140d1ee19f9781372e67134b` / release candidate merge `b7734d093072c400ca9ae9d44b60abb95a45a725`
+- Scope: package the already verified Web/V2 navigation, offline sync, AI prompt/evaluation, contract/test and release-operations changes into a reviewable private-preview candidate, while preserving the closed H7 evidence, current server baseline and future-feature separation
+- Excluded for the remaining gate: real user data, production credential use, Provider expansion, formal business writes, unsupported dependency overrides, automatic exception extension, public switch and candidate deployment while quality is red
+- Commit authorization: `GRANTED_FOR_RELEASE_CANDIDATE_BY_USER`
+- Result: the changes were split into `f7fb90a` (Web/sync), `1545e21` (AI) and `d649ad4` (release state/backup operations), reconciled with Integration in merge `b7734d0`, pushed to the branch and opened as GitHub PR #25; local and remote functional checks passed, while the quality gate remains blocked only by dependency audit; the existing Alibaba private preview remains on `299b1f71` and was not replaced
+- Next: obtain a compatible dependency remediation, rerun audit/SBOM/license/quality, then merge and deploy this candidate to the existing private preview and rerun preview smoke; keep public domain switching, broader/public Provider enablement, REL-04 and R1 advancement behind their independent gates; future features should use a separate branch/PR
 - Review package: `R1-APPROVAL-PACKAGE-01` is `DONE_LOCAL / UNCOMMITTED / APPROVED`; `REL-01-DECISION-RECORD-01` and the REL-02 preflight checklist are recorded in `docs/48-r1-approval-decision-pack.md` without changing the R1 gate
 
 ## Current Progress
@@ -78,11 +78,14 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
 - Gate 2 permits the approved ADR/task record, docs/40 V1.2 limited amendment, governance state,
   decisions, index and required derived mirrors listed in the contract.
 - ADR-026/027 normative content is unchanged; PR19 V10 normative scope is unchanged.
-- No commit, push, PR create/update, Ready, merge, rebase, reset, cherry-pick, force, deployment,
-  resource creation, production Provider enablement or real-user/data evaluation is authorized.
+- The earlier R1 contract did not authorize commit/push/PR/merge/deployment; the user explicitly authorized
+  the current release-candidate commits, push, PR creation and Integration conflict reconciliation.
+  No quality-gate bypass, candidate deployment, resource creation, production Provider enablement or
+  real-user/data evaluation is authorized while the gate is red.
   H7 closure was explicitly authorized and recorded by Dada; the local synthetic Provider call was separately authorized.
 - Existing WEB-UX-02 changes in `D:\daily-assistant` must remain intact; `stash@{0}` was not touched.
 - Existing governance commit `6adc111...` is historical and already integrated; this session does not rewrite it or create a replacement commit.
+- Release candidate commits are `f7fb90a`, `1545e21`, `d649ad4` and merge `b7734d0`; branch push succeeded and PR #25 remains open.
 
 ## Validation
 
@@ -97,6 +100,7 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
 - Web sync tests: `PASS`（2 files / 15 tests）。
 - Root `npm run quality`: `FAIL / NOT_GREEN`；回滚后依赖树和 SBOM 有效，但 dependency audit 仍按规则 fail-closed，
   原因包括过期 `deepmerge-ts` 例外及 Prisma/MariaDB/MySQL2 相关高风险依赖；本轮候选已撤回，最终 package/lockfile 无净变更。
+- PR #25 remote checks: `db-validation PASS`、`browser-qa PASS`、`quality FAIL_CLOSED` at the dependency audit; after conflict reconciliation a fresh CI run is pending/ongoing.
 - R1 dependency review: `npm ci`、`npm ls`、governance `14/14`、SBOM generation/validation（1044 components）和
   license inventory（1163 packages）`PASS`；`npm run audit:dependencies` `FAIL_CLOSED`。
 - Real browser smoke: `PASS` for local Web login, refresh, page title, console errors and 390px load；此前 WEB UX mocked API
@@ -118,6 +122,7 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
   with H2 offline reopen resource errors recorded as a warning。
 - Existing private preview remote verification: Integration `299b1f71` artifact integrity, API/user/admin/Nginx health, migration state,
   protected backup and temporary-database restore `PASS`; daily backup timer, 7-day cleanup and cleanup logic verification `PASS`。
+- Candidate deployment: `NOT_RUN / HELD_BY_R1_QUALITY_GATE`; server remains on Integration `299b1f71`.
 - Existing private preview configuration: `V15_AI_ALLOWED=true`、`V15_LIVE_AI_ALLOWED=true` and database `v15.ai.liveProvider=true`；
   the user explicitly approved keeping live AI enabled for the current private preview, while this does not authorize broader/public Provider use。
 - R1-APPROVAL-PACKAGE-01 document/state update: `PASS`；no business implementation or database schema was changed；the requested server backup configuration was installed and verified。
@@ -137,16 +142,16 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
 
 ## Resume Instructions
 
-1. Preserve the existing WEB-UX-02/03/03.1 and SYNC-01 uncommitted changes.
+1. Preserve the release candidate commits and keep future Web/AI feature work on a separate branch/PR; do not add unrelated work to PR #25.
 2. Treat the SYNC-API-01 cursor correction as local/uncommitted; keep the server-generated cursor opaque and
    do not move cursor derivation into the Web client.
 3. `QUALITY-R1-GOVERNANCE-RECONCILIATION` post-write review is complete; PR20 local synthetic validation is `DONE_LOCAL / H7_CLOSED`.
    `WEB-SMOKE-01` is `DONE_LOCAL / UNCOMMITTED / WEB_SMOKE_VERIFIED`; current private-preview live AI is explicitly retained, while broader/public Provider enablement and the remaining release gates require separate decisions.
-4. Do not commit, push, create/update PR, merge or deploy the mixed local worktree without explicit authorization; the current private preview baseline is the remote Integration release `299b1f71`.
+4. PR #25 is the authorized release candidate, but do not merge or deploy it while `quality` is red; the current private preview baseline remains the remote Integration release `299b1f71`.
 5. Treat `docs/46-r1-webkit-emulation-validation.md` as supporting evidence; H1/H2 are waived for the current private preview but remain `UNVERIFIED` and must not be reported as physical-device pass.
 6. Treat `docs/47-rel-01-staging-architecture-decision.md` as an approved REL-01 design boundary only; do not create resources, domains, credentials or deployments from it without separate REL-02 authorization.
 7. Treat `docs/48-r1-approval-decision-pack.md` as the decision record and REL-02 preflight checklist; it changes REL-01 to approved but does not change the dependency gate or authorize new resources. See `docs/49-private-preview-release-assessment.md` for the current server and live-AI configuration evidence.
 
 ## Last Updated
 
-2026-09-02 17:12 +08:00
+2026-09-02 17:31 +08:00

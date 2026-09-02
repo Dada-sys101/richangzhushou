@@ -1,5 +1,13 @@
 # Session End
 
+## 2026-09-02 — PRIVATE-PREVIEW-RELEASE-CANDIDATE-01（DONE_PUSHED / PR_OPEN / QUALITY_BLOCKED）
+
+- 按用户要求，将当前可发布且已验证的 Web/V2 导航、离线同步、AI 提示词与评估、契约/测试和发布运营文档拆分为 3 个逻辑提交：`f7fb90a`、`1545e21`、`d649ad4`。
+- 已将候选与 Integration `299b1f71` 对齐，收口 12 个前端冲突并修复合并后重复的 `/records`、`/plan` 路由；合并提交为 `b7734d0`，分支已推送。
+- GitHub PR #25 已创建，后续新功能未混入候选分支；本地工作区 clean。远端 `db-validation`、`browser-qa` 通过，`quality` 仍在依赖审计处 fail-closed。
+- 由于正式质量门禁仍为红色，本轮没有将候选代码部署到 Alibaba；现有私有预览继续运行 Integration `299b1f71`。每日备份、7 天保留和清理定时器保持 active，live AI 按用户决定保持开启。
+- 下一步只需处理兼容依赖修复并重新通过 audit/SBOM/license/quality；通过后再合并、部署候选并复验预览。域名审批后另行切公网，后续新功能另开分支/PR。
+
 ## 2026-09-02 — PRIVATE-PREVIEW-RELEASE-01（OPERATIONAL / PUBLIC_NOT_READY）
 
 - 按用户决定跳过真实 iPhone 验证，状态记录为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`，不把 WebKit 模拟结果写成真机通过。

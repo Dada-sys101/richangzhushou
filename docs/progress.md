@@ -1,6 +1,8 @@
 # 项目进度（派生摘要）
 
-updatedAt: 2026-09-02 16:29 +08:00
+> 当前发布候选：`b7734d0`（PR #25，已提交/已推送，尚未部署）；Integration `299b1f71` 的私有预览继续运行。PR #25 的 `db-validation`、`browser-qa` 已通过，`quality` 仍在依赖审计处 fail-closed。后续新功能另开分支/PR。
+
+updatedAt: 2026-09-02 17:31 +08:00
 
 ## Current
 
@@ -15,7 +17,7 @@ updatedAt: 2026-09-02 16:29 +08:00
   pull/flush 请求去重、游标并发保护、受影响 planner/finance/drafts/trips store 刷新，以及最近同步/待同步/失败/冲突状态展示。
 - `SYNC-API-01` 已修正 `/sync/changes`：非空页（包括非空末页）返回最后一条 `(updatedAt,id)` 对应的非空不透明游标；空页返回 `null`。
   前端仍保持 fail-closed，不解码、拼接或伪造游标；未修改 Prisma、数据库 schema 或同步基础设施。
-- 当前工作区为 `codex/v15-v2-ui-visual-freeze@a75b32f…`，WEB-UX-02、WEB-UX-03 与 WEB-UX-03.1 均保留为未提交修改。
+- 当前工作区为 `codex/v15-v2-ui-visual-freeze@b7734d0…`，已 clean、已提交并已推送；后续新功能不混入 PR #25，另开分支/PR。
 - `WEB-UX-03` 已完成 Web 核心功能闭环的本地实现：PlannerDetailView 操作、精确 dirty 快照、动态
   returnTo/返回文案、入口语义、错误重试和前端测试。
 - `WEB-UX-03.1` 已完成删除确认、服务端删除后重读、Planner store 同步，以及日程/提醒编辑、删除、恢复、失败重试测试。
@@ -28,7 +30,7 @@ updatedAt: 2026-09-02 16:29 +08:00
 - 提示词补强后的 3 条真实 Provider 定向回归通过：两条模糊任务返回 `confidence=0.0000`/空字段，
   一条具体任务生成正常字段；完整 200 条评估已重跑，唯一异常 `case-146` 为一次 HTTP 502 / `SCHEMA_INVALID`，
   另行 3/3 复测成功；Dada 已确认接受该评估结果和当前阶段的暂定 DeepSeek。
-- 当前远端 Integration HEAD 已通过只读 `git ls-remote` 重核为 `299b1f71debbd5a3140d1ee19f9781372e67134b`；本地 HEAD 未改变。
+- 当前远端 Integration HEAD 已通过只读 `git ls-remote` 重核为 `299b1f71debbd5a3140d1ee19f9781372e67134b`；候选分支已在 `b7734d093072c400ca9ae9d44b60abb95a45a725` 对齐该基线。
 - `WEB-SMOKE-01` 已修复本地真实数据库 Web smoke 的 AI 提案开关、草稿返回 query、账号关闭后的导航守卫、删除确认及精确状态选择器问题；
   Chromium 桌面/移动项目完整 smoke `44/44 PASS`。
 - R1 依赖审计复核已完成：Prisma 7.10.0 与修复版传递依赖候选因 SBOM 将 Prisma 精确依赖声明标为 invalid 而撤回；最终依赖树恢复到复核前状态，详见 `docs/44-r1-dependency-audit-review.md`。
@@ -37,7 +39,7 @@ updatedAt: 2026-09-02 16:29 +08:00
 - 在 R1 仍被阻塞且不补充真实记录的前提下，按 PLANS.md 允许的提前路径形成并批准 `REL-01` Staging 设计稿
   `docs/47-rel-01-staging-architecture-decision.md`：推荐单实例 API、私网 MySQL 8.4、私有 OSS、HTTPS 入口、最小权限、备份/RPO-RTO、发布与回滚边界；不创建资源、不修改部署配置。
 - `REL-01-DECISION-RECORD-01` 同时在 `docs/48` 记录了 REL-02 执行前清单；没有补充真实业务记录、真实用户数据、云资源、凭据或部署动作。
-- 本轮未留下依赖、Prisma/migration、同步后端或部署配置变更；未创建新的提交、推送、PR 或部署；既有治理提交 `6adc111...` 不作历史改写。
+- 本轮未留下依赖、Prisma/migration 或生产部署配置变更；已按用户授权创建、推送并提交 PR #25，既有治理提交 `6adc111...` 不作历史改写；候选代码未部署。
 
 ## Evidence
 
@@ -64,6 +66,7 @@ updatedAt: 2026-09-02 16:29 +08:00
   `WebKit encountered an internal error`（页面、manifest 与离线 API 资源），需由物理 iPhone 进一步确认。
 - 私有预览远端复核：Integration `299b1f71` 发布包完整性、API/用户端/管理端/Nginx、数据库迁移、受保护备份和临时库恢复校验均 `PASS`；每日备份定时器、7 天保留、过期清理和清理逻辑复验均 `PASS`。
 - 私有预览配置复核：环境 `V15_AI_ALLOWED=true`、`V15_LIVE_AI_ALLOWED=true`，数据库 `v15.ai.liveProvider=true`；用户已明确允许当前私有预览开启，不等同于扩大公网 Provider 使用范围或完成生产 Provider 授权。
+- 发布候选门禁：PR #25 的 `db-validation`、`browser-qa` `PASS`，`quality` `FAIL_CLOSED`（仅依赖审计）；本地 `npm run quality` 得到相同结果。
 
 ## Open Gates
 
@@ -74,7 +77,7 @@ updatedAt: 2026-09-02 16:29 +08:00
   目标；Dada 已确认 DeepSeek、条款和结果，并批准 ADR-029 自然月/暂不设金额上限的临时策略。Provider enablement、REL-04
   和 R1 advancement 仍受独立门禁约束。
 - R1 依赖门禁：`BLOCKED`；需要依赖负责人批准上游兼容版本或完整经过兼容性/SBOM/license/发布审查的正式修复，不能用不兼容 override 或自动延长过期例外代替。
-- 新的 commit/push/PR/merge/deploy：未授权；既有治理提交已在 Integration ancestry 中。
+- 本轮 commit/push/PR/Integration 冲突收口已获用户明确授权并完成；候选部署仍因 dependency audit fail-closed 暂缓，后续新功能另开分支/PR。
 - H1/H2：按用户决定跳过真实 iPhone，状态为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`；WebKit `iPhone 13` 模拟仅为辅助证据，离线重开资源错误作为已知限制保留。
 - 私有预览运营配置：live AI 已按用户决定保留开启；每日备份和 7 天清理已完成，跨位置备份与周期性隔离恢复演练尚未配置，属于公网正式运营增强项。
 - REL-01：设计稿已完成跨文档自检，D1-D8 已按推荐值批准，状态为 `APPROVED / REL-02_AUTHORIZATION_PENDING`；具体执行参数、资源/费用授权和验收证据仍未具备，不得进入 REL-02。
@@ -82,6 +85,6 @@ updatedAt: 2026-09-02 16:29 +08:00
 
 ## Next
 
-当前 canonical task 仍为 `R1 Quality Gate`，状态为 `BLOCKED / NOT_READY`；H7 已 `CLOSED`，`WEB-SMOKE-01` 已 `DONE_LOCAL / UNCOMMITTED`，依赖审计复核已完成但候选被撤回。已有私有预览可继续作为正式预览基线运行，评估记录见 `docs/49-private-preview-release-assessment.md`。
-下一步完成兼容依赖修复并重新通过 audit/SBOM/license/quality；当前私有预览 live AI 与每日备份/7 天清理已按决定配置，跨位置备份和周期性隔离恢复演练作为公网增强项；域名审批通过后再切换公网 HTTPS 并复验，扩大公网 Provider 使用范围需另行授权。真实 iPhone 按用户决定跳过，记录为未验证而非通过。Provider enablement、REL-04 和 R1 advancement 仍按独立发布门禁执行。
-ADR-029 的无金额上限策略不等于生产预算 enforcement。保持当前工作区不提交、不推送、不创建 PR；不把本地混合未提交修改发布到服务器。
+当前 canonical task 仍为 `R1 Quality Gate`，状态为 `BLOCKED / NOT_READY`；H7 已 `CLOSED`，`WEB-SMOKE-01` 已完成，依赖审计复核已完成但候选被撤回。已有私有预览可继续作为正式预览基线运行；PR #25 已提交并推送但尚未部署，评估记录见 `docs/49-private-preview-release-assessment.md`。
+下一步完成兼容依赖修复并重新通过 audit/SBOM/license/quality；门禁变绿后再合并、部署 PR #25 到私有预览并复验。当前私有预览 live AI 与每日备份/7 天清理已按决定配置，跨位置备份和周期性隔离恢复演练作为公网增强项；域名审批通过后再切换公网 HTTPS 并复验，扩大公网 Provider 使用范围需另行授权。真实 iPhone 按用户决定跳过，记录为未验证而非通过。Provider enablement、REL-04 和 R1 advancement 仍按独立发布门禁执行。
+ADR-029 的无金额上限策略不等于生产预算 enforcement。后续新功能另开分支/PR，不回写 PR #25。

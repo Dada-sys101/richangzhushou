@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-02 17:12 +08:00：完成 `REL-01-DECISION-RECORD-01` 人工决策固化；D1-D8 按推荐值全部批准，REL-01 为 `APPROVED / REL-02_AUTHORIZATION_PENDING`。不兼容的依赖覆盖候选已因 SBOM 失败撤回，最终 package/lockfile 依赖树恢复到复核前状态。此前已完成 `WEB-SMOKE-01` 本地 Web 冒烟修复和真实数据库复验；`PR20 Live Provider Validation` 的本机受控 H7 验证、提示词补强后的
+2026-09-02 17:31 +08:00：在用户明确要求“整理后可以发布”的授权下，将已验证的 Web/V2 导航、离线同步、AI 提示词与评估、契约/测试以及发布运营文档按逻辑拆分为 3 个提交，推送到 `codex/v15-v2-ui-visual-freeze`，并创建 GitHub PR #25。PR 与 Integration `299b1f71` 的 12 个前端冲突已收口，合并提交为 `b7734d0`；没有扩大产品范围，也没有把后续新功能混入发布候选。PR #25 的 `db-validation`、`browser-qa` 通过，`quality` 仍仅在依赖审计处 fail-closed，因此候选代码尚未发布到 Alibaba 私有预览，服务器继续运行 `299b1f71`。此前已完成 `REL-01-DECISION-RECORD-01` 人工决策固化；D1-D8 按推荐值全部批准，REL-01 为 `APPROVED / REL-02_AUTHORIZATION_PENDING`。不兼容的依赖覆盖候选已因 SBOM 失败撤回，最终 package/lockfile 依赖树恢复到复核前状态。此前已完成 `WEB-SMOKE-01` 本地 Web 冒烟修复和真实数据库复验；`PR20 Live Provider Validation` 的本机受控 H7 验证、提示词补强后的
 可重复 200 条全量复跑和 `case-146` 三次定向复测，并更新脱敏证据；Dada 已确认暂定 DeepSeek、条款、评估结果
 以及自然月/暂不设金额上限的预算策略，并明确关闭 H7。当前转入 `R1 Quality Gate BLOCKED / NOT_READY`，代码治理尚未完成生产 Provider 正式放行；当前私有预览按用户决定保留 live AI。
 已在 C: 盘之外的 `D:\daily-assistant-runtime` 使用一次性 MySQL 8.4.11 环境完成真实 API 集成验收（17 个文件、155 项通过），
@@ -22,12 +22,13 @@ Web smoke 断言修正，并清理一个未使用测试导入；治理提交 `6a
 - Verified Integration HEAD: `299b1f71debbd5a3140d1ee19f9781372e67134b`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/v15-v2-ui-visual-freeze`
-- Active HEAD: `a75b32f77c3bdeab1d4c4f405ff1ed8187ecdaa8`；WEB-UX-02/03 changes remain uncommitted
+- Active HEAD: `b7734d093072c400ca9ae9d44b60abb95a45a725`；release candidate is committed, pushed and locally clean; candidate deployment is held by the R1 quality gate
 - `stash@{0}`: `36039201ec2a4b6100eca4dcb4d77138d35be801`，Gate 1/Gate 2 前后保持不变
 - Staging: `NOT_CREATED`
 - Production: `NOT_DEPLOYED`
 - Private preview: `OPERATIONAL / FORMAL_PREVIEW_BASELINE / PUBLIC_NOT_READY`
 - Private preview release: Integration `299b1f71debbd5a3140d1ee19f9781372e67134b`
+- Private preview release candidate: branch `codex/v15-v2-ui-visual-freeze` at `b7734d0`; GitHub PR #25 OPEN; not deployed
 
 ## Project Summary
 
@@ -41,6 +42,7 @@ Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环�
   `case-146` 复测证据已归档；Dada 于 2026-09-01 明确关闭 H7。Provider enablement、REL-04 和 R1 advancement 仍未放行。
 - `QUALITY-R1-GOVERNANCE-RECONCILIATION` post-write review 已通过：commit `6adc111492dcbeb35e79475a3d69f6a63007e5bb` 的父提交为契约要求的
   `d53f84a4ff99208f69d209e98a1d3f07c588d760`，只改 21 个授权 Markdown 文件；专用治理 worktree 干净，context/diff/stash 检查通过。
+- 本轮发布候选已形成 3 个逻辑提交：`f7fb90a`（Web/同步）、`1545e21`（AI）和 `d649ad4`（发布状态/备份运营）；随后以 `b7734d0` 合并 Integration 解决 PR 冲突并推送。PR #25 保持独立，后续新功能不需要回写该候选分支。
 - `SYNC-E2E-01` 已在 D: 盘一次性 MySQL 8.4.11 环境中完成真实验收：API 17 files / 155 tests PASS；双浏览器 CRUD、离线恢复、版本冲突处理、第二用户隔离和 375/390/430/768/1440 viewport 均通过；服务已清理，未提交代码。
 - PR19 已通过 GitHub PR #18 合入 Integration，merge
   `c42c19ecb606893b1384fab4a13af2afb6b9981c`，交付状态为 `DONE / DONE_INTEGRATION`。
@@ -60,10 +62,10 @@ Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环�
 - Contract: PLANS.md R1 Quality Gate / release gate definitions
 - Current gate: `H7 CLOSED; R1 Quality Gate BLOCKED / NOT_READY`
 - Scope: downstream quality and release-gate review after the explicitly closed H7 validation
-- Excluded: Provider enablement, real user/data evaluation, formal business writes, commit, push, PR, merge, deployment and changes to ADR-026/027 normative content
-- Commit authorization: `NOT_GRANTED`
-- Result: PR20 local validation is `DONE_LOCAL / H7_CLOSED`; the redacted evidence, current-stage DeepSeek decision, terms/results acceptance and ADR-029 temporary budget policy are recorded; the R1 dependency review is `DONE_LOCAL / CANDIDATE_REJECTED`
-- Next: H1/H2 physical-device validation is explicitly waived for the current private preview and remains unverified; obtain a dependency-owner-approved compatible remediation and rerun the formal release checks; the existing daily backup/7-day cleanup is active, while cross-location backup and a recurring isolated restore drill remain optional public-operations hardening; after domain approval, configure the public HTTPS entry and rerun public smoke checks; broader/public Provider enablement、REL-04 和 R1 advancement 仍按独立发布门禁执行；ADR-029 的暂时无金额上限策略不等于生产预算 enforcement
+- Excluded for the remaining blocked gate: Provider enablement, real user/data evaluation, formal business writes, unsupported dependency overrides, automatic exception extension, public switch, deployment while quality is red, and changes to ADR-026/027 normative content
+- Commit authorization: `GRANTED_FOR_RELEASE_CANDIDATE_BY_USER`
+- Result: PR20 local validation is `DONE_LOCAL / H7_CLOSED`; the redacted evidence, current-stage DeepSeek decision, terms/results acceptance and ADR-029 temporary budget policy are recorded; the R1 dependency review is `DONE_LOCAL / CANDIDATE_REJECTED`; the verified implementation and operations documentation are committed and pushed in PR #25, while deployment is held by the red quality gate
+- Next: obtain a dependency-owner-approved compatible remediation and rerun the formal audit/SBOM/license/quality checks; if green, merge and deploy the candidate to the existing private preview and re-run preview smoke checks; the existing daily backup/7-day cleanup is active, while cross-location backup and a recurring isolated restore drill remain optional public-operations hardening; after domain approval, configure the public HTTPS entry and rerun public smoke checks; broader/public Provider enablement、REL-04 和 R1 advancement 仍按独立发布门禁执行；ADR-029 的暂时无金额上限策略不等于生产预算 enforcement
 - Review package: `R1-APPROVAL-PACKAGE-01` is `DONE_LOCAL / UNCOMMITTED / APPROVED`; `REL-01-DECISION-RECORD-01` and the REL-02 preflight checklist are recorded in `docs/48-r1-approval-decision-pack.md` without changing the R1 gate
 
 ## Completed Work
@@ -121,7 +123,7 @@ Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环�
 - ADR-028 `Accepted`；PR20-03A/#22、PR20-03B/#23 deviation 均 `KEEP_AND_RECONCILE`。
 - 本地 API/契约/Web 定向检查没有额外执行阻塞；API lint/typecheck/unit/build 与 DeepSeek adapter 定向测试均通过；
   根 `npm run quality` 仍在 dependency audit fail-closed；当前审计还受过期 `deepmerge-ts` 例外及 Prisma/MariaDB/MySQL2 相关高风险依赖阻塞；
-  本轮没有执行新的 commit/push/PR/merge/deploy；当前私有预览 live AI 已按用户决定保留，扩大公网 Provider 使用范围仍未执行。
+  本轮已按用户授权完成 release candidate 的 commit/push/PR 和冲突收口，但未绕过质量门禁部署候选；当前私有预览 live AI 已按用户决定保留，扩大公网 Provider 使用范围仍未执行。
 - H1/H2 按用户决定不进行真实 iPhone 验证，状态为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`；WebKit `iPhone 13` 模拟不能替代真机，离线重开时的资源错误作为已知限制保留，公网切换前需重新评估。
 - REL-01 D1-D8 已人工批准，但 `REL-02` 仍无明确资源/费用授权，且 R1 Quality Gate、执行参数和验收证据未满足；因此不能解除 R1、REL-02 或资源创建门禁。
 
@@ -177,7 +179,9 @@ Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环�
 - WebKit `iPhone 13` 模拟：真实本机 API 下 H1 页面/详情/返回/Back/刷新通过；H2 Service Worker、缓存重开、离线新增、联网自动同步和服务端单条收敛通过；离线重开有 WebKit 资源错误，真实设备验证按用户决定跳过，状态为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`。
 - 私有预览远端复核：Integration `299b1f71` 发布包完整性、API/用户端/管理端/Nginx、数据库迁移、受保护备份和临时库恢复校验均 `PASS`；每日备份定时器、7 天清理和清理逻辑复验均 `PASS`。
 - 私有预览配置复核：环境 `V15_AI_ALLOWED=true`、`V15_LIVE_AI_ALLOWED=true`，数据库 `v15.ai.liveProvider=true`；用户已明确允许当前私有预览保持开启，扩大公网 Provider 使用范围仍需独立授权。
-- Governance commit: existing `6adc111...`，已在 Integration ancestry 中；本轮未创建新的 commit/push/PR/merge。
+- Release candidate: `f7fb90a`（Web/同步）、`1545e21`（AI）、`d649ad4`（发布状态/备份运营）及合并 Integration 的 `b7734d0`；分支已推送，GitHub PR #25 OPEN；后续新功能未混入该候选。
+- Governance commit: existing `6adc111...`，已在 Integration ancestry 中；本轮未改写该历史提交。
+- PR #25 checks: `db-validation PASS`、`browser-qa PASS`、`quality FAIL_CLOSED`（仅依赖审计）；候选代码未部署，Alibaba 私有预览仍运行 `299b1f71`。
 - PR20 真实用户/生产 Provider、credential/data evaluation、Provider enablement、deploy: `NOT_RUN`；本轮仅授权本机合成数据验证。
 
 ## Recent Changes
@@ -206,12 +210,11 @@ Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环�
 
 ## Next Recommended Task
 
-当前 canonical task 仍为 `R1 Quality Gate`，状态为 `BLOCKED / NOT_READY`；H7 已由 Dada 于 2026-09-01 明确关闭。已有私有预览可继续作为正式预览基线运行。
-下一步完成兼容依赖修复并重新通过 audit/SBOM/license/quality；每日备份、7 天清理已配置，跨位置备份和周期性隔离恢复演练作为公网正式运营增强项；当前私有预览 live AI 已按用户决定保留，扩大公网 Provider 使用范围仍需独立授权。域名审批通过后再切换公网 HTTPS 并复验。真实 iPhone 按用户决定跳过，记录为未验证而非通过。REL-01 D1-D8 已批准；完整 Web smoke 已收口，REL-04 和 R1 advancement 仍按独立发布门禁执行。
-ADR-029 的无金额上限策略不等于生产预算 enforcement。保持当前未提交工作区，
-不进行新的提交、推送、PR 或部署。
+当前 canonical task 仍为 `R1 Quality Gate`，状态为 `BLOCKED / NOT_READY`；H7 已由 Dada 于 2026-09-01 明确关闭。已有私有预览可继续作为正式预览基线运行，当前候选已提交并推送到 PR #25，但尚未部署。
+下一步完成兼容依赖修复并重新通过 audit/SBOM/license/quality；门禁变绿后再合并并部署候选到现有私有预览，再执行预览 smoke。每日备份、7 天清理已配置，跨位置备份和周期性隔离恢复演练作为公网正式运营增强项；当前私有预览 live AI 已按用户决定保留，扩大公网 Provider 使用范围仍需独立授权。域名审批通过后再切换公网 HTTPS 并复验。真实 iPhone 按用户决定跳过，记录为未验证而非通过。REL-01 D1-D8 已批准；完整 Web smoke 已收口，REL-04 和 R1 advancement 仍按独立发布门禁执行。
+ADR-029 的无金额上限策略不等于生产预算 enforcement。后续新功能应从当前候选另开分支/PR，不回写 PR #25。
 
-No commit, push, PR, merge, deployment, sync-backend change or database change is implied by this local Web task。
+本轮已获用户明确授权 commit、push、PR、冲突收口及可发布候选整理；依赖门禁未通过前不执行候选部署、不绕过质量门禁。
 
 ## Important Constraints
 

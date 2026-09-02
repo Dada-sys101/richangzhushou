@@ -17,6 +17,8 @@ Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基
 > 已完成 post-write review，既有 commit `6adc111...` 已进入 Integration；已有私有预览服务器按 `299b1f71` 运行，Staging 未新建，生产未部署。用户已明确允许当前私有预览开启 live AI，服务器环境与数据库开关已对齐；扩大公网 Provider 使用范围仍需单独授权。每日备份和 7 天清理已配置，详见 `docs/49-private-preview-release-assessment.md`。
 > 针对初始评估发现的模糊任务占位字段，已完成提示词补强、3 条本机真实 Provider 定向回归和完整 200 条评估复跑；`case-146` 另行 3/3 复测成功。
 
+> 当前发布候选已整理为 `f7fb90a`（Web/同步）、`1545e21`（AI）、`d649ad4`（发布运营）和合并提交 `b7734d0`，已推送并创建 GitHub PR #25。`db-validation`、`browser-qa` 已通过，`quality` 仍被依赖审计 fail-closed；候选尚未部署，现有私有预览继续运行 `299b1f71`。后续新功能另开分支/PR，不回写该候选。
+
 ## 工程结构
 
 - `apps/web`：Vue 3 + TypeScript + Vite 用户端 PWA。

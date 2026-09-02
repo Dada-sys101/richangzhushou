@@ -4,6 +4,13 @@
 更新：2026-09-02
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
 
+## 2026-09-02 — PRIVATE-PREVIEW-RELEASE-CANDIDATE-01（DONE_PUSHED / PR_OPEN / QUALITY_BLOCKED）
+
+- 按用户授权，将已验证的 Web/V2 导航、离线同步、AI 提示词与评估、契约/测试及发布运营文档拆分为 `f7fb90a`、`1545e21`、`d649ad4` 三个逻辑提交。
+- 与 Integration `299b1f71` 对齐并收口 12 个前端冲突；修复合并后重复的 `/records`、`/plan` 路由，合并提交为 `b7734d0`，分支已推送并创建 GitHub PR #25。
+- 本地和远端功能验证通过；PR #25 的 `db-validation`、`browser-qa` 通过，`quality` 仍在依赖审计处 fail-closed。未绕过门禁部署候选代码，现有 Alibaba 私有预览继续运行 `299b1f71`。
+- 后续新功能不回写 PR #25；待兼容依赖修复并重新通过 audit/SBOM/license/quality 后，再合并、部署并复验私有预览。
+
 ## 2026-09-02 — PRIVATE-PREVIEW-RELEASE-01（OPERATIONAL / PUBLIC_NOT_READY）
 
 - 按用户决定跳过真实 iPhone 验证，标记为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`；不把 WebKit 模拟结果写成真机通过。
