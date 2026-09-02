@@ -4,7 +4,10 @@ export interface AiBudgetGate {
   evaluate(): AiBudgetDecision | Promise<AiBudgetDecision>;
 }
 
-/** PR19 intentionally has no accounting. Fake execution is allowed by default. */
+/**
+ * Temporary ADR-029 policy: usage metadata is retained for later Asia/Shanghai
+ * calendar-month accounting, but no monetary ceiling is configured yet.
+ */
 export class AllowFakeAiBudgetGate implements AiBudgetGate {
   evaluate(): AiBudgetDecision {
     return "ALLOW";

@@ -8,6 +8,7 @@
     "build": "nest build",
     "dev": "nest start --watch",
     "e2e:prepare": "tsx src/cli/e2e-prep.ts",
+    "h7:evaluate": "tsx src/cli/h7-live-provider-evaluation.ts",
     "lint": "eslint src prisma.config.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate:deploy": "prisma migrate deploy",
