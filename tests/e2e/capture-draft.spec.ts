@@ -64,9 +64,7 @@ test("V2 Capture 真实财务草稿确认入账且不重复", async ({ page, req
   expect(await matchingTransactions(request, username, marker)).toHaveLength(0);
 
   await page.goto("/capture");
-  await expect(
-    page.getByRole("heading", { name: "记录此刻的想法" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "快速新增" })).toBeVisible();
   await page.getByLabel("内容").fill(input);
 
   const parseResponse = page.waitForResponse((response) => {
@@ -98,7 +96,7 @@ test("V2 Capture 真实财务草稿确认入账且不重复", async ({ page, req
   expect(await matchingTransactions(request, username, marker)).toHaveLength(0);
 
   await page.getByRole("link", { name: "去确认", exact: true }).click();
-  await page.waitForURL("**/drafts");
+  await page.waitForURL(/\/drafts(?:\?.*)?$/);
   await expect(page.getByRole("heading", { name: "草稿中心" })).toBeVisible();
 
   const draftCard = page.locator("article.draft-card").filter({

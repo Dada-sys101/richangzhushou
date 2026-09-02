@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 import { ApiClientError } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
 
@@ -11,6 +13,7 @@ const month = ref(currentMonth());
 const categoryId = ref("");
 const amount = ref("");
 const errorMessage = ref("");
+useUnsavedChanges(computed(() => Boolean(amount.value.trim())));
 
 const expenseCategories = () =>
   finance.categories.filter(
@@ -101,16 +104,14 @@ function messageOf(error: unknown): string {
 
 <template>
   <section class="finance-page" aria-labelledby="budgets-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">预算</p>
-        <h1 id="budgets-title">月度预算</h1>
-      </div>
-      <label>
-        月份
-        <input v-model="month" type="month" />
-      </label>
-    </header>
+    <PageHeader title="月度预算" title-id="budgets-title" subtitle="预算">
+      <template #actions>
+        <label>
+          月份
+          <input v-model="month" type="month" />
+        </label>
+      </template>
+    </PageHeader>
 
     <form class="inline-create" @submit.prevent="createBudget">
       <select v-model="categoryId">

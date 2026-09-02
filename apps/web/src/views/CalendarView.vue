@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { computed, onMounted, ref, watch } from "vue";
+import { RouterLink, useRoute } from "vue-router";
 
 import type { CalendarEventSummary } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { usePlannerStore } from "../stores/planner";
+import { appendReturnTo } from "../utils/navigation";
 import {
   addDays,
   formatDateTime,
@@ -48,6 +51,18 @@ const editForm = ref({
   version: 1,
 });
 const editAllDayStart = ref(date.value);
+const editSnapshot = ref("");
+useUnsavedChanges(
+  computed(
+    () =>
+      (Boolean(editingId.value) &&
+        calendarEditSnapshot() !== editSnapshot.value) ||
+      form.value.title.trim().length > 0 ||
+      Boolean(form.value.startsAt) ||
+      Boolean(form.value.endsAt) ||
+      form.value.allDay,
+  ),
+);
 
 onMounted(() => {
   if (auth.isAuthenticated) {
@@ -115,6 +130,7 @@ function startEdit(item: CalendarEventSummary) {
   editAllDayStart.value = item.allDay
     ? formatShanghaiDate(new Date(item.startsAt))
     : date.value;
+  editSnapshot.value = calendarEditSnapshot();
 }
 
 async function saveEdit(item: CalendarEventSummary) {
@@ -139,7 +155,7 @@ async function saveEdit(item: CalendarEventSummary) {
     successMessage.value = result.overlapWarning
       ? result.overlapWarning.message
       : "日程已更新";
-    editingId.value = "";
+    cancelEdit();
     await reload();
   } catch (error) {
     errorMessage.value = messageOf(error);
@@ -149,6 +165,13 @@ async function saveEdit(item: CalendarEventSummary) {
 }
 
 async function remove(item: CalendarEventSummary) {
+  if (
+    !window.confirm(
+      `确定删除日程“${item.title}”吗？删除后仍可在“显示已删除”中恢复。`,
+    )
+  ) {
+    return;
+  }
   errorMessage.value = "";
   try {
     await planner.deleteCalendarEvent(item.id);
@@ -170,6 +193,22 @@ async function restore(item: CalendarEventSummary) {
 
 function cancelEdit() {
   editingId.value = "";
+  editSnapshot.value = "";
+}
+
+function calendarEditSnapshot(): string {
+  return JSON.stringify({
+    allDay: editForm.value.allDay,
+    day: editAllDayStart.value,
+    endsAt: editForm.value.endsAt,
+    startsAt: editForm.value.startsAt,
+    status: editForm.value.status,
+    title: editForm.value.title,
+  });
+}
+
+function withCalendarSource(path: string) {
+  return appendReturnTo(path, route.fullPath || "/calendar");
 }
 
 function messageOf(error: unknown): string {
@@ -179,22 +218,20 @@ function messageOf(error: unknown): string {
 
 <template>
   <section class="planner-page" aria-labelledby="calendar-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">日程</p>
-        <h1 id="calendar-title">日历</h1>
-      </div>
-      <div class="filters">
-        <label>
-          日期
-          <input v-model="date" type="date" />
-        </label>
-        <label class="check-label">
-          <input v-model="includeDeleted" type="checkbox" />
-          显示已删除
-        </label>
-      </div>
-    </header>
+    <PageHeader title="日历" title-id="calendar-title" subtitle="日程">
+      <template #actions>
+        <div class="filters">
+          <label>
+            日期
+            <input v-model="date" type="date" />
+          </label>
+          <label class="check-label">
+            <input v-model="includeDeleted" type="checkbox" />
+            显示已删除
+          </label>
+        </div>
+      </template>
+    </PageHeader>
 
     <p v-if="errorMessage" class="form-error" role="alert">
       {{ errorMessage }}
@@ -330,6 +367,12 @@ function messageOf(error: unknown): string {
             >
               删除
             </button>
+            <RouterLink
+              class="text-button"
+              :to="withCalendarSource(`/calendar/${item.id}`)"
+            >
+              查看
+            </RouterLink>
             <button
               v-if="item.deletedAt"
               class="text-button"

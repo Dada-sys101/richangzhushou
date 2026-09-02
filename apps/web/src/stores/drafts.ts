@@ -11,6 +11,7 @@ import {
 interface DraftsState {
   drafts: DraftSummary[];
   errorMessage: string | null;
+  lastStatus: DraftStatus | undefined;
   loading: boolean;
 }
 
@@ -18,6 +19,7 @@ export const useDraftsStore = defineStore("drafts", {
   state: (): DraftsState => ({
     drafts: [],
     errorMessage: null,
+    lastStatus: undefined,
     loading: false,
   }),
   getters: {
@@ -26,6 +28,7 @@ export const useDraftsStore = defineStore("drafts", {
   },
   actions: {
     async loadDrafts(status?: DraftStatus) {
+      this.lastStatus = status;
       this.loading = true;
       this.errorMessage = null;
       try {
@@ -36,6 +39,10 @@ export const useDraftsStore = defineStore("drafts", {
       } finally {
         this.loading = false;
       }
+    },
+    async refreshForSync() {
+      this.clearError();
+      await this.loadDrafts(this.lastStatus);
     },
     async createTextDraft(text: string) {
       this.errorMessage = null;

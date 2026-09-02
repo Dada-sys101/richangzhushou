@@ -4,7 +4,9 @@ import { RouterLink, useRoute } from "vue-router";
 
 import type { AiOperation, AiProposalDetail } from "../api/client";
 import AiOperationCard from "../components/AiOperationCard.vue";
+import PageHeader from "../components/PageHeader.vue";
 import { useAiStore, type AiProposalLoadMode } from "../stores/ai";
+import { appendReturnTo } from "../utils/navigation";
 
 const route = useRoute();
 const ai = useAiStore();
@@ -23,6 +25,10 @@ const loading = computed(() => ai.loading);
 const saving = computed(() => ai.saving);
 const errorMessage = computed(() => ai.errorMessage);
 const errorKind = computed(() => ai.errorKind);
+
+function withProposalSource(path: string) {
+  return appendReturnTo(path, route.fullPath);
+}
 const routeTargetMismatch = computed(
   () => Boolean(proposal.value) && proposal.value?.id !== proposalId.value,
 );
@@ -270,17 +276,16 @@ function operationLabel(operation: AiOperation): string {
 
 <template>
   <section class="proposal-review-page" aria-labelledby="review-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">AI 提案</p>
-        <h1 id="review-title">提案核对</h1>
-      </div>
-      <RouterLink class="secondary-button" to="/ai">新建提案</RouterLink>
-    </header>
+    <PageHeader title="提案核对" title-id="review-title" subtitle="AI 提案">
+      <template #actions>
+        <RouterLink class="secondary-button" :to="withProposalSource('/ai')"
+          >新建提案</RouterLink
+        >
+      </template>
+    </PageHeader>
 
     <p v-if="errorKind === 'NOT_FOUND'" class="form-error" role="alert">
       未找到该提案，可能已被删除或不存在。
-      <RouterLink class="text-button" to="/ai">返回 AI 助手</RouterLink>
     </p>
 
     <template v-else-if="loading && !proposal">

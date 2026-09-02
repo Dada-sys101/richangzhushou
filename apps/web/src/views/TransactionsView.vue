@@ -3,11 +3,14 @@ import { onMounted, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 
 import { ApiClientError } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
+import { appendReturnTo, useOptionalRoute } from "../utils/navigation";
 
 const auth = useAuthStore();
 const finance = useFinanceStore();
+const route = useOptionalRoute();
 const month = ref(currentMonth());
 const type = ref<"" | "EXPENSE" | "INCOME" | "REFUND">("");
 const includeDeleted = ref(false);
@@ -71,38 +74,42 @@ function messageOf(error: unknown): string {
     ? error.message
     : "操作失败，请稍后重试";
 }
+
+function withTransactionsSource(path: string) {
+  return appendReturnTo(path, route?.fullPath ?? "/transactions");
+}
 </script>
 
 <template>
   <section class="finance-page" aria-labelledby="transactions-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">记账</p>
-        <h1 id="transactions-title">账单</h1>
-      </div>
-      <div class="filters">
-        <label>
-          月份
-          <input v-model="month" type="month" />
-        </label>
-        <label>
-          类型
-          <select v-model="type">
-            <option value="">全部</option>
-            <option value="EXPENSE">支出</option>
-            <option value="INCOME">收入</option>
-            <option value="REFUND">退款</option>
-          </select>
-        </label>
-        <label class="check-label">
-          <input v-model="includeDeleted" type="checkbox" />
-          显示已删除
-        </label>
-      </div>
-    </header>
+    <PageHeader title="账单" title-id="transactions-title" subtitle="记账">
+      <template #actions>
+        <div class="filters">
+          <label>
+            月份
+            <input v-model="month" type="month" />
+          </label>
+          <label>
+            类型
+            <select v-model="type">
+              <option value="">全部</option>
+              <option value="EXPENSE">支出</option>
+              <option value="INCOME">收入</option>
+              <option value="REFUND">退款</option>
+            </select>
+          </label>
+          <label class="check-label">
+            <input v-model="includeDeleted" type="checkbox" />
+            显示已删除
+          </label>
+        </div>
+      </template>
+    </PageHeader>
 
     <div class="toolbar">
-      <RouterLink class="primary-button" to="/transactions/new"
+      <RouterLink
+        class="primary-button"
+        :to="withTransactionsSource('/transactions/new')"
         >记一笔</RouterLink
       >
       <button class="secondary-button" type="button" @click="downloadCsv">
@@ -137,7 +144,7 @@ function messageOf(error: unknown): string {
             <RouterLink
               v-if="!item.deletedAt"
               class="text-button"
-              :to="`/transactions/${item.id}/edit`"
+              :to="withTransactionsSource(`/transactions/${item.id}/edit`)"
             >
               编辑
             </RouterLink>

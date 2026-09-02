@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { RouterLink, useRouter } from "vue-router";
+import { computed, ref } from "vue";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 
 import { ApiClientError } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
+import { safeReturnTo } from "../utils/navigation";
 
 const auth = useAuthStore();
+const route = useRoute();
 const router = useRouter();
 const currentPassword = ref("");
 const newPassword = ref("");
@@ -13,6 +17,17 @@ const confirmPassword = ref("");
 const errorMessage = ref("");
 const successMessage = ref("");
 const submitting = ref(false);
+const returnTarget = computed(() =>
+  safeReturnTo(route.query, route.meta.page?.parent?.path ?? "/"),
+);
+const { allowNavigation } = useUnsavedChanges(
+  computed(
+    () =>
+      currentPassword.value.length > 0 ||
+      newPassword.value.length > 0 ||
+      confirmPassword.value.length > 0,
+  ),
+);
 
 async function submit() {
   errorMessage.value = "";
@@ -28,7 +43,8 @@ async function submit() {
     currentPassword.value = "";
     newPassword.value = "";
     confirmPassword.value = "";
-    await router.replace("/account");
+    allowNavigation();
+    await router.replace(returnTarget.value);
   } catch (error) {
     errorMessage.value =
       error instanceof ApiClientError ? error.message : "修改失败，请稍后重试";
@@ -40,8 +56,11 @@ async function submit() {
 
 <template>
   <section class="auth-card" aria-labelledby="change-password-title">
-    <p class="eyebrow">账号安全</p>
-    <h1 id="change-password-title">修改密码</h1>
+    <PageHeader
+      title="修改密码"
+      title-id="change-password-title"
+      subtitle="账号安全"
+    />
     <p v-if="auth.mustChangePassword" class="panel-copy">
       首次登录或管理员重置密码后，必须先设置新密码才能继续使用。
     </p>
@@ -94,7 +113,7 @@ async function submit() {
       </button>
     </form>
     <p class="auth-links">
-      <RouterLink to="/account">返回账号</RouterLink>
+      <RouterLink replace :to="returnTarget">返回账号</RouterLink>
     </p>
   </section>
 </template>

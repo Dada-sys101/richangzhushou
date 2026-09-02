@@ -496,6 +496,22 @@ describe("OpenAPI baseline", () => {
       "changes",
       "nextCursor",
     ]);
+    expect(schemas.SyncChangesResponse?.oneOf).toEqual([
+      {
+        description: "A non-empty page must advance with an opaque cursor.",
+        properties: {
+          changes: { type: "array", minItems: 1 },
+          nextCursor: { type: "string", minLength: 1 },
+        },
+      },
+      {
+        description: "An empty page is terminal and returns no cursor.",
+        properties: {
+          changes: { type: "array", maxItems: 0 },
+          nextCursor: { type: "null" },
+        },
+      },
+    ]);
     expect(schemas.SyncStatusResponse?.required).toEqual([
       "appliedCount",
       "failedCount",

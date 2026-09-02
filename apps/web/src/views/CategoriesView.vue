@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import { ApiClientError } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
 
@@ -13,6 +15,14 @@ const newName = ref("");
 const errorMessage = ref("");
 const editing = ref<{ id: string; name: string; version: number } | null>(null);
 const editName = ref("");
+const editSnapshot = ref("");
+useUnsavedChanges(
+  computed(
+    () =>
+      (Boolean(editing.value) && editName.value !== editSnapshot.value) ||
+      Boolean(newName.value.trim()),
+  ),
+);
 
 const visibleCategories = () =>
   finance.categories.filter((item) => !item.isArchived);
@@ -43,6 +53,7 @@ async function createCategory() {
 function startEdit(id: string, name: string, version: number) {
   editing.value = { id, name, version };
   editName.value = name;
+  editSnapshot.value = name;
 }
 
 async function saveEdit() {
@@ -55,10 +66,16 @@ async function saveEdit() {
       name: editName.value.trim(),
       version: editing.value.version,
     });
-    editing.value = null;
+    cancelEdit();
   } catch (error) {
     errorMessage.value = messageOf(error);
   }
+}
+
+function cancelEdit() {
+  editing.value = null;
+  editName.value = "";
+  editSnapshot.value = "";
 }
 
 async function toggleArchive(id: string, isArchived: boolean, version: number) {
@@ -79,12 +96,7 @@ function messageOf(error: unknown): string {
 
 <template>
   <section class="finance-page" aria-labelledby="categories-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">设置</p>
-        <h1 id="categories-title">分类</h1>
-      </div>
-    </header>
+    <PageHeader title="分类" title-id="categories-title" subtitle="设置" />
 
     <form class="inline-create" @submit.prevent="createCategory">
       <select v-model="newKind">
@@ -120,7 +132,7 @@ function messageOf(error: unknown): string {
           <button class="text-button" type="button" @click="saveEdit">
             保存
           </button>
-          <button class="text-button" type="button" @click="editing = null">
+          <button class="text-button" type="button" @click="cancelEdit">
             取消
           </button>
         </template>

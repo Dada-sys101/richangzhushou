@@ -1,17 +1,27 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 
 import AssistantMark from "../components/AssistantMark.vue";
 import EmptyState from "../components/EmptyState.vue";
+import PageHeader from "../components/PageHeader.vue";
 import { useAuthStore } from "../stores/auth";
 import { useDraftsStore } from "../stores/drafts";
 import { useFinanceStore } from "../stores/finance";
+import {
+  appendReturnTo,
+  useOptionalRoute,
+  useOptionalRouter,
+} from "../utils/navigation";
 
 const auth = useAuthStore();
 const drafts = useDraftsStore();
 const finance = useFinanceStore();
-const activeTab = ref<"RECENT" | "PENDING">("RECENT");
+const route = useOptionalRoute();
+const router = useOptionalRouter();
+const activeTab = ref<"RECENT" | "PENDING">(
+  route?.query.tab === "pending" ? "PENDING" : "RECENT",
+);
 const month = new Date().toLocaleDateString("en-CA", {
   timeZone: "Asia/Shanghai",
   year: "numeric",
@@ -31,6 +41,29 @@ onMounted(() => {
   }
 });
 
+watch(
+  () => route?.query.tab,
+  (value) => {
+    activeTab.value = value === "pending" ? "PENDING" : "RECENT";
+  },
+);
+
+function setActiveTab(tab: "RECENT" | "PENDING") {
+  activeTab.value = tab;
+  if (router) {
+    void router.replace({
+      query: {
+        ...(route?.query ?? {}),
+        tab: tab === "PENDING" ? "pending" : undefined,
+      },
+    });
+  }
+}
+
+function withRecordsSource(path: string) {
+  return appendReturnTo(path, route?.fullPath ?? "/records");
+}
+
 function signedAmount(type: string, amount: string) {
   return `${type === "EXPENSE" ? "-" : "+"}¥${amount}`;
 }
@@ -44,12 +77,12 @@ function categoryTone(index: number) {
 
 <template>
   <section class="v2-page records-page" aria-labelledby="records-title">
-    <header class="records-head">
-      <div>
-        <h1 id="records-title">记录中心</h1>
-        <p>账单、待确认与最近输入</p>
-      </div>
-    </header>
+    <PageHeader
+      title="记录中心"
+      title-id="records-title"
+      subtitle="账单、待确认与最近输入"
+      :show-back="false"
+    />
 
     <section class="records-summary" aria-label="本月财务摘要">
       <p>本月概览</p>
@@ -65,21 +98,21 @@ function categoryTone(index: number) {
       <button
         :class="{ active: activeTab === 'RECENT' }"
         type="button"
-        @click="activeTab = 'RECENT'"
+        @click="setActiveTab('RECENT')"
       >
         最近记录
       </button>
       <button
         :class="{ active: activeTab === 'PENDING' }"
         type="button"
-        @click="activeTab = 'PENDING'"
+        @click="setActiveTab('PENDING')"
       >
         待确认
         <span v-if="drafts.pendingDrafts.length">{{
           drafts.pendingDrafts.length
         }}</span>
       </button>
-      <RouterLink to="/transactions">统计</RouterLink>
+      <RouterLink :to="withRecordsSource('/transactions')">账单明细</RouterLink>
     </div>
 
     <section
@@ -92,11 +125,11 @@ function categoryTone(index: number) {
         icon="receipt"
         title="还没有记录"
         description="从一句话录入或手动记一笔开始。"
-        :action="{ label: '去录入', to: '/capture' }"
+        :action="{ label: '去录入', to: withRecordsSource('/capture') }"
       />
       <ul v-else class="record-list prototype-record-list">
         <li v-for="(item, index) in records" :key="item.id">
-          <RouterLink :to="`/transactions/${item.id}/edit`">
+          <RouterLink :to="withRecordsSource(`/transactions/${item.id}/edit`)">
             <span
               class="record-category-dot"
               :class="`is-${categoryTone(index)}`"
@@ -127,14 +160,14 @@ function categoryTone(index: number) {
         v-if="!drafts.pendingDrafts.length"
         icon="check"
         title="没有待确认草稿"
-        description="统一录入生成的草稿会在这里等待你确认。"
+        description="快速新增生成的草稿会在这里等待你确认。"
       />
       <ul v-else class="record-list prototype-record-list">
         <li
           v-for="(draft, index) in drafts.pendingDrafts.slice(0, 6)"
           :key="draft.id"
         >
-          <RouterLink to="/drafts"
+          <RouterLink :to="withRecordsSource('/drafts')"
             ><span
               class="record-category-dot"
               :class="`is-${categoryTone(index)}`"
@@ -148,7 +181,9 @@ function categoryTone(index: number) {
       </ul>
     </section>
 
-    <RouterLink class="records-insight" to="/finance/budgets"
+    <RouterLink
+      class="records-insight"
+      :to="withRecordsSource('/finance/budgets')"
       ><AssistantMark size="sm" /><span
         ><strong>智能洞察</strong
         ><small>账单已集中在这里，预算与分类仍可在设置中管理。</small></span

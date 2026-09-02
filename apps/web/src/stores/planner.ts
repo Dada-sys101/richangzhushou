@@ -10,13 +10,33 @@ import {
   type TaskSummary,
 } from "../api/client";
 import { localList, mergePending } from "../offline/local";
-import { pullChanges } from "../offline/sync";
+import type { SyncEntityType } from "../offline/sync";
 import { useAuthStore } from "./auth";
+
+type CalendarEventParams = {
+  date?: string;
+  includeDeleted?: boolean;
+  month?: string;
+  status?: "SCHEDULED" | "CANCELLED";
+};
+
+type TaskParams = {
+  includeDeleted?: boolean;
+  status?: "OPEN" | "COMPLETED" | "CANCELLED";
+};
+
+type ReminderParams = {
+  includeDeleted?: boolean;
+  status?: "SCHEDULED" | "SENT" | "CANCELLED" | "FAILED" | "SUPPRESSED";
+};
 
 interface PlannerState {
   calendarEvents: CalendarEventSummary[];
   errorKind: ApiErrorKind | null;
   errorMessage: string | null;
+  lastCalendarParams: CalendarEventParams;
+  lastReminderParams: ReminderParams;
+  lastTaskParams: TaskParams;
   reminders: ReminderSummary[];
   tasks: TaskSummary[];
 }
@@ -26,6 +46,9 @@ export const usePlannerStore = defineStore("planner", {
     calendarEvents: [],
     errorKind: null,
     errorMessage: null,
+    lastCalendarParams: {},
+    lastReminderParams: {},
+    lastTaskParams: {},
     reminders: [],
     tasks: [],
   }),
@@ -35,21 +58,11 @@ export const usePlannerStore = defineStore("planner", {
       state.reminders.filter((reminder) => reminder.status === "SCHEDULED"),
   },
   actions: {
-    async loadCalendarEvents(
-      params: {
-        date?: string;
-        includeDeleted?: boolean;
-        month?: string;
-        status?: "SCHEDULED" | "CANCELLED";
-      } = {},
-    ) {
+    async loadCalendarEvents(params: CalendarEventParams = {}) {
+      this.lastCalendarParams = { ...params };
       this.errorMessage = null;
       this.errorKind = null;
       try {
-        const syncUserId = useAuthStore().userId;
-        if (syncUserId) {
-          await pullChanges(syncUserId);
-        }
         const result = await api.listCalendarEvents(params);
         const userId = useAuthStore().userId;
         this.calendarEvents = userId
@@ -82,19 +95,11 @@ export const usePlannerStore = defineStore("planner", {
         }
       }
     },
-    async loadTasks(
-      params: {
-        includeDeleted?: boolean;
-        status?: "OPEN" | "COMPLETED" | "CANCELLED";
-      } = {},
-    ) {
+    async loadTasks(params: TaskParams = {}) {
+      this.lastTaskParams = { ...params };
       this.errorMessage = null;
       this.errorKind = null;
       try {
-        const syncUserId = useAuthStore().userId;
-        if (syncUserId) {
-          await pullChanges(syncUserId);
-        }
         const result = await api.listTasks(params);
         const userId = useAuthStore().userId;
         this.tasks = userId
@@ -115,19 +120,11 @@ export const usePlannerStore = defineStore("planner", {
         }
       }
     },
-    async loadReminders(
-      params: {
-        includeDeleted?: boolean;
-        status?: "SCHEDULED" | "SENT" | "CANCELLED" | "FAILED" | "SUPPRESSED";
-      } = {},
-    ) {
+    async loadReminders(params: ReminderParams = {}) {
+      this.lastReminderParams = { ...params };
       this.errorMessage = null;
       this.errorKind = null;
       try {
-        const syncUserId = useAuthStore().userId;
-        if (syncUserId) {
-          await pullChanges(syncUserId);
-        }
         const result = await api.listReminders(params);
         const userId = useAuthStore().userId;
         this.reminders = userId
@@ -153,6 +150,22 @@ export const usePlannerStore = defineStore("planner", {
           this.errorMessage = messageOf(error);
         }
       }
+    },
+    async refreshForSync(entityTypes: SyncEntityType[] = []) {
+      this.clearError();
+      const changed = new Set(entityTypes);
+      const refreshAll = changed.size === 0;
+      const requests: Promise<unknown>[] = [];
+      if (refreshAll || changed.has("CALENDAR_EVENT")) {
+        requests.push(this.loadCalendarEvents(this.lastCalendarParams));
+      }
+      if (refreshAll || changed.has("TASK")) {
+        requests.push(this.loadTasks(this.lastTaskParams));
+      }
+      if (refreshAll || changed.has("REMINDER")) {
+        requests.push(this.loadReminders(this.lastReminderParams));
+      }
+      await Promise.all(requests);
     },
     async createCalendarEvent(input: {
       allDay?: boolean;
@@ -194,8 +207,12 @@ export const usePlannerStore = defineStore("planner", {
     async deleteCalendarEvent(id: string) {
       this.errorMessage = null;
       try {
-        await api.deleteCalendarEvent(id);
+        const result = await api.deleteCalendarEvent(id);
         await this.loadCalendarEvents({ includeDeleted: true });
+        if (result) {
+          replaceById(this.calendarEvents, result);
+        }
+        return requireDeleted(result, this.calendarEvents, id);
       } catch (error) {
         this.errorMessage = messageOf(error);
         throw error;
@@ -204,8 +221,9 @@ export const usePlannerStore = defineStore("planner", {
     async restoreCalendarEvent(id: string) {
       this.errorMessage = null;
       try {
-        await api.restoreCalendarEvent(id);
+        const result = await api.restoreCalendarEvent(id);
         await this.loadCalendarEvents({ includeDeleted: true });
+        return result;
       } catch (error) {
         this.errorMessage = messageOf(error);
         throw error;
@@ -260,8 +278,12 @@ export const usePlannerStore = defineStore("planner", {
     async deleteTask(id: string) {
       this.errorMessage = null;
       try {
-        await api.deleteTask(id);
+        const result = await api.deleteTask(id);
         await this.loadTasks({ includeDeleted: true });
+        if (result) {
+          replaceById(this.tasks, result);
+        }
+        return requireDeleted(result, this.tasks, id);
       } catch (error) {
         this.errorMessage = messageOf(error);
         throw error;
@@ -270,8 +292,9 @@ export const usePlannerStore = defineStore("planner", {
     async restoreTask(id: string) {
       this.errorMessage = null;
       try {
-        await api.restoreTask(id);
+        const result = await api.restoreTask(id);
         await this.loadTasks({ includeDeleted: true });
+        return result;
       } catch (error) {
         this.errorMessage = messageOf(error);
         throw error;
@@ -329,8 +352,12 @@ export const usePlannerStore = defineStore("planner", {
     async deleteReminder(id: string) {
       this.errorMessage = null;
       try {
-        await api.deleteReminder(id);
+        const result = await api.deleteReminder(id);
         await this.loadReminders({ includeDeleted: true });
+        if (result) {
+          replaceById(this.reminders, result);
+        }
+        return requireDeleted(result, this.reminders, id);
       } catch (error) {
         this.errorMessage = messageOf(error);
         throw error;
@@ -339,8 +366,9 @@ export const usePlannerStore = defineStore("planner", {
     async restoreReminder(id: string) {
       this.errorMessage = null;
       try {
-        await api.restoreReminder(id);
+        const result = await api.restoreReminder(id);
         await this.loadReminders({ includeDeleted: true });
+        return result;
       } catch (error) {
         this.errorMessage = messageOf(error);
         throw error;
@@ -358,6 +386,27 @@ type ReminderStatus =
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : "操作失败，请稍后重试";
+}
+
+function replaceById<T extends { id: string }>(items: T[], updated: T) {
+  const index = items.findIndex((item) => item.id === updated.id);
+  if (index >= 0) {
+    items.splice(index, 1, updated);
+  } else {
+    items.push(updated);
+  }
+}
+
+function requireDeleted<T extends { deletedAt: string | null; id: string }>(
+  result: T | undefined,
+  items: T[],
+  id: string,
+): T {
+  const deleted = result ?? items.find((item) => item.id === id);
+  if (!deleted?.deletedAt) {
+    throw new Error("删除已提交，但暂时无法读取最新状态，请重试");
+  }
+  return deleted;
 }
 
 function filterCalendarLocals(

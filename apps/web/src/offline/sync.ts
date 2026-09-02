@@ -34,10 +34,9 @@ export interface SyncChange {
   version: number;
 }
 
-export interface SyncChangesResponse {
-  changes: SyncChange[];
-  nextCursor: string | null;
-}
+export type SyncChangesResponse =
+  | { changes: []; nextCursor: null }
+  | { changes: [SyncChange, ...SyncChange[]]; nextCursor: string };
 
 export interface SyncMutationErrorBody {
   code: string;
@@ -61,42 +60,87 @@ export interface SyncStatusResponse {
 
 export type SyncStatus = "SYNCED" | "PENDING_SYNC" | "SYNC_FAILED" | "CONFLICT";
 
+export class SyncRequestError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "SyncRequestError";
+  }
+}
+
+export function isSyncRateLimitedError(error: unknown): boolean {
+  return (
+    (error instanceof SyncRequestError && error.status === 429) ||
+    getErrorStatus(error) === 429
+  );
+}
+
+export interface SyncPullResult {
+  changedEntityTypes: SyncEntityType[];
+  cursor: string | null;
+}
+
+export interface SyncFlushResult {
+  changedEntityTypes: SyncEntityType[];
+  submittedCount: number;
+}
+
+export interface SyncOperationOptions {
+  throwOnError?: boolean;
+}
+
+export interface SyncStateSnapshot {
+  lastSyncedAt: string | null;
+  status: SyncStatus;
+}
+
 const PULL_LIMIT = 200;
 const MAX_BATCH = 50;
 const LAST_USER_KEY = "lastUser";
 
 let currentUserId: string | null = null;
-let flushing = false;
+let pulling = false;
 let syncing = false;
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 let backoffMs = 2_000;
+
+interface PullOutcome extends SyncPullResult {
+  error: unknown | null;
+}
+
+interface FlushOutcome extends SyncFlushResult {
+  error: unknown | null;
+}
+
+let activePull: {
+  promise: Promise<PullOutcome>;
+  repository: LocalRepository;
+  userId: string;
+} | null = null;
+let activeFlush: {
+  promise: Promise<FlushOutcome>;
+  repository: LocalRepository;
+  userId: string;
+} | null = null;
 
 export function currentUser(): string | null {
   return currentUserId;
 }
 
 export function isSyncing(): boolean {
-  return syncing;
+  return pulling || syncing;
 }
 
 export async function initSync(
   userId: string,
   repository: LocalRepository = defaultRepository,
 ): Promise<void> {
-  if (currentUserId === userId) {
-    return;
-  }
+  if (currentUserId === userId) return;
   currentUserId = userId;
   await repository.metadataSet(LAST_USER_KEY, { id: userId });
   backoffMs = 2_000;
-  await pullChanges(userId, repository);
-  await flushPending(userId, repository);
-  scheduleFlush(userId, repository);
-  window.addEventListener("online", () => {
-    if (currentUserId === userId) {
-      void flushPending(userId, repository);
-    }
-  });
 }
 
 export function stopSync(): void {
@@ -110,30 +154,23 @@ export function stopSync(): void {
 export async function pullChanges(
   userId: string,
   repository: LocalRepository = defaultRepository,
-): Promise<void> {
-  let cursor = await repository.metadataGet<string | null>(cursorKey(userId));
-  for (let page = 0; page < 100; page += 1) {
-    let response: SyncChangesResponse;
-    try {
-      response = await syncRequest<SyncChangesResponse>(
-        `/sync/changes?limit=${PULL_LIMIT}${
-          cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""
-        }`,
-      );
-    } catch {
-      return;
-    }
-    if (response.changes.length === 0) {
-      await repository.metadataSet(cursorKey(userId), cursor);
-      return;
-    }
-    for (const change of response.changes) {
-      await applyChange(userId, change, repository);
-    }
-    cursor = response.nextCursor;
-    await repository.metadataSet(cursorKey(userId), cursor);
-    if (!cursor) {
-      return;
+  options: SyncOperationOptions = {},
+): Promise<SyncPullResult> {
+  const existing = activePull;
+  if (existing?.userId === userId && existing.repository === repository) {
+    return finishPull(existing.promise, options);
+  }
+  if (existing) {
+    await existing.promise;
+  }
+
+  const promise = pullChangesInternal(userId, repository);
+  activePull = { promise, repository, userId };
+  try {
+    return await finishPull(promise, options);
+  } finally {
+    if (activePull?.promise === promise) {
+      activePull = null;
     }
   }
 }
@@ -143,6 +180,14 @@ export async function applyChange(
   change: SyncChange,
   repository: LocalRepository = defaultRepository,
 ): Promise<void> {
+  const existing = await repository.entityGet(
+    userId,
+    change.entityType,
+    change.entityId,
+  );
+  if (existing?.pending || isLocalEntityNewer(existing, change)) {
+    return;
+  }
   const entity: StoredEntity = {
     data: change.data,
     entityType: change.entityType,
@@ -157,13 +202,119 @@ export async function applyChange(
 export async function flushPending(
   userId: string,
   repository: LocalRepository = defaultRepository,
-): Promise<void> {
-  if (flushing || !navigator.onLine) {
-    return;
+  options: SyncOperationOptions = {},
+): Promise<SyncFlushResult> {
+  if (!navigator.onLine) {
+    return { changedEntityTypes: [], submittedCount: 0 };
   }
-  flushing = true;
+  const existing = activeFlush;
+  if (existing?.userId === userId && existing.repository === repository) {
+    return finishFlush(existing.promise, options);
+  }
+  if (existing) {
+    await existing.promise;
+  }
+
+  const promise = flushPendingInternal(userId, repository);
+  activeFlush = { promise, repository, userId };
+  try {
+    return await finishFlush(promise, options);
+  } finally {
+    if (activeFlush?.promise === promise) {
+      activeFlush = null;
+    }
+  }
+}
+
+async function pullChangesInternal(
+  userId: string,
+  repository: LocalRepository,
+): Promise<PullOutcome> {
+  const changedEntityTypes = new Set<SyncEntityType>();
+  let cursor = await repository.metadataGet<string | null>(cursorKey(userId));
+  pulling = true;
+  notifyChanged("state");
+  try {
+    for (let page = 0; page < 100; page += 1) {
+      const response = await syncRequest<SyncChangesResponse>(
+        `/sync/changes?limit=${PULL_LIMIT}${
+          cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""
+        }`,
+      );
+      if (
+        !Array.isArray(response.changes) ||
+        !("nextCursor" in response) ||
+        (response.nextCursor !== null &&
+          typeof response.nextCursor !== "string")
+      ) {
+        throw new Error("同步响应格式无效");
+      }
+      if (response.changes.length > 0 && response.nextCursor === null) {
+        throw new Error("同步响应缺少非空变更页的下一游标");
+      }
+      if (response.changes.length === 0) {
+        return {
+          changedEntityTypes: [...changedEntityTypes],
+          cursor,
+          error: null,
+        };
+      }
+      for (const change of response.changes) {
+        changedEntityTypes.add(change.entityType);
+        await applyChange(userId, change, repository);
+      }
+      const nextCursor = response.nextCursor;
+      if (nextCursor === cursor) {
+        throw new Error("同步游标未前进");
+      }
+      const persistedCursor = await repository.metadataGet<string | null>(
+        cursorKey(userId),
+      );
+      if (persistedCursor !== cursor) {
+        throw new Error("同步游标发生并发变化");
+      }
+      await repository.metadataSet(cursorKey(userId), nextCursor);
+      cursor = nextCursor;
+      if (!cursor) {
+        return {
+          changedEntityTypes: [...changedEntityTypes],
+          cursor,
+          error: null,
+        };
+      }
+    }
+    return { changedEntityTypes: [...changedEntityTypes], cursor, error: null };
+  } catch (error) {
+    await markFailedState(userId, repository);
+    return { changedEntityTypes: [...changedEntityTypes], cursor, error };
+  } finally {
+    pulling = false;
+    notifyChanged("state");
+  }
+}
+
+async function finishPull(
+  promise: Promise<PullOutcome>,
+  options: SyncOperationOptions,
+): Promise<SyncPullResult> {
+  const outcome = await promise;
+  if (outcome.error && options.throwOnError) {
+    throw asError(outcome.error);
+  }
+  return {
+    changedEntityTypes: outcome.changedEntityTypes,
+    cursor: outcome.cursor,
+  };
+}
+
+async function flushPendingInternal(
+  userId: string,
+  repository: LocalRepository,
+): Promise<FlushOutcome> {
+  const changedEntityTypes = new Set<SyncEntityType>();
+  let submittedCount = 0;
   syncing = true;
-  notifyChanged();
+  notifyChanged("state");
   try {
     const pending = await repository.pendingList(userId, ["PENDING", "FAILED"]);
     if (pending.length === 0) {
@@ -172,16 +323,27 @@ export async function flushPending(
         userId,
         conflicts.length > 0 ? "CONFLICT" : "SYNCED",
         repository,
+        { touchLastSyncedAt: true },
       );
-      return;
+      return { changedEntityTypes: [], submittedCount, error: null };
     }
     const batch = await buildBatch(userId, pending, repository);
+    if (batch.length === 0) {
+      await setState(userId, "PENDING_SYNC", repository, {
+        touchLastSyncedAt: false,
+      });
+      scheduleFlush(userId, repository);
+      return { changedEntityTypes: [], submittedCount, error: null };
+    }
     const response = await syncRequest<{
       results: SyncMutationResult[];
     }>("/sync/mutations", {
       body: { mutations: batch.map(toMutationRequest) },
       method: "POST",
     });
+    if (!Array.isArray(response.results)) {
+      throw new Error("同步提交响应格式无效");
+    }
     for (const result of response.results) {
       const mutation = batch.find(
         (item) => item.id === result.clientMutationId,
@@ -190,7 +352,15 @@ export async function flushPending(
         continue;
       }
       if (result.status === "OK" && result.result) {
-        const serverId = String(result.result.id ?? mutation.entityId ?? "");
+        const serverId = readServerString(
+          result.result,
+          "id",
+          mutation.action === "CREATE" ? null : mutation.entityId,
+        );
+        const serverUpdatedAt = readServerString(result.result, "updatedAt");
+        if (!serverId || !serverUpdatedAt) {
+          throw new Error("同步提交未返回服务端实体版本");
+        }
         if (mutation.localId && mutation.localId !== serverId) {
           await addIdMap(userId, mutation.localId, serverId, repository);
           await rewritePendingIds(
@@ -205,7 +375,7 @@ export async function flushPending(
           entityType: mutation.entityType,
           id: serverId,
           pending: false,
-          updatedAt: new Date().toISOString(),
+          updatedAt: serverUpdatedAt,
           userId,
         });
         if (mutation.localId && mutation.localId !== serverId) {
@@ -216,6 +386,8 @@ export async function flushPending(
           );
         }
         await repository.pendingDelete(userId, mutation.id);
+        changedEntityTypes.add(mutation.entityType);
+        submittedCount += 1;
       } else if (result.error) {
         const conflicted =
           result.error.code === "VERSION_CONFLICT" ||
@@ -228,7 +400,12 @@ export async function flushPending(
         });
       }
     }
-    await pullChanges(userId, repository);
+    const pulled = await pullChanges(userId, repository, {
+      throwOnError: true,
+    });
+    for (const entityType of pulled.changedEntityTypes) {
+      changedEntityTypes.add(entityType);
+    }
     const remaining = await repository.pendingList(userId, [
       "PENDING",
       "FAILED",
@@ -242,20 +419,46 @@ export async function flushPending(
           ? "PENDING_SYNC"
           : "SYNCED",
       repository,
+      { touchLastSyncedAt: true },
     );
     if (remaining.length > 0) {
       scheduleFlush(userId, repository);
     } else {
       backoffMs = 2_000;
     }
-  } catch {
-    await setState(userId, "SYNC_FAILED", repository);
+    return {
+      changedEntityTypes: [...changedEntityTypes],
+      submittedCount,
+      error: null,
+    };
+  } catch (error) {
+    await setState(userId, "SYNC_FAILED", repository, {
+      touchLastSyncedAt: false,
+    });
     scheduleFlush(userId, repository);
+    return {
+      changedEntityTypes: [...changedEntityTypes],
+      submittedCount,
+      error,
+    };
   } finally {
-    flushing = false;
     syncing = false;
-    notifyChanged();
+    notifyChanged("state");
   }
+}
+
+async function finishFlush(
+  promise: Promise<FlushOutcome>,
+  options: SyncOperationOptions,
+): Promise<SyncFlushResult> {
+  const outcome = await promise;
+  if (outcome.error && options.throwOnError) {
+    throw asError(outcome.error);
+  }
+  return {
+    changedEntityTypes: outcome.changedEntityTypes,
+    submittedCount: outcome.submittedCount,
+  };
 }
 
 export async function enqueueCreate(
@@ -281,8 +484,10 @@ export async function enqueueCreate(
     version: null,
   };
   await repository.pendingPut(userId, mutation);
-  await setState(userId, "PENDING_SYNC", repository);
-  notifyChanged();
+  await setState(userId, "PENDING_SYNC", repository, {
+    touchLastSyncedAt: false,
+  });
+  notifyChanged("mutation");
   scheduleFlush(userId, repository);
 }
 
@@ -311,8 +516,10 @@ export async function enqueueChange(
     version,
   };
   await repository.pendingPut(userId, mutation);
-  await setState(userId, "PENDING_SYNC", repository);
-  notifyChanged();
+  await setState(userId, "PENDING_SYNC", repository, {
+    touchLastSyncedAt: false,
+  });
+  notifyChanged("mutation");
   scheduleFlush(userId, repository);
 }
 
@@ -391,6 +598,24 @@ export async function getSyncStatusForUser(
     stateKey(userId),
   );
   return state?.status ?? "SYNCED";
+}
+
+export async function getSyncStateForUser(
+  userId: string,
+  repository: LocalRepository = defaultRepository,
+): Promise<SyncStateSnapshot> {
+  const state = await repository.metadataGet<SyncStateSnapshot>(
+    stateKey(userId),
+  );
+  return state ?? { lastSyncedAt: null, status: "SYNCED" };
+}
+
+export async function markSyncFailed(
+  userId: string,
+  repository: LocalRepository = defaultRepository,
+): Promise<void> {
+  await markFailedState(userId, repository);
+  notifyChanged("state");
 }
 
 export async function getPendingCounts(
@@ -495,9 +720,15 @@ async function setState(
   userId: string,
   status: SyncStatus,
   repository: LocalRepository,
+  options: { touchLastSyncedAt: boolean } = { touchLastSyncedAt: true },
 ): Promise<void> {
+  const previous = await repository.metadataGet<SyncStateSnapshot>(
+    stateKey(userId),
+  );
   await repository.metadataSet(stateKey(userId), {
-    lastSyncedAt: new Date().toISOString(),
+    lastSyncedAt: options.touchLastSyncedAt
+      ? new Date().toISOString()
+      : (previous?.lastSyncedAt ?? null),
     status,
   });
 }
@@ -515,7 +746,21 @@ async function refreshState(
     userId,
     conflicted ? "CONFLICT" : waiting ? "PENDING_SYNC" : "SYNCED",
     repository,
+    { touchLastSyncedAt: true },
   );
+}
+
+async function markFailedState(
+  userId: string,
+  repository: LocalRepository,
+): Promise<void> {
+  try {
+    await setState(userId, "SYNC_FAILED", repository, {
+      touchLastSyncedAt: false,
+    });
+  } catch {
+    // A local storage failure must not mask the original sync error.
+  }
 }
 
 async function getIdMap(
@@ -555,13 +800,51 @@ async function rewritePendingIds(
   }
 }
 
+function isLocalEntityNewer(
+  existing: StoredEntity | null,
+  change: SyncChange,
+): boolean {
+  if (!existing) {
+    return false;
+  }
+  const localVersion = Number(existing.data.version);
+  if (Number.isFinite(localVersion) && localVersion > change.version) {
+    return true;
+  }
+  if (localVersion !== change.version) {
+    return false;
+  }
+  const localUpdatedAt = Date.parse(existing.updatedAt);
+  const incomingUpdatedAt = Date.parse(change.updatedAt);
+  return (
+    Number.isFinite(localUpdatedAt) &&
+    Number.isFinite(incomingUpdatedAt) &&
+    localUpdatedAt > incomingUpdatedAt
+  );
+}
+
+function readServerString(
+  result: Record<string, unknown>,
+  field: string,
+  fallback?: string | null,
+): string | null {
+  const value = result[field] ?? fallback;
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function asError(error: unknown): Error {
+  return error instanceof Error ? error : new Error("同步失败，请稍后重试");
+}
+
 function scheduleFlush(userId: string, repository: LocalRepository): void {
   if (flushTimer !== null) {
     clearTimeout(flushTimer);
   }
   flushTimer = setTimeout(() => {
     flushTimer = null;
-    void flushPending(userId, repository);
+    if (currentUserId === userId) {
+      void flushPending(userId, repository);
+    }
   }, backoffMs);
   backoffMs = Math.min(backoffMs * 2, 60_000);
 }
@@ -577,7 +860,8 @@ async function syncRequest<T>(
   const text = await response.text();
   const data = text ? (JSON.parse(text) as unknown) : null;
   if (!response.ok) {
-    throw new Error(
+    throw new SyncRequestError(
+      response.status,
       (data as { message?: string } | null)?.message ?? "Sync request failed",
     );
   }
@@ -614,6 +898,18 @@ export function newLocalEntityId(): string {
   return `local-${crypto.randomUUID().replace(/-/g, "")}`;
 }
 
-function notifyChanged(): void {
-  window.dispatchEvent(new Event("daily-sync-changed"));
+function getErrorStatus(error: unknown): number | null {
+  if (typeof error !== "object" || error === null || !("status" in error)) {
+    return null;
+  }
+  const status = (error as { status?: unknown }).status;
+  return typeof status === "number" ? status : null;
+}
+
+function notifyChanged(reason: "mutation" | "state"): void {
+  window.dispatchEvent(
+    new CustomEvent("daily-sync-changed", {
+      detail: { reason },
+    }),
+  );
 }

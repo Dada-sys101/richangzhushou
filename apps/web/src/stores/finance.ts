@@ -17,14 +17,25 @@ import {
   localSummary,
   mergePending,
 } from "../offline/local";
-import { pullChanges } from "../offline/sync";
+import type { SyncEntityType } from "../offline/sync";
 import { useAuthStore } from "./auth";
+
+type TransactionParams = {
+  includeDeleted?: boolean;
+  month?: string;
+  type?: "EXPENSE" | "INCOME" | "REFUND";
+};
 
 interface FinanceState {
   budgets: BudgetSummary[];
   categories: CategorySummary[];
   accounts: FinancialAccountSummary[];
   errorKind: ApiErrorKind | null;
+  lastAccountsIncludeArchived: boolean;
+  lastBudgetMonth: string | undefined;
+  lastCategoriesIncludeArchived: boolean;
+  lastSummaryMonth: string | null;
+  lastTransactionParams: TransactionParams;
   summary: FinanceSummaryResponse | null;
   transactions: TransactionSummary[];
   transactionsLoading: boolean;
@@ -39,6 +50,11 @@ export const useFinanceStore = defineStore("finance", {
     categories: [],
     errorKind: null,
     errorMessage: null,
+    lastAccountsIncludeArchived: false,
+    lastBudgetMonth: undefined,
+    lastCategoriesIncludeArchived: false,
+    lastSummaryMonth: null,
+    lastTransactionParams: {},
     summary: null,
     summaryLoading: false,
     transactions: [],
@@ -56,19 +72,10 @@ export const useFinanceStore = defineStore("finance", {
         this.loadAccounts(true),
       ]);
     },
-    async loadTransactions(
-      params: {
-        includeDeleted?: boolean;
-        month?: string;
-        type?: "EXPENSE" | "INCOME" | "REFUND";
-      } = {},
-    ) {
+    async loadTransactions(params: TransactionParams = {}) {
+      this.lastTransactionParams = { ...params };
       this.transactionsLoading = true;
       try {
-        const syncUserId = useAuthStore().userId;
-        if (syncUserId) {
-          await pullChanges(syncUserId);
-        }
         const result = await api.listTransactions({ limit: 100, ...params });
         this.transactions = mergePending(
           result.items,
@@ -102,6 +109,7 @@ export const useFinanceStore = defineStore("finance", {
       }
     },
     async loadSummary(month: string) {
+      this.lastSummaryMonth = month;
       this.summaryLoading = true;
       try {
         this.summary = await api.getFinanceSummary(month);
@@ -125,6 +133,7 @@ export const useFinanceStore = defineStore("finance", {
       }
     },
     async loadBudgets(month?: string) {
+      this.lastBudgetMonth = month;
       try {
         const result = await api.listBudgets(month ? { month } : {});
         const userId = useAuthStore().userId;
@@ -153,6 +162,7 @@ export const useFinanceStore = defineStore("finance", {
       }
     },
     async loadCategories(includeArchived = false) {
+      this.lastCategoriesIncludeArchived = includeArchived;
       try {
         const result = await api.listCategories({ includeArchived });
         const userId = useAuthStore().userId;
@@ -177,6 +187,7 @@ export const useFinanceStore = defineStore("finance", {
       }
     },
     async loadAccounts(includeArchived = false) {
+      this.lastAccountsIncludeArchived = includeArchived;
       try {
         const result = await api.listFinancialAccounts({ includeArchived });
         const userId = useAuthStore().userId;
@@ -201,6 +212,35 @@ export const useFinanceStore = defineStore("finance", {
           this.errorMessage = errorMessage(error);
         }
       }
+    },
+    async refreshForSync(entityTypes: SyncEntityType[] = []) {
+      this.clearError();
+      const changed = new Set(entityTypes);
+      const refreshAll = changed.size === 0;
+      const refreshSummary =
+        refreshAll ||
+        changed.has("TRANSACTION") ||
+        changed.has("CATEGORY") ||
+        changed.has("BUDGET");
+      const requests: Promise<unknown>[] = [];
+      if (refreshAll || changed.has("TRANSACTION")) {
+        requests.push(this.loadTransactions(this.lastTransactionParams));
+      }
+      if (refreshAll || changed.has("CATEGORY")) {
+        requests.push(this.loadCategories(this.lastCategoriesIncludeArchived));
+      }
+      if (refreshAll || changed.has("FINANCIAL_ACCOUNT")) {
+        requests.push(this.loadAccounts(this.lastAccountsIncludeArchived));
+      }
+      if (refreshAll || changed.has("BUDGET")) {
+        requests.push(this.loadBudgets(this.lastBudgetMonth));
+      }
+      if (refreshSummary) {
+        requests.push(
+          this.loadSummary(this.lastSummaryMonth ?? currentMonth()),
+        );
+      }
+      await Promise.all(requests);
     },
     async localTransactions() {
       const userId = useAuthStore().userId;

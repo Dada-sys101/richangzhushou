@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 
 import { ApiClientError } from "../api/client";
 import AppIcon from "../components/AppIcon.vue";
 import AssistantMark from "../components/AssistantMark.vue";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 
 const auth = useAuthStore();
@@ -14,6 +16,14 @@ const reason = ref("");
 const action = ref<"close" | "deletion" | null>(null);
 const errorMessage = ref("");
 const submitting = ref(false);
+const { allowNavigation } = useUnsavedChanges(
+  computed(
+    () =>
+      Boolean(action.value) ||
+      password.value.length > 0 ||
+      reason.value.trim().length > 0,
+  ),
+);
 
 async function logout() {
   await auth.logout();
@@ -29,9 +39,11 @@ async function submit() {
   try {
     if (action.value === "close") {
       await auth.closeAccount(password.value, reason.value);
+      allowNavigation();
       await router.replace("/login");
     } else {
       await auth.requestDeletion(password.value, reason.value);
+      allowNavigation();
       await router.replace("/login");
     }
   } catch (error) {
@@ -45,7 +57,7 @@ async function submit() {
 
 <template>
   <section class="account-page" aria-labelledby="account-title">
-    <h1 id="account-title">我的</h1>
+    <PageHeader title="我的" title-id="account-title" :show-back="false" />
 
     <section class="profile-card" aria-label="账号概览">
       <AssistantMark size="lg" />
@@ -61,27 +73,6 @@ async function submit() {
       </div>
     </section>
 
-    <section class="account-group" aria-labelledby="appearance-title">
-      <p class="section-label">个人与外观</p>
-      <h2 id="appearance-title" class="visually-hidden">个人与外观</h2>
-      <div class="settings-list">
-        <div class="settings-row">
-          <span class="settings-icon is-purple"
-            ><AppIcon name="user" :size="16" /></span
-          ><span
-            ><strong>个人资料</strong><small>昵称、头像与基础信息</small></span
-          ><AppIcon name="chevron-right" :size="16" />
-        </div>
-        <div class="settings-row">
-          <span class="settings-icon is-purple"
-            ><AppIcon name="settings" :size="16" /></span
-          ><span
-            ><strong>外观与主题</strong
-            ><small>当前使用正式浅色主题</small></span
-          ><AppIcon name="chevron-right" :size="16" />
-        </div>
-      </div>
-    </section>
     <section class="account-group" aria-labelledby="finance-settings-title">
       <p class="section-label">财务设置</p>
       <h2 id="finance-settings-title" class="visually-hidden">财务设置</h2>
@@ -112,7 +103,8 @@ async function submit() {
         <RouterLink class="settings-row" to="/transactions"
           ><span class="settings-icon is-blue"
             ><AppIcon name="file" :size="16" /></span
-          ><span><strong>数据导出</strong><small>导出 CSV</small></span
+          ><span
+            ><strong>账单明细</strong><small>查看记录与导出 CSV</small></span
           ><AppIcon name="chevron-right" :size="16" /></RouterLink
         ><RouterLink class="settings-row" to="/sync/conflicts"
           ><span class="settings-icon is-blue"
@@ -122,26 +114,6 @@ async function submit() {
         /></RouterLink>
       </div>
     </section>
-    <section class="account-group" aria-labelledby="automation-title">
-      <p class="section-label">自动化</p>
-      <h2 id="automation-title" class="visually-hidden">自动化</h2>
-      <div class="settings-list">
-        <RouterLink class="settings-row" to="/shortcuts"
-          ><span class="settings-icon is-blue"
-            ><AppIcon name="zap" :size="16" /></span
-          ><span><strong>Apple 快捷指令</strong><small>自动化入口</small></span
-          ><AppIcon name="chevron-right" :size="16"
-        /></RouterLink>
-        <RouterLink class="settings-row" to="/ai"
-          ><span class="settings-icon is-lavender"
-            ><AppIcon name="zap" :size="16" /></span
-          ><span
-            ><strong>已有自动化能力</strong><small>草稿与确认流程</small></span
-          ><AppIcon name="chevron-right" :size="16"
-        /></RouterLink>
-      </div>
-    </section>
-
     <section
       class="account-group account-security"
       aria-labelledby="security-title"

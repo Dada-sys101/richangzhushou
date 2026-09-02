@@ -164,8 +164,8 @@ describe("HomeView", () => {
     expect(wrapper.text()).toContain("例如：明天 10 点和李想开会");
     expect(wrapper.findAll(".focus-card")).toHaveLength(0);
     const quickLinks = wrapper.findAllComponents(RouterLinkStub);
-    expect(quickLinks.some((link) => link.props("to") === "/capture")).toBe(
-      true,
-    );
+    expect(
+      quickLinks.some((link) => link.props("to") === "/capture?returnTo=%2F"),
+    ).toBe(true);
   });
 });

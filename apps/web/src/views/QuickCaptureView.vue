@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 
 import { ApiClientError } from "../api/client";
-import AssistantMark from "../components/AssistantMark.vue";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useDraftsStore } from "../stores/drafts";
+import { appendReturnTo } from "../utils/navigation";
 
 const drafts = useDraftsStore();
 const route = useRoute();
@@ -13,6 +15,7 @@ const parsing = ref(false);
 const message = ref("");
 const errorMessage = ref("");
 const createdDraftId = ref("");
+useUnsavedChanges(computed(() => text.value.trim().length > 0));
 
 watch(
   () => route.query.text,
@@ -43,6 +46,10 @@ async function parseText() {
   }
 }
 
+function withCaptureSource(path: string) {
+  return appendReturnTo(path, route.fullPath);
+}
+
 function messageOf(error: unknown): string {
   return error instanceof ApiClientError
     ? error.message
@@ -55,14 +62,11 @@ function messageOf(error: unknown): string {
     class="capture-page prototype-capture"
     aria-labelledby="capture-title"
   >
-    <header class="capture-head">
-      <div>
-        <p class="eyebrow">统一录入</p>
-        <h1 id="capture-title">记录此刻的想法</h1>
-        <p>用一句话开始，确认后才会写入正式记录。</p>
-      </div>
-      <AssistantMark size="md" />
-    </header>
+    <PageHeader
+      title="快速新增"
+      title-id="capture-title"
+      subtitle="记录此刻的想法 · 确认后才会写入正式记录"
+    />
 
     <div class="capture-grid">
       <form class="capture-panel capture-primary" @submit.prevent="parseText">
@@ -90,11 +94,12 @@ function messageOf(error: unknown): string {
           跨实体智能生成尚未由当前 API 提供。需要时可直接进入原有编辑页。
         </p>
         <div class="capture-type-links capture-type-chips">
-          <RouterLink to="/transactions/new">记录/财务</RouterLink>
-          <RouterLink to="/calendar">日程</RouterLink>
-          <RouterLink to="/tasks">待办</RouterLink>
-          <RouterLink to="/reminders">提醒</RouterLink>
-          <RouterLink to="/trips">行程</RouterLink>
+          <RouterLink :to="withCaptureSource('/transactions/new')"
+            >记账</RouterLink
+          >
+          <RouterLink :to="withCaptureSource('/calendar')">日程</RouterLink>
+          <RouterLink :to="withCaptureSource('/tasks')">待办</RouterLink>
+          <RouterLink :to="withCaptureSource('/reminders')">提醒</RouterLink>
         </div>
       </div>
     </div>
@@ -107,7 +112,11 @@ function messageOf(error: unknown): string {
           message || "当前仅生成待确认的财务草稿，不会直接写入正式账单。"
         }}</small>
       </span>
-      <RouterLink v-if="createdDraftId" class="text-button" to="/drafts">
+      <RouterLink
+        v-if="createdDraftId"
+        class="text-button"
+        :to="withCaptureSource('/drafts')"
+      >
         去确认
       </RouterLink>
     </section>

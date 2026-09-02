@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { RouterLink } from "vue-router";
 
 import { useAuthStore } from "../stores/auth";
 import { useSyncStore } from "../stores/sync";
+import PageHeader from "../components/PageHeader.vue";
 
 const auth = useAuthStore();
 const sync = useSyncStore();
@@ -31,13 +31,7 @@ async function choose(mutationId: string, choice: "local" | "server") {
 
 <template>
   <section class="finance-page" aria-labelledby="conflicts-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">同步</p>
-        <h1 id="conflicts-title">冲突处理</h1>
-      </div>
-      <RouterLink class="secondary-button" to="/">返回首页</RouterLink>
-    </header>
+    <PageHeader title="冲突处理" title-id="conflicts-title" subtitle="同步" />
 
     <p v-if="actionMessage" class="form-success" role="status">
       {{ actionMessage }}

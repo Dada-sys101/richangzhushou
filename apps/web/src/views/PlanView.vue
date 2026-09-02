@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 
 import EmptyState from "../components/EmptyState.vue";
+import PageHeader from "../components/PageHeader.vue";
 import { useAuthStore } from "../stores/auth";
 import { usePlannerStore } from "../stores/planner";
+import {
+  appendReturnTo,
+  useOptionalRoute,
+  useOptionalRouter,
+} from "../utils/navigation";
 import {
   addDays,
   formatDateTime,
@@ -23,10 +29,19 @@ type Range =
 
 const auth = useAuthStore();
 const planner = usePlannerStore();
-const displayMode = ref<DisplayMode>("DAY");
-const range = ref<Range>("TODAY");
+const route = useOptionalRoute();
+const router = useOptionalRouter();
+const range = ref<Range>(readRange(route?.query.range));
+const displayMode = ref<DisplayMode>(
+  readDisplayMode(route?.query.mode, route?.query.range),
+);
 const actionError = ref("");
-const selectedDate = ref(todayInShanghai());
+const selectedDate = ref(
+  typeof route?.query.date === "string" &&
+    /^\d{4}-\d{2}-\d{2}$/.test(route.query.date)
+    ? route.query.date
+    : todayInShanghai(),
+);
 const dateRail = computed(() =>
   Array.from({ length: 7 }, (_, index) =>
     addDays(todayInShanghai(), index - 2),
@@ -53,6 +68,17 @@ onMounted(() => {
   if (auth.isAuthenticated) void loadPlan();
 });
 
+watch(
+  () => [route?.query.mode, route?.query.range, route?.query.date],
+  ([mode, nextRange, date]) => {
+    range.value = readRange(nextRange);
+    displayMode.value = readDisplayMode(mode, nextRange);
+    if (typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      selectedDate.value = date;
+    }
+  },
+);
+
 async function loadPlan() {
   actionError.value = "";
   await Promise.all([
@@ -64,17 +90,31 @@ async function loadPlan() {
 
 function setRange(next: Range) {
   range.value = next;
+  syncQuery();
 }
 function selectDate(date: string) {
   selectedDate.value = date;
   range.value = "DATE";
   displayMode.value = "DAY";
+  syncQuery();
 }
 function setDisplay(next: DisplayMode) {
   displayMode.value = next;
   if (next === "DAY") range.value = "TODAY";
   if (next === "WEEK") range.value = "WEEK";
   if (next === "MONTH") range.value = "MONTH";
+  syncQuery();
+}
+function syncQuery() {
+  if (!router) return;
+  void router.replace({
+    query: {
+      ...(route?.query ?? {}),
+      date: range.value === "DATE" ? selectedDate.value : undefined,
+      mode: displayMode.value.toLowerCase(),
+      range: range.value.toLowerCase(),
+    },
+  });
 }
 function label(item: TimelineItem) {
   return item.kind === "EVENT"
@@ -107,17 +147,52 @@ async function cancelEvent(item: TimelineItem) {
     actionError.value = "暂时无法取消日程，请稍后重试。";
   }
 }
+
+function withPlanSource(path: string) {
+  return appendReturnTo(path, route?.fullPath ?? "/plan");
+}
+
+function readDisplayMode(value: unknown, rangeValue?: unknown): DisplayMode {
+  if (value === "week" || (value === undefined && rangeValue === "week")) {
+    return "WEEK";
+  }
+  if (value === "month" || (value === undefined && rangeValue === "month")) {
+    return "MONTH";
+  }
+  return "DAY";
+}
+
+function readRange(value: unknown): Range {
+  return value === "tomorrow"
+    ? "TOMORROW"
+    : value === "week"
+      ? "WEEK"
+      : value === "month"
+        ? "MONTH"
+        : value === "future"
+          ? "FUTURE"
+          : value === "overdue"
+            ? "OVERDUE"
+            : value === "date"
+              ? "DATE"
+              : "TODAY";
+}
 </script>
 
 <template>
   <section class="v2-page plan-page" aria-labelledby="plan-title">
-    <header class="v2-page-head">
-      <div>
-        <h1 id="plan-title">计划中心</h1>
-        <p>日程、待办与提醒，统一按时间查看</p>
-      </div>
-      <RouterLink class="primary-button" to="/capture">添加内容</RouterLink>
-    </header>
+    <PageHeader
+      title="计划中心"
+      title-id="plan-title"
+      subtitle="日程、待办与提醒，统一按时间查看"
+      :show-back="false"
+    >
+      <template #actions>
+        <RouterLink class="primary-button" :to="withPlanSource('/capture')"
+          >快速新增</RouterLink
+        >
+      </template>
+    </PageHeader>
     <div class="segmented-control" aria-label="计划视图">
       <button
         v-for="mode in [
@@ -200,25 +275,28 @@ async function cancelEvent(item: TimelineItem) {
           v-if="!mainItems.length"
           icon="calendar"
           title="这里还没有计划"
-          description="可切换范围，或前往原详情页创建日程、待办和提醒。"
-          :action="{ label: '新建待办', to: '/tasks' }"
+          description="可切换范围，或前往计划页创建日程、待办和提醒。"
+          :action="{ label: '新建待办', to: withPlanSource('/tasks') }"
         />
         <ul v-else class="timeline-list plan-timeline">
           <li v-for="item in mainItems" :key="`${item.kind}-${item.id}`">
             <div>
-              <time>{{ time(item) }}</time
-              ><span
-                class="timeline-dot"
-                :class="`is-${item.kind.toLowerCase()}`"
-              ></span
-              ><span class="timeline-content"
-                ><strong :class="{ 'overdue-mark': item.overdue }">{{
-                  item.title
-                }}</strong
-                ><small>{{
-                  item.overdue ? "已逾期" : label(item)
-                }}</small></span
-              ><span class="plan-item-actions"
+              <RouterLink class="plan-item-link" :to="withPlanSource(item.path)"
+                ><time>{{ time(item) }}</time
+                ><span
+                  class="timeline-dot"
+                  :class="`is-${item.kind.toLowerCase()}`"
+                ></span
+                ><span class="timeline-content"
+                  ><strong :class="{ 'overdue-mark': item.overdue }">{{
+                    item.title
+                  }}</strong
+                  ><small>{{
+                    item.overdue ? "已逾期" : label(item)
+                  }}</small></span
+                ></RouterLink
+              >
+              <span class="plan-item-actions"
                 ><button
                   v-if="item.kind === 'TASK'"
                   class="text-button"
@@ -226,21 +304,8 @@ async function cancelEvent(item: TimelineItem) {
                   @click="complete(item.id)"
                 >
                   完成</button
-                ><RouterLink
-                  v-if="item.kind === 'TASK'"
-                  class="text-button"
-                  to="/tasks"
-                  >延期</RouterLink
-                ><RouterLink
-                  v-if="item.kind === 'REMINDER'"
-                  class="text-button"
-                  to="/reminders"
-                  >稍后</RouterLink
-                ><RouterLink
-                  v-if="item.kind === 'EVENT'"
-                  class="text-button"
-                  to="/calendar"
-                  >编辑</RouterLink
+                ><RouterLink class="text-button" :to="withPlanSource(item.path)"
+                  >查看</RouterLink
                 ><button
                   v-if="item.kind === 'EVENT'"
                   class="text-button danger"
@@ -258,11 +323,13 @@ async function cancelEvent(item: TimelineItem) {
         <p class="section-label">当前事项</p>
         <strong>{{ mainItems[0]?.title ?? "今天暂时没有待处理事项" }}</strong>
         <small>{{
-          mainItems[0] ? time(mainItems[0]) : "可通过统一录入添加计划"
+          mainItems[0] ? time(mainItems[0]) : "可通过快速新增添加计划"
         }}</small>
-        <RouterLink class="text-link" :to="mainItems[0]?.path ?? '/capture'">{{
-          mainItems[0] ? "查看详情" : "统一录入"
-        }}</RouterLink>
+        <RouterLink
+          class="text-link"
+          :to="withPlanSource(mainItems[0]?.path ?? '/capture')"
+          >{{ mainItems[0] ? "查看详情" : "快速新增" }}</RouterLink
+        >
       </aside>
     </div>
     <section
@@ -274,7 +341,9 @@ async function cancelEvent(item: TimelineItem) {
         <small>逾期事项（{{ overdueItems.length }}）</small
         ><strong>{{ overdueItems[0]?.title }}</strong>
       </div>
-      <RouterLink to="/tasks">去处理</RouterLink>
+      <RouterLink :to="withPlanSource(overdueItems[0]?.path ?? '/tasks')"
+        >去处理</RouterLink
+      >
     </section>
   </section>
 </template>

@@ -122,9 +122,14 @@ export class SyncService {
       version: row.version,
     }));
     const last = page[page.length - 1];
-    const nextCursor =
-      hasMore && last ? encodeCursor(last.updatedAt, last.entityId) : null;
-    return { changes, nextCursor };
+    const first = changes[0];
+    if (!last || !first) {
+      return { changes: [], nextCursor: null };
+    }
+    return {
+      changes: [first, ...changes.slice(1)],
+      nextCursor: encodeCursor(last.updatedAt, last.entityId),
+    };
   }
 
   async applyMutations(

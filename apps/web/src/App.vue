@@ -4,11 +4,15 @@ import { RouterView } from "vue-router";
 
 import BottomNav from "./components/BottomNav.vue";
 import SiteHeader from "./components/SiteHeader.vue";
+import { router } from "./router";
 import { useAuthStore } from "./stores/auth";
 import { useSyncStore } from "./stores/sync";
 
 const auth = useAuthStore();
 const sync = useSyncStore();
+const removeRouteHook = router.afterEach(() => {
+  void sync.requestSync("route");
+});
 
 watch(
   () => auth.isAuthenticated,
@@ -28,11 +32,18 @@ watch(
 onMounted(() => {
   window.addEventListener("online", handleOnline);
   window.addEventListener("offline", handleOffline);
+  window.addEventListener("focus", handleFocus);
+  window.addEventListener("daily-sync-changed", handleSyncChanged);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
 });
 
 onUnmounted(() => {
   window.removeEventListener("online", handleOnline);
   window.removeEventListener("offline", handleOffline);
+  window.removeEventListener("focus", handleFocus);
+  window.removeEventListener("daily-sync-changed", handleSyncChanged);
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
+  removeRouteHook();
 });
 
 async function handleOnline() {
@@ -54,6 +65,28 @@ async function handleOnline() {
 
 function handleOffline() {
   void sync.markOffline();
+}
+
+function handleFocus() {
+  void sync.requestSync("focus");
+}
+
+function handleVisibilityChange() {
+  if (document.visibilityState === "visible") {
+    void sync.requestSync("visibility");
+  }
+}
+
+function handleSyncChanged(event: Event) {
+  const reason =
+    event instanceof CustomEvent && event.detail?.reason === "mutation"
+      ? "mutation"
+      : "state";
+  if (reason === "mutation") {
+    void sync.handleChange();
+    return;
+  }
+  void sync.refresh(undefined, { fetchServer: false });
 }
 </script>
 

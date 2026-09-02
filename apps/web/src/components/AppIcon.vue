@@ -3,6 +3,7 @@ import { computed } from "vue";
 
 const ICONS: Record<string, string[]> = {
   alert: ["M12 3 2 20h20L12 3Z", "M12 9v4", "M12 17h.01"],
+  "arrow-left": ["M19 12H5", "m12 19-7-7 7-7"],
   bell: [
     "M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9",
     "M13.7 21a2 2 0 0 1-3.4 0",
