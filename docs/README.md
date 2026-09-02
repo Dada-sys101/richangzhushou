@@ -3,7 +3,7 @@
 版本：0.8
 状态：已同步 Integration `d53f84a…`、PR19/PR20 历史事实与
 `QUALITY-R1-GOVERNANCE-RECONCILIATION` 的 Gate 2 规范冻结写入；docs/40 为 V1.2，ADR-028 为 Accepted
-更新：2026-08-27
+更新：2026-09-02
 
 ## V1.5 接手与状态恢复导航
 
@@ -77,5 +77,12 @@ GitHub / Git / CI / 实际部署环境
 32. `41-pr6a-mysql84-validation.md`
 33. `adr/ADR-026-v15-release-scope-r1.md`
 34. `adr/ADR-027-ai-provider-evaluation-policy.md`
+35. `43-pr20-h7-live-provider-validation.md`：H7 脱敏 Provider 验证证据。
+36. `44-r1-dependency-audit-review.md`：R1 依赖审计兼容性复核与候选撤回记录。
+37. `45-r1-manual-device-evidence-template.md`：H1/H2 iPhone Safari 与 PWA/离线验收记录模板。
+38. `46-r1-webkit-emulation-validation.md`：H1/H2 WebKit iPhone 13 本机模拟验收记录（不替代真机）。
+39. `47-rel-01-staging-architecture-decision.md`：REL-01 Staging 架构、资源、权限、成本、RPO/RTO 与发布边界设计稿（D1-D8 已批准；REL-02 独立授权待定）。
+40. `48-r1-approval-decision-pack.md`：R1 剩余阻塞复核、H1/H2/依赖证据映射、REL-01 D1-D8 决策记录与 REL-02 执行前清单。
+41. `49-private-preview-release-assessment.md`：当前私有预览正式基线、服务器复核、备份恢复证据与公网切换前剩余项。
 
 所有文档以稳定编号引用规则、功能、页面、数据、API 和验收项。未确认信息必须标记为 `[待确认]` 或 `[关键假设]`。

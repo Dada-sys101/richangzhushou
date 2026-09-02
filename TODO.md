@@ -93,16 +93,37 @@
 | DA-1505 | PR19 AI Router/Stub/安全降级合入 Integration（GitHub PR #18） | DONE | V1.5 |
 | DA-1506 | PR20 adapter integration：foundation/configuration/DeepSeek/OpenAI（GitHub PR #20/#21/#22/#23） | DONE | V1.5 |
 | DA-1507 | QUALITY-R1-GOVERNANCE-RECONCILIATION Gate 1：事实、ADR-028 草案、状态/镜像同步 | DONE | V1.5 |
-| DA-1508 | PR20 Live Provider Validation（H7） | BLOCKED | V1.5 |
+| DA-1508 | PR20 Live Provider Validation（H7） | DONE_LOCAL / H7_CLOSED | V1.5 |
 | DA-1509 | R1 Quality Gate | BLOCKED | V1.5 |
+| DA-1510 | R1 依赖审计兼容性复核（候选因 SBOM 无效撤回，依赖树恢复） | DONE_LOCAL / CANDIDATE_REJECTED | V1.5 |
+| DA-1511 | REL-01 Staging 架构、资源、权限、成本、RPO/RTO 与发布边界设计（D1-D8 已批准；资源创建另行授权） | DONE | V1.5 |
+| R1-APPROVAL-PACKAGE-01 | R1 剩余阻塞复核与 REL-01 审批决策汇总（不创建资源） | DONE | V1.5 |
+| REL-01-DECISION-RECORD-01 | 固化 D1-D8 批准并生成 REL-02 执行前检查（不创建资源） | DONE | V1.5 |
+| DA-1512 | 现有 Alibaba 私有预览正式基线核验、备份与恢复校验 | DONE | V1.5 |
+| DA-1513 | 依赖审计兼容修复并重新通过供应链门禁 | BLOCKED | V1.5 |
+| DA-1514 | 私有预览每日备份、7 天保留与过期清理 | DONE | RELEASE |
+| DA-1515 | 域名审批后的公网 HTTPS 入口切换与复验 | NOT_STARTED | RELEASE |
+| DA-1516 | 保留私有预览 live AI，并对齐环境/数据库开关与当前用户决定 | DONE | RELEASE |
+| WEB-UX-03 | 核心功能闭环整改（Web；数据库 E2E 未验证） | DONE | UI |
+| WEB-UX-03.1 | 验收收口（删除确认/服务端删除数据/日程提醒测试） | DONE | UI |
+| SYNC-01 | 实时同步整改（前端协调器；真实数据库/双浏览器验收已补齐，完整 Web smoke 已由 WEB-SMOKE-01 收口） | DONE | UI |
+| SYNC-01-429-BACKOFF-REMEDIATION | 修复同步 429 请求风暴、状态事件误触发和失败退避 | DONE_LOCAL / UNCOMMITTED | UI/QA |
+| SYNC-API-01 | 修正 `/sync/changes` 非空页终止游标契约（无 schema 变更） | DONE_LOCAL | API |
+| SYNC-E2E-01 | Daily Assistant 同步真实 MySQL/API 与双浏览器验收 | DONE | QA |
+| WEB-SMOKE-01 | 修复真实数据库 Web smoke 的 4 类失败并完成桌面/移动回归 | DONE | UI/QA |
 
 ## V1.5 Governance Approval / Normative Freeze note
 
-- Integration HEAD：`d53f84a…`；H7：`OPEN`；R1 Quality Gate：`BLOCKED / NOT_READY`。
+- 当前远端 Integration HEAD（只读重核）：`299b1f71debbd5a3140d1ee19f9781372e67134b`；历史 PR20 记录仍保留旧 ref；H7：`CLOSED`；R1 Quality Gate：`BLOCKED / NOT_READY`。
 - ADR-028：`Accepted`；PR20-03A/#22、PR20-03B/#23 deviation：
   `KEEP_AND_RECONCILE`（Dada 已批准）。
 - GitHub PR #22/#23 是 PR20 实现切片；canonical R3 PR22/PR23 仍未开始且未修改。
-- PR20 Adapter Integration：`DONE_INTEGRATION`；PR20 Live Provider Validation：`BLOCKED / H7`。
+- PR20 Adapter Integration：`DONE_INTEGRATION`；PR20 Live Provider Validation：`DONE_LOCAL / H7_CLOSED`；DeepSeek 本机
+  `h7-adr027-fixed-v1` 200 条合成评估已形成脱敏证据，199/200 schema-valid、effect proxy 199/200，提示词补强后的
+  3 条定向回归和 `case-146` 三次复测通过；Dada 已确认暂定 DeepSeek、接受条款/结果，并批准 ADR-029 的自然月/暂不设金额上限策略；H7 已由 owner 明确关闭。
 - REL-02/03/04：`BLOCKED / NOT_STARTED`，不表示已授权或已完成。
 - CI run `33043413216` 的 `quality`、`db-validation`、`browser-qa` SUCCESS；Playwright report upload skipped。
-- 规范冻结已本地写入但未提交；停在 `NORMATIVE FREEZE POST-WRITE REVIEW GATE`，不得自动提交。
+- 规范冻结提交 `6adc111...` 已完成 post-write review 并进入 Integration；本轮不得自动创建新的提交。PR20 H7 证据已就绪，
+  `case-146`/不确定样例、Provider 条款和当前评估结果已获确认；H7 已关闭；暂不设金额上限不等于生产预算 enforcement，后续仍受 R1/REL-04 独立门禁约束。
+- 2026-09-02 已完成 WebKit `iPhone 13` 本机模拟验收：H1 核心页面流程通过，H2 离线新增/联网同步收敛通过；离线重开出现 WebKit 资源错误。记录见 `docs/46-r1-webkit-emulation-validation.md`，不替代 H1/H2 真机门禁。
+- 2026-09-02 已通过 `REL-01-DECISION-RECORD-01` 按推荐值批准 D1-D8；`docs/47`/`docs/48` 已同步决策与 REL-02 执行前清单。仍不创建资源、不补充真实记录、不修改部署配置；具体执行参数、R1 通过和独立资源/费用授权仍是 REL-02 前置条件。

@@ -1,5 +1,181 @@
 # Changelog
 
+## 2026-09-02 — PRIVATE-PREVIEW-RELEASE-01（OPERATIONAL / PUBLIC_NOT_READY）
+
+- 按用户决定跳过真实 iPhone 验证，标记为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`；不把 WebKit 模拟结果写成真机通过。
+- 复核已有 Alibaba 私有预览：Integration `299b1f71` 发布包完整性、API/用户端/管理端/Nginx、数据库迁移和服务状态均通过。
+- 生成受保护数据库备份，并在临时恢复库中校验 25 张表、14 条迁移记录；服务器已配置每日备份、7 天保留和过期自动清理，手动执行与清理逻辑复验通过；跨位置备份、周期性隔离恢复和公网域名切换仍未完成。
+- 用户已明确允许当前私有预览开启 AI；服务器环境 `V15_AI_ALLOWED=true`、`V15_LIVE_AI_ALLOWED=true`，数据库 `v15.ai.liveProvider=true`，与当前决定一致。该决定不自动扩大公网 Provider 使用范围。
+- `npm run audit:dependencies` 仍 fail-closed；Prisma 兼容修复候选因 SBOM invalid 已撤回，当前不发布本地混合未提交工作区。详见 `docs/49-private-preview-release-assessment.md`。
+
+## 2026-09-02 — REL-01-DECISION-RECORD-01（APPROVED / REL-02_AUTHORIZATION_PENDING）
+
+- 用户已确认 D1-D8 按 `docs/47` 推荐值批准；批准记录固化于 `docs/48-r1-approval-decision-pack.md`，并补充 REL-02 执行前检查清单。
+- REL-01 设计决策已批准，但本轮未获得明确的 staging 资源创建授权；未创建资源、凭据、部署或真实记录。
+- R1 Quality Gate 继续 `BLOCKED / NOT_READY`；H1/H2 继续 `PARTIAL`；依赖审计候选仍为 `CANDIDATE_REJECTED`，没有通过正式供应链门禁的依赖修复。
+- 仅运行上下文、格式和差异检查，未重复业务测试，未提交、推送、创建 PR 或部署。
+
+## 2026-09-02 — R1-APPROVAL-PACKAGE-01（DONE_LOCAL / APPROVAL_PENDING）
+
+- 复核 R1 当前阻塞：H1/H2 仍缺物理 iPhone 正式证据，WebKit 模拟仅作辅助；H2 离线重开资源错误仍需真机确认。
+- 确认依赖审计候选已因 SBOM 精确依赖声明 invalid 撤回，当前没有通过兼容性、SBOM、license 和发布检查的正式修复。
+- 新增 `docs/48-r1-approval-decision-pack.md`，汇总 D1-D8 推荐值、状态、负责人、批准前置条件，并明确 REL-01 批准不等于 REL-02 资源创建授权。
+- 本轮限定检查 `npm run check:context`、`npm run format:check`、`git diff --check` 均通过；未重复业务测试。
+- 未补充真实记录、未使用真实用户数据、未创建资源、未修改业务代码或部署配置，未创建提交、推送、PR 或部署。
+
+## 2026-09-02 — REL-01 Staging 架构与发布边界设计稿（DESIGN_REVIEWED / APPROVAL_PENDING）
+
+- 在不补充真实记录、不创建云资源、不修改部署配置的前提下，新增 `docs/47-rel-01-staging-architecture-decision.md`。
+- 设计稿收敛了单实例 API、私网 MySQL 8.4、私有 OSS、HTTPS、最小权限、费用控制、备份/RPO-RTO、监控、发布和回滚边界。
+- 已完成与现有架构、发布清单、部署样例和健康检查实现的跨文档自检；云厂商/地域、域名/TLS、基础设施预算、RPO/RTO 和 readiness 方案仍待人工批准；R1、H1/H2、REL-02/03 状态不变。
+
+## 2026-09-02 — R1 H1/H2 WebKit 本机模拟验收（DONE_LOCAL / NON_FORMAL_EVIDENCE）
+
+- 在 `D:\daily-assistant-runtime` 一次性 MySQL/API/Web 环境中，使用 Playwright WebKit `iPhone 13` 模拟完成真实页面验收；H1 登录、首页、待办/日程/提醒列表与详情、返回、浏览器 Back、刷新通过。
+- H2 的 manifest/Service Worker、缓存离线重开、离线新增、恢复联网自动同步和服务端去重通过；离线重开期间记录到 WebKit `internal resource error`，因此不将模拟结果视为 H2 真机通过。
+- 新增 `docs/46-r1-webkit-emulation-validation.md`；H1/H2 仍为 `PARTIAL`，正式门禁仍需物理 iPhone Safari/PWA 记录。本轮测试服务、临时数据库和浏览器会话已清理，未创建提交、推送、PR 或部署。
+
+## 2026-09-02 — R1 依赖审计兼容性复核（DONE_LOCAL / CANDIDATE_REJECTED）
+
+- 评估 Prisma 7.10.0 与修复版传递依赖候选；由于 npm SBOM 将 Prisma 的精确传递依赖声明标为 invalid，候选已撤回。
+- 回滚后依赖树无净变更；`npm ci`、`npm ls`、治理测试 14/14、CycloneDX SBOM 生成/校验（1044 components）和 license inventory（1163 packages）通过。
+- `npm run audit:dependencies` 仍 fail-closed；R1 继续等待兼容的正式依赖修复、H1/H2 真机证据和后续门禁，不以 override 或自动延长例外关闭。
+- 新增 `45-r1-manual-device-evidence-template.md`，用于归档 H1 iPhone Safari 与 H2 PWA/离线重开结果。
+- 详见 `docs/44-r1-dependency-audit-review.md`。
+
+## 2026-09-01 — WEB-SMOKE-01 真实数据库 Web 冒烟收口（DONE_LOCAL / UNCOMMITTED）
+
+- 修复本地 E2E fake-AI 环境开关、草稿返回 URL 的 query 匹配、账号关闭后的未保存导航守卫，以及删除确认和状态选择器契约。
+- Web lint、typecheck、unit `21 files / 116 tests`、build、Prettier、`git diff --check` 通过；真实数据库 Chromium desktop/mobile 完整 smoke `44/44 PASS`。
+- 本轮未修改 API、Prisma、数据库 schema、同步后端或部署配置；D 盘一次性 MySQL/API/Web/admin 服务已在验收后停止，未创建提交、推送、PR 或部署。
+- 该结果移除完整 Web smoke 阻塞，但 R1 Quality Gate 仍受现有依赖审计、H1/H2、Provider enablement 和 REL-04 等独立门禁约束。
+
+## 2026-09-01 — H7 人工门禁关闭（PR20 DONE_LOCAL / H7_CLOSED）
+
+- Dada 已明确关闭 H7；关闭依据为已归档的 DeepSeek 脱敏评估证据、提示词补强回归、`case-146` 3/3 复测、正式写入隔离和当前阶段决策确认。
+- PR20 Live Provider Validation 更新为 `DONE_LOCAL / H7_CLOSED`，下一状态转入 `R1 Quality Gate BLOCKED / NOT_READY`。
+- H7 关闭不授权生产 Provider、真实用户/生产数据评测、REL-04、R1 advancement、提交、推送、PR 或部署；暂不设金额上限仍不提供金额超支保护。
+
+## 2026-09-01 — PR20 H7 当前阶段决策确认（VERIFYING / DONE_LOCAL / H7 HUMAN CLOSURE PENDING）
+
+- Dada 已确认当前阶段暂定 DeepSeek `deepseek-v4-flash`，接受本轮 Provider 条款复核和评估结果，
+  包括 `case-146` 随机失败样本与 provisional schema/effect 判断。
+- ADR-029 已接受：用量按 `Asia/Shanghai` 自然月观察，暂不设置固定金额 warning/hard ceiling；保留规范化 token/provider/
+  model/status/time 元数据，不进行费用换算或金额拦截。该临时策略不等于生产预算 enforcement。
+- H7 仍为 `OPEN / EVIDENCE_READY`，当前仅剩 owner 显式关闭；Provider enablement、REL-04 和 R1 advancement
+  仍受独立发布门禁约束。未创建提交、推送、PR、合并或部署。
+
+## 2026-09-01 — PR20 H7 提示词补强后全量复跑与证据收口（VERIFYING / DONE_LOCAL / H7 HUMAN CLOSURE PENDING）
+
+- 使用可重复数据集 `h7-adr027-fixed-v1` 完成提示词补强后的完整 200 条本机合成评估：DeepSeek
+  `deepseek-v4-flash` 199/200 schema-valid（99.5%），effect proxy 199/200（99.5%），正向 184/185，
+  不确定处理 15/15，服务端/客户端 p95 为 1589/1644 ms。
+- 唯一异常为 `case-146` 一次 HTTP 502 / `SCHEMA_INVALID`；失败输入保留，随后 3/3 定向复测成功；评估用户
+  正式业务表均为 0，`businessWrite=false` 下最终确认仍返回 403 `AI_DISABLED`。
+- 新增可重复评估器 `apps/api/src/cli/h7-live-provider-evaluation.ts`，更新脱敏 H7 报告并记录官方 Provider 条款
+  复核限制。H7 仍 `OPEN / EVIDENCE_READY`；预算 enforcement、隐私批准、最终阈值/Provider 选择和人工关闭待定。
+
+## 2026-09-01 — PR20 H7 本机受控 Provider 验证（VERIFYING / DONE_LOCAL / H7 HUMAN CLOSURE PENDING）
+
+- 在 `D:\daily-assistant-runtime` 的一次性 MySQL 8.4.11 环境中，以合成数据完成 DeepSeek
+  `deepseek-v4-flash` canary、10 条 pilot 和 ADR-027 规定的 200 条评估；200 条中 199 条 schema-valid，
+  schema success rate 为 99.5%，p95 延迟 1449 ms。
+- 修正 DeepSeek adapter 的 JSON Proposal 输出约束并补充定向测试；一条域校验失败保留原始输入，未保留 raw
+  Provider response；失败复测成功，但仍需人工处理该随机失败和两条歧义结果。
+- `v15.ai.businessWrite=false` 全程保持；最终确认返回 403 `AI_DISABLED`，评估前后正式业务表基线不变，未发生正式写入。
+- H7 仍为 `OPEN / EVIDENCE_READY`，R1 Quality Gate 仍为 `BLOCKED / NOT_READY`；生产预算 enforcement、Provider/model/
+  effect thresholds、隐私条款复核和 H7 人工关闭待完成。未启用 Provider，未使用真实用户数据，未创建提交、推送、PR 或部署。
+- 脱敏证据：`docs/43-pr20-h7-live-provider-validation.md`。
+
+## 2026-09-01 — PR20 H7 歧义输入定向回归（DONE_LOCAL）
+
+- 收紧 DeepSeek adapter 提示词：关键事实缺失、模糊或占位值必须返回 `UNCERTAIN`，禁止生成“待定任务”等占位字段。
+- 本机真实 Provider 复测 3 条合成样例：两条模糊任务归一为 `confidence=0.0000` 且无字段，一条具体任务正常生成
+  `title/dueAt/priority`；服务和 MySQL 已在复测后停止。
+- 完整 200 条评估未因提示词变更而重跑；H7 仍 `OPEN / EVIDENCE_READY`，后续需在授权窗口重跑全量再决定最终阈值。
+
+## 2026-09-01 — QUALITY-R1 Governance post-write review（PASS / EXISTING COMMITTED ARTIFACT）
+
+- 只读复核既有治理提交 `6adc111492dcbeb35e79475a3d69f6a63007e5bb`：父提交为要求的 `d53f84a...`，只修改 21 个授权 Markdown 文件，专用治理 worktree clean。
+- `npm run check:context`、提交差异 `git diff --check`、stash 完整性和远端 ancestry 通过；治理 CI `33048729907` 与最新 Integration CI `33147816383` 的三个 job 均 SUCCESS，Playwright 报告上传跳过。
+- ADR-028 仍为 `Accepted`，两项 deviation 为 `KEEP_AND_RECONCILE`，H7 仍 `OPEN`，R1 Quality Gate 仍 `BLOCKED / NOT_READY`；未执行真实 Provider 或凭据评测。
+- 当前活动 worktree 的后续 UI/同步修改保持不变；本轮未创建新的提交、推送、PR、合并或部署。PR20 Live Provider Validation 继续 `BLOCKED / H7`。
+
+## 2026-09-01 — SYNC-E2E-01 真实同步验收收口（DONE_LOCAL / UNCOMMITTED）
+
+- 在 `D:\daily-assistant-runtime`（C: 盘之外）使用一次性 MySQL 8.4.11 完成真实 API 集成和 Web 双浏览器验收；API 结果为
+  `17 files / 155 tests PASS`，API/Web/admin 服务在验收后已清理。
+- 两个真实浏览器完成待办创建、编辑、删除/恢复传播；离线创建在重连后收敛为真实服务端 ID；同时离线编辑触发真实
+  `VERSION_CONFLICT` 并在冲突页选择保留服务端；第二用户隔离通过。
+- 375/390/430/768/1440 五种 viewport 均无横向溢出；清理日志后无 console error/warning，相关 sync/task 请求均返回 200。
+- 现有完整 Web smoke 仍为 `22 passed / 22 failed`，不作为本轮同步验收通过的替代；未创建提交、推送、PR 或部署。下一项建议为
+  `QUALITY-R1-GOVERNANCE-RECONCILIATION` post-write review gate。
+
+## 2026-08-31 — SYNC-01 429 限流与失败退避修复（DONE_LOCAL / UNCOMMITTED）
+
+- 拆分同步状态事件与本地变更事件，避免失败状态更新被误判为本地写入并触发新的强制同步。
+- 保留 HTTP 429 状态；限流后暂停自动同步 60 秒，普通失败采用指数退避，手动重试仍可立即执行，并将页面提示改为已暂停自动重试。
+- 补充同步请求错误、事件原因和协调器退避测试；Web lint、typecheck、build 通过，Web 全量单元测试 `21 files / 116 tests PASS`。
+- 真实浏览器中的受控 429 响应复测通过：点击重试后连续观察 10 秒无新增同步请求；该检查只验证客户端行为，真实双浏览器传播尚未重跑，不宣称实时同步已完成。
+
+## 2026-08-31 — SYNC-E2E-01 真实验收检查点（PAUSED / BLOCKED_429）
+
+- 在 `D:\daily-assistant-runtime`（C: 盘之外）使用一次性 MySQL 8.4.11 完成真实 API 集成验收：17 个测试文件、155 项全部通过。
+- 既有完整 Web smoke 实际结果为 22/44 通过、22/44 失败；失败集中在 AI Proposal、草稿确认、账号删除和 navigation-shell 选择器，未在本轮扩展修复范围。
+- 两个真实浏览器进入待办页后，`/sync/changes` 与 `/sync/status` 返回 429，页面显示 `同步失败 / Too many requests`，并产生高频 429；
+  用户中断了跨设备对象创建/传播，因此不能宣称双浏览器同步通过。
+- 发现同步失败后缺少 429 专用轮询冷却/退避；下一项应建立 `SYNC-01-429-BACKOFF-REMEDIATION`，完成后再补跑双浏览器、离线、冲突/墓碑和五宽度验收。
+- 验收服务已清理；WEB-UX-02/03/03.1、SYNC-01、SYNC-API-01 既有未提交修改保留，未提交、推送、创建 PR 或部署。
+
+## 2026-08-31 — SYNC-E2E-01 真实同步环境验收（BLOCKED / NOT_RUN）
+
+- 完成状态恢复和运行条件核对：`TEST_DATABASE_URL`、`E2E_DATABASE_URL`、`DATABASE_URL` 均未设置，
+  本机没有 MySQL/API/Web 监听服务；已有 E2E 启动脚本会拒绝在缺少专用测试库时启动。
+- 真实 MySQL API 集成、双浏览器同步、离线恢复、冲突/墓碑、用户隔离和五个 viewport 的真实浏览器检查
+  均未运行；没有以 API mock 结果替代真实数据库验收。
+- 未修改业务代码或同步协议，未创建提交、推送、PR 或部署；等待专用测试数据库环境。
+
+## 2026-08-31 — SYNC-API-01 增量同步游标契约修正（本地未提交）
+
+- `/sync/changes` 现在对每个非空页（包括非空末页）返回基于最后一条 `(updatedAt,id)` 变更生成的非空不透明游标；
+  只有空页返回 `nextCursor: null`。
+- 同步共享 TypeScript 类型、OpenAPI 条件 schema、API 文档和 WP7 集成测试；未修改 Prisma、数据库 schema、WebSocket/SSE、
+  消息队列或既有 Web 同步 fail-closed 保护。
+- API/契约/Web 定向测试通过；`TEST_DATABASE_URL`/`E2E_DATABASE_URL` 缺失，真实数据库集成和双浏览器同步未验证。
+- 根 `npm run quality` 在既有 dependency audit（`@prisma/adapter-mariadb`、`mariadb`）处失败；未创建提交、推送、PR 或部署。
+
+## 2026-08-29 — SYNC-01 实时同步整改（本地未提交 / API 契约阻塞）
+
+- `apps/web` 增加统一同步协调器：登录、路由进入、focus、visibility 恢复和联网触发主动拉取；在线可见页面每 7 秒轮询，
+  对并发 pull/flush 去重并保护游标不倒退。
+- 同步成功按实体类型刷新 planner、finance、drafts、trips store；同步徽标显示最近同步、待同步、失败和冲突，既有离线队列继续保留。
+- 复核现有 `/sync/changes` 发现非空末页返回 `nextCursor: null`，缺少可由前端安全持久化的终止游标；未修改后端或伪造游标，任务保持 BLOCKED。
+- Web lint/typecheck/unit（21 files / 112 tests）/build、context、diff-check PASS；真实数据库 E2E 与双浏览器同步 NOT_RUN。
+- 根目录 `npm run quality` 未通过：既有 dependency audit 拒绝未批准的高/严重包
+  `@prisma/adapter-mariadb`、`mariadb`；本次未修改依赖文件。
+
+## 2026-08-29 — WEB-UX-03.1 验收收口（本地未提交）
+
+- 详情页、待办、日程、提醒列表删除增加明确二次确认；删除后不再用客户端当前时间或本地 version
+  推导墓碑，而是 DELETE 后读取服务端对象并同步详情与共享 Planner store；离线删除继续走既有本地队列。
+- 补齐日程/提醒编辑、删除、恢复、失败重试和共享 store 测试；新增列表删除确认覆盖。Web unit 为
+  20 files / 100 tests。
+- mocked browser PASS（含日程/提醒编辑、删除确认、恢复、返回、刷新、Back、非法 returnTo 和五个宽度）；
+  `E2E_DATABASE_URL` 缺失，真实数据库 E2E 与跨浏览器同步验证均未运行。
+- 只读重核当前远端 Integration HEAD 为 `299b1f71debbd5a3140d1ee19f9781372e67134b`；未创建提交、
+  推送、PR 或部署。
+
+## 2026-08-29 — WEB-UX-03 核心功能闭环整改（本地未提交）
+
+- 用户端 PlannerDetailView 支持待办、日程、提醒的编辑、完成/取消、重新安排、软删除/恢复；成功后
+  更新当前详情和共享 Planner store，失败显示错误与重试入口。
+- 编辑页面改用初始表单快照判断 dirty；列表/详情来源通过站内 `returnTo` 传递，返回按钮文案按实际
+  目标动态显示，路由非法返回目标安全回退。
+- 统计入口改为“账单明细”，保留真实 CSV 导出页面；补充页面/单元测试与 navigation-shell E2E。
+- Web lint、typecheck、18 个单元测试文件共 90 项、build、Prettier、context/diff 检查通过；浏览器
+  使用本地 API mock 验证了操作、刷新、Back、非法 returnTo 和 375/390/430/768/1440 宽度。
+- `E2E_DATABASE_URL` 缺失，真实数据库 E2E 未运行；未创建提交、推送、PR 或部署。
+
 ## 2026-08-27 — QUALITY-R1 Governance Approval / Normative Freeze Write（本地未提交）
 
 - Dada 明确批准 ADR-028、PR20-03A/#22 与 PR20-03B/#23 的 `KEEP_AND_RECONCILE` disposition，

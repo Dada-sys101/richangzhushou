@@ -2,7 +2,7 @@
 
 文档版本：1.1
 状态：已与代码、Git 历史交叉核对
-更新：2026-08-27
+更新：2026-09-02
 说明：仅记录可从代码、文档或 Git 历史确认的决策；原因无法从仓库确认的标记“原因待确认”。来源标记：`[代码]`、`[文档]`、`[Git]`。
 
 ## 已确认决策
@@ -30,6 +30,8 @@
 | DEC-111 | 提交粒度：独立任务一个提交，提交信息使用中文（当前仓库惯例） | `[Git] git log` | 仓库惯例；后续可再约定 |
 | DEC-112 | WP3 补充 `CategoryKind`（EXPENSE/INCOME）与 `FinancialAccountKind`（CASH/DEBIT_CARD/CREDIT_CARD/DIGITAL_WALLET/OTHER）取值；预算唯一约束 userId+month+categoryId（NULL 时服务层校验整体预算唯一） | `[文档] docs/05`、`[代码] WP3` | 数据字典未定义具体取值，属 `[关键假设]`，待产品确认 |
 | DEC-113 | `ShortcutScope` 使用冒号字符串（`transaction:draft:create`/`finance:summary:read`），`DeviceCredential.scopes` 以 JSON 数组存储（冒号值不适用 MySQL ENUM）；凭证只存 SHA-256 哈希与展示前缀 | `[代码] apps/api/prisma/schema.prisma`、`shortcuts/*` | 契约枚举与存储解耦，避免 ENUM 特殊字符 |
+| DEC-114 | 现有私有预览作为正式预览基线；真实 iPhone 当前路径跳过并标记未验证 | 用户指令、现网复核、`docs/49` | 域名审批后再切换公网；不把模拟结果写成真机通过 |
+| DEC-115 | 当前私有预览保留 live AI，环境/数据库开关与用户决定对齐；公网扩大 Provider 使用范围仍需单独授权 | 用户明确决定、现网环境复核、数据库 `system_settings`、`docs/49` | 当前预览可继续使用 AI；不自动替代依赖、预算和公网发布门禁 |
 | DEC-114 | 附件采用“短期上传意图 + 一次性上传令牌（只存哈希）+ 完成确认”流程；本地临时存储适配器写入 `apps/api/.local-storage` | `[代码] apps/api/src/attachments`、`integrations/local-storage.adapter.ts` | 失败不产生悬空正式附件；供应商未定前用本地实现（OPEN-006） |
 | DEC-115 | 草稿确认在单个事务内将 `DraftRecord` 标记 `CONFIRMED` 并创建 `CONFIRMED` 交易，`resultId` 指向结果，保留 `source` 与 `clientMutationId` | `[代码] apps/api/src/drafts/drafts.service.ts`、`finance/finance.service.ts` | 保证草稿状态与正式记录原子一致（QA-DRAFT-002） |
 | DEC-116 | 批量丢弃/清空草稿采用 HMAC 短期确认令牌（两阶段）并写 `AdminAudit`（`DRAFT_BATCH_DISCARD`） | `[代码] apps/api/src/common/security.service.ts`、`drafts/drafts.service.ts` | 高风险操作二次确认 + 可追溯（BR-AI-004 / QA-DRAFT-003） |
@@ -58,6 +60,7 @@
 | DEC-139 | OPEN-006 对象存储接入：新增 `AliyunOssStorageAdapter`（实现 `put/get/delete`，缺失对象删除幂等，错误不泄漏 AccessKey/正文）与 `STORAGE_PROVIDER=local|oss` 配置切换；`NODE_ENV=production` 禁止 local、缺失 OSS 配置启动失败；新附件键 `users/{userId}/attachments/{fileId}`，旧 `attachments/` 键保留兼容；上传仍由 API 代理，无需 OSS CORS | `[代码] apps/api/src/integrations/{aliyun-oss-storage.adapter,storage.config,storage-key.service}.ts`、`apps/api/src/attachments/attachments.service.ts` | 私有 Bucket + 最小权限；未配置时不得意外连接 OSS；staging 门禁阻止误用本地临时存储 |
 | DEC-140 | ADR-026 Accepted：V1.5 发布映射为 AI R1、Push R1.1、新 RRULE/Import R2、完整 IndexedDB 迁移/Shrink R3；H1/H2/H7 阻塞 R1，H6/H8 只阻塞 Push；REL-01 可提前设计但不建资源，REL-02 等待 R1 Quality Gate；Production 必须经 integration RC→main PR→main/tag | `PLANS.md` v2.1.1、`docs/adr/ADR-026-v15-release-scope-r1.md`、`docs/40-v15-final-development-baseline.md` V1.1（后由 ADR-028 有限修订为 V1.2） | 2026-08-10 人工批准；不构成 commit、资源、真实调用、merge 或部署授权 |
 | DEC-141 | ADR-027 v1.0 Final Accepted：冻结 AI Provider/模型候选、服务端接入、credential/唯一字段白名单/日志/保留边界、预算与 timeout/retry/breaker、200 条非真实评测数据、Schema success `>=99%`、无需完全重录 `>=85%` 及四项不可降低安全阈值 | `docs/adr/ADR-027-ai-provider-evaluation-policy.md`、`tasks/AI-DECISION-001.md`、`PLANS.md` 6.1 | 2026-08-11 人工批准；当前不冻结唯一 Provider，不执行真实评测/实现；PR20 后 final provider/model/effect thresholds 需再次人工批准 |
+| DEC-143 | ADR-029 临时预算策略：用量周期按 `Asia/Shanghai` 自然月；暂不固定金额 warning/hard 上限，不因金额累计触发 `BUDGET_BLOCKED`；保留现有 token/provider/model/状态/时间元数据，费用换算和账本延后单独实施 | `docs/adr/ADR-029-ai-budget-calendar-month-observation.md`、`apps/api/src/ai/ai-budget-gate.ts` | Dada 于 2026-09-01 明确确认；这是临时策略，不代表费用为零或生产预算 enforcement 已完成 |
 
 ## 尚未确定的决策
 
@@ -100,7 +103,30 @@
 - **H7 blockingScope**：real Provider calls、real credential/secret use、real-data/provider evaluation、
   Provider enablement、REL-04 和 R1 advancement；H7 仍 `OPEN`，R1 Quality Gate 仍
   `BLOCKED / NOT_READY`。
+- **后续状态（2026-09-01）**：H7 已由 Dada 明确关闭；上述生产使用、Provider enablement、REL-04 和 R1
+  advancement 仍需独立授权，不因 H7 关闭自动放行。
 - **安全边界**：H7、用户最终确认、Provider output 不直写业务表、credential 隔离和不可降低安全阈值
   均不因本决策而放宽。
 - **关联文件**：`docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md`、
   `tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`。
+
+### DEC-143 / ADR-029：AI 预算自然月观察与临时不设金额上限
+
+- **状态**：`Accepted / Temporary`；Dada 于 2026-09-01 明确确认。
+- **决策**：统计周期按 `Asia/Shanghai` 自然月；当前不配置固定金额 warning/hard ceiling，不因金额累计触发
+  `BUDGET_BLOCKED`；继续保留现有规范化 token/provider/model/状态/时间元数据。
+- **边界**：不计算费用、不新增费用账本或管理端报表；现有正式写入确认、失败输入保留、Provider credential 隔离、
+  feature flag 和其他不可降低安全阈值不变。
+- **影响**：当前没有金额超支保护，不能宣称生产预算 enforcement 已完成；正式生产启用前需重新决定费率、告警、
+  hard limit、重试计费和并发原子性。
+- **关联文件**：`docs/adr/ADR-029-ai-budget-calendar-month-observation.md`、
+  `apps/api/src/ai/ai-budget-gate.ts`。
+
+### DEC-144：H7 人工门禁关闭
+
+- **状态**：`CLOSED`；Dada 于 2026-09-01 明确关闭。
+- **依据**：已归档的 DeepSeek 本机受控评估、提示词补强回归、`case-146` 三次复测、正式写入隔离、Provider 条款复核、
+  当前阶段 Provider/结果确认及 ADR-029 临时预算策略。
+- **边界**：H7 关闭只完成 PR20 的人工验证门禁，不授权生产 Provider、真实用户/生产数据评测、Provider enablement、
+  REL-04、R1 advancement、提交、推送、PR、合并或部署。
+- **关联文件**：`docs/43-pr20-h7-live-provider-validation.md`、`.project/v15-execution-state.md`、`PROJECT_STATUS.md`。
