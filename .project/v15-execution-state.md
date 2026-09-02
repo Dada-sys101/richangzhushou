@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-02T17:31:24+08:00
+updatedAt: 2026-09-02T17:47:39+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -35,7 +35,7 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is r
 - displayName: R1 Quality Gate
 - branch: codex/v15-v2-ui-visual-freeze
 - baseHead: 299b1f71debbd5a3140d1ee19f9781372e67134b
-- localHead: b7734d093072c400ca9ae9d44b60abb95a45a725（release candidate after reconciling Integration 299b1f71; worktree clean）
+- localHead: 837e9cd64dab74ced689278ce2cddbdf0ee85bc5（latest state-sync commit; release candidate code head remains merge `b7734d093072c400ca9ae9d44b60abb95a45a725`; worktree clean）
 - contract: PLANS.md R1 Quality Gate / release gate definitions
 - currentGate: H7 CLOSED; R1 Quality Gate BLOCKED / NOT_READY
 - implementation: Web/sync, AI, contract/test and release-operations changes were split into three logical commits (`f7fb90a`, `1545e21`, `d649ad4`), reconciled with Integration without changing the product scope, and pushed as PR #25; the existing private preview was not replaced; the dependency audit remediation candidate remains rejected by SBOM; `REL-01-DECISION-RECORD-01` approved D1-D8 without creating new resources
@@ -48,8 +48,9 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is r
 - executionStatus: BLOCKED
 - deliveryStatus: NOT_READY / PRIVATE_PREVIEW_OPERATIONAL / CANDIDATE_COMMITTED / CANDIDATE_PUSHED / PR_OPEN
 - commits: `f7fb90a08a9f6036a0c5fbce44b674866add88eb`, `1545e213b5a5658d5ecd174f386e779491d53396`, `d649ad4c3afe10f11249ffe7cd4db0e66384c7bd`, merge `b7734d093072c400ca9ae9d44b60abb95a45a725`
-- push: `origin/codex/v15-v2-ui-visual-freeze` updated through `b7734d0`
-- pr: GitHub PR #25 OPEN; quality FAIL, db-validation PASS, browser-qa PASS on run `33614087612` before the conflict-reconciliation rerun
+- push: `origin/codex/v15-v2-ui-visual-freeze` updated through `837e9cd`
+- pr: GitHub PR #25 OPEN and MERGEABLE; final PR-event run `33615692992` has quality FAIL_CLOSED at dependency audit, db-validation PASS and browser-qa PASS
+- stateSyncCommit: `837e9cd64dab74ced689278ce2cddbdf0ee85bc5`; this is documentation-only and is not a reason to create another hash-chasing commit
 - candidateDeployment: NOT_RUN / HELD_BY_R1_QUALITY_GATE; existing private preview remains on `299b1f71`
 
 ## Latest Release Action
@@ -282,7 +283,7 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is r
 - pr20-03aWorktreeCheck: Git worktree registry contains no `pr20-03a` path and `D:\daily-assistant-worktrees\pr20-03a` is absent; no current registered PR20-03A worktree was modified, but the historical path cannot be independently verified from the current filesystem
 - currentLocalValidation: SYNC-API-01 API lint/typecheck/build, API unit 32 files / 277 tests, WP7 real MySQL integration 17 files / 155 tests PASS, OpenAPI/contract tests, Web sync 2 files / 15 tests, Web unit 21 files / 116 tests, WEB-SMOKE-01 full Chromium desktop/mobile smoke 44/44, real two-browser/offline/conflict/isolation/viewport acceptance, current Web lint/typecheck/build, Prettier, `npm run check:context`, and `git diff --check` PASS; root `npm run quality` remains FAIL only at the existing dependency audit for unapproved high/critical `@prisma/adapter-mariadb`, `mariadb` and `mysql2`; release candidate commits are pushed and PR #25 was opened; no candidate deployment was performed
 - releaseCandidateIntegration: merged `origin/codex/v15-integration-foundation` `299b1f71` into the candidate branch to remove PR conflicts; resolved files retain the candidate's verified V2 navigation, planner detail, return-context, offline-sync and simplified UI behavior; duplicate `/records` and `/plan` routes introduced by the automatic merge were removed and the complete quality sequence was rerun
-- releaseCandidateCi: PR #25 run `33614087612` had `db-validation` PASS and `browser-qa` PASS; `quality` FAIL_CLOSED at dependency audit; the post-reconciliation push triggered a fresh CI run, which is the current remote verification in progress
+- releaseCandidateCi: PR #25 final PR-event run `33615692992` and push run `33615690127` both have `db-validation` PASS and `browser-qa` PASS; `quality` FAIL_CLOSED at dependency audit; PR is MERGEABLE but UNSTABLE until the dependency gate is fixed
 - r1ApprovalPackage01Validation: `npm run check:context`, `npm run format:check`, and `git diff --check` PASS; no business, database, browser, dependency-audit, SBOM, license, deployment, or resource tests were repeated in this document-only task
 - dependencyAuditReview: candidate Prisma 7.10.0 plus patched transitive versions was rejected because npm SBOM marked exact Prisma dependency declarations invalid; candidate was reverted; final `npm ls` is valid, governance is 14/14, SBOM generation/validation is PASS with 1044 components, license inventory is PASS with 1163 packages, and `npm run audit:dependencies` remains fail-closed; evidence is `docs/44-r1-dependency-audit-review.md`
 - h7CurrentValidation: focused DeepSeek adapter test 1 file / 6 tests, API lint/typecheck/unit/build PASS; post-hardening local synthetic evaluation `h7-adr027-fixed-v1` 200 total with 199 schema-valid (99.5%), effect proxy 199/200, one retained-input `SCHEMA_INVALID` failure and client p95 1644 ms; case-146 targeted regression 3/3 PASS; formal business write isolation PASS; H7 CLOSED by Dada on 2026-09-01; no commit/push/PR/deploy was created

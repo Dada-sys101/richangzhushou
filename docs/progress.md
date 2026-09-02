@@ -1,6 +1,6 @@
 # 项目进度（派生摘要）
 
-> 当前发布候选：`b7734d0`（PR #25，已提交/已推送，尚未部署）；Integration `299b1f71` 的私有预览继续运行。PR #25 的 `db-validation`、`browser-qa` 已通过，`quality` 仍在依赖审计处 fail-closed。后续新功能另开分支/PR。
+> 当前发布候选代码：`b7734d0`（PR #25，已提交/已推送，尚未部署）；最新状态同步提交为 `837e9cd`。Integration `299b1f71` 的私有预览继续运行。PR #25 最终 PR-event CI run `33615692992` 的 `db-validation`、`browser-qa` 已通过，`quality` 仍在依赖审计处 fail-closed。后续新功能另开分支/PR。
 
 updatedAt: 2026-09-02 17:31 +08:00
 

@@ -1,6 +1,6 @@
 # Project Status
 
-updatedAt: 2026-09-02T17:31:24+08:00
+updatedAt: 2026-09-02T17:47:39+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -18,6 +18,7 @@ production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / FORMAL_PREVIEW_BASELINE / PUBLIC_NOT_READY
 privatePreviewRelease: 299b1f71debbd5a3140d1ee19f9781372e67134b
 releaseCandidate: b7734d093072c400ca9ae9d44b60abb95a45a725 / PR #25 OPEN / NOT_DEPLOYED
+stateSyncCommit: 837e9cd64dab74ced689278ce2cddbdf0ee85bc5
 
 ## Completed
 
@@ -61,7 +62,7 @@ R1 依赖审计复核已完成；Prisma 7.10.0/传递依赖候选因 SBOM 将精
 - Root `npm run quality`：FAIL / NOT_GREEN；回滚后依赖树和 SBOM 有效，但 dependency audit 仍 fail-closed，原因包括过期
   `deepmerge-ts` 例外及 Prisma/MariaDB/MySQL2 相关高风险依赖；本轮候选已撤回，最终未留下 package/lockfile 依赖变更。
 - 本轮 release candidate 已提交并推送：`f7fb90a`（Web/同步）、`1545e21`（AI）、`d649ad4`（发布状态/备份运营），合并 Integration 的 `b7734d0`；GitHub PR #25 已创建。
-- PR #25 远端门禁：`db-validation PASS`、`browser-qa PASS`、`quality FAIL_CLOSED`（仅依赖审计）；因此没有绕过门禁发布新代码，Alibaba 私有预览仍运行 `299b1f71`。
+- PR #25 远端门禁（最终 PR-event run `33615692992`）：`db-validation PASS`、`browser-qa PASS`、`quality FAIL_CLOSED`（仅依赖审计）；PR 已可合并但状态为 UNSTABLE，因此没有绕过门禁发布新代码，Alibaba 私有预览仍运行 `299b1f71`。
 - R1 依赖复核：`npm ci`、`npm ls`、治理测试 `14/14`、SBOM 生成/校验（1044 components）和 license inventory（1163 packages）PASS。
 - Real browser smoke：PASS（本地 Web 登录页、刷新、390px 加载、控制台无错误）；此前 mocked API 的 WEB UX 检查不等同于
   SYNC-01 的双浏览器同步验证。

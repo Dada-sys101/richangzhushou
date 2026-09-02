@@ -7,7 +7,7 @@
 
 当前私有预览环境可以继续作为受邀用户使用的正式预览版，服务本身运行正常；本轮已形成可审查的发布候选，但暂不能宣称“正式发布门禁全部通过”，也不能切换公网。真实 iPhone 验证按用户决定跳过，记录为“未验证/已豁免当前私有预览门禁”，不记为通过。
 
-本轮发布候选为 `codex/v15-v2-ui-visual-freeze@b7734d093072c400ca9ae9d44b60abb95a45a725`，由 Web/同步、AI 和发布运营三个逻辑提交组成，并已通过 GitHub PR #25 与 Integration 基线完成冲突收口。PR #25 的 `db-validation`、`browser-qa` 已通过，`quality` 仍在依赖审计处 fail-closed；因此候选尚未部署，服务器继续运行 `299b1f71`。后续新功能不加入 PR #25，另开分支/PR。
+本轮发布候选为 `codex/v15-v2-ui-visual-freeze@b7734d093072c400ca9ae9d44b60abb95a45a725`，由 Web/同步、AI 和发布运营三个逻辑提交组成，并已通过 GitHub PR #25 与 Integration 基线完成冲突收口。最终状态同步提交为 `837e9cd`。PR #25 最终 PR-event CI run `33615692992` 的 `db-validation`、`browser-qa` 已通过，`quality` 仍在依赖审计处 fail-closed；因此候选尚未部署，服务器继续运行 `299b1f71`。后续新功能不加入 PR #25，另开分支/PR。
 
 当前实际剩余的主要技术发布阻塞项只有一项：
 

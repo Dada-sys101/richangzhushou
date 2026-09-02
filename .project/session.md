@@ -16,7 +16,7 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
 - Current gate: `H7 CLOSED; R1 Quality Gate BLOCKED / NOT_READY`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/v15-v2-ui-visual-freeze`
-- Base/HEAD: Integration `299b1f71debbd5a3140d1ee19f9781372e67134b` / release candidate merge `b7734d093072c400ca9ae9d44b60abb95a45a725`
+- Base/release code HEAD: Integration `299b1f71debbd5a3140d1ee19f9781372e67134b` / candidate merge `b7734d093072c400ca9ae9d44b60abb95a45a725`; latest state-sync commit `837e9cd64dab74ced689278ce2cddbdf0ee85bc5`
 - Scope: package the already verified Web/V2 navigation, offline sync, AI prompt/evaluation, contract/test and release-operations changes into a reviewable private-preview candidate, while preserving the closed H7 evidence, current server baseline and future-feature separation
 - Excluded for the remaining gate: real user data, production credential use, Provider expansion, formal business writes, unsupported dependency overrides, automatic exception extension, public switch and candidate deployment while quality is red
 - Commit authorization: `GRANTED_FOR_RELEASE_CANDIDATE_BY_USER`
@@ -100,7 +100,7 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
 - Web sync tests: `PASS`（2 files / 15 tests）。
 - Root `npm run quality`: `FAIL / NOT_GREEN`；回滚后依赖树和 SBOM 有效，但 dependency audit 仍按规则 fail-closed，
   原因包括过期 `deepmerge-ts` 例外及 Prisma/MariaDB/MySQL2 相关高风险依赖；本轮候选已撤回，最终 package/lockfile 无净变更。
-- PR #25 remote checks: `db-validation PASS`、`browser-qa PASS`、`quality FAIL_CLOSED` at the dependency audit; after conflict reconciliation a fresh CI run is pending/ongoing.
+- PR #25 final PR-event run `33615692992`: `db-validation PASS`、`browser-qa PASS`、`quality FAIL_CLOSED` at the dependency audit; PR is MERGEABLE but UNSTABLE.
 - R1 dependency review: `npm ci`、`npm ls`、governance `14/14`、SBOM generation/validation（1044 components）和
   license inventory（1163 packages）`PASS`；`npm run audit:dependencies` `FAIL_CLOSED`。
 - Real browser smoke: `PASS` for local Web login, refresh, page title, console errors and 390px load；此前 WEB UX mocked API
@@ -154,4 +154,4 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
 
 ## Last Updated
 
-2026-09-02 17:31 +08:00
+2026-09-02 17:47 +08:00

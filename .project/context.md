@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-02 17:31 +08:00：在用户明确要求“整理后可以发布”的授权下，将已验证的 Web/V2 导航、离线同步、AI 提示词与评估、契约/测试以及发布运营文档按逻辑拆分为 3 个提交，推送到 `codex/v15-v2-ui-visual-freeze`，并创建 GitHub PR #25。PR 与 Integration `299b1f71` 的 12 个前端冲突已收口，合并提交为 `b7734d0`；没有扩大产品范围，也没有把后续新功能混入发布候选。PR #25 的 `db-validation`、`browser-qa` 通过，`quality` 仍仅在依赖审计处 fail-closed，因此候选代码尚未发布到 Alibaba 私有预览，服务器继续运行 `299b1f71`。此前已完成 `REL-01-DECISION-RECORD-01` 人工决策固化；D1-D8 按推荐值全部批准，REL-01 为 `APPROVED / REL-02_AUTHORIZATION_PENDING`。不兼容的依赖覆盖候选已因 SBOM 失败撤回，最终 package/lockfile 依赖树恢复到复核前状态。此前已完成 `WEB-SMOKE-01` 本地 Web 冒烟修复和真实数据库复验；`PR20 Live Provider Validation` 的本机受控 H7 验证、提示词补强后的
+2026-09-02 17:47 +08:00：在用户明确要求“整理后可以发布”的授权下，将已验证的 Web/V2 导航、离线同步、AI 提示词与评估、契约/测试以及发布运营文档按逻辑拆分为 3 个提交，推送到 `codex/v15-v2-ui-visual-freeze`，并创建 GitHub PR #25。PR 与 Integration `299b1f71` 的 12 个前端冲突已收口，合并提交为 `b7734d0`；没有扩大产品范围，也没有把后续新功能混入发布候选。最终 PR-event CI run `33615692992` 的 `db-validation`、`browser-qa` 通过，`quality` 仍仅在依赖审计处 fail-closed，因此候选代码尚未发布到 Alibaba 私有预览，服务器继续运行 `299b1f71`。最新状态同步提交为 `837e9cd`，仅更新治理/状态文档，不改变候选代码。此前已完成 `REL-01-DECISION-RECORD-01` 人工决策固化；D1-D8 按推荐值全部批准，REL-01 为 `APPROVED / REL-02_AUTHORIZATION_PENDING`。不兼容的依赖覆盖候选已因 SBOM 失败撤回，最终 package/lockfile 依赖树恢复到复核前状态。此前已完成 `WEB-SMOKE-01` 本地 Web 冒烟修复和真实数据库复验；`PR20 Live Provider Validation` 的本机受控 H7 验证、提示词补强后的
 可重复 200 条全量复跑和 `case-146` 三次定向复测，并更新脱敏证据；Dada 已确认暂定 DeepSeek、条款、评估结果
 以及自然月/暂不设金额上限的预算策略，并明确关闭 H7。当前转入 `R1 Quality Gate BLOCKED / NOT_READY`，代码治理尚未完成生产 Provider 正式放行；当前私有预览按用户决定保留 live AI。
 已在 C: 盘之外的 `D:\daily-assistant-runtime` 使用一次性 MySQL 8.4.11 环境完成真实 API 集成验收（17 个文件、155 项通过），
@@ -22,7 +22,7 @@ Web smoke 断言修正，并清理一个未使用测试导入；治理提交 `6a
 - Verified Integration HEAD: `299b1f71debbd5a3140d1ee19f9781372e67134b`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/v15-v2-ui-visual-freeze`
-- Active HEAD: `b7734d093072c400ca9ae9d44b60abb95a45a725`；release candidate is committed, pushed and locally clean; candidate deployment is held by the R1 quality gate
+- Release candidate code HEAD: `b7734d093072c400ca9ae9d44b60abb95a45a725`；latest state-sync commit: `837e9cd64dab74ced689278ce2cddbdf0ee85bc5`；worktree is clean and candidate deployment is held by the R1 quality gate
 - `stash@{0}`: `36039201ec2a4b6100eca4dcb4d77138d35be801`，Gate 1/Gate 2 前后保持不变
 - Staging: `NOT_CREATED`
 - Production: `NOT_DEPLOYED`
@@ -181,7 +181,7 @@ Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环�
 - 私有预览配置复核：环境 `V15_AI_ALLOWED=true`、`V15_LIVE_AI_ALLOWED=true`，数据库 `v15.ai.liveProvider=true`；用户已明确允许当前私有预览保持开启，扩大公网 Provider 使用范围仍需独立授权。
 - Release candidate: `f7fb90a`（Web/同步）、`1545e21`（AI）、`d649ad4`（发布状态/备份运营）及合并 Integration 的 `b7734d0`；分支已推送，GitHub PR #25 OPEN；后续新功能未混入该候选。
 - Governance commit: existing `6adc111...`，已在 Integration ancestry 中；本轮未改写该历史提交。
-- PR #25 checks: `db-validation PASS`、`browser-qa PASS`、`quality FAIL_CLOSED`（仅依赖审计）；候选代码未部署，Alibaba 私有预览仍运行 `299b1f71`。
+- PR #25 checks: final PR-event run `33615692992` has `db-validation PASS`、`browser-qa PASS`、`quality FAIL_CLOSED`（仅依赖审计）；PR is MERGEABLE but UNSTABLE；候选代码未部署，Alibaba 私有预览仍运行 `299b1f71`。
 - PR20 真实用户/生产 Provider、credential/data evaluation、Provider enablement、deploy: `NOT_RUN`；本轮仅授权本机合成数据验证。
 
 ## Recent Changes
