@@ -1,5 +1,12 @@
 # Session End
 
+## 2026-09-03 — R1 依赖门禁增量修复（DONE_PUSHED / QUALITY_STILL_BLOCKED）
+
+- 在不改变业务代码、架构、Prisma/schema/migration 或部署配置的前提下，仅更新 `package-lock.json`：`fast-uri` `3.1.5 -> 3.1.7`、`qs` `6.15.3 -> 6.16.0`。
+- `npm ci`、`npm ls`、治理测试 `14/14`、SBOM（1044 components）和 license inventory（1163 packages）通过；完整 `npm run quality` 通过审计前所有阶段，仅在依赖审计处 fail-closed，当前为 `1 moderate / 5 high`。
+- 本次修复将独立提交并推送到 PR #25；核心 Prisma 依赖链仍未解除，因此未合并、未部署，Alibaba 私有预览继续运行 Integration `299b1f71`。
+- 下一步等待 Prisma 上游兼容修复或正式批准的完整方案，重新通过 audit/SBOM/license/quality 后再合并部署；域名审批、公网 HTTPS 和后续新功能仍按原独立门禁处理。
+
 ## 2026-09-02 — PRIVATE-PREVIEW-RELEASE-CANDIDATE-01（DONE_PUSHED / PR_OPEN / QUALITY_BLOCKED）
 
 - 按用户要求，将当前可发布且已验证的 Web/V2 导航、离线同步、AI 提示词与评估、契约/测试和发布运营文档拆分为 3 个逻辑提交：`f7fb90a`、`1545e21`、`d649ad4`。

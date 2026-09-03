@@ -59,6 +59,9 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
   post-account-close navigation guard, and delete confirmation/exact status assertions.
 - R1 dependency audit review tested Prisma 7.10.0 with patched transitive candidates, rejected the candidate after SBOM reported
   invalid exact dependency declarations, and restored the pre-review tree; evidence is `docs/44-r1-dependency-audit-review.md`.
+- The follow-up dependency recheck made only a compatible `package-lock.json` change: `fast-uri` `3.1.5 -> 3.1.7`
+  and `qs` `6.15.3 -> 6.16.0`. `npm ci`, `npm ls`, governance `14/14`, SBOM and license inventory passed;
+  the full quality sequence still fails closed only at dependency audit, with `1 moderate / 5 high` findings remaining.
 - REL-01 design-only draft records the recommended single-instance Staging topology, private MySQL 8.4/OSS, HTTPS, least privilege,
   synthetic-data policy, cost controls, RPO/RTO, monitoring, deployment and rollback boundaries; cross-document self-review passed and status is `APPROVED / REL-02_AUTHORIZATION_PENDING`.
 - R1-APPROVAL-PACKAGE-01 and `REL-01-DECISION-RECORD-01` completed the document-only decision record; R1 remains `BLOCKED / NOT_READY`, H1/H2 are `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`,
@@ -79,7 +82,9 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
   decisions, index and required derived mirrors listed in the contract.
 - ADR-026/027 normative content is unchanged; PR19 V10 normative scope is unchanged.
 - The earlier R1 contract did not authorize commit/push/PR/merge/deployment; the user explicitly authorized
-  the current release-candidate commits, push, PR creation and Integration conflict reconciliation.
+  the current release-candidate commits, push, PR creation and Integration conflict reconciliation, and this task's
+  scoped lockfile-only remediation commit/push. This does not authorize a quality-gate bypass, unsupported override,
+  exception extension, merge or candidate deployment.
   No quality-gate bypass, candidate deployment, resource creation, production Provider enablement or
   real-user/data evaluation is authorized while the gate is red.
   H7 closure was explicitly authorized and recorded by Dada; the local synthetic Provider call was separately authorized.
@@ -98,11 +103,13 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
 - API unit suite: `PASS`（32 files / 277 tests）；real MySQL integration: `PASS`（17 files / 155 tests）。
 - API-contracts OpenAPI lint and tests: `PASS`（151/151）。
 - Web sync tests: `PASS`（2 files / 15 tests）。
-- Root `npm run quality`: `FAIL / NOT_GREEN`；回滚后依赖树和 SBOM 有效，但 dependency audit 仍按规则 fail-closed，
-  原因包括过期 `deepmerge-ts` 例外及 Prisma/MariaDB/MySQL2 相关高风险依赖；本轮候选已撤回，最终 package/lockfile 无净变更。
+- Root `npm run quality`: `FAIL / NOT_GREEN`；格式、lint、typecheck、test、build、Prisma、OpenAPI 和 migration 均通过，
+  最终仅在 dependency audit fail-closed；锁文件安全补丁后剩余 `1 moderate / 5 high`，原因仍包括过期 `deepmerge-ts`
+  例外及 Prisma/MariaDB/MySQL2 相关依赖。
 - PR #25 final PR-event run `33615692992`: `db-validation PASS`、`browser-qa PASS`、`quality FAIL_CLOSED` at the dependency audit; PR is MERGEABLE but UNSTABLE.
-- R1 dependency review: `npm ci`、`npm ls`、governance `14/14`、SBOM generation/validation（1044 components）和
-  license inventory（1163 packages）`PASS`；`npm run audit:dependencies` `FAIL_CLOSED`。
+- R1 dependency review: lockfile-only `fast-uri`/`qs` patch 后，`npm ci`、`npm ls`、governance `14/14`、SBOM
+  generation/validation（1044 components）和 license inventory（1163 packages）`PASS`；
+  `npm run audit:dependencies` `FAIL_CLOSED`，R1 仍未解除。
 - Real browser smoke: `PASS` for local Web login, refresh, page title, console errors and 390px load；此前 WEB UX mocked API
   flow 的宽度/交互证据不等同于 SYNC-01 cross-browser sync。
 - WEB-SMOKE-01 Playwright Web smoke: `44 passed / 44 tests` across Chromium desktop/mobile；AI Proposal、草稿确认、账号删除、navigation-shell and the remaining smoke suites all passed。
@@ -137,6 +144,8 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
 - No new code deployment was performed; the mixed local worktree remains out of release scope. H1/H2 real-device validation is waived only for
   this private preview and remains unverified. The compatible dependency-owner decision remains required before the formal release gate can advance;
   daily backup/7-day cleanup is active, while cross-location backup and recurring isolated restore remain optional public-operations hardening。
+- The independent lockfile patch clears the `fast-uri`/`qs` findings but does not authorize a Prisma override, exception extension,
+  merge or candidate deployment; the private preview remains on Integration `299b1f71`.
 - REL-01 D1-D8 are `APPROVED`; no new REL-02 resources, credentials, domains, databases or buckets were created. The existing private preview
   server was only verified and backed up; public domain switching remains pending approval.
 
@@ -154,4 +163,4 @@ WAITING / R1-QUALITY-GATE / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIE
 
 ## Last Updated
 
-2026-09-02 17:47 +08:00
+2026-09-03 09:27 +08:00

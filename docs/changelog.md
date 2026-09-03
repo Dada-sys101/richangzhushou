@@ -1,8 +1,15 @@
 # 变更日志（Changelog）
 
 文档版本：1.2
-更新：2026-09-02
+更新：2026-09-03
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
+
+## 2026-09-03 — R1 依赖门禁增量修复（DONE_PUSHED / QUALITY_STILL_BLOCKED）
+
+- 在不改变业务代码、架构、Prisma/schema/migration 或部署配置的前提下，仅更新 `package-lock.json`：`fast-uri` `3.1.5 -> 3.1.7`、`qs` `6.15.3 -> 6.16.0`。
+- `npm ci`、`npm ls`、治理测试 `14/14`、CycloneDX SBOM（1044 components）和 license inventory（1163 packages）通过；完整 `npm run quality` 仅在依赖审计处 fail-closed。
+- `npm audit` 由 `2 moderate / 6 high` 降为 `1 moderate / 5 high`；Prisma 7.9.1 的精确传递依赖链和过期例外仍阻塞 R1，未绕过门禁部署候选。
+- 本次锁文件修复已独立提交并推送到 PR #25；Alibaba 私有预览继续运行 Integration `299b1f71`，后续新功能仍另开分支/PR。
 
 ## 2026-09-02 — PRIVATE-PREVIEW-RELEASE-CANDIDATE-01（DONE_PUSHED / PR_OPEN / QUALITY_BLOCKED）
 

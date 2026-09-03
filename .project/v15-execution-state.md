@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-02T17:47:39+08:00
+updatedAt: 2026-09-03T09:27:14+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -11,7 +11,8 @@ pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: R1 Quality Gate
 executionStatus: BLOCKED
 deliveryStatus: NOT_READY
-currentWork: H7 is closed; Web smoke and real sync evidence are complete locally, while the formal dependency gate remains blocked; the dependency remediation candidate was rejected by SBOM and rolled back; the existing Alibaba private preview at Integration 299b1f71 is operational and has passed release-package, service, health, database, backup and restore checks; the requested daily backup timer with 7-day cleanup is active and verified; current private-preview live AI is retained by explicit user decision; real iPhone evidence is explicitly waived for the current private preview and remains unverified; public domain switching remains pending approval
+currentWork: H7 is closed; Web smoke and real sync evidence are complete locally, while the formal dependency gate remains blocked; the unsupported dependency remediation candidate was rejected by SBOM and rolled back; a later lockfile-only patch removed the independent fast-uri and qs findings without changing package declarations, business code or architecture; the existing Alibaba private preview at Integration 299b1f71 is operational and has passed release-package, service, health, database, backup and restore checks; the requested daily backup timer with 7-day cleanup is active and verified; current private-preview live AI is retained by explicit user decision; real iPhone evidence is explicitly waived for the current private preview and remains unverified; public domain switching remains pending approval
+latestDependencyGateRecheck: 2026-09-03 lockfile-only fast-uri 3.1.5->3.1.7 and qs 6.15.3->6.16.0 patch; npm ci, npm ls, governance 14/14, SBOM 1044 components and license inventory 1163 packages pass; npm audit is reduced to 1 moderate and 5 high findings and the fail-closed R1 gate remains blocked by the Prisma dependency chain and expired exception
 nextCanonicalTask: R1 Quality Gate
 nextCanonicalTaskAfterCompletion: TBD_AFTER_R1_QUALITY_GATE
 openPullRequests: ["#25 OPEN / release: ship verified private-preview improvements"]
@@ -42,7 +43,7 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is r
 - allowedScope: scoped Web smoke remediation and R1 dependency/audit compatibility review required to remove the current quality-evidence blocker, plus the PLANS.md-permitted REL-01 design-only fallback, R1 approval decision pack and state/evidence updates
 - forbiddenScope for the remaining blocked gate: Provider enablement, real user/data evaluation, business writes, unsupported dependency overrides, automatic exception extension, public switch, deployment while quality is red, and changes to ADR-026/027 normative content
 - currentUserAuthorization: the user explicitly authorized this turn's logical commits, push, PR creation and conflict reconciliation for the verified private-preview candidate; this does not authorize bypassing the failed dependency gate
-- validation: Web lint, typecheck, unit tests, build, focused checks and full Web smoke `44/44 PASS` completed against disposable MySQL; post-rollback `npm ls`, governance `14/14`, SBOM generation/validation and license inventory passed; local quality and PR #25 quality fail-closed only at dependency audit; PR #25 `db-validation` and `browser-qa` passed; H7 evidence remains PASS; remote release artifact integrity, service status, health checks, database migration state, backup gzip validation and temporary-database restore all passed
+- validation: Web lint, typecheck, unit tests, build, focused checks and full Web smoke `44/44 PASS` completed against disposable MySQL; the 2026-09-03 lockfile-only patch passed `npm ci`, `npm ls`, governance `14/14`, SBOM generation/validation and license inventory; the full local quality sequence passes every stage through migration validation and fails closed only at dependency audit; PR #25 `db-validation` and `browser-qa` passed; H7 evidence remains PASS; remote release artifact integrity, service status, health checks, database migration state, backup gzip validation and temporary-database restore all passed
 - remaining: obtain a dependency-owner-approved compatible remediation and rerun audit/SBOM/license/quality checks before deploying the candidate; keep broader/public Provider enablement, REL-04 and R1 advancement behind their independent gates; the temporary no-cap budget policy remains an acknowledged risk and is not production budget enforcement; after domain approval, configure the public HTTPS entry and re-run public smoke checks; consider cross-location backup and isolated restore as a later public-operations enhancement
 - evidence: `docs/46-r1-webkit-emulation-validation.md` records the non-formal WebKit simulation; `docs/47-rel-01-staging-architecture-decision.md` and `docs/48-r1-approval-decision-pack.md` record the REL-01 decision; `docs/49-private-preview-release-assessment.md` records the current private preview release, backup/restore evidence and remaining blockers
 - executionStatus: BLOCKED
@@ -60,6 +61,18 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is r
 - deliveryStatus: `DONE_PUSHED / PR_OPEN / QUALITY_BLOCKED`
 - scope: committed the verified web/offline-sync, AI prompt/evaluation, contracts/tests and backup/state documentation changes in logical commits; kept future feature work separate
 - result: PR #25 is open against Integration; merge conflicts were reconciled with Integration `299b1f71`; no new code was deployed because the dependency audit gate remains red
+
+## Latest Dependency Gate Recheck
+
+- id: `R1-DEPENDENCY-AUDIT-SAFE-PATCH`
+- displayName: Safe transitive dependency audit patch
+- branch: `codex/v15-v2-ui-visual-freeze`
+- scope: `package-lock.json` only; no `package.json`, business code, Prisma schema/migration, CI, deployment configuration or architecture change
+- implementation: updated `fast-uri` from `3.1.5` to `3.1.7` and `qs` from `6.15.3` to `6.16.0`; both versions remain within the existing parent ranges and the lockfile remains reproducible
+- validation: `npm ci` PASS; installed `fast-uri@3.1.7` and `qs@6.16.0`; governance `14/14` PASS; SBOM generation/validation `1044 components` PASS; license inventory `1163 packages` PASS; full `npm run quality` passed all stages except the fail-closed dependency audit
+- result: the audit snapshot is reduced from `2 moderate / 6 high` to `1 moderate / 5 high`; the remaining Prisma 7.9.1 exact chain (`@prisma/config`/`deepmerge-ts`, `mariadb`, `mysql2`) and expired exception still block R1
+- deliveryStatus: `DONE_LOCAL / DONE_COMMITTED / DONE_PUSHED / R1_STILL_BLOCKED`
+- deployment: `NOT_RUN / HELD_BY_R1_QUALITY_GATE`; the private preview remains on Integration `299b1f71`
 
 ## Latest Completed Work Package
 
@@ -285,7 +298,8 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is r
 - releaseCandidateIntegration: merged `origin/codex/v15-integration-foundation` `299b1f71` into the candidate branch to remove PR conflicts; resolved files retain the candidate's verified V2 navigation, planner detail, return-context, offline-sync and simplified UI behavior; duplicate `/records` and `/plan` routes introduced by the automatic merge were removed and the complete quality sequence was rerun
 - releaseCandidateCi: PR #25 final PR-event run `33615692992` and push run `33615690127` both have `db-validation` PASS and `browser-qa` PASS; `quality` FAIL_CLOSED at dependency audit; PR is MERGEABLE but UNSTABLE until the dependency gate is fixed
 - r1ApprovalPackage01Validation: `npm run check:context`, `npm run format:check`, and `git diff --check` PASS; no business, database, browser, dependency-audit, SBOM, license, deployment, or resource tests were repeated in this document-only task
-- dependencyAuditReview: candidate Prisma 7.10.0 plus patched transitive versions was rejected because npm SBOM marked exact Prisma dependency declarations invalid; candidate was reverted; final `npm ls` is valid, governance is 14/14, SBOM generation/validation is PASS with 1044 components, license inventory is PASS with 1163 packages, and `npm run audit:dependencies` remains fail-closed; evidence is `docs/44-r1-dependency-audit-review.md`
+- dependencyAuditReview: candidate Prisma 7.10.0 plus patched transitive versions was rejected because npm SBOM marked exact Prisma dependency declarations invalid; candidate was reverted; the later safe lockfile-only patch updated `fast-uri` 3.1.5->3.1.7 and `qs` 6.15.3->6.16.0; `npm ls` is valid, governance is 14/14, SBOM generation/validation is PASS with 1044 components, license inventory is PASS with 1163 packages, and `npm run audit:dependencies` remains fail-closed on 1 moderate and 5 high core findings; evidence is `docs/44-r1-dependency-audit-review.md`
+- dependencyAuditSafePatch: `package-lock.json` only; no package declaration, business code, architecture or deployment change; full `npm run quality` passes every stage except the dependency audit; no candidate deployment was performed
 - h7CurrentValidation: focused DeepSeek adapter test 1 file / 6 tests, API lint/typecheck/unit/build PASS; post-hardening local synthetic evaluation `h7-adr027-fixed-v1` 200 total with 199 schema-valid (99.5%), effect proxy 199/200, one retained-input `SCHEMA_INVALID` failure and client p95 1644 ms; case-146 targeted regression 3/3 PASS; formal business write isolation PASS; H7 CLOSED by Dada on 2026-09-01; no commit/push/PR/deploy was created
 - snapshotRule: GitHub/Git/CI/environment facts override this snapshot; synchronize only at the next legal governance update point without creating a CI loop; the release-candidate commit/push/PR facts above are the current authorized delivery action, while deployment remains held by the red quality gate
 

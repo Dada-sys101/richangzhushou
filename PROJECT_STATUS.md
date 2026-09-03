@@ -1,6 +1,6 @@
 # Project Status
 
-updatedAt: 2026-09-02T17:47:39+08:00
+updatedAt: 2026-09-03T09:27:14+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -19,6 +19,7 @@ privatePreview: OPERATIONAL / FORMAL_PREVIEW_BASELINE / PUBLIC_NOT_READY
 privatePreviewRelease: 299b1f71debbd5a3140d1ee19f9781372e67134b
 releaseCandidate: b7734d093072c400ca9ae9d44b60abb95a45a725 / PR #25 OPEN / NOT_DEPLOYED
 stateSyncCommit: 837e9cd64dab74ced689278ce2cddbdf0ee85bc5
+latestDependencyRemediation: package-lock-only fast-uri 3.1.5->3.1.7 and qs 6.15.3->6.16.0; committed/pushed separately; R1 remains blocked
 
 ## Completed
 
@@ -47,10 +48,10 @@ stateSyncCommit: 837e9cd64dab74ced689278ce2cddbdf0ee85bc5
 测试已同步。WEB-UX-02/03/03.1 与 SYNC-01 的已验证修改已拆分进入 release candidate；未修改 Prisma/数据库 schema 或生产部署配置，工作区已清洁，候选尚未部署。
 当前 PR20 Live Provider Validation 为 `DONE_LOCAL / H7_CLOSED`；H7 已由 Dada 于 2026-09-01 明确关闭。本轮仅使用合成数据，
 `v15.ai.businessWrite=false`，未启用 Provider 或写入正式业务表。完整证据见 `docs/43-pr20-h7-live-provider-validation.md`。
-R1 依赖审计复核已完成；Prisma 7.10.0/传递依赖候选因 SBOM 将精确依赖声明标为 invalid 而撤回，最终 package/lockfile 无净变更，证据见 `docs/44-r1-dependency-audit-review.md`。H1/H2 填写模板见 `docs/45-r1-manual-device-evidence-template.md`。
+R1 依赖审计复核已完成；Prisma 7.10.0/传递依赖候选因 SBOM 将精确依赖声明标为 invalid 而撤回，随后仅对 `package-lock.json` 中的 `fast-uri` 和 `qs` 做了兼容范围内安全更新，核心 Prisma 链仍阻塞，证据见 `docs/44-r1-dependency-audit-review.md`。H1/H2 填写模板见 `docs/45-r1-manual-device-evidence-template.md`。
 随后已在 D: 盘一次性环境中直接运行 WebKit `iPhone 13` 模拟：H1 页面/详情/返回/Back/刷新通过；H2 PWA/Service Worker、离线缓存、离线新增、恢复联网同步及服务端去重通过，但离线重开有 WebKit 资源错误。模拟记录见 `docs/46-r1-webkit-emulation-validation.md`，不替代物理 iPhone 门禁。
 在 R1 仍被阻塞且暂不补充真实记录的前提下，已按 PLANS.md 允许的提前路径形成并完成自检的 REL-01 Staging 设计稿 `docs/47-rel-01-staging-architecture-decision.md`。`REL-01-DECISION-RECORD-01` 已在 `docs/48-r1-approval-decision-pack.md` 固化 D1-D8 推荐值批准；REL-01 为 `APPROVED / REL-02_AUTHORIZATION_PENDING`，不代表资源创建或部署授权。
-已有 Alibaba 私有预览服务器按上述 Integration 基线运行；发布包完整性、服务状态、API/用户端/管理端/Nginx、数据库迁移、受保护备份和临时库恢复校验均通过。真实 iPhone 按用户决定跳过，状态为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`；域名审批和公网入口仍待完成。每日备份定时器已配置为北京时间约 03:30 执行，保留 7 天并自动清理，手动执行和清理逻辑复验通过；跨位置备份和周期性隔离恢复属于公网增强项。用户已明确允许当前私有预览保持 live AI，服务器环境与数据库开关均已开启并与当前决定一致。
+已有 Alibaba 私有预览服务器按上述 Integration 基线运行；发布包完整性、服务状态、API/用户端/管理端/Nginx、数据库迁移、受保护备份和临时库恢复校验均通过。真实 iPhone 按用户决定跳过，状态为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`；域名审批和公网入口仍待完成。每日备份定时器已配置为北京时间约 03:30 执行，保留 7 天并自动清理，手动执行和清理逻辑复验通过；跨位置备份和周期性隔离恢复属于公网增强项。用户已明确允许当前私有预览保持 live AI，服务器环境与数据库开关均已开启并与当前决定一致。当前依赖补丁仅改变锁文件，不改变服务器现有运行版本，候选仍未部署。
 
 ## Validation
 
@@ -59,11 +60,11 @@ R1 依赖审计复核已完成；Prisma 7.10.0/传递依赖候选因 SBOM 将精
 - API lint/typecheck/build：PASS；API unit `32 files / 277 tests` PASS；真实 WP7 MySQL integration `17 files / 155 tests PASS`。
 - API-contracts OpenAPI lint/typecheck/build/tests：PASS；contract tests `151/151`。
 - Prettier、`npm run check:context`、`git diff --check`：PASS。
-- Root `npm run quality`：FAIL / NOT_GREEN；回滚后依赖树和 SBOM 有效，但 dependency audit 仍 fail-closed，原因包括过期
-  `deepmerge-ts` 例外及 Prisma/MariaDB/MySQL2 相关高风险依赖；本轮候选已撤回，最终未留下 package/lockfile 依赖变更。
+- Root `npm run quality`：FAIL / NOT_GREEN；格式、lint、typecheck、test、build、Prisma、OpenAPI 和 migration 均通过，最终仅在 dependency audit fail-closed；锁文件补丁后审计为 `1 moderate / 5 high`，核心 Prisma/MariaDB/MySQL2 依赖和过期例外仍未解除。
 - 本轮 release candidate 已提交并推送：`f7fb90a`（Web/同步）、`1545e21`（AI）、`d649ad4`（发布状态/备份运营），合并 Integration 的 `b7734d0`；GitHub PR #25 已创建。
 - PR #25 远端门禁（最终 PR-event run `33615692992`）：`db-validation PASS`、`browser-qa PASS`、`quality FAIL_CLOSED`（仅依赖审计）；PR 已可合并但状态为 UNSTABLE，因此没有绕过门禁发布新代码，Alibaba 私有预览仍运行 `299b1f71`。
 - R1 依赖复核：`npm ci`、`npm ls`、治理测试 `14/14`、SBOM 生成/校验（1044 components）和 license inventory（1163 packages）PASS。
+- R1 增量依赖复核：`fast-uri` `3.1.5 -> 3.1.7`、`qs` `6.15.3 -> 6.16.0`；`npm ci`、`npm ls`、治理测试 `14/14`、SBOM（1044 components）和 license inventory（1163 packages）PASS；`npm audit` 从 `2 moderate / 6 high` 降为 `1 moderate / 5 high`。
 - Real browser smoke：PASS（本地 Web 登录页、刷新、390px 加载、控制台无错误）；此前 mocked API 的 WEB UX 检查不等同于
   SYNC-01 的双浏览器同步验证。
 - Existing Web smoke：已收口为 `44 passed / 44 tests`（Chromium desktop/mobile，4 workers）；AI Proposal、草稿确认、账号删除和 navigation-shell 均通过。
@@ -100,6 +101,7 @@ R1 依赖审计复核已完成；Prisma 7.10.0/传递依赖候选因 SBOM 将精
 - PR20 Live Provider Validation：DONE_LOCAL / H7_CLOSED；提示词变更后的全量结果达到 provisional schema/effect 目标，
   `case-146` 已 3/3 复测成功；本次暂不设金额上限不提供金额超支保护。
 - R1 依赖门禁仍 BLOCKED：需要依赖负责人批准的兼容上游版本或完整经过供应链审查的正式修复；不能以不兼容 override 或自动延长过期例外代替。
+- 独立锁文件补丁已清除 `fast-uri`/`qs` 审计项，但没有解除 Prisma 依赖链阻塞；候选代码仍不得绕过质量门禁部署。
 - R1 Quality Gate：BLOCKED / NOT_READY。
 - H1/H2：按用户决定跳过真实 iPhone，状态为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`；WebKit 模拟只能作辅助证据，离线重开资源错误保留为已知限制。
 - 自动备份保留与周期性恢复演练：每日备份、7 天清理已配置并复验；跨位置备份与周期性隔离恢复尚未配置，作为公网正式运营增强项。
@@ -108,10 +110,10 @@ R1 依赖审计复核已完成；Prisma 7.10.0/传递依赖候选因 SBOM 将精
 - REL-02/03/04 仍为 BLOCKED / NOT_STARTED，不表示已授权或已完成。
 - REL-01 D1-D8 已按推荐值批准；具体地域/SKU/域名/报价/保留期/readiness 执行记录、R1 通过和独立资源/费用授权未具备，不进入 REL-02。
 - `docs/48-r1-approval-decision-pack.md` 是 `REL-01-DECISION-RECORD-01` 决策记录和 REL-02 执行前清单；REL-01 批准与 REL-02 资源创建授权保持分离。
-- docs/40 为 V1.2；ADR-026/027 normative content、apps、packages、Prisma/migration、CI、环境和 stash 未改。
+- docs/40 为 V1.2；ADR-026/027 normative content、apps、package declarations、Prisma/migration、CI、环境和 stash 未改；本轮仅按授权更新 package-lock 中两项兼容传递依赖。
 
 ## Next
 
 - 当前 canonical task 仍为 `R1 Quality Gate`（`BLOCKED / NOT_READY`）；已有私有预览可继续作为正式预览基线运行。
-- 下一步完成兼容依赖修复并重新通过 audit/SBOM/license/quality；门禁变绿后再合并并部署 PR #25 到现有私有预览并复验。当前私有预览 live AI 和每日备份/7 天清理已按决定与配置对齐，跨位置备份/隔离恢复作为公网增强项；域名审批通过后再切换公网 HTTPS 并复验，扩大公网 Provider 使用范围需另行授权。
+- 下一步完成 Prisma 依赖链的兼容修复并重新通过 audit/SBOM/license/quality；门禁变绿后再合并并部署 PR #25 到现有私有预览并复验。当前私有预览 live AI 和每日备份/7 天清理已按决定与配置对齐，跨位置备份/隔离恢复作为公网增强项；域名审批通过后再切换公网 HTTPS 并复验，扩大公网 Provider 使用范围需另行授权。
 - 真实 iPhone 按用户决定跳过，记录为未验证而非通过；不绕过依赖门禁，不启用生产 Provider，不开放公网注册；后续新功能另开分支/PR，不回写 PR #25。

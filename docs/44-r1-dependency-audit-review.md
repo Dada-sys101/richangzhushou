@@ -1,6 +1,6 @@
 # R1 依赖审计复核记录
 
-复核日期：2026-09-02
+复核日期：2026-09-02；增量复核：2026-09-03
 
 状态：`DONE_LOCAL / CANDIDATE_REJECTED / R1 BLOCKED`
 
@@ -27,8 +27,16 @@
 - `npm run inventory:licenses`：1163 packages；9 项 license metadata 缺失/未解析，25 项需人工复核，不能自动视为法律批准。
 - `npm run audit:dependencies`：按现有审计规则 fail-closed，阻塞原因与基线一致。
 
+## 2026-09-03 增量复核
+
+- 在不改变 `package.json`、业务代码、Prisma/schema/migration、架构或部署配置的前提下，仅更新 `package-lock.json`：`fast-uri` `3.1.5 -> 3.1.7`、`qs` `6.15.3 -> 6.16.0`。
+- 两个版本均落在现有父依赖范围内；重新执行 `npm ci` 和安装版本核对通过，依赖树保持有效。
+- `npm audit` 结果由 `2 moderate / 6 high` 降为 `1 moderate / 5 high`；`fast-uri` 与 `qs` 的审计项已消除。
+- `npm run test:governance`（14/14）、CycloneDX SBOM 生成/校验（1044 components）、license inventory（1163 packages）均通过；完整 `npm run quality` 通过审计前全部阶段，仅在依赖审计处 fail-closed。
+- 剩余阻塞仍是 Prisma 7.9.1 的精确传递依赖链（`@prisma/config`/`deepmerge-ts`、`mariadb`、`mysql2`）及已过期例外；本次补丁不是该核心阻塞的最终解除方案，也未部署候选。
+
 ## 后续门禁
 
 依赖负责人需要在不降低 SBOM、license 和审计完整性的前提下，选择并批准上游兼容版本，或提出经过正式兼容性、供应链和发布审批的修复方案。不得仅通过不兼容的 root override 或自动延长过期例外来关闭门禁。
 
-R1 另外仍等待 H1 的 iPhone Safari 正式记录和 H2 的 iPhone PWA/离线重开正式记录；两项均不能由桌面 Chromium 或 WebKit 结果代替。
+H1/H2 真实 iPhone 正式记录仍未形成；按用户决定，当前私有预览跳过该验证并标记为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`，不能把桌面 Chromium 或 WebKit 结果写成真机通过。

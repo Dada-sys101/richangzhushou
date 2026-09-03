@@ -2,6 +2,8 @@
 
 ## Last Updated
 
+2026-09-03 09:27 +08:00：在不改变 `package.json`、业务代码、架构或部署配置的前提下，完成 `package-lock.json` 的最小依赖安全修复：`fast-uri` `3.1.5 -> 3.1.7`、`qs` `6.15.3 -> 6.16.0`。`npm ci`、`npm ls`、治理测试、SBOM、license inventory 及完整质量流程（依赖审计除外）已复核通过；审计剩余 `1 moderate / 5 high`，R1 仍保持 `BLOCKED / NOT_READY`，候选未部署。
+
 2026-09-02 17:47 +08:00：在用户明确要求“整理后可以发布”的授权下，将已验证的 Web/V2 导航、离线同步、AI 提示词与评估、契约/测试以及发布运营文档按逻辑拆分为 3 个提交，推送到 `codex/v15-v2-ui-visual-freeze`，并创建 GitHub PR #25。PR 与 Integration `299b1f71` 的 12 个前端冲突已收口，合并提交为 `b7734d0`；没有扩大产品范围，也没有把后续新功能混入发布候选。最终 PR-event CI run `33615692992` 的 `db-validation`、`browser-qa` 通过，`quality` 仍仅在依赖审计处 fail-closed，因此候选代码尚未发布到 Alibaba 私有预览，服务器继续运行 `299b1f71`。最新状态同步提交为 `837e9cd`，仅更新治理/状态文档，不改变候选代码。此前已完成 `REL-01-DECISION-RECORD-01` 人工决策固化；D1-D8 按推荐值全部批准，REL-01 为 `APPROVED / REL-02_AUTHORIZATION_PENDING`。不兼容的依赖覆盖候选已因 SBOM 失败撤回，最终 package/lockfile 依赖树恢复到复核前状态。此前已完成 `WEB-SMOKE-01` 本地 Web 冒烟修复和真实数据库复验；`PR20 Live Provider Validation` 的本机受控 H7 验证、提示词补强后的
 可重复 200 条全量复跑和 `case-146` 三次定向复测，并更新脱敏证据；Dada 已确认暂定 DeepSeek、条款、评估结果
 以及自然月/暂不设金额上限的预算策略，并明确关闭 H7。当前转入 `R1 Quality Gate BLOCKED / NOT_READY`，代码治理尚未完成生产 Provider 正式放行；当前私有预览按用户决定保留 live AI。
@@ -23,6 +25,7 @@ Web smoke 断言修正，并清理一个未使用测试导入；治理提交 `6a
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/v15-v2-ui-visual-freeze`
 - Release candidate code HEAD: `b7734d093072c400ca9ae9d44b60abb95a45a725`；latest state-sync commit: `837e9cd64dab74ced689278ce2cddbdf0ee85bc5`；worktree is clean and candidate deployment is held by the R1 quality gate
+- Current dependency remediation: `package-lock.json` only, with `fast-uri` `3.1.7` and `qs` `6.16.0`; it is separate from the release candidate business-code commits and is committed/pushed with the current task; the R1 gate remains held by the Prisma dependency chain
 - `stash@{0}`: `36039201ec2a4b6100eca4dcb4d77138d35be801`，Gate 1/Gate 2 前后保持不变
 - Staging: `NOT_CREATED`
 - Production: `NOT_DEPLOYED`
@@ -65,6 +68,7 @@ Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环�
 - Excluded for the remaining blocked gate: Provider enablement, real user/data evaluation, formal business writes, unsupported dependency overrides, automatic exception extension, public switch, deployment while quality is red, and changes to ADR-026/027 normative content
 - Commit authorization: `GRANTED_FOR_RELEASE_CANDIDATE_BY_USER`
 - Result: PR20 local validation is `DONE_LOCAL / H7_CLOSED`; the redacted evidence, current-stage DeepSeek decision, terms/results acceptance and ADR-029 temporary budget policy are recorded; the R1 dependency review is `DONE_LOCAL / CANDIDATE_REJECTED`; the verified implementation and operations documentation are committed and pushed in PR #25, while deployment is held by the red quality gate
+- Dependency recheck: the safe `package-lock.json`-only update removed the independent `fast-uri` and `qs` audit findings; `npm ci`, `npm ls`, governance, SBOM, license inventory and all non-audit quality stages pass, but the core Prisma-related audit findings remain and R1 is still blocked
 - Next: obtain a dependency-owner-approved compatible remediation and rerun the formal audit/SBOM/license/quality checks; if green, merge and deploy the candidate to the existing private preview and re-run preview smoke checks; the existing daily backup/7-day cleanup is active, while cross-location backup and a recurring isolated restore drill remain optional public-operations hardening; after domain approval, configure the public HTTPS entry and rerun public smoke checks; broader/public Provider enablement、REL-04 和 R1 advancement 仍按独立发布门禁执行；ADR-029 的暂时无金额上限策略不等于生产预算 enforcement
 - Review package: `R1-APPROVAL-PACKAGE-01` is `DONE_LOCAL / UNCOMMITTED / APPROVED`; `REL-01-DECISION-RECORD-01` and the REL-02 preflight checklist are recorded in `docs/48-r1-approval-decision-pack.md` without changing the R1 gate
 
@@ -104,7 +108,7 @@ Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环�
 - DeepSeek 官方公开条款已查阅，Dada 已接受当前阶段使用该条款作为决策输入；正式上线仍须遵循组织隐私与发布审查流程。
 - R1 Quality Gate 保持 `BLOCKED / NOT_READY`（当前私有预览已按正式预览基线运行）；H7 已 `CLOSED`；REL-02/03/04 保持
   `BLOCKED / NOT_STARTED`，不表示已授权或已完成。
-- R1 依赖审计复核已完成：Prisma 7.10.0 与 patched transitive override 候选因 SBOM 精确依赖声明 invalid 被撤回；最终依赖树无净变更，详见 `docs/44-r1-dependency-audit-review.md`。
+- R1 依赖审计复核已完成：Prisma 7.10.0 与 patched transitive override 候选因 SBOM 精确依赖声明 invalid 被撤回；随后仅对 `package-lock.json` 中的 `fast-uri` 和 `qs` 做了兼容范围内安全更新，核心 Prisma 依赖链仍阻塞，详见 `docs/44-r1-dependency-audit-review.md`。
 - H1/H2 真机证据填写模板已补齐：`docs/45-r1-manual-device-evidence-template.md`；按用户决定当前私有预览跳过真实设备验证，状态为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`，未把模拟结果写成真机通过。
 - WebKit `iPhone 13` 本机模拟记录已补齐：H1 流程通过；H2 离线业务闭环通过但离线重开出现 WebKit 资源错误，详见 `docs/46-r1-webkit-emulation-validation.md`。
 - 私有预览发布评估见 `docs/49-private-preview-release-assessment.md`：Integration `299b1f71` 服务、发布包、数据库、备份和恢复校验通过；每日备份、7 天清理已配置并复验；依赖审计和公网切换仍未完成。
@@ -120,6 +124,7 @@ Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环�
 - H7 已 `CLOSED`，本机一次性合成数据评估、当前阶段 Provider/条款/结果和 ADR-029 策略均已获 Dada 明确接受；
   Provider enablement、REL-04 和 R1 advancement 仍是独立后续门禁，PR20 adapter integration 的历史已按 ADR-028 有限归一。
 - R1 Quality Gate `BLOCKED / NOT_READY`。
+- 本轮已通过锁文件最小补丁清除 `fast-uri`/`qs` 两项独立审计发现，但 `@prisma/config`/`deepmerge-ts`、`mariadb`、`mysql2` 仍按审计规则 fail-closed；不得用 override 或自动延长过期例外替代兼容修复。
 - ADR-028 `Accepted`；PR20-03A/#22、PR20-03B/#23 deviation 均 `KEEP_AND_RECONCILE`。
 - 本地 API/契约/Web 定向检查没有额外执行阻塞；API lint/typecheck/unit/build 与 DeepSeek adapter 定向测试均通过；
   根 `npm run quality` 仍在 dependency audit fail-closed；当前审计还受过期 `deepmerge-ts` 例外及 Prisma/MariaDB/MySQL2 相关高风险依赖阻塞；
@@ -148,9 +153,8 @@ Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环�
 - WEB-SMOKE-01 定向收口：Web lint/typecheck/build、unit `21 files / 116 tests`、Prettier、`git diff --check` 均 `PASS`；真实数据库 Chromium desktop/mobile smoke `44/44 PASS`。
 - Prettier、`git diff --check`、`npm run check:context`：`PASS`。
 - R1-APPROVAL-PACKAGE-01 文档自检：`PASS`（仅文档/状态镜像变更；未运行业务测试）。
-- 根目录 `npm run quality`：`FAIL / NOT_GREEN`；前置 workspace 检查已执行，最终在 dependency audit fail-closed；
-  当前依赖树为复核前基线，本轮候选已撤回，没有留下依赖文件变更。
-- R1 依赖复核收口：`npm ci`、`npm ls`、治理测试 `14/14`、CycloneDX SBOM 生成/校验（1044 components）和 license inventory（1163 packages）通过；`npm run audit:dependencies` 按现有规则 fail-closed。
+- 根目录 `npm run quality`：`FAIL / NOT_GREEN`；前置 workspace 检查已执行，格式、lint、typecheck、test、build、Prisma、OpenAPI 和 migration 均通过，最终仅在 dependency audit fail-closed；当前安全锁文件补丁不改变业务实现。
+- R1 依赖复核收口：锁文件更新后 `npm ci`、`npm ls`、治理测试 `14/14`、CycloneDX SBOM 生成/校验（1044 components）和 license inventory（1163 packages）通过；审计由 `2 moderate / 6 high` 降为 `1 moderate / 5 high`，`npm run audit:dependencies` 仍按现有规则 fail-closed。
 - Real browser: login/refresh smoke `PASS`；此前 WEB-UX mocked API flow 的 375/390/430/768/1440 检查仍为前置证据，
   不等同于 SYNC-01 双浏览器验证。
 - Database-backed API integration：`PASS`（17 files / 155 tests）；Web database-backed full smoke：`44 passed / 44 tests`（Chromium desktop/mobile，4 workers）。
@@ -199,6 +203,7 @@ Shrink 为 R3。`PLANS.md` 是 canonical 任务定义；Git/GitHub/CI/实际环�
 - PR20 H7 follow-up：禁止模糊输入生成占位标题，追加 3 条真实 Provider 定向回归；提示词变更后的
   `h7-adr027-fixed-v1` 完整评估已重跑，schema/effect provisional targets 达标，`case-146` 另行 3/3 复测通过。
 - R1 依赖审计复核：评估 Prisma 7.10.0 与修复版传递依赖候选；因 npm SBOM 将 Prisma 精确传递依赖标记为 invalid 而撤回，恢复原依赖树并记录 `docs/44-r1-dependency-audit-review.md`。
+- R1 增量依赖修复：仅更新 `package-lock.json` 的 `fast-uri` `3.1.5 -> 3.1.7` 与 `qs` `6.15.3 -> 6.16.0`；依赖树、SBOM 和 license 检查通过，核心 Prisma 审计阻塞仍保留。
 - R1 WebKit 模拟验收：新增 `docs/46-r1-webkit-emulation-validation.md`；记录 H1/H2 模拟结果、离线重开资源错误和不替代真机的边界。
 - WEB-SMOKE-01：修复本地 E2E AI gate、草稿返回 query、账号关闭后的 unsaved guard、删除原生确认和严格状态选择器；完整 smoke 由 22/44 提升为 44/44。
 - Accepted ADR-028 as `Accepted`, with both deviations set to `KEEP_AND_RECONCILE`.
@@ -216,16 +221,18 @@ ADR-029 的无金额上限策略不等于生产预算 enforcement。后续新功
 
 本轮已获用户明确授权 commit、push、PR、冲突收口及可发布候选整理；依赖门禁未通过前不执行候选部署、不绕过质量门禁。
 
+本轮新增的依赖处理仅是已提交并推送的锁文件安全更新；下一步仍需等待 Prisma 上游兼容版本或经正式批准的完整修复，再重跑全部供应链门禁。
+
 ## Important Constraints
 
 - H7 was explicitly closed by Dada on 2026-09-01 based on the recorded local evidence. Real user data,
   production credential use, Provider enablement and deployment remain separately unauthorized.
 - Formal business writes still require final user confirmation; Provider output cannot directly
   write business tables.
-- Do not modify ADR-026/027 normative content, docs/42, apps, packages, CI workflow, package/lockfile,
-  Prisma/migration or environment files; docs/40 V1.2 is limited to the approved ADR-028 amendment.
-- Do not commit, push, create/update PR, mark Ready, merge, rebase, reset, cherry-pick, force,
-  deploy, create resources or mutate `stash@{0}`.
+- Do not modify ADR-026/027 normative content, docs/42, apps, packages, CI workflow, Prisma/migration or
+  environment files; the current task is the explicitly authorized exception for the two compatible lockfile
+  updates recorded above. Docs/40 V1.2 remains limited to the approved ADR-028 amendment.
+- For this task, the user's explicit authorization covers the scoped `package-lock.json` remediation and one independent commit/push for PR #25. It does not authorize unsupported overrides, automatic exception extension, marking Ready, merging, rebasing, resetting, cherry-picking, force operations, deployment, resource creation or mutation of `stash@{0}`.
 
 ## Handoff Instructions
 
