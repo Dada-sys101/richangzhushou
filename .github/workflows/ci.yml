@@ -24,8 +24,13 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Pin npm toolchain
+        run: |
+          npm install --global npm@11.18.0
+          test "$(npm --version)" = "11.18.0"
+
       - name: Install locked dependencies
-        run: npm ci
+        run: npm run install:locked
 
       - name: Generate Prisma client
         run: npm run prisma:generate --workspace @daily-assistant/api
@@ -87,8 +92,13 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Pin npm toolchain
+        run: |
+          npm install --global npm@11.18.0
+          test "$(npm --version)" = "11.18.0"
+
       - name: Install locked dependencies
-        run: npm ci
+        run: npm run install:locked
 
       - name: Generate Prisma client
         run: npm run prisma:generate --workspace @daily-assistant/api
@@ -147,8 +157,13 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Pin npm toolchain
+        run: |
+          npm install --global npm@11.18.0
+          test "$(npm --version)" = "11.18.0"
+
       - name: Install locked dependencies
-        run: npm ci
+        run: npm run install:locked
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium

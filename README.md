@@ -29,10 +29,14 @@ Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基
 
 ## 本地开发
 
-要求 Node.js 24、npm 11，以及需要验证真实 migration 时使用的 MySQL 8.x。
+要求 Node.js 24、项目固定的 npm 11.18.0，以及需要验证真实 migration 时使用的 MySQL 8.x。
+仓库通过 `packageManager`、精确 npm engine 和 `.npmrc` 的 `engine-strict` 拒绝其他 npm 版本；
+请使用隔离方式安装/调用 npm 11.18.0，不要为本项目修改系统全局 npm。CI 会在安装依赖前固定并核验该版本。
+安装脚本采用精确版本 allowlist。统一入口 `npm run install:locked` 会先以 `--ignore-scripts` 安装，
+再 fail-closed 检查不存在未审阅脚本，最后才执行 allowlist 中的脚本；出现新的或版本变化的安装脚本时不会进入 rebuild。
 
 ```powershell
-npm ci
+npm run install:locked
 Copy-Item apps/api/.env.example apps/api/.env
 npm run dev --workspace @daily-assistant/api
 npm run dev --workspace @daily-assistant/web
