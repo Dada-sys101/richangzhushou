@@ -1,8 +1,35 @@
 # 变更日志（Changelog）
 
+## 2026-09-08 — Prisma override 正式兼容性验证（FORMAL_COMPATIBILITY_VERIFIED_LOCAL）
+
+- 本地形成 Prisma 7.9.1 + 精确 patched overrides + npm 11.18.0 候选，清空过期安全例外并补充 fail-closed audit/SBOM 回归测试。
+- clean install、依赖树、audit 0、两类 SBOM、license、quality、MySQL 8.4.11 真实集成 18/160 和真实数据库 Chromium smoke 44/44 通过。
+- 未提交、推送、修改 PR、运行新候选 CI 或部署；人工 license 与远程 TLS/网络路径仍待后续审批和验证，R1 保持 `BLOCKED / NOT_READY`。
+
+## 2026-09-07 — 执行规则本地同步（DONE_LOCAL / UNCOMMITTED）
+
+- 根据用户要求，将共享审阅对话中的规则澄清落实到本地 AGENTS.md、PLANS.md 与 tasks/PR19.md：常规本地任务无需独立契约，只读任务无需写状态，按影响范围验证，已有有效授权不重复申请，历史限制保持原适用范围。
+- 保留提交、推送、PR、合并、迁移、真实服务与部署的独立授权及完整集成/发布门禁。R1 仍为 BLOCKED / NOT_READY；未修改依赖、业务、数据库或部署配置。
+- 核查个人 deepseek-direct-worker 和 product-architecture-planner 的相关规则：已支持范围内自主执行，固定 Git 操作保护无需放宽；未修改个人技能或系统/插件技能，也未调用 DeepSeek。
+- 原有 12 份未提交文档修改保留；本次只新增规则与进度记录，不创建提交、不推送。下一项建议仍是独立 override/SBOM 最小复现调查。
+- 验证：Prettier、npm run check:context 与 git diff --check 均通过；没有重跑业务测试或完整 quality，现有 PR #25 quality 失败、db-validation/browser-qa 成功不因规则调整改变。
+
 文档版本：1.2
 更新：2026-09-03
 说明：根目录 `CHANGELOG.md` 与本文件保持同步；本文件是后续模型接手的标准变更入口。
+
+> 本文件按日期记录历史事实；旧条目的门禁、commit 和部署状态不代表当前状态，当前执行事实以 `PLANS.md` 与 `.project/v15-execution-state.md` 为准。
+
+## 2026-09-03 — R1-STABLE-PRISMA-MATCH-RECHECK（BLOCKED / NOT_READY）
+
+- 重新验证 npm registry 后确认，稳定 Prisma 匹配版本为 `7.10.0`，但其精确传递依赖仍为 `deepmerge-ts@7.1.5`、`mariadb@3.4.5`、`mysql2@3.15.3`；修复版本不能自然解析，Prisma `8.0.0-rc.12` 为预发布且没有完整配套稳定组合。
+- `npm ci`、`npm ls`、SBOM、license、治理通过；`npm audit` 为 `1 moderate / 5 high`，`npm run audit:dependencies` 与 `npm run quality` fail-closed，`npm run audit` 脚本不存在。未改依赖、未运行 CI、未部署候选，R1 继续阻塞。
+
+## 2026-09-03 — PRIVATE-PREVIEW-FORMAL-STANDARD-RECONFIRMATION（BLOCKED / NOT_READY）
+
+- 根据用户最新要求，私有预览版与正式版使用同一发布标准；现有 Alibaba Integration `299b1f71` 仅保留为运行基线，不视为已通过正式预览门禁。
+- 复核确认稳定 Prisma `7.10.0` 仍精确锁定未通过审计的 `deepmerge-ts`、`mariadb`、`mysql2` 版本；Prisma 8 仍为 RC，且配套客户端/适配器不完整。本轮未采用预发布版本、依赖覆盖或临时例外，也未部署候选。
+- `npm run audit:dependencies` 继续 fail-closed，PR #25 的 `db-validation`、`browser-qa` 通过而 `quality` 失败；待取得稳定兼容修复并完成全量门禁后再发布预览版本。
 
 ## 2026-09-03 — R1 依赖门禁增量修复（DONE_PUSHED / QUALITY_STILL_BLOCKED）
 
@@ -618,3 +645,51 @@
 
 - 完成产品范围、页面流程、业务规则、管理权限、数据模型、API、架构、安全、UI、测试、部署、风险与开发交接文档。
 - 将 V1.0 拆分为 WP1–WP8；保留产品名称、远端仓库、供应商、部署地域与数据保留政策为未决项。
+
+## 2026-09-08 — Prisma candidate delivery authorization
+
+- 用户明确授权继续候选提交、推送及 CI；不包含 merge、部署或 R1 门禁关闭。
+- 本次交付仅包含 15 个已审阅的依赖、工具链、安装治理、CI、测试及 README 文件；原有 15 个混合 Markdown 修改保留本地，不混入候选提交。
+- 提交前治理测试 30/30、git diff --check 与 staged diff 检查通过。许可证人工结论和发布环境证据仍待完成。
+- Delivery: DONE_COMMITTED / DONE_PUSHED / CI_PASS；commit 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e，parent 1b8354575cc195584af5ee3b1fe8882eda8c3bdd；PR #25 已自动更新；PR CI 34181552275、push CI 34181550054 均 SUCCESS；各自 quality、db-validation、browser-qa 全部 PASS。此条覆盖前文候选 UNCOMMITTED / CI_NOT_RUN 的历史快照；R1 仍 BLOCKED / NOT_READY。
+
+## 2026-09-08 — PR25 merge and scoped license decision
+
+- 用户明确接受本次许可证处理方案：保留第三方许可证和版权声明，不修改第三方库源码，按实际交付内容核对工具链组件；对外分发后端包/容器或修改库时重新评审。此为当前范围的人工决定，不是对任意未来分发的法律批准。
+- 用户独立授权合并 PR #25；已匹配 candidate HEAD 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e，并核验 PR/push 两轮 quality、db-validation、browser-qa 全绿。
+- PR #25 于 2026-09-08T03:00:13Z MERGED；merge commit 6515b8fd0f13969a0e434d3d8223f60a82cb0310，远端 codex/v15-integration-foundation HEAD 已一致核验。Candidate delivery: DONE_INTEGRATION。合并后 CI 34181985716 SUCCESS，quality、db-validation、browser-qa 全部 PASS：https://github.com/Dada-sys101/richangzhushou/actions/runs/34181985716 。
+- 本记录覆盖前文 PR_OPEN、候选 UNCOMMITTED/CI_NOT_RUN 和 LICENSE_APPROVAL_PENDING 的历史快照；本地原有 15 个混合 Markdown 修改保留，当前工作分支不切换，不额外提交记录。
+- R1 仍 BLOCKED / NOT_READY：实际发布包许可证声明、目标环境差异与部署验收尚未完成。本次未授权或执行部署、真实数据库迁移、公网切换或发布门禁关闭。
+
+## 2026-09-08 — Release bundle preparation
+
+- 基于已合并且 CI 全绿的 6515b8fd0f13969a0e434d3d8223f60a82cb0310，在 D:/daily-assistant-release-6515b8f 导出精确源码并完成独立 npm 11.18.0 安装（audit 0）、Prisma generate、全部 workspace build/PWA、SBOM 1043 components 校验和许可证清单。
+- 准备包：D:/daily-assistant-release-6515b8f/daily-assistant-6515b8f-preparation.tar.gz；说明与逐文件校验：bundle/RELEASE-README.md、bundle/SHA256SUMS.txt。LOCAL_BUNDLE_PREPARED / TARGET_ENVIRONMENT_UNVERIFIED / NOT_DEPLOYED。
+- 许可证原文收集覆盖 Windows 已安装包中的 1051/1083；32 包无顶层许可证文件，不能推定无许可或替换通用文本。Linux 原生依赖未打包，最终 Linux 包须按锁文件重建并核对实际交付 notices。
+- 相比原服务器基线 299b1f71，Prisma schema/migrations 无变化。未操作服务器、读取真实凭据、执行数据库迁移或部署。下一步只读核对目标路径、Node/npm、数据库实际 transport、代理和备份；不要为未使用的 TLS/代理构造额外门禁。
+- 原有 15 个 Markdown 修改保留，当前源码包不含它们；本次无新提交或推送。R1 保持 BLOCKED / NOT_READY。
+## 2026-09-08 — 私有预览部署暂停（切换前）
+
+- `6515b8f` 部署准备仅写入远端源码 artifact、隔离 release preparing 目录及其 npm 11.18.0 工具；没有进入发布切换。
+- 因 SSH banner exchange 持续超时而暂停；站点/API 保持 200。未执行 symlink 切换、服务重启、migration、域名或功能开关变更，R1 保持阻塞。
+
+## 2026-09-08 — 私有预览部署与业务 smoke 完成
+
+- Integration `6515b8f` 已部署；Linux audit/SBOM/build、API/Web/Admin 入口及真实业务 smoke 通过。
+- 登录、首次改密、待办、日程、账单与刷新持久化通过，浏览器阻塞错误为 0。
+- 一次性测试用户及级联数据清理为 `deleted=1 / remaining=0`；临时凭据已删除，服务保持健康。
+
+## 2026-09-08 — R1/readiness 门禁归一
+
+- 确认 readiness 实现属于已批准 REL-01 D7 下的 REL-03 工作，不倒置为 REL-02 前置阻塞；当前私有预览保留启动前数据库检查、liveness 和业务 smoke 组合证据。
+- 已完成的依赖、许可证当前范围决定、CI、部署和业务 smoke 从当前阻塞清单移除。R1 仍等待 H1/H2 豁免是否覆盖 advancement 的人工决定；REL-02 资源/费用、公网入口和后续发布门禁保持独立。
+
+## 2026-09-08 — R1 Quality Gate 获批
+
+- 用户明确批准 H1/H2 对本次 R1 advancement 豁免；状态为 `WAIVED_FOR_R1 / UNVERIFIED`，不记为真机通过。
+- R1 Quality Gate 更新为 `APPROVED / DONE`，canonical task 转为 `REL-02 Authorization / BLOCKED / RESOURCE_FEE_AUTHORIZATION_PENDING`。本决定未授权创建云资源、产生费用、部署 Staging、切公网或扩大 Provider。
+
+## 2026-09-08 — 独立 Staging 豁免
+
+- 用户明确决定取消独立 Staging 资源建设；REL-02 更新为 `CANCELLED / SEPARATE_STAGING_WAIVED`，不新增云资源或费用。
+- 现有 Alibaba 私有预览作为验证环境，canonical task 转为 `REL-03 Private Preview Readiness / READY`。公网、生产、Provider 扩展与未来扩容仍需独立门禁，并在届时重新评估独立 Staging。
