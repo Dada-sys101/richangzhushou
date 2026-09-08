@@ -3,6 +3,12 @@
 任务 ID：`REL-01-DECISION-RECORD-01`
 关联任务：`R1-APPROVAL-PACKAGE-01`
 复核日期：2026-09-02（`Asia/Shanghai`）
+
+> 2026-09-08 当前决定：R1 Quality Gate 已为 `APPROVED / DONE`；H1/H2 为 `WAIVED_FOR_R1 / UNVERIFIED`。用户明确取消独立 Staging 资源建设，REL-02 为 `CANCELLED / SEPARATE_STAGING_WAIVED`，现有 Alibaba 私有预览作为验证环境。下文原 REL-02 资源清单保留为未来重新评估时的参考，不再是当前执行要求。
+
+## 历史决策快照
+
+以下内容记录 2026-09-02 当时的 R1/REL-01 审批状态和原独立 Staging 方案，不代表当前执行状态。
 当前分支：`codex/v15-v2-ui-visual-freeze`
 当前 HEAD：`a75b32f77c3bdeab1d4c4f405ff1ed8187ecdaa8`
 当前远端 Integration HEAD：`299b1f71debbd5a3140d1ee19f9781372e67134b`

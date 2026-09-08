@@ -5,7 +5,7 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前 canonical 任务：`R1 Quality Gate`（`BLOCKED / NOT_READY`；H7 已于 2026-09-01 由 Dada 明确关闭；QUALITY-R1 Governance Reconciliation 已完成 post-write review）
+当前 canonical 任务：`REL-03 Private Preview Readiness`（`READY`；独立 Staging 资源建设已由用户于 2026-09-08 明确豁免，现有 Alibaba 私有预览作为验证环境）
 PR18 Integration：`7caf892022c9bb6833c7316893bfddeb169b7243`（PR #17，历史事实）
 PR19 Integration：`c42c19ecb606893b1384fab4a13af2afb6b9981c`（PR #18，`DONE_INTEGRATION`）
 PR20 Adapter Integration：历史证据为 `d53f84a4ff99208f69d209e98a1d3f07c588d760`（PR #20/#21/#22/#23，`DONE_INTEGRATION`）
@@ -13,10 +13,10 @@ Historical PR18 Integration CI #264：`SUCCESS`
 Latest Integration CI run `33043413216`：`quality` / `db-validation` / `browser-qa` `SUCCESS`；Playwright report upload skipped
 PR19 Contract：`tasks/PR19.md`（`V10 / FROZEN / GPT_ACCEPT`；规范范围未改，历史实现已合入）
 Remote Integration：`299b1f71debbd5a3140d1ee19f9781372e67134b`（2026-08-29 只读重核）；旧 draft worktree 基线不再作为当前事实
-Current Governance Gate：`R1 QUALITY GATE（BLOCKED / NOT_READY；H7 CLOSED）`
+Current Governance Gate：`REL-03 PRIVATE PREVIEW READINESS（READY / EXISTING_ENVIRONMENT）`
 Governance write state：`DONE_INTEGRATION / POST_WRITE_REVIEW_PASS`（commit `6adc111492dcbeb35e79475a3d69f6a63007e5bb`）
 Commit authorization：`NOT_GRANTED`
-Persisted Successor Gate：`R1 QUALITY GATE BLOCKED / NOT_READY；H7 CLOSED`
+Persisted Successor Gate：`REL-03 PRIVATE PREVIEW READINESS READY；REL-02 SEPARATE_STAGING_WAIVED；R1 APPROVED`
 
 ## 1. 版本目标与边界
 
@@ -134,8 +134,8 @@ deliveryStatus: NOT_STARTED | DONE_LOCAL | DONE_COMMITTED | DONE_PUSHED | PR_OPE
 | PR22 | Shrink 准备与回滚演练 | R3 | PR21；对应迁移/清理门禁 |
 | PR23 | 最终 Shrink | R3 | PR22；全部清理资格和独立不可逆授权 |
 | REL-01 | Staging 架构/资源决策冻结 | R1 | V15-CTRL-001；可在基础阶段提前，仅设计不建资源 |
-| REL-02 | 创建 Staging 资源 | R1 | REL-01、R1 Quality Gate、独立资源授权 |
-| REL-03 | 部署、备份、恢复与回滚演练 | R1 | REL-02 |
+| REL-02 | 创建独立 Staging 资源 | R1 | `WAIVED / CANCELLED`：当前规模不新建；未来公开发布、扩容或重要真实数据场景重新评估 |
+| REL-03 | 现有私有预览 readiness、备份、恢复与回滚收口 | R1 | R1；使用现有 Alibaba 私有预览验证环境，不新增云资源 |
 | REL-04 | Staging 真机与真实服务验收 | R1 | REL-03、PR20、H1/H2/H7；真实调用另行授权 |
 | REL-05 | 分阶段封闭试用 | R1 | REL-04 |
 | REL-06 | RC、main/tag 与生产发布 | R1 | REL-05、H1/H2/H7、发布门禁和独立生产授权；不依赖 PR23 |
@@ -148,8 +148,8 @@ deliveryStatus: NOT_STARTED | DONE_LOCAL | DONE_COMMITTED | DONE_PUSHED | PR_OPE
 
 | Gate | 内容 | 当前状态 | blockingScope |
 |---|---|---|---|
-| H1 | iPhone Safari 正式记录 | PARTIAL | R1 |
-| H2 | iPhone PWA/离线重开正式记录 | PARTIAL | R1 |
+| H1 | iPhone Safari 正式记录 | WAIVED_FOR_R1 / UNVERIFIED | R1 豁免已批准；公网/支持声明前重新评估 |
+| H2 | iPhone PWA/离线重开正式记录 | WAIVED_FOR_R1 / UNVERIFIED | R1 豁免已批准；公网/支持声明前重新评估 |
 | H3 | Safari 无痕模式归档 | OBSERVED_NOT_ARCHIVED | 非阻塞限制 |
 | H4 | Android Chrome Smoke | OPEN | Android 正式支持声明 |
 | H5 | iOS 长期存储观察 | OPEN | 非阻塞观察/后续迁移策略 |
@@ -158,12 +158,12 @@ deliveryStatus: NOT_STARTED | DONE_LOCAL | DONE_COMMITTED | DONE_PUSHED | PR_OPE
 | H8 | MPL-2.0 人工评审 | OPEN | Push merge/enable |
 | H9 | PoC 集成评审 | CLOSED | 已满足 |
 
-H1/H2 阻塞 R1；H7 已关闭但不自动授权 Provider enablement；H6/H8 只阻塞 Push；H4 只阻塞 Android 支持声明；H3/H5 必须记录，
+H1/H2 原阻塞 R1，2026-09-08 经用户明确批准对本次 R1 advancement 豁免，但仍为未验证且不能写成真机通过；H7 已关闭但不自动授权 Provider enablement；H6/H8 只阻塞 Push；H4 只阻塞 Android 支持声明；H3/H5 必须记录，
 但不自动阻塞 R1。任何门禁都不得由代码任务自行关闭。
 
 ### 6.2 R1 Quality Gate 与 PR20 两阶段语义
 
-当前 `R1 Quality Gate = BLOCKED / NOT_READY`。H7 已关闭，但不等于 R1 全部条件满足；Integration CI
+当前 `R1 Quality Gate = APPROVED / DONE`。H7 已关闭；H1/H2 经人工决定对本次 R1 advancement 豁免但仍未验证；Integration CI
 run `33043413216` 的绿色结果只证明该提交的代码、数据库校验和浏览器 Smoke job 成功，
 不能替代真实 Provider、真实凭据或真实数据评测证据。`browser-qa` 成功时 Playwright 报告
 上传步骤被跳过，因此不能把 CI 绿灯表述为存在完整浏览器报告。
@@ -184,9 +184,9 @@ real credential/secret use、real-data/provider evaluation、Provider enablement
 仍不得由该关闭自动授权。
 该有限解释不追溯性否定已经
 合入 Integration 的 mock-only adapter implementation、injected-transport tests 或 adapter
-integration；H7 已为 `CLOSED`，R1 Quality Gate 仍为 `BLOCKED / NOT_READY`。Dada 已确认当前阶段暂定
+integration；H7 已为 `CLOSED`，R1 Quality Gate 已于 2026-09-08 更新为 `APPROVED / DONE`。Dada 已确认当前阶段暂定
 DeepSeek、接受条款和本机 provisional schema/effect 评估结果；生产 Provider enablement 与发布配置仍须遵循独立门禁。
-REL-02、REL-03、REL-04 继续为 `BLOCKED / NOT_STARTED`，没有资源、部署或真实服务授权。
+此处原始门禁快照已被 2026-09-08 决策覆盖：R1 为 `APPROVED / DONE`，REL-02 为 `CANCELLED / SEPARATE_STAGING_WAIVED`，REL-03 使用现有私有预览环境。
 PR20-03A/#22 与 PR20-03B/#23 的 historical deviation 均为 `KEEP_AND_RECONCILE`。
 
 ### 6.1 AI-DECISION-001 两层冻结
@@ -358,7 +358,7 @@ mergeGate:
 - **允许修改**：ADR-028、task contract、治理状态文件、决策登记、索引和必要的派生状态镜像。
 - **批准写入**：ADR-028 `Accepted`；PR20-03A/#22 和 PR20-03B/#23 deviation 均
   `KEEP_AND_RECONCILE`；PR20 Adapter Integration `DONE_INTEGRATION`；PR20 Live Provider
-  Validation `DONE_LOCAL / H7_CLOSED`；docs/40 V1.2；H7 `CLOSED`；R1 Quality Gate `BLOCKED / NOT_READY`。
+  Validation `DONE_LOCAL / H7_CLOSED`；docs/40 V1.2；H7 `CLOSED`；R1 Quality Gate `APPROVED / DONE`。
 - **仍禁止**：自动 H7 closure、R1 advancement、ADR-026/027 normative change、PR19 V10 scope change、
   真实用户/生产 Provider、credential/data evaluation、Provider enablement、业务代码/Prisma/migration/
   CI/环境/部署、commit/push/PR/merge。
@@ -397,8 +397,8 @@ mergeGate:
 | ID | 目标与范围 | 依赖/授权 | 验证与完成标准 |
 |---|---|---|---|
 | REL-01 | 冻结环境设计、资源选择、成本/权限边界、MySQL/OSS/域名、RPO/RTO、部署拓扑 | V15-CTRL-001；仅方案设计，不创建资源 | ADR/拓扑/成本/权限/RPO-RTO 人工批准并更新状态 |
-| REL-02 | 按已批方案创建实际 Staging 资源 | REL-01 + R1 Quality Gate + 独立云资源授权 | 资源清单、最小权限、费用告警、销毁/回收说明；不得触及生产 |
-| REL-03 | 部署 Staging，完成监控、日志、备份、恢复和回滚演练 | REL-02；部署、迁移分别独立授权 | 可重复部署、备份恢复、回滚目标、告警证据 |
+| REL-02 | 独立 Staging 资源建设 | `CANCELLED / SEPARATE_STAGING_WAIVED` | 不创建资源或产生新增费用；未来公网、扩容或重要真实数据场景重新评估 |
+| REL-03 | 现有私有预览 readiness 与发布流程收口 | R1 已批准；使用现有 Alibaba 私有预览 | 轻量 readiness、备份恢复、回滚目标和发布检查证据 |
 | REL-04 | 真机与受控真实服务验收 | REL-03、PR20、H1/H2/H7；真实调用独立授权 | 核心 E2E、隔离、失败恢复、安全和真机记录 |
 | REL-05 | 3→5→约 10 人封闭试用，累计至少 7 个有效日历日 | REL-04；用户/数据范围人工批准 | 每阶段记录明确 commit/版本、人数、问题和退出结论 |
 | REL-06 | 形成 RC，晋级 main/tag，生产发布并观察 | REL-05 + 发布门禁 + 独立生产授权 | main/tag/生产 commit 一致，监控/备份/回滚就绪 |
@@ -456,8 +456,10 @@ AI-DECISION-001 已完成 ADR-027 v1.0 Final Accepted，当前为 `DONE / DONE_I
 
 ## 12. Task Selection Policy
 
-只要 `PLANS.md` 明确存在 `nextCanonicalTask`，GPT/Codex 在核验依赖和门禁后必须执行该任务，
+仅当用户要求继续推进但没有指定目标时，按 `nextCanonicalTask` 核验依赖和门禁后选择任务，
 不得自行重新排序；若该任务被阻塞，不得随机改做其他 READY 任务，除非计划明确 fallback 或人工改序。
+
+用户明确指定任务时执行该任务，遵守适用契约及审批要求；无独立契约的常规本地工作按 AGENTS.md 明确范围后开展，不自动推进其他 canonical 任务或关闭门禁。
 
 优先级：
 
@@ -471,10 +473,10 @@ AI-DECISION-001 已完成 ADR-027 v1.0 Final Accepted，当前为 `DONE / DONE_I
 8. R3。
 
 ```yaml
-currentTask: R1 Quality Gate
-nextCanonicalTask: R1 Quality Gate
-currentGovernanceGate: R1 QUALITY GATE BLOCKED / NOT_READY; H7 CLOSED
-nextCanonicalTaskAfterCompletion: TBD_AFTER_R1_QUALITY_GATE
+currentTask: REL-03 Private Preview Readiness
+nextCanonicalTask: REL-03 Private Preview Readiness
+currentGovernanceGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 APPROVED
+nextCanonicalTaskAfterCompletion: REL-04_REASSESSMENT
 ```
 
 当前交付/执行门禁：PR19 已达到 `DONE / DONE_INTEGRATION`；PR20 adapter integration
@@ -484,13 +486,13 @@ nextCanonicalTaskAfterCompletion: TBD_AFTER_R1_QUALITY_GATE
 的 `quality`、`db-validation`、`browser-qa` 均 SUCCESS；`browser-qa` 报告上传步骤被
 跳过，不能宣称存在完整浏览器报告。
 
-当前 canonical task 已转为 `R1 Quality Gate`（`BLOCKED / NOT_READY；H7 CLOSED`；仓库未发现独立任务契约）。
+当前 canonical task 已转为 `REL-03 Private Preview Readiness`（`READY / EXISTING_ENVIRONMENT`）；R1 Quality Gate 已获批准，独立 Staging 资源建设已由用户明确豁免，现有 Alibaba 私有预览作为验证环境。
 `QUALITY-R1-GOVERNANCE-RECONCILIATION` 已在 commit
 `6adc111492dcbeb35e79475a3d69f6a63007e5bb` 中完成，并经 post-write review；
 ADR-028 为 `Accepted`；
 PR20 live Provider validation 当前为 `DONE_LOCAL / H7_CLOSED`；已有脱敏评测证据并已由 Dada 明确关闭 H7；R1 Quality Gate
-保持 `BLOCKED / NOT_READY`。PR20-03A/#22 与 PR20-03B/#23 的 historical scope deviation
-均为 `KEEP_AND_RECONCILE`。REL-02/03/04 均为 `BLOCKED / NOT_STARTED`，不表示已授权或已完成。
+已于 2026-09-08 更新为 `APPROVED / DONE`。PR20-03A/#22 与 PR20-03B/#23 的 historical scope deviation
+均为 `KEEP_AND_RECONCILE`。REL-02 独立 Staging 已豁免；REL-03 为当前 READY 任务；REL-04 仍未开始。
 本次仅以 ADR-028 对 docs/40 及 PLANS 的 PR20 历史解释作有限 supersede；不修改 ADR-026/027
 normative content 或 PLANS v2.1.1 的其他冻结依赖。本轮未新增 commit、push、PR、merge 或
 Provider enablement；本机合成数据 Provider 调用与 H7 关闭均为用户明确授权的受控动作。
@@ -504,6 +506,8 @@ Remote Integration 已只读核验为 `299b1f71debbd5a3140d1ee19f9781372e67134b`
 
 以下动作均需各自独立批准，一个动作的授权不自动扩展到后续动作：
 
+核验已有授权时识别任务、动作、对象、环境、约束、授权依据及是否已消费；同一有效授权无需重复申请，一次性动作完成后不得复用。历史 `NOT_GRANTED`、契约 metadata 或旧状态字段只描述对应检查点，不自动撤销后续有效授权，也不得把历史授权推广到新对象、新范围或新任务。“继续”“调整”等一般请求不自动授权以下独立动作，已有授权仍须满足其门禁条件。
+
 - commit；push；创建或更新 PR；将 Draft 转 Ready；merge；
 - 创建、修改或删除云资源；执行数据库 migration；
 - 配置或使用真实 AI/Push/OCR/邮件等第三方凭据；
@@ -513,8 +517,8 @@ Remote Integration 已只读核验为 `299b1f71debbd5a3140d1ee19f9781372e67134b`
 
 ## 14. 执行与恢复规则
 
-每次只执行一个任务。开始时读取本规划和 execution-state，再核验 GitHub/Git/CI/环境实时事实；
-输出目标、依赖、允许/禁止范围、涉及文件、验证方式和授权边界。结束时更新实现、测试、文档、状态和证据，
+每次只执行一个任务。按 AGENTS.md 的状态恢复规则读取本规划和 execution-state，并核验任务所依赖的 GitHub/Git/CI/环境事实；
+输出目标、依赖、允许/禁止范围、涉及文件、验证方式和授权边界。结束时按 AGENTS.md 的任务类型与影响范围更新实现、适用验证、文档、状态和证据；只读任务仅报告结论，
 并明确区分本地完成、提交、推送、PR、integration、main、Staging、RC 和发布。
 
 任何结论缺少证据时标记 `待验证`。计划声明不得覆盖代码、测试、CI、PR 或部署事实。
