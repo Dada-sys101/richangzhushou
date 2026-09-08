@@ -648,10 +648,13 @@ export interface SyncChange {
   data: Record<string, unknown>;
 }
 
-export interface SyncChangesResponse {
-  changes: SyncChange[];
-  nextCursor: string | null;
-}
+/**
+ * A non-empty page always advances with an opaque cursor. An empty page is
+ * terminal and is the only response that may return a null cursor.
+ */
+export type SyncChangesResponse =
+  | { changes: []; nextCursor: null }
+  | { changes: [SyncChange, ...SyncChange[]]; nextCursor: string };
 
 export interface SyncMutationRequest {
   clientMutationId: string;

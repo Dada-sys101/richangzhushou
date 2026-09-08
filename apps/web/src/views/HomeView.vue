@@ -5,11 +5,13 @@ import { RouterLink } from "vue-router";
 import AppIcon from "../components/AppIcon.vue";
 import AssistantMark from "../components/AssistantMark.vue";
 import EmptyState from "../components/EmptyState.vue";
+import PageHeader from "../components/PageHeader.vue";
 import { useAuthStore } from "../stores/auth";
 import { useDraftsStore } from "../stores/drafts";
 import { useFinanceStore } from "../stores/finance";
 import { usePlannerStore } from "../stores/planner";
 import { useTripsStore } from "../stores/trips";
+import { appendReturnTo } from "../utils/navigation";
 import {
   formatDateTime,
   formatShanghaiDate,
@@ -61,7 +63,7 @@ const focus = computed(() => {
     return {
       id: overdue.id,
       label: "已逾期",
-      path: "/tasks",
+      path: `/tasks/${overdue.id}`,
       scheduledAt: overdue.dueAt,
       title: overdue.title,
     };
@@ -72,7 +74,7 @@ const focus = computed(() => {
     return {
       id: highPriority.id,
       label: "优先处理",
-      path: "/tasks",
+      path: `/tasks/${highPriority.id}`,
       scheduledAt: highPriority.dueAt,
       title: highPriority.title,
     };
@@ -93,7 +95,7 @@ const attention = computed(() => {
   for (const task of planner.openTasks.filter((item) => item.overdue)) {
     items.push({
       id: `overdue-${task.id}`,
-      path: "/tasks",
+      path: `/tasks/${task.id}`,
       title: task.title,
       type: "逾期待办",
     });
@@ -192,6 +194,9 @@ async function loadHome() {
 function itemKind(kind: string) {
   return kind === "EVENT" ? "日程" : kind === "TASK" ? "待办" : "提醒";
 }
+function withHomeSource(path: string) {
+  return appendReturnTo(path, "/");
+}
 function itemTime(value: string | null) {
   if (!value) return "无截止时间";
   const date = new Date(value);
@@ -252,16 +257,22 @@ function addDays(date: string, days: number): string {
       </div>
     </template>
     <template v-else>
-      <header class="v2-greeting">
-        <div>
-          <h1 id="home-title">{{ greeting }}，{{ auth.user?.displayName }}</h1>
-          <p class="home-date">{{ today }}</p>
-        </div>
-        <AssistantMark size="md" />
-      </header>
+      <PageHeader
+        :title="`${greeting}，${auth.user?.displayName ?? '今天'}`"
+        title-id="home-title"
+        :subtitle="today"
+        :show-back="false"
+      >
+        <template #actions>
+          <AssistantMark size="md" />
+        </template>
+      </PageHeader>
       <div class="home-layout">
         <div class="home-priority-column">
-          <RouterLink v-if="focus" class="focus-card" :to="focus.path"
+          <RouterLink
+            v-if="focus"
+            class="focus-card"
+            :to="withHomeSource(focus.path)"
             ><span class="focus-kicker">{{ focus.label }}</span
             ><strong>{{ focus.title }}</strong
             ><small>{{ itemTime(focus.scheduledAt) }}</small
@@ -272,7 +283,7 @@ function addDays(date: string, days: number): string {
             icon="check"
             title="今天暂时没有待处理事项"
             description="可以记录一个想法，或提前安排接下来的时间。"
-            :action="{ label: '统一录入', to: '/capture' }"
+            :action="{ label: '快速新增', to: withHomeSource('/capture') }"
           />
           <section
             v-if="attention.length"
@@ -287,7 +298,7 @@ function addDays(date: string, days: number): string {
             </div>
             <ul class="attention-list">
               <li v-for="item in attention" :key="item.id">
-                <RouterLink :to="item.path"
+                <RouterLink :to="withHomeSource(item.path)"
                   ><span class="attention-type"><i></i>{{ item.type }}</span
                   ><strong>{{ item.title }}</strong
                   ><small>查看</small></RouterLink
@@ -305,18 +316,20 @@ function addDays(date: string, days: number): string {
               <p class="section-label">今日时间轴</p>
               <h2 id="timeline-title">按时间，把今天排清楚</h2>
             </div>
-            <RouterLink class="text-link" to="/plan">查看计划</RouterLink>
+            <RouterLink class="text-link" :to="withHomeSource('/plan')"
+              >查看计划</RouterLink
+            >
           </div>
           <EmptyState
             v-if="!timeline.length"
             icon="calendar"
             title="今天没有安排"
             description="待办、日程和提醒会在这里合并显示。"
-            :action="{ label: '去计划', to: '/plan' }"
+            :action="{ label: '去计划', to: withHomeSource('/plan') }"
           />
           <ul v-else class="timeline-list">
             <li v-for="item in timeline" :key="`${item.kind}-${item.id}`">
-              <RouterLink :to="item.path"
+              <RouterLink :to="withHomeSource(item.path)"
                 ><time>{{ itemTime(item.scheduledAt) }}</time
                 ><span
                   class="timeline-dot"
@@ -338,7 +351,7 @@ function addDays(date: string, days: number): string {
       <RouterLink
         v-if="activeTrip"
         class="trip-glance-card"
-        :to="`/trips/${activeTrip.id}`"
+        :to="withHomeSource(`/trips/${activeTrip.id}`)"
         ><AppIcon name="trip" :size="22" /><span
           ><small>{{
             activeTrip.startDate <= todayDate ? "行程进行中" : "即将出发"
@@ -348,7 +361,7 @@ function addDays(date: string, days: number): string {
           ></span
         ><AppIcon name="chevron-right" :size="18"
       /></RouterLink>
-      <RouterLink class="home-capture" to="/capture">
+      <RouterLink class="home-capture" :to="withHomeSource('/capture')">
         <span>例如：明天 10 点和李想开会</span>
         <AppIcon name="chevron-right" :size="18" />
       </RouterLink>

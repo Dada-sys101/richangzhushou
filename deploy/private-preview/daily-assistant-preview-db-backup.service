@@ -1,0 +1,15 @@
+[Unit]
+Description=Daily Assistant private preview database backup
+After=mysql.service
+Requires=mysql.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/daily-assistant-preview-db-backup.sh
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/daily-assistant-preview/shared/backups
+TimeoutStartSec=15min

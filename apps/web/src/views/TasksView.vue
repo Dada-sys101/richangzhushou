@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import { RouterLink, useRoute } from "vue-router";
 
 import type { TaskSummary } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { usePlannerStore } from "../stores/planner";
+import { appendReturnTo } from "../utils/navigation";
 import {
   formatDateTime,
   toLocalDateTimeInput,
@@ -12,6 +16,7 @@ import {
 
 const auth = useAuthStore();
 const planner = usePlannerStore();
+const route = useRoute();
 
 const statusFilter = ref<"" | "CANCELLED" | "COMPLETED" | "OPEN">("OPEN");
 const includeDeleted = ref(false);
@@ -31,6 +36,15 @@ const editForm = ref({
   title: "",
   version: 1,
 });
+const editSnapshot = ref("");
+useUnsavedChanges(
+  computed(
+    () =>
+      (Boolean(editingId.value) && taskEditSnapshot() !== editSnapshot.value) ||
+      form.value.title.trim().length > 0 ||
+      Boolean(form.value.dueAt),
+  ),
+);
 
 onMounted(() => {
   if (auth.isAuthenticated) {
@@ -74,6 +88,7 @@ function startEdit(item: TaskSummary) {
     title: item.title,
     version: item.version,
   };
+  editSnapshot.value = taskEditSnapshot();
 }
 
 async function saveEdit(item: TaskSummary) {
@@ -87,13 +102,30 @@ async function saveEdit(item: TaskSummary) {
       version: editForm.value.version,
     });
     successMessage.value = "待办已更新";
-    editingId.value = "";
+    cancelEdit();
     await reload();
   } catch (error) {
     errorMessage.value = messageOf(error);
   } finally {
     saving.value = false;
   }
+}
+
+function cancelEdit() {
+  editingId.value = "";
+  editSnapshot.value = "";
+}
+
+function taskEditSnapshot(): string {
+  return JSON.stringify({
+    dueAt: editForm.value.dueAt,
+    priority: editForm.value.priority,
+    title: editForm.value.title,
+  });
+}
+
+function withTasksSource(path: string) {
+  return appendReturnTo(path, route.fullPath || "/tasks");
 }
 
 async function complete(item: TaskSummary) {
@@ -120,6 +152,13 @@ async function cancel(item: TaskSummary) {
 }
 
 async function remove(item: TaskSummary) {
+  if (
+    !window.confirm(
+      `确定删除待办“${item.title}”吗？删除后仍可在“显示已删除”中恢复。`,
+    )
+  ) {
+    return;
+  }
   errorMessage.value = "";
   try {
     await planner.deleteTask(item.id);
@@ -146,27 +185,25 @@ function messageOf(error: unknown): string {
 
 <template>
   <section class="planner-page" aria-labelledby="tasks-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">待办</p>
-        <h1 id="tasks-title">待办事项</h1>
-      </div>
-      <div class="filters">
-        <label>
-          状态
-          <select v-model="statusFilter">
-            <option value="OPEN">进行中</option>
-            <option value="COMPLETED">已完成</option>
-            <option value="CANCELLED">已取消</option>
-            <option value="">全部</option>
-          </select>
-        </label>
-        <label class="check-label">
-          <input v-model="includeDeleted" type="checkbox" />
-          显示已删除
-        </label>
-      </div>
-    </header>
+    <PageHeader title="待办事项" title-id="tasks-title" subtitle="待办">
+      <template #actions>
+        <div class="filters">
+          <label>
+            状态
+            <select v-model="statusFilter">
+              <option value="OPEN">进行中</option>
+              <option value="COMPLETED">已完成</option>
+              <option value="CANCELLED">已取消</option>
+              <option value="">全部</option>
+            </select>
+          </label>
+          <label class="check-label">
+            <input v-model="includeDeleted" type="checkbox" />
+            显示已删除
+          </label>
+        </div>
+      </template>
+    </PageHeader>
 
     <p v-if="errorMessage" class="form-error" role="alert">
       {{ errorMessage }}
@@ -227,7 +264,7 @@ function messageOf(error: unknown): string {
               <button
                 class="secondary-button"
                 type="button"
-                @click="editingId = ''"
+                @click="cancelEdit"
               >
                 取消
               </button>
@@ -285,6 +322,12 @@ function messageOf(error: unknown): string {
             >
               删除
             </button>
+            <RouterLink
+              class="text-button"
+              :to="withTasksSource(`/tasks/${item.id}`)"
+            >
+              查看
+            </RouterLink>
             <button
               v-if="item.deletedAt"
               class="text-button"

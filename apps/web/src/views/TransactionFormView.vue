@@ -3,9 +3,12 @@ import { computed, onMounted, ref } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 
 import { ApiClientError } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
 import { useTripsStore } from "../stores/trips";
+import { safeReturnTo } from "../utils/navigation";
 
 const route = useRoute();
 const router = useRouter();
@@ -29,6 +32,27 @@ const errorMessage = ref("");
 const successMessage = ref("");
 const duplicateWarning = ref<string | null>(null);
 const submitting = ref(false);
+const returnTarget = computed(() =>
+  safeReturnTo(route.query, route.meta.page?.parent?.path ?? "/"),
+);
+const formSnapshot = computed(() =>
+  JSON.stringify({
+    accountId: accountId.value,
+    amount: amount.value,
+    categoryId: categoryId.value,
+    isUnlinkedRefund: isUnlinkedRefund.value,
+    merchant: merchant.value,
+    note: note.value,
+    occurredAt: occurredAt.value,
+    originalTransactionId: originalTransactionId.value,
+    tripId: tripId.value,
+    type: type.value,
+  }),
+);
+const initialSnapshot = ref(formSnapshot.value);
+const { allowNavigation } = useUnsavedChanges(
+  computed(() => formSnapshot.value !== initialSnapshot.value),
+);
 
 const expenseTransactions = computed(() =>
   finance.transactions.filter((item) => item.type === "EXPENSE"),
@@ -72,6 +96,7 @@ onMounted(async () => {
       isUnlinkedRefund.value = item.isUnlinkedRefund;
       tripId.value = item.tripId ?? "";
       version.value = item.version;
+      initialSnapshot.value = formSnapshot.value;
     } catch (error) {
       errorMessage.value = messageOf(error);
     }
@@ -106,7 +131,9 @@ async function submit() {
       duplicateWarning.value = result.duplicateWarning.message;
     }
     successMessage.value = "账单已保存";
-    await router.replace("/transactions");
+    initialSnapshot.value = formSnapshot.value;
+    allowNavigation();
+    await router.replace(returnTarget.value);
   } catch (error) {
     errorMessage.value = messageOf(error);
   } finally {
@@ -125,8 +152,11 @@ function messageOf(error: unknown): string {
 
 <template>
   <section class="finance-page form-page" aria-labelledby="form-title">
-    <p class="eyebrow">记账</p>
-    <h1 id="form-title">{{ editingId ? "编辑账单" : "记一笔" }}</h1>
+    <PageHeader
+      :title="editingId ? '编辑账单' : '记一笔'"
+      title-id="form-title"
+      subtitle="记账"
+    />
 
     <p v-if="finance.errorMessage" class="form-error" role="alert">
       {{ finance.errorMessage }}
@@ -245,7 +275,7 @@ function messageOf(error: unknown): string {
         <button class="primary-button" :disabled="submitting" type="submit">
           {{ submitting ? "保存中…" : "保存" }}
         </button>
-        <RouterLink class="secondary-button" to="/transactions"
+        <RouterLink replace class="secondary-button" :to="returnTarget"
           >取消</RouterLink
         >
       </div>

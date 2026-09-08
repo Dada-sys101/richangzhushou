@@ -42,7 +42,7 @@ describe("SiteHeader", () => {
       "记录",
       "计划",
       "我的",
-      "统一录入",
+      "快速新增",
     ]);
   });
 
@@ -59,9 +59,10 @@ describe("SiteHeader", () => {
     await wrapper.find(".more-trigger").trigger("click");
     const panel = wrapper.find(".more-panel");
     expect(panel.exists()).toBe(true);
-    for (const label of ["草稿中心", "快捷指令", "AI 助手", "行程"]) {
-      expect(panel.text()).toContain(label);
-    }
+    expect(panel.text()).toContain("草稿中心");
+    expect(panel.text()).not.toContain("快捷指令");
+    expect(panel.text()).not.toContain("AI 助手");
+    expect(panel.text()).not.toContain("行程");
     expect(panel.text()).not.toContain("同步冲突");
 
     document.dispatchEvent(new MouseEvent("click"));

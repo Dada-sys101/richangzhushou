@@ -440,10 +440,9 @@ export interface SyncChange {
   version: number;
 }
 
-export interface SyncChangesResponse {
-  changes: SyncChange[];
-  nextCursor: string | null;
-}
+export type SyncChangesResponse =
+  | { changes: []; nextCursor: null }
+  | { changes: [SyncChange, ...SyncChange[]]; nextCursor: string };
 
 export interface SyncMutationRequest {
   action: SyncAction;
@@ -672,6 +671,17 @@ async function http<T>(
   throw new ApiClientError(401, "UNAUTHORIZED", "登录状态已过期，请重新登录");
 }
 
+async function rereadAfterDelete<T>(path: string): Promise<T | undefined> {
+  try {
+    return await http<T>(path);
+  } catch (error) {
+    if (isOfflineError(error)) {
+      return undefined;
+    }
+    throw error;
+  }
+}
+
 async function refreshAccessTokenOnce(): Promise<boolean> {
   return (await refreshSessionOnce()) !== null;
 }
@@ -839,14 +849,17 @@ export const api = {
   deleteAttachment(id: string) {
     return http<void>(`/attachments/${id}`, { method: "DELETE" });
   },
-  deleteCalendarEvent(id: string) {
-    return http<void>(`/calendar-events/${id}`, { method: "DELETE" });
+  async deleteCalendarEvent(id: string) {
+    await http<void>(`/calendar-events/${id}`, { method: "DELETE" });
+    return rereadAfterDelete<CalendarEventSummary>(`/calendar-events/${id}`);
   },
-  deleteReminder(id: string) {
-    return http<void>(`/reminders/${id}`, { method: "DELETE" });
+  async deleteReminder(id: string) {
+    await http<void>(`/reminders/${id}`, { method: "DELETE" });
+    return rereadAfterDelete<ReminderSummary>(`/reminders/${id}`);
   },
-  deleteTask(id: string) {
-    return http<void>(`/tasks/${id}`, { method: "DELETE" });
+  async deleteTask(id: string) {
+    await http<void>(`/tasks/${id}`, { method: "DELETE" });
+    return rereadAfterDelete<TaskSummary>(`/tasks/${id}`);
   },
   deleteTrip(id: string) {
     return http<void>(`/trips/${id}`, { method: "DELETE" });

@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import { RouterLink, useRoute } from "vue-router";
 
 import type {
   ReminderRecurrence,
   ReminderScheduleType,
   ReminderSummary,
 } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { usePlannerStore } from "../stores/planner";
+import { appendReturnTo } from "../utils/navigation";
 import {
   formatDateTime,
   toLocalDateTimeInput,
@@ -16,6 +20,7 @@ import {
 
 const auth = useAuthStore();
 const planner = usePlannerStore();
+const route = useRoute();
 
 const statusFilter = ref<
   "" | "CANCELLED" | "FAILED" | "SCHEDULED" | "SENT" | "SUPPRESSED"
@@ -49,6 +54,16 @@ const editForm = ref({
   version: 1,
   weekdays: [] as number[],
 });
+const editSnapshot = ref("");
+const emptyReminderSnapshot = reminderFormSnapshot(form.value);
+useUnsavedChanges(
+  computed(
+    () =>
+      (Boolean(editingId.value) &&
+        reminderEditSnapshot() !== editSnapshot.value) ||
+      reminderFormSnapshot(form.value) !== emptyReminderSnapshot,
+  ),
+);
 
 onMounted(() => {
   if (auth.isAuthenticated) {
@@ -112,6 +127,7 @@ function startEdit(item: ReminderSummary) {
     version: item.version,
     weekdays: item.recurrence?.weekdays ? [...item.recurrence.weekdays] : [],
   };
+  editSnapshot.value = reminderEditSnapshot();
 }
 
 async function saveEdit(item: ReminderSummary) {
@@ -127,13 +143,42 @@ async function saveEdit(item: ReminderSummary) {
       version: editForm.value.version,
     });
     successMessage.value = "提醒已更新";
-    editingId.value = "";
+    cancelEdit();
     await reload();
   } catch (error) {
     errorMessage.value = messageOf(error);
   } finally {
     saving.value = false;
   }
+}
+
+function cancelEdit() {
+  editingId.value = "";
+  editSnapshot.value = "";
+}
+
+function reminderEditSnapshot(): string {
+  return reminderFormSnapshot(editForm.value);
+}
+
+function reminderFormSnapshot(source: {
+  dayOfMonth: string;
+  interval: string;
+  note: string;
+  scheduleType: ReminderScheduleType;
+  startsAt: string;
+  title: string;
+  until: string;
+  weekdays: number[];
+}): string {
+  return JSON.stringify({
+    ...source,
+    weekdays: [...source.weekdays].sort((a, b) => a - b),
+  });
+}
+
+function withRemindersSource(path: string) {
+  return appendReturnTo(path, route.fullPath || "/reminders");
 }
 
 async function setStatus(
@@ -153,6 +198,13 @@ async function setStatus(
 }
 
 async function remove(item: ReminderSummary) {
+  if (
+    !window.confirm(
+      `确定删除提醒“${item.title}”吗？删除后仍可在“显示已删除”中恢复。`,
+    )
+  ) {
+    return;
+  }
   errorMessage.value = "";
   try {
     await planner.deleteReminder(item.id);
@@ -266,29 +318,27 @@ function messageOf(error: unknown): string {
 
 <template>
   <section class="planner-page" aria-labelledby="reminders-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">提醒</p>
-        <h1 id="reminders-title">提醒设置</h1>
-      </div>
-      <div class="filters">
-        <label>
-          状态
-          <select v-model="statusFilter">
-            <option value="SCHEDULED">待发送</option>
-            <option value="SENT">已发送</option>
-            <option value="FAILED">发送失败</option>
-            <option value="SUPPRESSED">已抑制</option>
-            <option value="CANCELLED">已取消</option>
-            <option value="">全部</option>
-          </select>
-        </label>
-        <label class="check-label">
-          <input v-model="includeDeleted" type="checkbox" />
-          显示已删除
-        </label>
-      </div>
-    </header>
+    <PageHeader title="提醒设置" title-id="reminders-title" subtitle="提醒">
+      <template #actions>
+        <div class="filters">
+          <label>
+            状态
+            <select v-model="statusFilter">
+              <option value="SCHEDULED">待发送</option>
+              <option value="SENT">已发送</option>
+              <option value="FAILED">发送失败</option>
+              <option value="SUPPRESSED">已抑制</option>
+              <option value="CANCELLED">已取消</option>
+              <option value="">全部</option>
+            </select>
+          </label>
+          <label class="check-label">
+            <input v-model="includeDeleted" type="checkbox" />
+            显示已删除
+          </label>
+        </div>
+      </template>
+    </PageHeader>
 
     <p class="panel-copy">
       V1 提醒仅应用内查看：打开应用即可看到提醒，不会发送系统通知、短信或邮件。
@@ -432,7 +482,7 @@ function messageOf(error: unknown): string {
               <button
                 class="secondary-button"
                 type="button"
-                @click="editingId = ''"
+                @click="cancelEdit"
               >
                 取消
               </button>
@@ -492,6 +542,12 @@ function messageOf(error: unknown): string {
             >
               删除
             </button>
+            <RouterLink
+              class="text-button"
+              :to="withRemindersSource(`/reminders/${item.id}`)"
+            >
+              查看
+            </RouterLink>
             <button
               v-if="item.deletedAt"
               class="text-button"

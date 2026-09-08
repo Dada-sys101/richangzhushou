@@ -9,11 +9,15 @@ Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基
 待确认 Proposal，不得直接写正式业务记录。
 
 > 当前阶段：PR19 已通过 GitHub PR #18 合入 Integration，PR20 adapter integration 已通过
-> PR #20/#21/#22/#23 合入；Integration HEAD 为
-> `d53f84a4ff99208f69d209e98a1d3f07c588d760`。PR20 live Provider validation 仍为
-> `BLOCKED / H7`，H7 为 `OPEN`，R1 Quality Gate 为 `BLOCKED / NOT_READY`。当前执行
-> `QUALITY-R1-GOVERNANCE-RECONCILIATION` 的规范冻结 post-write review，ADR-028 已 Accepted；
-> 本地文档写入未提交；Staging 未创建，生产未部署。
+> PR #20/#21/#22/#23 合入；当前 Integration HEAD（2026-08-29 只读重核）为
+> `299b1f71debbd5a3140d1ee19f9781372e67134b`。PR20 Live Provider Validation 当前为
+> `VERIFYING / DONE_LOCAL`，已完成本机一次性数据库和 200 条合成数据的 DeepSeek 受控验证；H7 为
+> H7 已于 2026-09-01 由 Dada 明确关闭；本机受控验证证据已就绪。Dada 已确认当前阶段暂定 DeepSeek、接受已复核条款和评估结果，
+> 并接受 ADR-029 的 `Asia/Shanghai` 自然月/暂不设固定金额上限临时策略。当前转入 `R1 Quality Gate BLOCKED / NOT_READY`，代码治理仍未完成生产 Provider 正式放行。`QUALITY-R1-GOVERNANCE-RECONCILIATION`
+> 已完成 post-write review，既有 commit `6adc111...` 已进入 Integration；已有私有预览服务器按 `299b1f71` 运行，Staging 未新建，生产未部署。用户已明确允许当前私有预览开启 live AI，服务器环境与数据库开关已对齐；扩大公网 Provider 使用范围仍需单独授权。每日备份和 7 天清理已配置，详见 `docs/49-private-preview-release-assessment.md`。
+> 针对初始评估发现的模糊任务占位字段，已完成提示词补强、3 条本机真实 Provider 定向回归和完整 200 条评估复跑；`case-146` 另行 3/3 复测成功。
+
+> 当前发布候选已整理为 `f7fb90a`（Web/同步）、`1545e21`（AI）、`d649ad4`（发布运营）和合并提交 `b7734d0`，已推送并创建 GitHub PR #25。`db-validation`、`browser-qa` 已通过，`quality` 仍被依赖审计 fail-closed；候选尚未部署，现有私有预览继续运行 `299b1f71`。后续新功能另开分支/PR，不回写该候选。
 
 ## 工程结构
 
@@ -25,10 +29,14 @@ Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基
 
 ## 本地开发
 
-要求 Node.js 24、npm 11，以及需要验证真实 migration 时使用的 MySQL 8.x。
+要求 Node.js 24、项目固定的 npm 11.18.0，以及需要验证真实 migration 时使用的 MySQL 8.x。
+仓库通过 `packageManager`、精确 npm engine 和 `.npmrc` 的 `engine-strict` 拒绝其他 npm 版本；
+请使用隔离方式安装/调用 npm 11.18.0，不要为本项目修改系统全局 npm。CI 会在安装依赖前固定并核验该版本。
+安装脚本采用精确版本 allowlist。统一入口 `npm run install:locked` 会先以 `--ignore-scripts` 安装，
+再 fail-closed 检查不存在未审阅脚本，最后才执行 allowlist 中的脚本；出现新的或版本变化的安装脚本时不会进入 rebuild。
 
 ```powershell
-npm ci
+npm run install:locked
 Copy-Item apps/api/.env.example apps/api/.env
 npm run dev --workspace @daily-assistant/api
 npm run dev --workspace @daily-assistant/web
@@ -93,7 +101,8 @@ Vitest 子进程。完整安全边界和验收证据见 `docs/41-pr6a-mysql84-va
 - `.project/v15-execution-state.md`：唯一仓库内执行状态快照，不是 GitHub/CI 实时镜像。
 - `.project/context.md`：长期状态；`.project/session.md`：当前/暂停任务；
   `.project/decisions.md`：ADR 索引。
-- 当前任务契约：`tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`。
+- 当前 canonical successor：R1 Quality Gate（`BLOCKED / NOT_READY；H7 CLOSED`；未发现独立任务契约）；最近完成的治理契约为
+  `tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`。
 - PR19 V10 契约：`tasks/PR19.md`；Accepted PR20/H7 边界：`docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md`。
 - 校验：`npm run check:context`（已并入 `npm run quality`）。
 
@@ -104,23 +113,25 @@ Vitest 子进程。完整安全边界和验收证据见 `docs/41-pr6a-mysql84-va
 - iPhone Safari/主屏幕 PWA 是主要验收端；Android 为响应式 Web/PWA。
 - 云端同步，同时保留本地缓存和离线写入能力。
 - R1 不包含家庭共享。
-- AI 正式写入必须经用户确认和审计；真实 Provider 未通过 H7 时不得上线 R1。
-- ADR-028 已使 PR20 adapter integration `DONE_INTEGRATION` 与 live Provider validation
-  `BLOCKED / H7` 的双轨语义生效；H7 仍阻塞真实 Provider calls、real credential/secret use、
-  real-data/provider evaluation、Provider enablement、REL-04 和 R1 advancement。CI 绿色不等于
-  真实 Provider 验证，且 run `33043413216` 的 Playwright report upload 被跳过。
-- ADR-027 仅冻结 Provider/模型候选、服务端接入、安全/预算/韧性和评测策略；当前不冻结唯一
-  Provider，PR20 受控真实评测后的 final provider/model/effect thresholds 仍需再次人工批准。
+- AI 正式写入必须经用户确认和审计；H7 虽已关闭，Provider enablement 和 R1 上线仍须完成独立发布门禁。
+- ADR-028 已使 PR20 adapter integration 与 live Provider validation 分开记录；本机受控合成评估已形成
+  `DONE_LOCAL / H7_CLOSED` 证据。Dada 已接受当前阶段的 DeepSeek、条款和 provisional schema/effect 结果，但
+  生产 Provider 使用、真实用户/生产数据评测、Provider enablement、REL-04 和 R1 advancement 仍未获授权。
+  CI 绿色不等于生产批准，且 run `33043413216` 的 Playwright report upload 被跳过。
+- ADR-027 仍冻结 Provider/模型候选、服务端接入、安全/预算/韧性和评测策略；当前阶段暂定 DeepSeek
+  `deepseek-v4-flash`，长期候选未冻结。ADR-029 记录自然月/暂不设固定金额上限的临时策略；该策略不提供
+  金额超支保护，也不等于生产预算 enforcement 已完成。
 - Import、新 RRULE 切换、完整 IndexedDB 加密迁移和 Shrink 在 R2/R3，后移不取消。
 
 ## 文档入口
 
 - [执行总规划](PLANS.md)
 - [V1.5 执行状态快照](.project/v15-execution-state.md)
-- [当前任务契约](tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md)
+- [最近完成的治理契约](tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md)
 - [PR19 V10 契约](tasks/PR19.md)
 - [Accepted ADR-028 H7 边界](docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md)
 - [Accepted ADR-027](docs/adr/ADR-027-ai-provider-evaluation-policy.md)
+- [Accepted temporary ADR-029](docs/adr/ADR-029-ai-budget-calendar-month-observation.md)
 - [PR6a MySQL 8.4 验收](docs/41-pr6a-mysql84-validation.md)
 - [文档索引](docs/README.md)
 - [总体计划](MASTER_PLAN.md)

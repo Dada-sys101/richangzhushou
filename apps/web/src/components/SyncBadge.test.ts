@@ -27,6 +27,19 @@ describe("SyncBadge", () => {
     expect(mountBadge().text()).toContain("已同步");
   });
 
+  it("shows the last sync time and outstanding failure count", () => {
+    const sync = useSyncStore();
+    sync.$patch({
+      failedCount: 2,
+      lastSyncedAt: "2026-08-29T08:09:10.000Z",
+      status: "SYNCED",
+      syncing: false,
+    });
+    const text = mountBadge().text();
+    expect(text).toContain("最近同步");
+    expect(text).toContain("失败 2");
+  });
+
   it("labels pending and in-flight states as 同步中", () => {
     const sync = useSyncStore();
     sync.$patch({ status: "PENDING_SYNC", syncing: false });

@@ -9,6 +9,8 @@ import {
   type TripItemSummary,
   type TripItemType,
 } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useTripsStore } from "../stores/trips";
 import {
@@ -40,6 +42,7 @@ const tripForm = ref({
   title: "",
   version: 1,
 });
+const tripEditSnapshot = ref("");
 
 const itemForm = ref({
   endsAt: "",
@@ -55,6 +58,7 @@ const itemEditForm = ref({
   type: "ACTIVITY" as TripItemType,
   version: 1,
 });
+const itemEditSnapshot = ref("");
 
 interface ItemCreatePayload {
   endsAt: string;
@@ -76,6 +80,22 @@ const pendingOutOfRange = ref<
 const packingText = ref("");
 const editingPackingId = ref("");
 const packingEditText = ref("");
+const packingEditSnapshot = ref("");
+useUnsavedChanges(
+  computed(
+    () =>
+      (editingTrip.value && tripFormSnapshot() !== tripEditSnapshot.value) ||
+      (Boolean(editingItemId.value) &&
+        itemEditFormSnapshot() !== itemEditSnapshot.value) ||
+      (Boolean(editingPackingId.value) &&
+        packingEditText.value !== packingEditSnapshot.value) ||
+      Boolean(itemForm.value.startsAt) ||
+      Boolean(itemForm.value.endsAt) ||
+      Boolean(itemForm.value.location) ||
+      Boolean(packingText.value) ||
+      Boolean(packingEditText.value),
+  ),
+);
 
 onMounted(() => {
   if (auth.isAuthenticated && tripId.value) {
@@ -112,6 +132,7 @@ function startEditTrip() {
     title: trip.title,
     version: trip.version,
   };
+  tripEditSnapshot.value = tripFormSnapshot();
 }
 
 async function saveEditTrip() {
@@ -128,12 +149,17 @@ async function saveEditTrip() {
       version: tripForm.value.version,
     });
     successMessage.value = "行程已更新";
-    editingTrip.value = false;
+    cancelTripEdit();
   } catch (error) {
     errorMessage.value = messageOf(error);
   } finally {
     saving.value = false;
   }
+}
+
+function cancelTripEdit() {
+  editingTrip.value = false;
+  tripEditSnapshot.value = "";
 }
 
 async function removeTrip() {
@@ -189,6 +215,7 @@ function startEditItem(item: TripItemSummary) {
     type: item.type,
     version: item.version,
   };
+  itemEditSnapshot.value = itemEditFormSnapshot();
 }
 
 async function saveEditItem(item: TripItemSummary) {
@@ -208,7 +235,7 @@ async function saveEditItem(item: TripItemSummary) {
       payload,
     );
     showItemResult(result);
-    editingItemId.value = "";
+    cancelItemEdit();
   } catch (error) {
     handleItemError(error, "update", payload, item.id);
   }
@@ -245,7 +272,7 @@ async function confirmOutOfRange() {
         },
       );
       showItemResult(result);
-      editingItemId.value = "";
+      cancelItemEdit();
     }
   } catch (error) {
     errorMessage.value = messageOf(error);
@@ -278,6 +305,7 @@ function handleItemError(
 
 function cancelItemEdit() {
   editingItemId.value = "";
+  itemEditSnapshot.value = "";
 }
 
 async function removeItem(item: TripItemSummary) {
@@ -316,6 +344,7 @@ async function submitPacking() {
 function startEditPacking(item: PackingItemSummary) {
   editingPackingId.value = item.id;
   packingEditText.value = item.text;
+  packingEditSnapshot.value = item.text;
 }
 
 async function saveEditPacking(item: PackingItemSummary) {
@@ -325,11 +354,36 @@ async function saveEditPacking(item: PackingItemSummary) {
       text: packingEditText.value.trim(),
       version: item.version,
     });
-    editingPackingId.value = "";
+    cancelPackingEdit();
     successMessage.value = "行李项已更新";
   } catch (error) {
     errorMessage.value = messageOf(error);
   }
+}
+
+function cancelPackingEdit() {
+  editingPackingId.value = "";
+  packingEditText.value = "";
+  packingEditSnapshot.value = "";
+}
+
+function tripFormSnapshot(): string {
+  return JSON.stringify({
+    budgetAmount: tripForm.value.budgetAmount,
+    destination: tripForm.value.destination,
+    endDate: tripForm.value.endDate,
+    startDate: tripForm.value.startDate,
+    title: tripForm.value.title,
+  });
+}
+
+function itemEditFormSnapshot(): string {
+  return JSON.stringify({
+    endsAt: itemEditForm.value.endsAt,
+    location: itemEditForm.value.location,
+    startsAt: itemEditForm.value.startsAt,
+    type: itemEditForm.value.type,
+  });
 }
 
 async function togglePacking(item: PackingItemSummary) {
@@ -382,28 +436,17 @@ function percent(value: string | null): string {
 
 <template>
   <section class="trip-page" aria-labelledby="trip-detail-title">
-    <p class="eyebrow">
-      <RouterLink class="text-button" to="/trips">行程</RouterLink>
-      / 详情
-    </p>
-
-    <p v-if="errorMessage" class="form-error" role="alert">
-      {{ errorMessage }}
-    </p>
-    <p v-if="successMessage" class="form-success" role="status">
-      {{ successMessage }}
-    </p>
-
-    <template v-if="detail">
-      <header class="page-head">
-        <div>
-          <h1 id="trip-detail-title">{{ detail.trip.title }}</h1>
-          <p class="trip-meta">
-            {{ detail.trip.destination }} 路 {{ detail.trip.startDate }} –
-            {{ detail.trip.endDate }}
-          </p>
-        </div>
-        <div class="trip-head-actions">
+    <PageHeader
+      :title="detail?.trip.title ?? '行程详情'"
+      title-id="trip-detail-title"
+      :subtitle="
+        detail
+          ? `${detail.trip.destination} · ${detail.trip.startDate} – ${detail.trip.endDate}`
+          : '行程'
+      "
+    >
+      <template #actions>
+        <div v-if="detail" class="trip-head-actions">
           <button
             v-if="!editingTrip && !detail.trip.deletedAt"
             class="secondary-button"
@@ -429,8 +472,17 @@ function percent(value: string | null): string {
             恢复
           </button>
         </div>
-      </header>
+      </template>
+    </PageHeader>
 
+    <p v-if="errorMessage" class="form-error" role="alert">
+      {{ errorMessage }}
+    </p>
+    <p v-if="successMessage" class="form-success" role="status">
+      {{ successMessage }}
+    </p>
+
+    <template v-if="detail">
       <form
         v-if="editingTrip"
         class="trip-create"
@@ -468,7 +520,7 @@ function percent(value: string | null): string {
           <button
             class="secondary-button"
             type="button"
-            @click="editingTrip = false"
+            @click="cancelTripEdit"
           >
             取消
           </button>
@@ -683,7 +735,7 @@ function percent(value: string | null): string {
                   <button
                     class="secondary-button"
                     type="button"
-                    @click="editingPackingId = ''"
+                    @click="cancelPackingEdit"
                   >
                     取消
                   </button>

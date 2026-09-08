@@ -1,8 +1,32 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { validateSbomDocument } from "./sbom-validate.mjs";
+import {
+  PRISMA_CANDIDATE_COMPONENTS,
+  validateSbomDocument,
+} from "./sbom-validate.mjs";
 import { buildSbomChildEnvironment } from "./sbom-generate.mjs";
+
+function prismaCandidateDocument() {
+  const components = Object.entries(PRISMA_CANDIDATE_COMPONENTS).map(
+    ([name, version]) => ({
+      type: "library",
+      name,
+      version,
+      "bom-ref": `${name}@${version}`,
+    }),
+  );
+  return {
+    bomFormat: "CycloneDX",
+    specVersion: "1.6",
+    components,
+    dependencies: [
+      { ref: "@prisma/adapter-mariadb@7.9.1", dependsOn: ["mariadb@3.4.7"] },
+      { ref: "@prisma/config@7.9.1", dependsOn: ["deepmerge-ts@8.0.2"] },
+      { ref: "prisma@7.9.1", dependsOn: ["mysql2@3.24.3"] },
+    ],
+  };
+}
 
 test("SBOM child environment excludes credentials and npm auth configuration", () => {
   const environment = buildSbomChildEnvironment({
@@ -88,4 +112,44 @@ test("rejects missing or empty components arrays", () => {
   assert.equal(empty.valid, false);
   assert.equal(empty.componentCount, 0);
   assert.ok(empty.errors.some((error) => error.includes("not be empty")));
+});
+
+test("accepts the exact Prisma override components and dependency edges", () => {
+  const result = validateSbomDocument(
+    JSON.stringify(prismaCandidateDocument()),
+    {
+      enforcePrismaCandidate: true,
+    },
+  );
+  assert.equal(result.valid, true);
+});
+
+test("rejects a duplicate or stale target component", () => {
+  const document = prismaCandidateDocument();
+  document.components.push({
+    type: "library",
+    name: "mysql2",
+    version: "3.15.3",
+    "bom-ref": "mysql2@3.15.3",
+  });
+  const result = validateSbomDocument(JSON.stringify(document), {
+    enforcePrismaCandidate: true,
+  });
+  assert.equal(result.valid, false);
+  assert.match(result.errors.join("\n"), /exactly one mysql2/);
+});
+
+test("rejects a missing override dependency edge", () => {
+  const document = prismaCandidateDocument();
+  document.dependencies = document.dependencies.filter(
+    ({ ref }) => ref !== "@prisma/config@7.9.1",
+  );
+  const result = validateSbomDocument(JSON.stringify(document), {
+    enforcePrismaCandidate: true,
+  });
+  assert.equal(result.valid, false);
+  assert.match(
+    result.errors.join("\n"),
+    /config@7\.9\.1 -> deepmerge-ts@8\.0\.2/,
+  );
 });

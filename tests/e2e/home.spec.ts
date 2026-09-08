@@ -56,7 +56,7 @@ test("首页与核心业务创建、刷新持久化且无阻塞错误", async ({
   await page.getByLabel("时间").fill(start);
   await page.getByLabel("商户/说明").fill(merchant);
   await page.getByRole("button", { name: "保存" }).click();
-  await page.waitForURL("**/transactions");
+  await page.waitForURL("**/records");
   await expect(page.getByText(merchant)).toBeVisible();
 
   await page.reload();

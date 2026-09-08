@@ -3,6 +3,8 @@ import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import { ApiClientError, type AiProposalCreateRequest } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAiStore } from "../stores/ai";
 
 const AI_REQUEST_TYPES = [
@@ -27,6 +29,9 @@ const lastAttemptInput = ref<{ requestType: string; userInput: string } | null>(
 
 const canGenerate = computed(
   () => userInput.value.trim().length > 0 && !generating.value,
+);
+const { allowNavigation } = useUnsavedChanges(
+  computed(() => userInput.value.trim().length > 0),
 );
 
 watch([userInput, requestType], () => {
@@ -66,6 +71,7 @@ async function generate() {
     const response = await ai.createProposal(request, idempotencyKey);
     pendingIdempotencyKey.value = null;
     lastAttemptInput.value = null;
+    allowNavigation();
     await router.push({
       name: "ai-proposal-review",
       params: { proposalId: response.proposal.id },
@@ -123,12 +129,7 @@ function isNetworkFailure(error: unknown): boolean {
 
 <template>
   <section class="ai-page" aria-labelledby="ai-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">AI 助手</p>
-        <h1 id="ai-title">生成提案</h1>
-      </div>
-    </header>
+    <PageHeader title="生成提案" title-id="ai-title" subtitle="AI 助手" />
 
     <form class="capture-panel" @submit.prevent="generate">
       <h2>输入请求</h2>

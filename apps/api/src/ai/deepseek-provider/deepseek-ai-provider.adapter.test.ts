@@ -84,6 +84,17 @@ describe("DeepSeekAiProviderAdapter", () => {
       response_format: { type: "json_object" },
       thinking: { type: "disabled" },
     });
+    expect(body.messages[0].content).toContain("resultType");
+    expect(body.messages[0].content).toContain("providerId");
+    expect(body.messages[0].content).toContain("dueAt");
+    expect(body.messages[0].content).toContain(
+      'modelId is exactly "deepseek-test"',
+    );
+    expect(body.messages[0].content).toContain('status="PENDING"');
+    expect(body.messages[0].content).toContain("confidence 0.0000");
+    expect(body.messages[0].content).toContain("placeholder titles");
+    expect(body.messages[0].content).toContain("买东西");
+    expect(body.messages[0].content).toContain("TASK 示例 fields");
     expect(JSON.stringify(response)).not.toContain("test-secret");
     expect(response.usage).toEqual({ inputTokens: 7, outputTokens: 5 });
     expect(response.content.providerId).toBe("deepseek");

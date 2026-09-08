@@ -133,12 +133,71 @@ describeWithDb(
         .set("Authorization", `Bearer ${token}`);
       expect(secondPage.status).toBe(200);
       expect(secondPage.body.changes).toHaveLength(1);
-      expect(secondPage.body.nextCursor).toBeNull();
+      expect(secondPage.body.nextCursor).toBeTruthy();
+      expect(secondPage.body.nextCursor).not.toBe(firstPage.body.nextCursor);
       const ids = [
         firstPage.body.changes[0].entityId,
         secondPage.body.changes[0].entityId,
       ];
       expect(ids).toContain(transactionId);
+      expect(new Set(ids).size).toBe(ids.length);
+
+      const emptyAfterLast = await request(app.getHttpServer())
+        .get(
+          `/api/v1/sync/changes?limit=10&cursor=${encodeURIComponent(
+            secondPage.body.nextCursor as string,
+          )}`,
+        )
+        .set("Authorization", `Bearer ${token}`);
+      expect(emptyAfterLast.status).toBe(200);
+      expect(emptyAfterLast.body.changes).toHaveLength(0);
+      expect(emptyAfterLast.body.nextCursor).toBeNull();
+
+      const repeatedEmpty = await request(app.getHttpServer())
+        .get(
+          `/api/v1/sync/changes?limit=10&cursor=${encodeURIComponent(
+            secondPage.body.nextCursor as string,
+          )}`,
+        )
+        .set("Authorization", `Bearer ${token}`);
+      expect(repeatedEmpty.status).toBe(200);
+      expect(repeatedEmpty.body.changes).toHaveLength(0);
+      expect(repeatedEmpty.body.nextCursor).toBeNull();
+
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      const newCreated = await createTransaction(token, {
+        amount: "13.00",
+        clientMutationId: "sync-stream-tx-00002",
+        type: "EXPENSE",
+      });
+      expect(newCreated.status).toBe(201);
+      const newTransactionId = newCreated.body.transaction.id as string;
+
+      const afterLast = await request(app.getHttpServer())
+        .get(
+          `/api/v1/sync/changes?limit=10&cursor=${encodeURIComponent(
+            secondPage.body.nextCursor as string,
+          )}`,
+        )
+        .set("Authorization", `Bearer ${token}`);
+      expect(afterLast.status).toBe(200);
+      expect(
+        afterLast.body.changes.map(
+          (change: { entityId: string }) => change.entityId,
+        ),
+      ).toEqual([newTransactionId]);
+      expect(afterLast.body.nextCursor).toBeTruthy();
+
+      const emptyAfterNew = await request(app.getHttpServer())
+        .get(
+          `/api/v1/sync/changes?limit=10&cursor=${encodeURIComponent(
+            afterLast.body.nextCursor as string,
+          )}`,
+        )
+        .set("Authorization", `Bearer ${token}`);
+      expect(emptyAfterNew.status).toBe(200);
+      expect(emptyAfterNew.body.changes).toHaveLength(0);
+      expect(emptyAfterNew.body.nextCursor).toBeNull();
 
       await request(app.getHttpServer())
         .patch(`/api/v1/transactions/${transactionId}`)

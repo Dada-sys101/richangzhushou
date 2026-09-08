@@ -25,21 +25,27 @@ const label = computed(() => {
   }
 });
 
+const lastSyncLabel = computed(() => {
+  if (!sync.lastSyncedAt) {
+    return "未同步";
+  }
+  return new Intl.DateTimeFormat("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: "Asia/Shanghai",
+  }).format(new Date(sync.lastSyncedAt));
+});
+
 onMounted(() => {
   window.addEventListener("beforeinstallprompt", handleInstallPrompt);
   window.addEventListener("appinstalled", handleInstalled);
-  window.addEventListener("daily-sync-changed", handleSyncChanged);
 });
 
 onUnmounted(() => {
   window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
   window.removeEventListener("appinstalled", handleInstalled);
-  window.removeEventListener("daily-sync-changed", handleSyncChanged);
 });
-
-function handleSyncChanged() {
-  void sync.refresh();
-}
 
 function handleInstallPrompt(event: Event) {
   event.preventDefault();
@@ -79,9 +85,13 @@ async function install() {
     >
       <span class="sync-dot" aria-hidden="true"></span>
       <span>{{ label }}</span>
+      <span class="sync-last">最近同步 {{ lastSyncLabel }}</span>
       <span v-if="sync.pendingCount > 0" class="sync-count">{{
         sync.pendingCount
       }}</span>
+      <span v-if="sync.failedCount > 0" class="sync-failed-count"
+        >失败 {{ sync.failedCount }}</span
+      >
       <RouterLink
         v-if="sync.conflictCount > 0"
         class="conflict-link"
@@ -98,5 +108,8 @@ async function install() {
         重试
       </button>
     </div>
+    <p v-if="auth.isAuthenticated && sync.errorMessage" class="sync-error">
+      {{ sync.errorMessage }}
+    </p>
   </div>
 </template>

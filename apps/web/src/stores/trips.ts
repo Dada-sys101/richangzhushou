@@ -15,13 +15,14 @@ import {
   localTripDetail,
   mergePending,
 } from "../offline/local";
-import { pullChanges } from "../offline/sync";
+import type { SyncEntityType } from "../offline/sync";
 import { useAuthStore } from "./auth";
 
 interface TripsState {
   detail: TripDetailResponse | null;
   errorKind: ApiErrorKind | null;
   errorMessage: string | null;
+  lastListParams: { includeDeleted?: boolean };
   trips: TripSummary[];
 }
 
@@ -30,17 +31,15 @@ export const useTripsStore = defineStore("trips", {
     detail: null,
     errorKind: null,
     errorMessage: null,
+    lastListParams: {},
     trips: [],
   }),
   actions: {
     async loadTrips(params: { includeDeleted?: boolean } = {}) {
+      this.lastListParams = { ...params };
       this.errorMessage = null;
       this.errorKind = null;
       try {
-        const syncUserId = useAuthStore().userId;
-        if (syncUserId) {
-          await pullChanges(syncUserId);
-        }
         const result = await api.listTrips(params);
         const userId = useAuthStore().userId;
         this.trips = userId
@@ -65,10 +64,6 @@ export const useTripsStore = defineStore("trips", {
       this.errorMessage = null;
       this.errorKind = null;
       try {
-        const syncUserId = useAuthStore().userId;
-        if (syncUserId) {
-          await pullChanges(syncUserId);
-        }
         this.detail = await api.getTrip(id);
       } catch (error) {
         if (isOfflineError(error)) {
@@ -84,6 +79,18 @@ export const useTripsStore = defineStore("trips", {
         this.errorKind = apiErrorKind(error);
         this.errorMessage = messageOf(error);
         throw error;
+      }
+    },
+    async refreshForSync(entityTypes: SyncEntityType[] = []) {
+      this.clearError();
+      const changed = new Set(entityTypes);
+      if (
+        changed.size === 0 ||
+        changed.has("TRIP") ||
+        changed.has("TRIP_ITEM") ||
+        changed.has("PACKING_ITEM")
+      ) {
+        await this.loadTrips(this.lastListParams);
       }
     },
     async localTripDetail(userId: string, id: string) {

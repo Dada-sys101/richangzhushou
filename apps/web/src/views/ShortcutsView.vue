@@ -7,6 +7,7 @@ import {
   type ShortcutCredentialSummary,
   type ShortcutScope,
 } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
 import { useAuthStore } from "../stores/auth";
 
 const auth = useAuthStore();
@@ -117,12 +118,11 @@ function messageOf(error: unknown): string {
 
 <template>
   <section class="shortcuts-page" aria-labelledby="shortcuts-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">Apple 快捷指令</p>
-        <h1 id="shortcuts-title">快捷指令配置</h1>
-      </div>
-    </header>
+    <PageHeader
+      title="快捷指令配置"
+      title-id="shortcuts-title"
+      subtitle="Apple 快捷指令"
+    />
 
     <p v-if="errorMessage" class="form-error" role="alert">
       {{ errorMessage }}

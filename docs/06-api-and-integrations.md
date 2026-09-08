@@ -166,8 +166,11 @@ WP6 契约要点：
 
 同步契约要点（WP7）：
 - 变更流：`GET /sync/changes?cursor=&limit=` 返回当前用户范围内按
-  `(updatedAt, id)` 升序的增量（创建/更新/删除墓碑），`nextCursor` 单调不透明；
-  游标非法返回 `CURSOR_INVALID`；默认 limit 100、上限 500。
+  `(updatedAt, id)` 升序的增量（创建/更新/删除墓碑）。只要 `changes` 非空，
+  `nextCursor` 就必须是基于该页最后一条变更生成的非空不透明游标，即使该页已经是
+  当前数据末页；使用该游标再次查询无数据时才返回空页和 `nextCursor: null`。
+  客户端不得解码、拼接或伪造游标。游标非法返回 `CURSOR_INVALID`；默认 limit 100、
+  上限 500。
 - 幂等批量：`POST /sync/mutations` 每次最多 50 条；每条必须携带
   `clientMutationId`（16–128 字符）；同键同内容重放返回原结果，同键不同内容
   返回 `IDEMPOTENCY_CONFLICT`；批次超限返回 `MUTATION_BATCH_TOO_LARGE`；

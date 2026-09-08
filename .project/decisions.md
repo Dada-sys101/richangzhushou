@@ -2,6 +2,22 @@
 
 说明：只记录能够从代码、文档或 Git 历史确认的决策；无法确认原因时写 `Reason not confirmed from repository history.`，不自行编造历史原因。更完整的决策表见 `docs/decisions.md`。
 
+## RELEASE-001: 私有预览版作为正式基线
+
+- Date: 2026-09-02
+- Status: Accepted for current private preview; public switch pending
+- Context: 用户要求以已有私有预览版作为正式版口径，域名审批通过后再切换公网，并明确跳过真实 iPhone 验证。
+- Decision: 继续使用现有服务器上的 Integration `299b1f71` 作为正式预览基线；真实 iPhone 验证标记为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`，不写成通过；不把本地混合未提交工作区直接发布。
+- Consequences: 当前私有预览可继续运行，但依赖审计、自动备份保留、live AI 配置对齐和公网入口切换仍需单独完成；详见 `docs/49-private-preview-release-assessment.md`。
+
+## RELEASE-002: 当前私有预览保留 live AI
+
+- Date: 2026-09-02
+- Status: Accepted for current private preview; public expansion pending separate authorization
+- Context: 远端环境与数据库功能开关均显示 live AI 开启，而 REL-01 D8 的正式预览默认值为关闭；用户已明确允许当前私有预览继续开启 AI。
+- Decision: 保留当前私有预览 live AI；服务器环境与数据库开关保持一致。该决定不自动扩大公网 Provider 使用范围，也不替代依赖、预算和正式发布门禁。
+- Consequences: 当前私有预览可继续提供 AI 能力；更大范围的公网 Provider 使用仍需独立授权与发布复验。
+
 ## ADR-001: Monorepo npm workspaces 结构
 
 - Date: 2026-08-05
@@ -380,6 +396,33 @@
   会丢失历史事实或扩大证据含义）。
 - Consequences: ADR-028、docs/40 V1.2、PLANS active rule 与 deviation disposition 已写入
   本地规范冻结；H7 仍 `OPEN`，R1 Quality Gate 仍 `BLOCKED / NOT_READY`。
+- Current status (2026-09-01): H7 has been explicitly closed by Dada; the historical boundary above remains unchanged,
+  and production Provider use, Provider enablement, REL-04 and R1 advancement still require separate authorization.
 - Related Files: `docs/adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md`、
   `tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`、`PLANS.md`、`.project/v15-execution-state.md`
 - Related Commit: not created; normative freeze write is local and awaiting post-write review
+
+## ADR-029: AI 预算自然月观察与临时不设金额上限
+
+- Date: 2026-09-01
+- Status: `Accepted / Temporary`
+- Accepted by: Dada（明确确认，2026-09-01）
+- Context: H7 复核需要明确预算周期和当前金额上限；Dada 确认采用 `Asia/Shanghai` 自然月，暂不固定费用上限。
+- Decision: 暂不因金额累计触发 `BUDGET_BLOCKED`；保留现有 `AiProviderAttempt` 的规范化 token/provider/model/状态/时间
+  元数据，费用换算、价格配置、费用账本、管理端报表和 hard limit 延后单独实施；现有 AI feature flag、正式写入确认、
+  失败输入保留和 credential 隔离不变。
+- Consequences: 当前没有金额超支保护，不能宣称生产预算 enforcement 已完成；正式生产启用前需再次确认风险并决定
+  费率来源、重试计费、告警/报表、hard limit 和并发原子性。
+- Related Files: `docs/adr/ADR-029-ai-budget-calendar-month-observation.md`、
+  `apps/api/src/ai/ai-budget-gate.ts`、`docs/adr/ADR-027-ai-provider-evaluation-policy.md`
+- Related Commit: not created; decision is recorded in the active uncommitted worktree
+
+## H7 Closure Record
+
+- Date: 2026-09-01
+- Status: `CLOSED`
+- Closed by: Dada（明确指令）
+- Basis: redacted DeepSeek local evidence, prompt-hardening regressions, `case-146` 3/3 recheck, formal-write isolation,
+  current-stage Provider/terms/results acceptance and ADR-029 temporary budget policy
+- Boundary: H7 closure does not authorize production Provider enablement, real-user/data evaluation, REL-04, R1 advancement,
+  commit, push, PR, merge or deployment

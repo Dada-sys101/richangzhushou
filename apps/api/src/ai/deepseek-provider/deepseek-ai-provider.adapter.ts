@@ -107,8 +107,10 @@ export class DeepSeekAiProviderAdapter implements AiProviderAdapter {
         body: JSON.stringify({
           messages: [
             {
-              content:
-                "Return valid JSON only. Produce a controlled AI proposal result.",
+              content: buildDeepSeekSystemPrompt(
+                request.input.requestType,
+                this.configuration.model,
+              ),
               role: "system",
             },
             {
@@ -175,6 +177,55 @@ export class DeepSeekAiProviderAdapter implements AiProviderAdapter {
       usage: parsed.usage,
     };
   }
+}
+
+function buildDeepSeekSystemPrompt(
+  requestType: AiProviderRequest["input"]["requestType"],
+  model: string,
+): string {
+  const fieldInstructions: Record<string, string> = {
+    CALENDAR_EVENT:
+      "fields 必须只包含 title、startsAt、endsAt、allDay；startsAt 和 endsAt 使用 ISO 8601，allDay 为 boolean 或 null。",
+    REMINDER:
+      "fields 必须只包含 title、note、scheduleType、startsAt、targetType、targetId、recurrence；scheduleType 只能是 ONCE、DAILY、WEEKLY、MONTHLY，startsAt 使用 ISO 8601，未知可选字段使用 null。",
+    TASK: "fields 必须只包含 title、dueAt、priority；title 必填，dueAt 使用 ISO 8601 或 null，priority 只能是 LOW、MEDIUM、HIGH 或 null。",
+    TRANSACTION:
+      "fields 必须只包含 type、amount、currency、occurredAt、merchant、note、source、accountId、categoryId、tripId、originalTransactionId、isUnlinkedRefund；amount 使用十进制定点数字字符串，occurredAt 使用 ISO 8601，source 必须是 TEXT，未知可选字段使用 null。",
+    TRIP: "fields 必须只包含 title、destination、startDate、endDate、budgetAmount；startDate 和 endDate 使用 YYYY-MM-DD，budgetAmount 使用十进制定点数字字符串或 null。",
+  };
+  const fieldInstruction =
+    fieldInstructions[requestType] ??
+    "fields 必须只包含当前请求类型允许的字段。";
+  const formatExample: Record<string, string> = {
+    CALENDAR_EVENT:
+      'CALENDAR_EVENT 示例 fields：{"title":"产品评审","startsAt":"2026-09-03T06:00:00.000Z","endsAt":"2026-09-03T07:00:00.000Z","allDay":false}。',
+    REMINDER:
+      'REMINDER 示例 fields：{"title":"给植物浇水","note":null,"scheduleType":"ONCE","startsAt":"2026-09-04T01:00:00.000Z","targetType":"STANDALONE","targetId":null,"recurrence":null}。',
+    TASK: 'TASK 示例 fields：{"title":"提交周报","dueAt":"2026-09-04T09:00:00.000Z","priority":"HIGH"}。',
+    TRANSACTION:
+      'TRANSACTION 示例 fields：{"type":"EXPENSE","amount":"38.50","currency":"CNY","occurredAt":"2026-09-01T08:00:00.000Z","merchant":"示例咖啡店","note":null,"source":"TEXT","accountId":null,"categoryId":null,"tripId":null,"originalTransactionId":null,"isUnlinkedRefund":false}；amount 必须是带两位小数的字符串，绝不能是数字。',
+    TRIP: 'TRIP 示例 fields：{"title":"北京商务出差","destination":"北京","startDate":"2026-09-05","endDate":"2026-09-07","budgetAmount":"2000.00"}；日期必须严格为 YYYY-MM-DD，budgetAmount 必须是带两位小数的字符串，绝不能使用数字或日期时间。',
+  };
+  const selectedFormatExample =
+    formatExample[requestType] ?? "请严格遵循当前请求类型的字段类型。";
+
+  return [
+    "Return JSON only. Do not return Markdown, explanations, or a different top-level shape.",
+    "You are producing a Daily Assistant AI Proposal candidate, not writing any business record.",
+    `The configured modelId is exactly ${JSON.stringify(model)} and providerId is exactly "deepseek".`,
+    `The requestType is exactly ${JSON.stringify(requestType)}; every operation.operationType must match it.`,
+    "The only allowed top-level keys are resultType, providerId, modelId, clarification, missingFields, and operations.",
+    "For SUCCESS, use clarification=null, missingFields=[], and return one or more operations.",
+    "For UNCERTAIN, do not guess missing or ambiguous facts: use operations=[], confidence 0.0000, provide a concise clarification, and list missingFields.",
+    "If a required or decision-critical fact is missing, ambiguous, contradictory, or represented by a placeholder, the resultType must be UNCERTAIN; never invent a value to make SUCCESS possible.",
+    "Never use placeholder titles or values such as 待定任务, 未命名, or a generic verb/noun as if they were confirmed user facts. A vague task-only input such as 买东西 without a concrete actionable detail must be UNCERTAIN; a specific task title may still have nullable optional dueAt or priority.",
+    'Each operation must contain exactly operationType, status="PENDING", confidence (a four-decimal string from 0.0000 to 1.0000), clarification (string or null), and fields.',
+    fieldInstruction,
+    selectedFormatExample,
+    "Use the request's currentDateTime and timeZoneId for relative dates. Keep user-provided facts unchanged. Never add userId, email, token, credential, or other fields.",
+    'Example SUCCESS shape: {"resultType":"SUCCESS","providerId":"deepseek","modelId":"MODEL_ID","clarification":null,"missingFields":[],"operations":[{"operationType":"TASK","status":"PENDING","confidence":"0.9000","clarification":null,"fields":{"title":"提交周报","dueAt":null,"priority":"MEDIUM"}}]}.',
+    'Example UNCERTAIN shape: {"resultType":"UNCERTAIN","providerId":"deepseek","modelId":"MODEL_ID","clarification":"请补充具体任务内容。","missingFields":["title"],"operations":[]}.',
+  ].join("\\n");
 }
 
 function parseDeepSeekResponse(payload: unknown): {

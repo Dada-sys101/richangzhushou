@@ -22,6 +22,6 @@ describe("BottomNav", () => {
     expect(wrapper.text()).toContain("记录");
     expect(wrapper.text()).toContain("计划");
     expect(wrapper.text()).toContain("我的");
-    expect(wrapper.find('[aria-label="统一录入"]').exists()).toBe(true);
+    expect(wrapper.find('[aria-label="快速新增"]').exists()).toBe(true);
   });
 });

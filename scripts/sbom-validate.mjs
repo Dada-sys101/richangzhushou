@@ -18,7 +18,62 @@ function isNonEmptyString(value) {
   return typeof value === "string" && value.trim() !== "";
 }
 
-export function validateSbomDocument(text) {
+export const PRISMA_CANDIDATE_COMPONENTS = Object.freeze({
+  "@prisma/adapter-mariadb": "7.9.1",
+  "@prisma/client": "7.9.1",
+  "@prisma/config": "7.9.1",
+  "deepmerge-ts": "8.0.2",
+  mariadb: "3.4.7",
+  mysql2: "3.24.3",
+  prisma: "7.9.1",
+});
+
+const PRISMA_CANDIDATE_EDGES = Object.freeze({
+  "@prisma/adapter-mariadb@7.9.1": "mariadb@3.4.7",
+  "@prisma/config@7.9.1": "deepmerge-ts@8.0.2",
+  "prisma@7.9.1": "mysql2@3.24.3",
+});
+
+function validatePrismaCandidate(document) {
+  const errors = [];
+  const components = Array.isArray(document.components)
+    ? document.components
+    : [];
+  for (const [name, expectedVersion] of Object.entries(
+    PRISMA_CANDIDATE_COMPONENTS,
+  )) {
+    const matches = components.filter((component) => component?.name === name);
+    if (matches.length !== 1) {
+      errors.push(`SBOM must contain exactly one ${name} component.`);
+      continue;
+    }
+    if (matches[0].version !== expectedVersion) {
+      errors.push(`SBOM ${name} version must be exactly ${expectedVersion}.`);
+    }
+  }
+
+  const dependencyByRef = new Map(
+    (Array.isArray(document.dependencies) ? document.dependencies : []).map(
+      (entry) => [entry?.ref, entry],
+    ),
+  );
+  for (const [parent, child] of Object.entries(PRISMA_CANDIDATE_EDGES)) {
+    const dependency = dependencyByRef.get(parent);
+    if (
+      !dependency ||
+      !Array.isArray(dependency.dependsOn) ||
+      !dependency.dependsOn.includes(child)
+    ) {
+      errors.push(`SBOM dependency edge ${parent} -> ${child} is missing.`);
+    }
+  }
+  return errors;
+}
+
+export function validateSbomDocument(
+  text,
+  { enforcePrismaCandidate = false } = {},
+) {
   if (typeof text !== "string" || text.trim() === "") {
     return {
       valid: false,
@@ -73,6 +128,8 @@ export function validateSbomDocument(text) {
     }
   }
 
+  if (enforcePrismaCandidate) errors.push(...validatePrismaCandidate(document));
+
   return {
     valid: errors.length === 0,
     componentCount,
@@ -93,7 +150,7 @@ async function main() {
     return;
   }
 
-  const result = validateSbomDocument(text);
+  const result = validateSbomDocument(text, { enforcePrismaCandidate: true });
   if (!result.valid) {
     for (const error of result.errors) {
       process.stderr.write(`SBOM validation error: ${error}\n`);

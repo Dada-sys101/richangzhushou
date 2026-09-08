@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import { ApiClientError, type TripSummary } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useTripsStore } from "../stores/trips";
 
@@ -20,6 +22,16 @@ const form = ref({
   startDate: "",
   title: "",
 });
+useUnsavedChanges(
+  computed(
+    () =>
+      Boolean(form.value.title.trim()) ||
+      Boolean(form.value.destination.trim()) ||
+      Boolean(form.value.startDate) ||
+      Boolean(form.value.endDate) ||
+      Boolean(form.value.budgetAmount.trim()),
+  ),
+);
 
 onMounted(() => {
   if (auth.isAuthenticated) {
@@ -92,16 +104,14 @@ function messageOf(error: unknown): string {
 
 <template>
   <section class="trip-page" aria-labelledby="trips-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">行程</p>
-        <h1 id="trips-title">我的行程</h1>
-      </div>
-      <label class="check-label">
-        <input v-model="includeDeleted" type="checkbox" @change="reload" />
-        显示已删除
-      </label>
-    </header>
+    <PageHeader title="我的行程" title-id="trips-title" subtitle="行程">
+      <template #actions>
+        <label class="check-label">
+          <input v-model="includeDeleted" type="checkbox" @change="reload" />
+          显示已删除
+        </label>
+      </template>
+    </PageHeader>
 
     <p v-if="errorMessage" class="form-error" role="alert">
       {{ errorMessage }}

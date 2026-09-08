@@ -14,7 +14,7 @@ import AppIcon from "./AppIcon.vue";
       <AppIcon name="receipt" :size="22" />
       <span>记录</span>
     </RouterLink>
-    <RouterLink class="bottom-nav-fab" to="/capture" aria-label="统一录入">
+    <RouterLink class="bottom-nav-fab" to="/capture" aria-label="快速新增">
       <AppIcon name="plus" :size="26" />
     </RouterLink>
     <RouterLink class="bottom-nav-item" to="/plan">

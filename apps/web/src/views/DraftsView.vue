@@ -4,13 +4,16 @@ import { RouterLink } from "vue-router";
 
 import { ApiClientError } from "../api/client";
 import DraftReviewCard from "../components/DraftReviewCard.vue";
+import PageHeader from "../components/PageHeader.vue";
 import { useAuthStore } from "../stores/auth";
 import { useDraftsStore } from "../stores/drafts";
 import { useFinanceStore } from "../stores/finance";
+import { appendReturnTo, useOptionalRoute } from "../utils/navigation";
 
 const auth = useAuthStore();
 const drafts = useDraftsStore();
 const finance = useFinanceStore();
+const route = useOptionalRoute();
 
 const statusFilter = ref<"CONFIRMED" | "DISCARDED" | "PENDING" | "">("PENDING");
 const cardErrors = ref<Record<string, string>>({});
@@ -159,24 +162,30 @@ function messageOf(error: unknown): string {
 
 <template>
   <section class="drafts-page" aria-labelledby="drafts-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">统一录入</p>
-        <h1 id="drafts-title">草稿中心</h1>
-      </div>
-      <div class="filters">
-        <RouterLink class="secondary-button" to="/capture">快捷记录</RouterLink>
-        <label>
-          状态
-          <select v-model="statusFilter">
-            <option value="PENDING">待确认</option>
-            <option value="CONFIRMED">已确认</option>
-            <option value="DISCARDED">已丢弃</option>
-            <option value="">全部</option>
-          </select>
-        </label>
-      </div>
-    </header>
+    <PageHeader
+      title="草稿中心"
+      title-id="drafts-title"
+      subtitle="快速新增生成的内容需确认"
+    >
+      <template #actions>
+        <div class="filters">
+          <RouterLink
+            class="secondary-button"
+            :to="appendReturnTo('/capture', route?.fullPath ?? '/drafts')"
+            >快速新增</RouterLink
+          >
+          <label>
+            状态
+            <select v-model="statusFilter">
+              <option value="PENDING">待确认</option>
+              <option value="CONFIRMED">已确认</option>
+              <option value="DISCARDED">已丢弃</option>
+              <option value="">全部</option>
+            </select>
+          </label>
+        </div>
+      </template>
+    </PageHeader>
 
     <p v-if="drafts.errorMessage" class="form-error" role="alert">
       {{ drafts.errorMessage }}

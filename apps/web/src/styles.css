@@ -394,6 +394,60 @@ button:disabled {
   margin-bottom: 20px;
 }
 
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.page-header-main {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  line-height: 1.15;
+}
+
+.page-header-back {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  color: var(--color-primary);
+  background: transparent;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.page-header-back:hover {
+  color: var(--color-primary-dark);
+}
+
+.page-header-subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+}
+
+.page-header-actions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .page-head h1,
 .finance-page h1,
 .today-page h1,
@@ -760,8 +814,85 @@ textarea {
 .drafts-page,
 .shortcuts-page,
 .planner-page,
-.trip-page {
+.trip-page,
+.planner-detail-page {
   padding: clamp(24px, 4vw, 48px) 0 72px;
+}
+
+.planner-detail-page {
+  max-width: 720px;
+}
+
+.planner-detail-card {
+  padding: 22px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.planner-detail-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.planner-detail-card h2 {
+  margin: 4px 0 0;
+}
+
+.planner-detail-list {
+  display: grid;
+  gap: 12px;
+  margin: 22px 0 0;
+}
+
+.planner-detail-list > div {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+.planner-detail-list dt {
+  color: var(--color-text-muted);
+  font-weight: 650;
+}
+
+.planner-detail-list dd {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.planner-detail-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  color: #b91c1c;
+  font-weight: 650;
+  flex-wrap: wrap;
+}
+
+.planner-detail-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.planner-detail-form .scope-fieldset {
+  grid-column: 1 / -1;
+}
+
+.planner-detail-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+  flex-wrap: wrap;
 }
 
 .trip-list {
@@ -1328,6 +1459,7 @@ textarea {
   align-items: center;
   gap: 8px;
   margin-left: 8px;
+  flex-wrap: wrap;
 }
 
 .sync-badge {
@@ -1368,6 +1500,22 @@ textarea {
   padding: 0 5px;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.08);
+}
+
+.sync-last,
+.sync-failed-count {
+  color: currentColor;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.sync-error {
+  flex-basis: 100%;
+  margin: 0;
+  color: #991b1b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: right;
 }
 
 .conflict-link,
@@ -2108,6 +2256,18 @@ textarea {
 }
 
 @media (max-width: 520px) {
+  .page-header {
+    display: grid;
+    align-items: start;
+    gap: 12px;
+  }
+  .page-header-actions {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  .page-header-actions .filters {
+    width: 100%;
+  }
   .v2-page-head {
     display: grid;
   }
@@ -2604,6 +2764,10 @@ textarea {
 .plan-page .primary-button {
   display: none;
 }
+
+.plan-page .page-header .primary-button {
+  display: inline-flex;
+}
 .segmented-control {
   margin-top: 14px;
   border-radius: 12px;
@@ -2661,8 +2825,24 @@ textarea {
   font-size: 0.88rem;
 }
 .plan-timeline li > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
   min-height: 52px;
   padding: 6px 0;
+}
+.plan-item-link {
+  display: grid;
+  grid-template-columns: 58px 14px minmax(0, 1fr);
+  align-items: center;
+  min-width: 0;
+  gap: 9px;
+  color: inherit;
+  text-decoration: none;
+}
+.plan-timeline .plan-item-actions {
+  grid-column: auto;
 }
 .plan-timeline .timeline-content {
   padding: 9px 12px;
@@ -2678,6 +2858,15 @@ textarea {
 }
 .plan-item-actions .text-button {
   font-size: 0.68rem;
+}
+@media (max-width: 520px) {
+  .plan-timeline li > div {
+    grid-template-columns: 1fr;
+  }
+  .plan-timeline .plan-item-actions {
+    grid-column: 1;
+    justify-content: flex-start;
+  }
 }
 .overdue-panel {
   display: flex;

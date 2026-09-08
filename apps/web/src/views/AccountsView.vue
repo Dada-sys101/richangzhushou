@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import { ApiClientError } from "../api/client";
+import PageHeader from "../components/PageHeader.vue";
+import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
 
@@ -13,6 +15,7 @@ const newKind = ref<
   "CASH" | "DEBIT_CARD" | "CREDIT_CARD" | "DIGITAL_WALLET" | "OTHER"
 >("DEBIT_CARD");
 const errorMessage = ref("");
+useUnsavedChanges(computed(() => Boolean(newName.value.trim())));
 
 const accountKindLabels: Record<string, string> = {
   CASH: "现金",
@@ -63,12 +66,7 @@ function messageOf(error: unknown): string {
 
 <template>
   <section class="finance-page" aria-labelledby="accounts-title">
-    <header class="page-head">
-      <div>
-        <p class="eyebrow">设置</p>
-        <h1 id="accounts-title">资金账户</h1>
-      </div>
-    </header>
+    <PageHeader title="资金账户" title-id="accounts-title" subtitle="设置" />
 
     <form class="inline-create" @submit.prevent="createAccount">
       <select v-model="newKind">

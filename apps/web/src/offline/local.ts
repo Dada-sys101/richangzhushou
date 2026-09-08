@@ -27,11 +27,22 @@ export function mergePending<T extends object>(
   );
   for (const item of localItems) {
     const record = item as Record<string, unknown>;
+    const id = String((item as Record<string, unknown>).id);
+    const remote = byId.get(id) as Record<string, unknown> | undefined;
+    const localVersion = Number(record.version);
+    const remoteVersion = Number(remote?.version);
     if (record.deletedAt) {
+      if (!remote || localVersion > remoteVersion) {
+        byId.delete(id);
+      }
       continue;
     }
-    const id = String((item as Record<string, unknown>).id);
-    if (!byId.has(id)) {
+    if (
+      !remote ||
+      (Number.isFinite(localVersion) &&
+        Number.isFinite(remoteVersion) &&
+        localVersion > remoteVersion)
+    ) {
       byId.set(id, item);
     }
   }

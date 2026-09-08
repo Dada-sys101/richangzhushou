@@ -62,6 +62,7 @@ function spawnService(name, args) {
       LOCAL_STORAGE_DIR:
         process.env.E2E_LOCAL_STORAGE_DIR ?? "output/e2e/storage",
       LOGIN_RATE_LIMIT_MAX: "1000",
+      ...(name === "api" ? { V15_AI_ALLOWED: "true" } : {}),
     },
     stdio: ["ignore", "pipe", "pipe"],
   });

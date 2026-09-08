@@ -14,36 +14,13 @@ const EXCEPTIONS_PATH = path.join(
   "scripts",
   "dependency-audit-exceptions.json",
 );
-const PACKAGE_LOCK_PATH = path.join(ROOT_DIRECTORY, "package-lock.json");
 
 export const AUDIT_ARGUMENTS = ["audit", "--json"];
 export const AUDIT_TIMEOUT_MS = 30_000;
 export const MAX_AUDIT_STDOUT_BYTES = 2 * 1024 * 1024;
 export const MAX_AUDIT_STDERR_BYTES = 256 * 1024;
 
-export const EXPECTED_EXCEPTION = Object.freeze({
-  package: "deepmerge-ts",
-  advisory: "GHSA-ggr8-5vv4-36mx",
-  currentVersion: "7.1.5",
-  chain: "prisma@7.9.1 -> @prisma/config@7.9.1 -> deepmerge-ts@7.1.5",
-  expiresAt: "2026-09-01T23:59:00+08:00",
-  ownerRole: "PR18 owner / release-security owner",
-  reviewDate: "2026-08-25",
-  reason:
-    "Prisma 7.9.1 upstream transitive dependency; installed but not API runtime reachable; no stable supported Prisma 7.x fix available at approval time.",
-});
-
 const EXCEPTION_CONFIG_KEYS = ["schemaVersion", "exceptions"];
-const EXCEPTION_KEYS = [
-  "package",
-  "advisory",
-  "currentVersion",
-  "chain",
-  "expiresAt",
-  "ownerRole",
-  "reviewDate",
-  "reason",
-];
 const AUDIT_SEVERITIES = ["info", "low", "moderate", "high", "critical"];
 const HIGH_OR_CRITICAL = new Set(["high", "critical"]);
 const METADATA_VULNERABILITY_KEYS = [
@@ -62,30 +39,6 @@ const METADATA_DEPENDENCY_KEYS = [
   "peerOptional",
   "total",
 ];
-const CHAIN = Object.freeze([
-  Object.freeze({
-    name: "prisma",
-    version: "7.9.1",
-    lockPath: "node_modules/prisma",
-    nextName: "@prisma/config",
-    nextRequestedVersion: "7.9.1",
-  }),
-  Object.freeze({
-    name: "@prisma/config",
-    version: "7.9.1",
-    lockPath: "node_modules/@prisma/config",
-    nextName: "deepmerge-ts",
-    nextRequestedVersion: "7.1.5",
-  }),
-  Object.freeze({
-    name: "deepmerge-ts",
-    version: "7.1.5",
-    lockPath: "node_modules/deepmerge-ts",
-    nextName: null,
-    nextRequestedVersion: null,
-  }),
-]);
-const CHAIN_BY_NAME = new Map(CHAIN.map((entry) => [entry.name, entry]));
 
 function isPlainObject(value) {
   return (
@@ -130,19 +83,6 @@ function parseAdvisoryId(url) {
   return match ? match[1].toUpperCase() : null;
 }
 
-function packageNameFromLockPath(lockPath) {
-  if (typeof lockPath !== "string" || !lockPath.startsWith("node_modules/")) {
-    return null;
-  }
-
-  const nestedMarker = "/node_modules/";
-  const finalNestedMarker = lockPath.lastIndexOf(nestedMarker);
-  if (finalNestedMarker >= 0) {
-    return lockPath.slice(finalNestedMarker + nestedMarker.length);
-  }
-  return lockPath.slice("node_modules/".length);
-}
-
 export function validateExceptionConfig(config) {
   const errors = [];
 
@@ -161,40 +101,16 @@ export function validateExceptionConfig(config) {
     errors.push("exceptions config exceptions must be an array");
     return { valid: false, exception: null, errors };
   }
-  if (config.exceptions.length !== 1) {
-    errors.push("exceptions config must contain exactly one exception");
+  if (config.exceptions.length !== 0) {
+    errors.push(
+      "exceptions config must be empty; security exceptions are not active",
+    );
     return { valid: false, exception: null, errors };
-  }
-
-  const exception = config.exceptions[0];
-  if (!isPlainObject(exception)) {
-    errors.push("exception entry must be a JSON object");
-    return { valid: false, exception: null, errors };
-  }
-  if (!hasExactKeys(exception, EXCEPTION_KEYS)) {
-    errors.push("exception entry has unexpected or missing fields");
-  }
-
-  for (const key of EXCEPTION_KEYS) {
-    if (!isNonEmptyString(exception[key])) {
-      errors.push(`exception field ${key} must be a non-empty string`);
-    }
-  }
-
-  for (const key of EXCEPTION_KEYS) {
-    if (exception[key] !== EXPECTED_EXCEPTION[key]) {
-      errors.push(`exception field ${key} does not match the approved value`);
-    }
-  }
-
-  const expiresAt = Date.parse(exception.expiresAt);
-  if (!Number.isFinite(expiresAt)) {
-    errors.push("exception expiresAt must be a valid timestamp");
   }
 
   return {
     valid: errors.length === 0,
-    exception: errors.length === 0 ? exception : null,
+    exception: null,
     errors,
   };
 }
@@ -220,64 +136,6 @@ export function parseExceptionConfig(text) {
   }
 
   return validateExceptionConfig(config);
-}
-
-export function validateDependencyChain(packageLock) {
-  const errors = [];
-
-  if (!isPlainObject(packageLock)) {
-    return {
-      valid: false,
-      errors: ["package-lock.json must be a JSON object"],
-    };
-  }
-  if (packageLock.lockfileVersion !== 3) {
-    errors.push("package-lock.json lockfileVersion must be exactly 3");
-  }
-  if (!isPlainObject(packageLock.packages)) {
-    errors.push("package-lock.json packages must be an object");
-    return { valid: false, errors };
-  }
-
-  for (const chainEntry of CHAIN) {
-    const lockEntry = packageLock.packages[chainEntry.lockPath];
-    if (!isPlainObject(lockEntry)) {
-      errors.push(`missing lock entry ${chainEntry.lockPath}`);
-      continue;
-    }
-    if (lockEntry.version !== chainEntry.version) {
-      errors.push(
-        `${chainEntry.name} lock version must be ${chainEntry.version}`,
-      );
-    }
-
-    const matchingPaths = Object.keys(packageLock.packages).filter(
-      (lockPath) => packageNameFromLockPath(lockPath) === chainEntry.name,
-    );
-    if (
-      matchingPaths.length !== 1 ||
-      matchingPaths[0] !== chainEntry.lockPath
-    ) {
-      errors.push(
-        `${chainEntry.name} must have exactly one package-lock path at ${chainEntry.lockPath}`,
-      );
-    }
-
-    if (chainEntry.nextName) {
-      if (!isPlainObject(lockEntry.dependencies)) {
-        errors.push(`${chainEntry.name} lock entry has no dependencies object`);
-      } else if (
-        lockEntry.dependencies[chainEntry.nextName] !==
-        chainEntry.nextRequestedVersion
-      ) {
-        errors.push(
-          `${chainEntry.name} must depend on ${chainEntry.nextName}@${chainEntry.nextRequestedVersion}`,
-        );
-      }
-    }
-  }
-
-  return { valid: errors.length === 0, errors };
 }
 
 function validateAdvisoryObject(advisory, context) {
@@ -491,27 +349,6 @@ export function parseAuditReport(text) {
   return { ...validation, report: validation.valid ? report : null };
 }
 
-function collectAdvisories(name, vulnerabilities, stack = []) {
-  if (stack.includes(name)) {
-    throw new Error(`cyclic npm audit via chain at ${name}`);
-  }
-  const entry = vulnerabilities[name];
-  if (!isPlainObject(entry) || !Array.isArray(entry.via)) {
-    throw new Error(`cannot resolve npm audit via chain for ${name}`);
-  }
-
-  const nextStack = [...stack, name];
-  const advisories = [];
-  for (const via of entry.via) {
-    if (typeof via === "string") {
-      advisories.push(...collectAdvisories(via, vulnerabilities, nextStack));
-    } else {
-      advisories.push(via);
-    }
-  }
-  return advisories;
-}
-
 function collectSeverities(name, vulnerabilities, stack = []) {
   if (stack.includes(name)) {
     throw new Error(`cyclic npm audit via chain at ${name}`);
@@ -559,125 +396,7 @@ function collectHighOrCriticalEntries(report) {
   return { entries, errors };
 }
 
-function validateExceptionExpiry(exception, now) {
-  const errors = [];
-  const expiresAt = Date.parse(exception.expiresAt);
-  if (!Number.isFinite(expiresAt)) {
-    return ["exception expiresAt is not a valid timestamp"];
-  }
-
-  const nowDate = now instanceof Date ? now : new Date(now);
-  if (Number.isNaN(nowDate.getTime())) {
-    return ["audit evaluation time is invalid"];
-  }
-  if (nowDate.getTime() >= expiresAt) {
-    errors.push(`temporary exception expired at ${exception.expiresAt}`);
-  }
-  return errors;
-}
-
-function validateApprovedAuditChain({
-  report,
-  packageLock,
-  exception,
-  now,
-  highOrCriticalEntries,
-}) {
-  const errors = [];
-  const chainResult = validateDependencyChain(packageLock);
-  errors.push(...chainResult.errors);
-  errors.push(...validateExceptionExpiry(exception, now));
-
-  if (highOrCriticalEntries.length === 0) {
-    return { valid: errors.length === 0, errors };
-  }
-
-  const highNames = new Set(highOrCriticalEntries.map(({ name }) => name));
-  for (const chainEntry of CHAIN) {
-    if (!highNames.has(chainEntry.name)) {
-      errors.push(
-        `approved dependency chain entry ${chainEntry.name} must have a high/critical severity`,
-      );
-    }
-  }
-  for (const { name, entry, severities } of highOrCriticalEntries) {
-    const chainEntry = CHAIN_BY_NAME.get(name);
-    if (!chainEntry) {
-      errors.push(`unapproved high/critical package ${name}`);
-      continue;
-    }
-    if (HIGH_OR_CRITICAL.has(entry.severity) && entry.severity !== "high") {
-      errors.push(
-        `${name} is ${entry.severity}; the approved exception is limited to high severity`,
-      );
-    }
-    if (!severities.some((severity) => HIGH_OR_CRITICAL.has(severity))) {
-      errors.push(`${name} has no resolvable high/critical severity`);
-    }
-    if (entry.nodes.length !== 1 || entry.nodes[0] !== chainEntry.lockPath) {
-      errors.push(
-        `${name} high/critical nodes must be exactly ${chainEntry.lockPath}`,
-      );
-    }
-
-    if (chainEntry.nextName) {
-      if (entry.via.length !== 1 || entry.via[0] !== chainEntry.nextName) {
-        errors.push(`${name} audit via must be exactly ${chainEntry.nextName}`);
-      }
-    } else if (entry.via.length !== 1 || !isPlainObject(entry.via[0])) {
-      errors.push(
-        "deepmerge-ts audit via must contain exactly one advisory object",
-      );
-    }
-
-    try {
-      const advisories = collectAdvisories(name, report.vulnerabilities);
-      if (advisories.length === 0) {
-        errors.push(`${name} has no resolvable advisory`);
-      }
-      for (const advisory of advisories) {
-        const advisoryId = parseAdvisoryId(advisory.url);
-        if (advisoryId !== EXPECTED_EXCEPTION.advisory.toUpperCase()) {
-          errors.push(
-            `${name} resolves to an advisory other than ${EXPECTED_EXCEPTION.advisory}`,
-          );
-        }
-        if (advisory.name !== EXPECTED_EXCEPTION.package) {
-          errors.push(
-            `approved advisory package must be ${EXPECTED_EXCEPTION.package}`,
-          );
-        }
-        if (advisory.dependency !== EXPECTED_EXCEPTION.package) {
-          errors.push(
-            `approved advisory dependency must be ${EXPECTED_EXCEPTION.package}`,
-          );
-        }
-        if (advisory.severity !== "high") {
-          errors.push("approved advisory severity must remain high");
-        }
-      }
-    } catch (error) {
-      errors.push(`${name} audit via chain is invalid: ${errorText(error)}`);
-    }
-  }
-
-  const leafEntry = report.vulnerabilities[EXPECTED_EXCEPTION.package];
-  if (!highNames.has(EXPECTED_EXCEPTION.package)) {
-    errors.push("deepmerge-ts must remain a high/critical audit entry");
-  }
-  if (!isPlainObject(leafEntry)) {
-    errors.push("approved deepmerge-ts vulnerability entry is missing");
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-
-export function evaluateAuditReport({
-  auditReport,
-  exceptionConfig,
-  packageLock,
-  now = new Date(),
-}) {
+export function evaluateAuditReport({ auditReport, exceptionConfig }) {
   const auditValidation = validateAuditReport(auditReport);
   const exceptionValidation = validateExceptionConfig(exceptionConfig);
   const initialErrors = [
@@ -708,26 +427,13 @@ export function evaluateAuditReport({
     };
   }
 
-  const approval = validateApprovedAuditChain({
-    report: auditReport,
-    packageLock,
-    exception: exceptionValidation.exception,
-    now,
-    highOrCriticalEntries: securityEntries.entries,
-  });
-  if (!approval.valid) {
-    return {
-      passed: false,
-      appliedException: false,
-      errors: approval.errors,
-    };
-  }
-
   return {
-    passed: true,
-    appliedException: true,
-    errors: [],
-    exception: exceptionValidation.exception,
+    passed: false,
+    appliedException: false,
+    errors: securityEntries.entries.map(
+      ({ name, severities }) =>
+        `unapproved high/critical package ${name} (${[...new Set(severities)].join(", ")})`,
+    ),
   };
 }
 
@@ -1047,38 +753,8 @@ export function runNpmAudit({
   });
 }
 
-async function readJsonFile(filePath, label) {
-  let text;
-  try {
-    text = await readFile(filePath, "utf8");
-  } catch (error) {
-    throw new Error(`${label} could not be read: ${errorText(error)}`);
-  }
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    throw new Error(`${label} is not valid JSON: ${errorText(error)}`);
-  }
-}
-
-function printExceptionLog(exception) {
-  process.stdout.write(
-    [
-      "TEMPORARY SECURITY EXCEPTION applied",
-      `GHSA: ${exception.advisory}`,
-      `package/version: ${exception.package}@${exception.currentVersion}`,
-      `chain: ${exception.chain}`,
-      `reason: ${exception.reason}`,
-      `ownerRole: ${exception.ownerRole}`,
-      `reviewDate: ${exception.reviewDate}`,
-      `expiresAt: ${exception.expiresAt}`,
-    ].join("\n") + "\n",
-  );
-}
-
 async function main() {
   let exceptionConfig = null;
-  let packageLock = null;
   const inputErrors = [];
 
   try {
@@ -1090,19 +766,12 @@ async function main() {
     inputErrors.push(errorText(error));
   }
 
-  try {
-    packageLock = await readJsonFile(PACKAGE_LOCK_PATH, "package-lock.json");
-  } catch (error) {
-    inputErrors.push(errorText(error));
-  }
-
   const execution = await runNpmAudit();
   const result = evaluateAuditExecution({
     stdout: execution.stdout,
     code: execution.code,
     commandError: execution.commandError,
     exceptionConfig,
-    packageLock,
   });
   result.errors.unshift(...inputErrors);
   if (inputErrors.length > 0) {
@@ -1124,13 +793,9 @@ async function main() {
       `npm audit exited with code ${String(execution.code)}; structured JSON was evaluated.\n`,
     );
   }
-  if (result.appliedException) {
-    printExceptionLog(result.exception);
-  } else {
-    process.stdout.write(
-      "Dependency audit passed: no high/critical vulnerabilities.\n",
-    );
-  }
+  process.stdout.write(
+    "Dependency audit passed: no high/critical vulnerabilities.\n",
+  );
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
