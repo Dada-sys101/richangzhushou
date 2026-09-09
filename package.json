@@ -52,6 +52,7 @@
   "overrides": {
     "deepmerge-ts": "8.0.2",
     "mariadb": "3.4.7",
+    "multer": "2.3.0",
     "mysql2": "3.24.3"
   },
   "allowScripts": {

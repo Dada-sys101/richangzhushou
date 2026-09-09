@@ -1,7 +1,9 @@
 # REL-01 Staging 架构、资源与发布边界设计稿
 
 文档版本：0.1
-状态：`APPROVED / REL-02_AUTHORIZATION_PENDING`
+状态：`REFERENCE_DESIGN / REL-02_SEPARATE_STAGING_WAIVED`
+
+> 2026-09-08 范围更新：用户明确决定不创建独立 Staging。本文保留为未来公开发布、扩容或承载重要真实数据时的参考设计；当前使用现有 Alibaba 私有预览作为验证环境，并执行轻量 REL-03 readiness 与发布流程收口。
 更新：2026-09-02
 适用版本：V1.5
 

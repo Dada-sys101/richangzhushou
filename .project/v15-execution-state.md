@@ -1,66 +1,66 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-03T09:27:14+08:00
+updatedAt: 2026-09-08T16:00:45+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: 299b1f71debbd5a3140d1ee19f9781372e67134b
+integrationHead: 6515b8fd0f13969a0e434d3d8223f60a82cb0310
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: R1 Quality Gate
-executionStatus: BLOCKED
-deliveryStatus: NOT_READY
-currentWork: H7 is closed; Web smoke and real sync evidence are complete locally, while the formal dependency gate remains blocked; the unsupported dependency remediation candidate was rejected by SBOM and rolled back; a later lockfile-only patch removed the independent fast-uri and qs findings without changing package declarations, business code or architecture; the existing Alibaba private preview at Integration 299b1f71 is operational and has passed release-package, service, health, database, backup and restore checks; the requested daily backup timer with 7-day cleanup is active and verified; current private-preview live AI is retained by explicit user decision; real iPhone evidence is explicitly waived for the current private preview and remains unverified; public domain switching remains pending approval
-latestDependencyGateRecheck: 2026-09-03 lockfile-only fast-uri 3.1.5->3.1.7 and qs 6.15.3->6.16.0 patch; npm ci, npm ls, governance 14/14, SBOM 1044 components and license inventory 1163 packages pass; npm audit is reduced to 1 moderate and 5 high findings and the fail-closed R1 gate remains blocked by the Prisma dependency chain and expired exception
-nextCanonicalTask: R1 Quality Gate
-nextCanonicalTaskAfterCompletion: TBD_AFTER_R1_QUALITY_GATE
-openPullRequests: ["#25 OPEN / release: ship verified private-preview improvements"]
-repositoryPersistedGate: QUALITY-R1-GOVERNANCE-RECONCILIATION POST-WRITE REVIEW PASS; RELEASE-CANDIDATE-01 PUSHED / PR-25 OPEN
-repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / PR_OPEN / QUALITY_BLOCKED / API_INTEGRATION_VERIFIED / WEB_SMOKE_VERIFIED / CROSS_BROWSER_VERIFIED / H7_CLOSED / DEPENDENCY_AUDIT_REVIEWED / CANDIDATE_REJECTED / PRIVATE_PREVIEW_OPERATIONAL / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
-persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is red only at dependency audit while db-validation and browser-qa pass; current private preview remains operational; candidate deployment is held; public domain approval remains pending
+currentTask: REL-03 Private Preview Readiness
+executionStatus: READY
+deliveryStatus: NOT_STARTED
+currentWork: PR #25 is merged at Integration 6515b8f and deployed to the Alibaba private preview; Linux audit/SBOM/build checks and target-host business smoke pass. Login, forced password change, task, calendar, transaction and refresh persistence passed with zero blocking browser errors; the disposable account and cascaded data were removed with zero residue. Formal/public readiness gates remain; real iPhone evidence is waived for this private preview and remains unverified
+latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
+nextCanonicalTask: REL-03 Private Preview Readiness
+nextCanonicalTaskAfterCompletion: REL-04_REASSESSMENT
+openPullRequests: []
+repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
+repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
+persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED
 
 ## Current Private Preview Release Assessment
 
-- Baseline: existing server release from Integration `299b1f71debbd5a3140d1ee19f9781372e67134b`.
-- Status: `OPERATIONAL / PRIVATE_FORMAL_PREVIEW / PUBLIC_NOT_READY`.
-- Release candidate: branch `codex/v15-v2-ui-visual-freeze` at merge commit `b7734d093072c400ca9ae9d44b60abb95a45a725`; three logical commits were pushed and are tracked by GitHub PR #25. The candidate has not been deployed; the server remains on `299b1f71`.
+- Active release: Integration `6515b8fd0f13969a0e434d3d8223f60a82cb0310`, deployed at `/opt/daily-assistant-preview/releases/6515b8fd-2db6b6a2f199db4c`.
+- Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
+- Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
-- H1/H2: `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED` by the current user instruction; never treat this as physical-device pass evidence.
-- Remaining blockers: compatible dependency remediation with audit/SBOM/license/quality revalidation; domain approval before public entry. Local daily backup with 7-day cleanup is configured, and live AI is retained by explicit user decision for the private preview.
-- Local worktree: clean, committed and pushed; the former mixed worktree was split into logical release commits. No future-feature work was added to PR #25.
+- H1/H2: `WAIVED_FOR_R1 / UNVERIFIED` by explicit user approval on 2026-09-08; never treat this as physical-device pass evidence, and reassess before public support claims.
+- Remaining gate: R1 Quality Gate is `APPROVED / DONE`; REL-02 requires independent resource/fee authorization. Non-sensitive readiness belongs to REL-03 under the approved REL-01 D7 boundary; public DNS/HTTPS/CORS validation belongs to the later public-entry gate. Local daily backup with 7-day cleanup is configured, and live AI is retained by explicit user decision for the private preview.
+- Local worktree: contains 15 uncommitted governance/evidence Markdown changes; deployed source is the clean Integration merge and excludes these local documentation changes.
 
 ## Active Task
 
-- id: R1 Quality Gate
-- displayName: R1 Quality Gate
+- id: REL-03 Private Preview Readiness
+- displayName: existing private-preview readiness and release hardening
 - branch: codex/v15-v2-ui-visual-freeze
-- baseHead: 299b1f71debbd5a3140d1ee19f9781372e67134b
-- localHead: 837e9cd64dab74ced689278ce2cddbdf0ee85bc5（latest state-sync commit; release candidate code head remains merge `b7734d093072c400ca9ae9d44b60abb95a45a725`; worktree clean）
-- contract: PLANS.md R1 Quality Gate / release gate definitions
-- currentGate: H7 CLOSED; R1 Quality Gate BLOCKED / NOT_READY
-- implementation: Web/sync, AI, contract/test and release-operations changes were split into three logical commits (`f7fb90a`, `1545e21`, `d649ad4`), reconciled with Integration without changing the product scope, and pushed as PR #25; the existing private preview was not replaced; the dependency audit remediation candidate remains rejected by SBOM; `REL-01-DECISION-RECORD-01` approved D1-D8 without creating new resources
-- allowedScope: scoped Web smoke remediation and R1 dependency/audit compatibility review required to remove the current quality-evidence blocker, plus the PLANS.md-permitted REL-01 design-only fallback, R1 approval decision pack and state/evidence updates
-- forbiddenScope for the remaining blocked gate: Provider enablement, real user/data evaluation, business writes, unsupported dependency overrides, automatic exception extension, public switch, deployment while quality is red, and changes to ADR-026/027 normative content
-- currentUserAuthorization: the user explicitly authorized this turn's logical commits, push, PR creation and conflict reconciliation for the verified private-preview candidate; this does not authorize bypassing the failed dependency gate
-- validation: Web lint, typecheck, unit tests, build, focused checks and full Web smoke `44/44 PASS` completed against disposable MySQL; the 2026-09-03 lockfile-only patch passed `npm ci`, `npm ls`, governance `14/14`, SBOM generation/validation and license inventory; the full local quality sequence passes every stage through migration validation and fails closed only at dependency audit; PR #25 `db-validation` and `browser-qa` passed; H7 evidence remains PASS; remote release artifact integrity, service status, health checks, database migration state, backup gzip validation and temporary-database restore all passed
-- remaining: obtain a dependency-owner-approved compatible remediation and rerun audit/SBOM/license/quality checks before deploying the candidate; keep broader/public Provider enablement, REL-04 and R1 advancement behind their independent gates; the temporary no-cap budget policy remains an acknowledged risk and is not production budget enforcement; after domain approval, configure the public HTTPS entry and re-run public smoke checks; consider cross-location backup and isolated restore as a later public-operations enhancement
+- baseHead: 6515b8fd0f13969a0e434d3d8223f60a82cb0310
+- localHead: 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e（release candidate dependency commit; state/evidence docs remain uncommitted）
+- contract: PLANS.md REL-03 card as amended by the explicit separate-Staging waiver
+- currentGate: R1 Quality Gate APPROVED / DONE; REL-02 SEPARATE_STAGING_WAIVED; REL-03 READY
+- implementation: lightweight non-sensitive readiness and release-procedure closure on the existing private-preview environment; no new cloud resources
+- allowedScope: readiness implementation and focused tests, controlled private-preview verification, and backup/deploy/health/smoke/application-rollback runbook closure
+- forbiddenScope: new Staging resources or fees, Provider expansion, real user/data evaluation, public switch, production release, destructive migration and unrelated V1.5 features
+- currentUserAuthorization: the user authorized candidate delivery, PR merge, scoped license handling, private-preview deployment and the H1/H2 waiver for this R1 advancement; this does not authorize REL-02 resources/fees, public switching, production deployment or Provider expansion
+- validation: local quality, MySQL 8.4.11 integration 18 files/160 tests and browser smoke 44/44 passed; PR/push and merged Integration CI passed quality, db-validation and browser-qa; target Linux build, audit 0, SBOM 1043 components, dependency versions, API health and Web/Admin entry checks passed
+- remaining: implement lightweight readiness and release-procedure closure on the existing private-preview environment; keep public DNS/HTTPS/CORS, broader/public Provider enablement, REL-04 and production release behind their independent gates; reconsider separate Staging for public launch, larger scale or important real data
 - evidence: `docs/46-r1-webkit-emulation-validation.md` records the non-formal WebKit simulation; `docs/47-rel-01-staging-architecture-decision.md` and `docs/48-r1-approval-decision-pack.md` record the REL-01 decision; `docs/49-private-preview-release-assessment.md` records the current private preview release, backup/restore evidence and remaining blockers
-- executionStatus: BLOCKED
-- deliveryStatus: NOT_READY / PRIVATE_PREVIEW_OPERATIONAL / CANDIDATE_COMMITTED / CANDIDATE_PUSHED / PR_OPEN
+- executionStatus: READY
+- deliveryStatus: NOT_STARTED / R1_APPROVED / PRIVATE_PREVIEW_BASELINE_VERIFIED / PUBLIC_NOT_READY
 - commits: `f7fb90a08a9f6036a0c5fbce44b674866add88eb`, `1545e213b5a5658d5ecd174f386e779491d53396`, `d649ad4c3afe10f11249ffe7cd4db0e66384c7bd`, merge `b7734d093072c400ca9ae9d44b60abb95a45a725`
 - push: `origin/codex/v15-v2-ui-visual-freeze` updated through `837e9cd`
-- pr: GitHub PR #25 OPEN and MERGEABLE; final PR-event run `33615692992` has quality FAIL_CLOSED at dependency audit, db-validation PASS and browser-qa PASS
+- pr: GitHub PR #25 MERGED at `6515b8fd0f13969a0e434d3d8223f60a82cb0310`; merged CI run `34181985716` passed quality, db-validation and browser-qa
 - stateSyncCommit: `837e9cd64dab74ced689278ce2cddbdf0ee85bc5`; this is documentation-only and is not a reason to create another hash-chasing commit
-- candidateDeployment: NOT_RUN / HELD_BY_R1_QUALITY_GATE; existing private preview remains on `299b1f71`
+- candidateDeployment: DONE / PRIVATE_PREVIEW_ACTIVE / release `6515b8fd-2db6b6a2f199db4c`
 
 ## Latest Release Action
 
 - id: `PRIVATE-PREVIEW-RELEASE-CANDIDATE-01`
 - displayName: Verified private-preview improvements release candidate
-- deliveryStatus: `DONE_PUSHED / PR_OPEN / QUALITY_BLOCKED`
+- deliveryStatus: `DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED`
 - scope: committed the verified web/offline-sync, AI prompt/evaluation, contracts/tests and backup/state documentation changes in logical commits; kept future feature work separate
-- result: PR #25 is open against Integration; merge conflicts were reconciled with Integration `299b1f71`; no new code was deployed because the dependency audit gate remains red
+- result: PR #25 merged into Integration `6515b8f`; the merged candidate passed CI and target-host supply-chain/build checks and is active on the private-preview server
 
 ## Latest Dependency Gate Recheck
 
@@ -73,6 +73,21 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is r
 - result: the audit snapshot is reduced from `2 moderate / 6 high` to `1 moderate / 5 high`; the remaining Prisma 7.9.1 exact chain (`@prisma/config`/`deepmerge-ts`, `mariadb`, `mysql2`) and expired exception still block R1
 - deliveryStatus: `DONE_LOCAL / DONE_COMMITTED / DONE_PUSHED / R1_STILL_BLOCKED`
 - deployment: `NOT_RUN / HELD_BY_R1_QUALITY_GATE`; the private preview remains on Integration `299b1f71`
+
+## Current Stable Prisma Dependency Recheck
+
+- id: `R1-DEPENDENCY-STABLE-MATRIX-RECHECK`
+- displayName: R1 stable Prisma dependency matrix recheck
+- date: `2026-09-03 10:32 +08:00`
+- scope: read-only upstream registry verification and required local release-gate checks; no dependency, audit-script, CI, architecture, schema or deployment change
+- upstream stable match: `prisma@7.10.0`, `@prisma/client@7.10.0`, `@prisma/adapter-mariadb@7.10.0`
+- exact upstream chain: `prisma@7.10.0 -> mysql2@3.15.3, @prisma/config@7.10.0`; `@prisma/config@7.10.0 -> deepmerge-ts@7.1.5`; `@prisma/adapter-mariadb@7.10.0 -> mariadb@3.4.5`
+- fixed stable packages available in the registry are outside those exact upstream declarations: `deepmerge-ts@8.0.2`, `mariadb@3.4.7` (or `3.5.4`) and `mysql2@3.24.3`
+- pre-release evidence: `prisma` `latest` is `8.0.0-rc.12`; `@prisma/client`, `@prisma/adapter-mariadb` and `@prisma/config` have no matching `8.0.0-rc.12` package, and pre-release adoption is forbidden
+- validation: `npm ci` PASS; `npm ls` PASS; `npm audit` FAIL (`1 moderate / 5 high`); `npm run audit` unavailable (Missing script); `npm run audit:dependencies` FAIL_CLOSED; SBOM generation/validation PASS (`1044` components); license inventory PASS (`1163` packages, `9` missing/unresolved, `25` manual review); governance `14/14` PASS; `npm run quality` FAIL only at the final dependency audit stage
+- result: no complete stable upstream repair exists at this registry snapshot; `R1 Quality Gate` remains `BLOCKED / NOT_READY`
+- CI/deployment: `NOT_RUN_THIS_TURN / HELD`; existing PR #25 remains open with prior `quality` failure, while `db-validation` and `browser-qa` pass; Alibaba private preview remains on Integration `299b1f71`
+- deliveryStatus: `DONE_LOCAL / R1_STILL_BLOCKED / NO_DEPENDENCY_CHANGE / NO_DEPLOYMENT`
 
 ## Latest Completed Work Package
 
@@ -203,8 +218,9 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is r
 | REL-01 | DONE | APPROVED / REL-02_AUTHORIZATION_PENDING | R1 | V15-CTRL-001 satisfied; R1 gate still blocks execution | `docs/47-rel-01-staging-architecture-decision.md` and `docs/48` approved D1-D8; no resources; REL-02 authorization and execution details remain pending |
 | R1-APPROVAL-PACKAGE-01 | DONE | DONE_LOCAL / UNCOMMITTED / APPROVED | R1 | R1 Quality Gate; REL-01 design draft | `docs/48-r1-approval-decision-pack.md` records H1/H2 and dependency evidence, approved D1-D8 and the separate REL-02 boundary |
 | REL-01-DECISION-RECORD-01 | DONE | DONE_LOCAL / UNCOMMITTED / APPROVED / REL-02_AUTHORIZATION_PENDING | R1 | REL-01; R1 gate remains blocked | D1-D8 approval and REL-02 execution preflight recorded in `docs/48`; no resource, credential, deployment or real-data action |
-| REL-02 | BLOCKED | NOT_STARTED | R1 | REL-01 + R1 Quality Gate + authorization | no resources; no resource authorization |
-| REL-03/REL-04 | BLOCKED | NOT_STARTED | R1 | REL-02 and PLANS gates | no staging/deployment or live-service authorization |
+| REL-02 | CANCELLED | SEPARATE_STAGING_WAIVED | R1 | explicit user scope decision | no new resources or fees; reconsider for public launch, larger scale or important real data |
+| REL-03 | READY | NOT_STARTED / EXISTING_ENVIRONMENT | R1 | R1 approved; existing private preview | lightweight readiness and release-procedure closure without new cloud resources |
+| REL-04 | BLOCKED | NOT_STARTED | R1 | REL-03 and PLANS gates | public/real-service scope remains separately gated |
 | REL-05 | BLOCKED | NOT_STARTED | R1 | REL-04 | no pilot |
 | REL-06 | BLOCKED | NOT_STARTED | R1 | REL-05 + release gates | no production |
 
@@ -280,9 +296,9 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is r
 - integrationCI33043413216: head `d53f84a…`; `quality`/`db-validation`/`browser-qa` SUCCESS；artifacts `supply-chain-governance` and `pr6a-mysql84-evidence`; Playwright report upload skipped
 - governanceReconciliation: ADR-028 `Accepted`; PR20-03A/#22 and PR20-03B/#23 deviations `KEEP_AND_RECONCILE`; existing commit `6adc111492dcbeb35e79475a3d69f6a63007e5bb` contains only the 21 authorized Markdown files and post-write review is PASS
 - governanceCI: run `33048729907` for `6adc111...` has `quality`, `db-validation`, and `browser-qa` SUCCESS; latest Integration run `33147816383` for `299b1f7...` also has all three jobs SUCCESS; Playwright report upload was skipped
-- currentGate: `R1 QUALITY GATE BLOCKED / NOT_READY`; H7 `CLOSED` by explicit Dada instruction on 2026-09-01; docs/40 is V1.2; ADR-029 temporary budget policy accepted
+- currentGate: `R1 QUALITY GATE APPROVED / DONE`; H7 `CLOSED`; H1/H2 `WAIVED_FOR_R1 / UNVERIFIED`; REL-02 separate Staging waived; REL-03 readiness is current
 - readOnlyGatePersistenceRule: REPOSITORY_PERSISTED_GATE is the last materialized repository write checkpoint; PERSISTED_SUCCESSOR_GATE is its immediate expected orchestration gate; GPT_ACTIVE_GATE is externally controlled. A read-only Review may consume the successor without mutation; it may remain until a later authorized Write Gate materializes new state. GPT Active Gate differing from the persisted checkpoint or advancing beyond a consumed successor is not, by itself, a state inconsistency; a Review must not REQUEST_CHANGES solely for either fact. A successor is inconsistent only if already stale when its checkpoint was produced.
-- staging: NOT_CREATED
+- staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 - production: NOT_DEPLOYED
 
 ## Last Verified
@@ -326,7 +342,7 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is r
 8. PR19 V10 remains `FROZEN / GPT_ACCEPT` and its normative scope is unchanged;
    historical implementation delivery is `DONE / DONE_INTEGRATION`. PR20 Adapter
    Integration is a historical `DONE_INTEGRATION` fact; PR20 Live Provider Validation
-   is `DONE_LOCAL / H7_CLOSED`; R1 Quality Gate remains `BLOCKED / NOT_READY`.
+   is `DONE_LOCAL / H7_CLOSED`; R1 Quality Gate is `APPROVED / DONE`.
 9. ADR-028 is `Accepted`; PR20-03A/#22 and PR20-03B/#23 deviations are
    `KEEP_AND_RECONCILE`. Canonical R3 PR22/PR23 remain untouched.
 10. Existing Gate 2 write is committed as `6adc111...` and its post-write review is complete.
@@ -344,3 +360,54 @@ persistedSuccessorGate: R1 QUALITY GATE BLOCKED / NOT_READY; PR #25 quality is r
    successor is inconsistent only if it was already stale when produced.
 12. Snapshot/live-fact mismatch is reconciled at the next legal governance update;
    never create an infinite CI synchronization loop.
+
+## 2026-09-08 — Prisma candidate delivery authorization
+
+- 用户明确授权继续候选提交、推送及 CI；不包含 merge、部署或 R1 门禁关闭。
+- 本次交付仅包含 15 个已审阅的依赖、工具链、安装治理、CI、测试及 README 文件；原有 15 个混合 Markdown 修改保留本地，不混入候选提交。
+- 提交前治理测试 30/30、git diff --check 与 staged diff 检查通过。许可证人工结论和发布环境证据仍待完成。
+- Delivery: DONE_COMMITTED / DONE_PUSHED / CI_PASS；commit 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e，parent 1b8354575cc195584af5ee3b1fe8882eda8c3bdd；PR #25 已自动更新；PR CI 34181552275、push CI 34181550054 均 SUCCESS；各自 quality、db-validation、browser-qa 全部 PASS。此条覆盖前文候选 UNCOMMITTED / CI_NOT_RUN 的历史快照；R1 仍 BLOCKED / NOT_READY。
+
+## 2026-09-08 — PR25 merge and scoped license decision
+
+- 用户明确接受本次许可证处理方案：保留第三方许可证和版权声明，不修改第三方库源码，按实际交付内容核对工具链组件；对外分发后端包/容器或修改库时重新评审。此为当前范围的人工决定，不是对任意未来分发的法律批准。
+- 用户独立授权合并 PR #25；已匹配 candidate HEAD 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e，并核验 PR/push 两轮 quality、db-validation、browser-qa 全绿。
+- PR #25 于 2026-09-08T03:00:13Z MERGED；merge commit 6515b8fd0f13969a0e434d3d8223f60a82cb0310，远端 codex/v15-integration-foundation HEAD 已一致核验。Candidate delivery: DONE_INTEGRATION。合并后 CI 34181985716 SUCCESS，quality、db-validation、browser-qa 全部 PASS：https://github.com/Dada-sys101/richangzhushou/actions/runs/34181985716 。
+- 本记录覆盖前文 PR_OPEN、候选 UNCOMMITTED/CI_NOT_RUN 和 LICENSE_APPROVAL_PENDING 的历史快照；本地原有 15 个混合 Markdown 修改保留，当前工作分支不切换，不额外提交记录。
+- R1 仍 BLOCKED / NOT_READY：实际发布包许可证声明、目标环境差异与部署验收尚未完成。本次未授权或执行部署、真实数据库迁移、公网切换或发布门禁关闭。
+
+## 2026-09-08 — Release bundle preparation
+
+- 基于已合并且 CI 全绿的 6515b8fd0f13969a0e434d3d8223f60a82cb0310，在 D:/daily-assistant-release-6515b8f 导出精确源码并完成独立 npm 11.18.0 安装（audit 0）、Prisma generate、全部 workspace build/PWA、SBOM 1043 components 校验和许可证清单。
+- 准备包：D:/daily-assistant-release-6515b8f/daily-assistant-6515b8f-preparation.tar.gz；说明与逐文件校验：bundle/RELEASE-README.md、bundle/SHA256SUMS.txt。LOCAL_BUNDLE_PREPARED / TARGET_ENVIRONMENT_UNVERIFIED / NOT_DEPLOYED。
+- 许可证原文收集覆盖 Windows 已安装包中的 1051/1083；32 包无顶层许可证文件，不能推定无许可或替换通用文本。Linux 原生依赖未打包，最终 Linux 包须按锁文件重建并核对实际交付 notices。
+- 相比原服务器基线 299b1f71，Prisma schema/migrations 无变化。未操作服务器、读取真实凭据、执行数据库迁移或部署。下一步只读核对目标路径、Node/npm、数据库实际 transport、代理和备份；不要为未使用的 TLS/代理构造额外门禁。
+- 原有 15 个 Markdown 修改保留，当前源码包不含它们；本次无新提交或推送。R1 保持 BLOCKED / NOT_READY。
+## 2026-09-08 — Private-preview deployment attempt paused
+
+- 用户授权按已审阅方案部署 `6515b8fd0f13969a0e434d3d8223f60a82cb0310`。只读 preflight 通过后，源码上传至 `/opt/daily-assistant-preview/artifacts/daily-assistant-source-6515b8f.tar`，并创建隔离目录 `/opt/daily-assistant-preview/releases/6515b8fd-preparing`。
+- 隔离 npm 11.18.0 安装成功。首次依赖安装因 PATH 使用系统 Node 22 被精确 engine 正确拒绝；改为服务使用的 Node 24.19 后重试，但 SSH 在安装期间停止返回 banner，无法确认构建是否完成或清理残留进程。
+- 公网首页和 `/api/v1/health` 在暂停前后持续返回 200。未切换 `current`、未重启 API/Nginx/MySQL、未执行 migration、未修改域名或功能开关。服务器仍应视为运行 `299b1f71`，候选部署状态为 `PAUSED_BEFORE_SWITCH / SSH_UNAVAILABLE`，R1 保持 `BLOCKED / NOT_READY`。
+
+## 2026-09-08 — Private-preview deployment completed
+
+- SSH 恢复后确认主机未发生 OOM；此前失败由受控构建单元内约 300 MiB 的 V8 堆限制导致。改用 Node 24.19.0、npm 11.18.0、512 MiB Node 堆并串行构建后，API、Web、Admin 全部通过。
+- Linux 候选完成 audit 0、SBOM 1043 components 校验和许可证清单；实际版本为 Prisma/Client/Adapter 7.9.1、deepmerge-ts 8.0.2、mariadb 3.4.7、mysql2 3.24.3。
+- 私有预览 `current` 已切换至 `/opt/daily-assistant-preview/releases/6515b8fd-2db6b6a2f199db4c`。API、用户端与管理端均返回 200，服务 active，切换后 warning/error 日志为空。
+- 未执行 migration、MySQL/Nginx 配置变更、域名扩展或 Provider 开关变更。状态为 `DONE_INTEGRATION / PRIVATE_PREVIEW_DEPLOYED`；R1 仍为 `BLOCKED / NOT_READY`。
+
+## 2026-09-08 — Post-deployment gate reconciliation
+
+- 私有预览真实业务 smoke 已通过并完成测试数据清理；依赖、许可证当前范围决定、合并 CI、目标 Linux 构建/SBOM/audit、部署和部署后业务验证不再是阻塞项。
+- `/api/v1/health` 是存活探针；数据库检查位于需管理员认证的 `/api/v1/admin/health`。批准的 REL-01 D7 已将非敏感 readiness 或受控运维组合的实现归入 REL-03，因此不把该实现倒置为 REL-02 的前置条件。当前私有预览已有服务启动前数据库检查、存活探针和真实业务 smoke 组合证据。
+- 用户随后明确批准 H1/H2 对本次 R1 advancement 豁免；H1/H2 更新为 `WAIVED_FOR_R1 / UNVERIFIED`，R1 Quality Gate 更新为 `APPROVED / DONE`。进入 REL-02 仍需要独立资源/费用授权；公网 DNS、HTTPS、精确 CORS 与公网复验只阻塞公网入口，Provider 扩展、REL-04 和生产发布继续各自走独立门禁。
+
+## 2026-09-08 — R1 advancement approved
+
+- 用户明确批准将 H1/H2 豁免扩展到本次 R1 advancement；H1/H2 保持未验证，不记为物理 iPhone 通过。
+- 中间状态：R1 Quality Gate 更新为 `APPROVED / DONE` 后，canonical task 曾短暂转为 `REL-02 Authorization / BLOCKED / RESOURCE_FEE_AUTHORIZATION_PENDING`；该状态随后被独立 Staging 豁免决定覆盖。
+
+## 2026-09-08 — Separate Staging waived
+
+- 用户明确决定不建设独立 Staging。REL-02 更新为 `CANCELLED / SEPARATE_STAGING_WAIVED`，不创建新 ECS、托管 MySQL、OSS、域名、监控或其他付费资源。
+- 现有 Alibaba 私有预览作为验证环境；当前 canonical task 转为 `REL-03 Private Preview Readiness / READY`，仅在现有环境完成轻量 readiness 与发布流程收口。公网、生产、Provider 扩展及未来扩容场景仍需独立门禁，并应重新评估独立 Staging。

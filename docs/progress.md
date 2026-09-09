@@ -1,12 +1,27 @@
 # 项目进度（派生摘要）
 
-> 当前发布候选代码：`b7734d0`（PR #25，已提交/已推送，尚未部署）；本轮另有独立 package-lock 安全补丁已提交/已推送。Integration `299b1f71` 的私有预览继续运行。PR #25 及本轮质量复核的 `db-validation`、`browser-qa` 已通过，`quality` 仍在依赖审计处 fail-closed。后续新功能另开分支/PR。
+## 2026-09-08 — Prisma override 正式兼容性验证（FORMAL_COMPATIBILITY_VERIFIED_LOCAL）
 
-updatedAt: 2026-09-03 09:27 +08:00
+- 复核仓库外最小复现并验证哈希：旧 SBOM `invalid` 根因是 npm 11.13.0 未跨 workspace/file link 传播根 overrides，不是 patched 依赖天然不兼容。
+- 本地候选保留 Prisma 7.9.1，精确 override `deepmerge-ts@8.0.2`、`mariadb@3.4.7`、`mysql2@3.24.3`，并以 packageManager、精确 engine、engine-strict 与 CI 断言固定 npm 11.18.0；过期 deepmerge 例外已清空。
+- 外部 clean install、npm ls、audit 0、两类 SBOM、治理 30/30、license inventory、完整 quality、一次性 MySQL 8.4.11 18 files/160 tests 和真实数据库 Chromium smoke 44/44 均通过。license 仍有 8 项 missing/unresolved、24 项人工复核。
+- 候选仅为本地未提交审阅材料；新候选 CI 未运行，未提交、推送、修改 PR 或部署，远端 PR #25 仍显示旧 quality 失败与旧 db/browser 成功。R1 继续 `BLOCKED / NOT_READY`。证据目录：`D:\daily-assistant-prisma-override-compat-20260908-093516`。
+
+## 2026-09-07 — 执行规则本地同步（DONE_LOCAL / UNCOMMITTED）
+
+- 根据用户要求，将共享审阅对话中的规则澄清落实到本地 AGENTS.md、PLANS.md 与 tasks/PR19.md：常规本地任务无需独立契约，只读任务无需写状态，按影响范围验证，已有有效授权不重复申请，历史限制保持原适用范围。
+- 保留提交、推送、PR、合并、迁移、真实服务与部署的独立授权及完整集成/发布门禁。R1 仍为 BLOCKED / NOT_READY；未修改依赖、业务、数据库或部署配置。
+- 核查个人 deepseek-direct-worker 和 product-architecture-planner 的相关规则：已支持范围内自主执行，固定 Git 操作保护无需放宽；未修改个人技能或系统/插件技能，也未调用 DeepSeek。
+- 原有 12 份未提交文档修改保留；本次只新增规则与进度记录，不创建提交、不推送。下一项建议仍是独立 override/SBOM 最小复现调查。
+- 验证：Prettier、npm run check:context 与 git diff --check 均通过；没有重跑业务测试或完整 quality，现有 PR #25 quality 失败、db-validation/browser-qa 成功不因规则调整改变。
+
+> 当前发布候选代码：`b7734d0`（PR #25，已提交/已推送，尚未部署）；当前分支 HEAD 为 `1b83545`（既有 package-lock 安全补丁），本轮稳定矩阵复核没有新增依赖提交。Integration `299b1f71` 的私有预览继续作为运行基线，但按用户要求未视为达到正式预览标准。PR #25 及本轮质量复核的 `db-validation`、`browser-qa` 已通过，`quality` 仍在依赖审计处 fail-closed。后续新功能另开分支/PR。
+
+updatedAt: 2026-09-03 10:32 +08:00
 
 ## Current
 
-- 当前已有 Alibaba 私有预览服务器按 Integration `299b1f71debbd5a3140d1ee19f9781372e67134b` 作为正式预览基线运行；发布包、服务、健康检查、数据库迁移、备份和临时库恢复均已复核通过。真实 iPhone 按用户决定跳过，状态为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`；公网域名仍等待审批。每日备份定时器已配置为北京时间约 03:30 执行，保留 7 天并自动清理，手动执行和清理逻辑复验通过。用户已明确允许当前私有预览开启 live AI，服务器环境与数据库开关已与当前决定一致。
+- 当前已有 Alibaba 私有预览服务器按 Integration `299b1f71debbd5a3140d1ee19f9781372e67134b` 运行；发布包、服务、健康检查、数据库迁移、备份和临时库恢复均已复核通过，但这些证据只证明现有版本可运行，不能替代正式发布门禁。真实 iPhone 按用户决定跳过，状态为 `WAIVED_FOR_PRIVATE_PREVIEW / UNVERIFIED`；公网域名仍等待审批。每日备份定时器已配置为北京时间约 03:30 执行，保留 7 天并自动清理，手动执行和清理逻辑复验通过。用户已明确允许当前私有预览开启 live AI，服务器环境与数据库开关已与当前决定一致。
 - `REL-01-DECISION-RECORD-01` 已将 D1-D8 按推荐值全部批准并固化到 `docs/48-r1-approval-decision-pack.md`；REL-01 为
   `APPROVED / REL-02_AUTHORIZATION_PENDING`。该决策不改变 `R1 Quality Gate = BLOCKED / NOT_READY` 或依赖候选的 `CANDIDATE_REJECTED` 状态。
 - `SYNC-E2E-01` 已使用 C: 盘之外的 `D:\daily-assistant-runtime` 一次性 MySQL 8.4.11 环境完成真实 API 集成和双浏览器验收（API 17 个文件、155 项通过）。
@@ -39,6 +54,7 @@ updatedAt: 2026-09-03 09:27 +08:00
   `docs/47-rel-01-staging-architecture-decision.md`：推荐单实例 API、私网 MySQL 8.4、私有 OSS、HTTPS 入口、最小权限、备份/RPO-RTO、发布与回滚边界；不创建资源、不修改部署配置。
 - `REL-01-DECISION-RECORD-01` 同时在 `docs/48` 记录了 REL-02 执行前清单；没有补充真实业务记录、真实用户数据、云资源、凭据或部署动作。
 - 本轮仅留下已审查的 package-lock 安全补丁，未改 package 声明、Prisma/migration 或生产部署配置；已按用户授权提交并推送，既有治理提交 `6adc111...` 不作历史改写；候选代码未部署。
+- 本任务正式复验未找到完整稳定的 Prisma 兼容版本：稳定三件套 `7.10.0` 仍精确锁定 `deepmerge-ts@7.1.5`、`mariadb@3.4.5`、`mysql2@3.15.3`。`npm ci`、`npm ls`、SBOM、license、治理通过；`npm audit`（1 moderate/5 high）、`audit:dependencies` 和 `quality` fail-closed，`npm run audit` 脚本不存在；依赖、CI、部署均未变更。
 
 ## Evidence
 
@@ -66,6 +82,7 @@ updatedAt: 2026-09-03 09:27 +08:00
 - 私有预览远端复核：Integration `299b1f71` 发布包完整性、API/用户端/管理端/Nginx、数据库迁移、受保护备份和临时库恢复校验均 `PASS`；每日备份定时器、7 天保留、过期清理和清理逻辑复验均 `PASS`。
 - 私有预览配置复核：环境 `V15_AI_ALLOWED=true`、`V15_LIVE_AI_ALLOWED=true`，数据库 `v15.ai.liveProvider=true`；用户已明确允许当前私有预览开启，不等同于扩大公网 Provider 使用范围或完成生产 Provider 授权。
 - 发布候选门禁：PR #25 的 `db-validation`、`browser-qa` `PASS`，`quality` `FAIL_CLOSED`（仅依赖审计）；本地 `npm run quality` 得到相同结果。
+- 本轮 CI 与候选部署条件未满足，均为 `NOT_RUN / HELD`；现有 PR #25 的上次远端结果保持不变。
 
 ## Open Gates
 
@@ -84,6 +101,46 @@ updatedAt: 2026-09-03 09:27 +08:00
 
 ## Next
 
-当前 canonical task 仍为 `R1 Quality Gate`，状态为 `BLOCKED / NOT_READY`；H7 已 `CLOSED`，`WEB-SMOKE-01` 已完成，独立锁文件补丁已提交推送但核心依赖审计仍未通过。已有私有预览可继续作为正式预览基线运行；PR #25 尚未部署，评估记录见 `docs/49-private-preview-release-assessment.md`。
-下一步完成 Prisma 依赖链的兼容修复并重新通过 audit/SBOM/license/quality；门禁变绿后再合并、部署 PR #25 到私有预览并复验。当前私有预览 live AI 与每日备份/7 天清理已按决定配置，跨位置备份和周期性隔离恢复演练作为公网增强项；域名审批通过后再切换公网 HTTPS 并复验，扩大公网 Provider 使用范围需另行授权。真实 iPhone 按用户决定跳过，记录为未验证而非通过。Provider enablement、REL-04 和 R1 advancement 仍按独立发布门禁执行。
+R1 Quality Gate 已更新为 `APPROVED / DONE`；H1/H2 对本次 R1 advancement 为 `WAIVED_FOR_R1 / UNVERIFIED`。独立 Staging 已豁免，当前 canonical task 为 `REL-03 Private Preview Readiness / READY`。当前私有预览运行 Integration `6515b8f`，评估记录见 `docs/49-private-preview-release-assessment.md`。
+下一步在现有私有预览补充轻量 readiness 并固化发布/回滚流程。live AI 与每日备份/7 天清理保持现状；域名审批后再配置公网 HTTPS、精确 CORS 并复验。扩大公网 Provider 使用范围、REL-04 和生产发布仍按独立门禁执行。
 ADR-029 的无金额上限策略不等于生产预算 enforcement。后续新功能另开分支/PR，不回写 PR #25。
+
+## 2026-09-08 — Prisma candidate delivery authorization
+
+- 用户明确授权继续候选提交、推送及 CI；不包含 merge、部署或 R1 门禁关闭。
+- 本次交付仅包含 15 个已审阅的依赖、工具链、安装治理、CI、测试及 README 文件；原有 15 个混合 Markdown 修改保留本地，不混入候选提交。
+- 提交前治理测试 30/30、git diff --check 与 staged diff 检查通过。许可证人工结论和发布环境证据仍待完成。
+- Delivery: DONE_COMMITTED / DONE_PUSHED / CI_PASS；commit 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e，parent 1b8354575cc195584af5ee3b1fe8882eda8c3bdd；PR #25 已自动更新；PR CI 34181552275、push CI 34181550054 均 SUCCESS；各自 quality、db-validation、browser-qa 全部 PASS。此条覆盖前文候选 UNCOMMITTED / CI_NOT_RUN 的历史快照；R1 仍 BLOCKED / NOT_READY。
+
+## 2026-09-08 — PR25 merge and scoped license decision
+
+- 用户明确接受本次许可证处理方案：保留第三方许可证和版权声明，不修改第三方库源码，按实际交付内容核对工具链组件；对外分发后端包/容器或修改库时重新评审。此为当前范围的人工决定，不是对任意未来分发的法律批准。
+- 用户独立授权合并 PR #25；已匹配 candidate HEAD 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e，并核验 PR/push 两轮 quality、db-validation、browser-qa 全绿。
+- PR #25 于 2026-09-08T03:00:13Z MERGED；merge commit 6515b8fd0f13969a0e434d3d8223f60a82cb0310，远端 codex/v15-integration-foundation HEAD 已一致核验。Candidate delivery: DONE_INTEGRATION。合并后 CI 34181985716 SUCCESS，quality、db-validation、browser-qa 全部 PASS：https://github.com/Dada-sys101/richangzhushou/actions/runs/34181985716 。
+- 本记录覆盖前文 PR_OPEN、候选 UNCOMMITTED/CI_NOT_RUN 和 LICENSE_APPROVAL_PENDING 的历史快照；本地原有 15 个混合 Markdown 修改保留，当前工作分支不切换，不额外提交记录。
+- R1 仍 BLOCKED / NOT_READY：实际发布包许可证声明、目标环境差异与部署验收尚未完成。本次未授权或执行部署、真实数据库迁移、公网切换或发布门禁关闭。
+
+## 2026-09-08 — Release bundle preparation
+
+- 基于已合并且 CI 全绿的 6515b8fd0f13969a0e434d3d8223f60a82cb0310，在 D:/daily-assistant-release-6515b8f 导出精确源码并完成独立 npm 11.18.0 安装（audit 0）、Prisma generate、全部 workspace build/PWA、SBOM 1043 components 校验和许可证清单。
+- 准备包：D:/daily-assistant-release-6515b8f/daily-assistant-6515b8f-preparation.tar.gz；说明与逐文件校验：bundle/RELEASE-README.md、bundle/SHA256SUMS.txt。LOCAL_BUNDLE_PREPARED / TARGET_ENVIRONMENT_UNVERIFIED / NOT_DEPLOYED。
+- 许可证原文收集覆盖 Windows 已安装包中的 1051/1083；32 包无顶层许可证文件，不能推定无许可或替换通用文本。Linux 原生依赖未打包，最终 Linux 包须按锁文件重建并核对实际交付 notices。
+- 相比原服务器基线 299b1f71，Prisma schema/migrations 无变化。未操作服务器、读取真实凭据、执行数据库迁移或部署。下一步只读核对目标路径、Node/npm、数据库实际 transport、代理和备份；不要为未使用的 TLS/代理构造额外门禁。
+- 原有 15 个 Markdown 修改保留，当前源码包不含它们；本次无新提交或推送。R1 保持 BLOCKED / NOT_READY。
+## 2026-09-08 — 私有预览部署在切换前暂停
+
+- 已获授权并完成服务器只读 preflight；上传 `6515b8f` 源码并创建隔离 preparing 目录，目录内 npm 11.18.0 安装成功。
+- Linux 依赖安装期间 SSH banner 超时，无法确认构建完成，故在版本切换前暂停。公网首页与 API health 保持 200；未切换版本、重启服务或执行数据库变更。
+
+## 2026-09-08 — 私有预览部署后业务 smoke
+
+- 新 release 上登录、首次改密、待办、日程、账单和刷新持久化均通过，浏览器阻塞错误为 0。
+- 一次性 `qa_release_*` 用户及其级联业务数据已定向删除，结果为 `deleted=1 / remaining=0`。
+- API 服务保持 active/health 200，切换后 warning/error 日志为空；下一步转为 readiness 与正式/公网发布清单复核。
+
+## 2026-09-08 — R1/readiness 门禁复核
+
+- 依赖、当前范围许可证决定、合并 CI、目标 Linux audit/SBOM/build、私有预览部署和真实业务 smoke 均已完成，不再是当前阻塞项。
+- `/api/v1/health` 仅为 liveness，认证后的 `/api/v1/admin/health` 检查数据库；REL-01 D7 已将非敏感 readiness/受控运维组合归入 REL-03，故不作为 REL-02 前置条件。当前私有预览已有启动前数据库检查、liveness 和真实业务 smoke 组合证据。
+- 用户已明确批准 H1/H2 对本次 R1 advancement 豁免；H1/H2 保持 `WAIVED_FOR_R1 / UNVERIFIED`，不记为真机通过。R1 Quality Gate 更新为 `APPROVED / DONE`。
+- 用户明确决定不建设独立 Staging；REL-02 为 `CANCELLED / SEPARATE_STAGING_WAIVED`，现有 Alibaba 私有预览作为验证环境。当前转入 `REL-03 Private Preview Readiness / READY`；公网 DNS/HTTPS/CORS、Provider 扩展、REL-04 和生产发布分别保留在其适用门禁。
