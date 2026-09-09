@@ -6,7 +6,7 @@
   Service Worker、提醒页开关、真实 Web Push 适配器、重试与失效处理。
 - 临时 MySQL 8.4.9 完成 13 migrations、schema zero-diff 和 18 files/161 tests；Chromium
   受控 Push API 的订阅、刷新恢复、退订、权限拒绝及五档宽度验证通过。
-- 最终完整 `npm run quality` 与 audit 0 通过；真实 Push/系统通知/设备送达、远端 CI、部署和启用仍未执行。
+- 最终完整 `npm run quality` 与 audit 0 通过；feature commit `f2b9ef8`、PR head `7c7e8d6` 和 PR #26 已交付，push/PR 两轮 CI 全绿；真实 Push/系统通知/设备送达、部署和启用仍未执行。
 
 ## 2026-09-09 — R1.1 Web Push 本地候选
 

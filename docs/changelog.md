@@ -6,6 +6,7 @@
 - PWA Service Worker 支持 `push` 与通知点击，提醒页可在浏览器和服务端支持时订阅。
 - 增加 VAPID/字段加密配置、OpenAPI、账户删除清理和安全测试；功能默认关闭。
 - 临时 MySQL 8.4.9 的 13 migrations、18 files/161 tests，以及 Chromium 受控订阅、权限和五档宽度验证通过；真实送达仍未验证。
+- feature commit `f2b9ef8`、PR head `7c7e8d6`、PR #26 已交付；push/PR 两轮 quality、db-validation、browser-qa 全部 SUCCESS。未部署、未启用。
 
 ## 2026-09-09 — Web Push 应用外提醒候选
 

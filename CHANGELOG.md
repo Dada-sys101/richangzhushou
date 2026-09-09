@@ -5,6 +5,7 @@
 - 完成最小应用外提醒链路；订阅密钥加密、按用户隔离、发送幂等并保留应用内降级。
 - 临时 MySQL 8.4.9 的 13 migrations、18 files/161 tests，以及 Chromium 受控订阅/权限/五档宽度验证通过。
 - 当前为 `FORMAL_COMPATIBILITY_VERIFIED_LOCAL / REAL_DELIVERY_NOT_VERIFIED`，未提交、未推送、未部署、未启用。
+- 后续交付为 feature commit `f2b9ef8`、PR head `7c7e8d6` 和 PR #26；push/PR CI 的 quality、db-validation、browser-qa 全绿。功能仍未部署、未启用。
 
 ## 2026-09-09 — R1.1 Web Push 本地候选
 

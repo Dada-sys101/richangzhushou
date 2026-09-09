@@ -5,6 +5,7 @@
 - 完成加密订阅、逐设备幂等送达、用户隔离 API、PWA Service Worker、提醒页权限开关和真实 Web Push 适配器；功能默认关闭。
 - 临时 MySQL 8.4.9 完成 13 migrations、schema zero-diff 和 18 files/161 tests；Chromium 受控 Push API 完成订阅、刷新、退订、拒绝及五档宽度验证。
 - 最终完整 `npm run quality` 通过；当前未提交、未推送、未运行 CI、未部署、未启用，真实 Push Service/系统通知/实机送达仍待验证。
+- 后续交付：feature commit `f2b9ef8`、PR head `7c7e8d6`；PR #26 OPEN/MERGEABLE，push run `34306110105` 与 PR run `34306130568` 的三项 CI 全部成功。仍未部署、未启用。
 
 ## 2026-09-08 — Prisma override 正式兼容性验证（FORMAL_COMPATIBILITY_VERIFIED_LOCAL）
 

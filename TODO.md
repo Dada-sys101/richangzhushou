@@ -4,7 +4,7 @@
 
 ## 当前执行记录（2026-09-09）
 
-当前执行 R1.1 Web Push 最小候选；最终 quality、本地 MySQL 与受控 Chromium 验证通过，等待提交/CI 和真实 Push/设备送达验证，功能保持关闭。
+当前执行 R1.1 Web Push 最小候选；PR #26 已开放且 push/PR CI 全绿，等待 review/merge 授权和真实 Push/设备送达验证，功能保持关闭。
 
 | ID | 任务 | 状态 | 工作包 |
 | --- | --- | --- | --- |

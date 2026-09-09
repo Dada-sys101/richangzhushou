@@ -1,18 +1,18 @@
 # Project Status
 
-updatedAt: 2026-09-09T11:03:00+08:00
+updatedAt: 2026-09-09T11:20:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 integrationHead: 6515b8fd0f13969a0e434d3d8223f60a82cb0310
 activeBranch: codex/web-push-reminders
-activeHead: 9c7bdf80919010053990a511f1c2d3bce97bd563
+activeHead: 7c7e8d663a913d7758cefd73918ca6239442369e
 activeTask: R1.1 Web Push Candidate
 executionStatus: IN_PROGRESS
-deliveryStatus: FORMAL_COMPATIBILITY_VERIFIED_LOCAL / READY_FOR_COMMIT_AND_CI / REAL_DELIVERY_PENDING
+deliveryStatus: DONE_PUSHED / PR_OPEN / CI_PASS / NOT_ENABLED / REAL_DELIVERY_PENDING
 nextCanonicalTask: R1.1 Web Push Candidate
 nextCanonicalTaskAfterCompletion: R1.1_WEB_PUSH_DELIVERY_VALIDATION
-localRevision: UNCOMMITTED_WEB_PUSH_CANDIDATE
+localRevision: f2b9ef8791c6ccdb158df2f864fbe4383243d01a
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
@@ -56,6 +56,6 @@ privatePreviewRelease: 6515b8fd0f13969a0e434d3d8223f60a82cb0310 / 6515b8fd-2db6b
 
 ## Git State
 
-- Current documentation reconciliation is uncommitted.
-- No commit or push is authorized by the current documentation-review instruction.
+- Web Push feature commit is `f2b9ef8`; branch head is `7c7e8d6`; PR #26 is open and mergeable with push/PR CI green.
+- Merge, deployment and enablement require separate authorization.
 - No production deployment, public switch, new resource creation or Provider expansion was performed.

@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-09 11:03 +08:00 — R1.1 Web Push candidate passed final quality, local MySQL integration and controlled Chromium permission/subscription validation; ready for commit and CI, real delivery remains.
+2026-09-09 11:20 +08:00 — R1.1 Web Push candidate committed, pushed and opened as PR #26; push and PR CI are green, real delivery remains unverified.
 
 ## Repository State
 
@@ -12,7 +12,8 @@
 - Verified Integration HEAD: `6515b8fd0f13969a0e434d3d8223f60a82cb0310`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/web-push-reminders`
-- Active branch HEAD: `9c7bdf80919010053990a511f1c2d3bce97bd563` plus uncommitted Web Push candidate
+- Active branch HEAD: `7c7e8d663a913d7758cefd73918ca6239442369e` (`f2b9ef8` feature commit plus Integration topology merge)
+- PR #26: `OPEN / MERGEABLE`; push run `34306110105` and PR run `34306130568` passed quality, db-validation and browser-qa.
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Local state/evidence documentation changes remain uncommitted.
 
@@ -49,7 +50,7 @@
 - ID: `R1.1 Web Push Candidate`.
 - Goal: add browser system notifications to existing reminders with a small, reversible implementation.
 - Scope: encrypted user-scoped subscriptions, delivery records, Push API/provider, PWA Service Worker and permission UI.
-- Current state: reviewed local implementation, final quality, MySQL 8.4.9 integration and controlled Chromium flows pass; commit/CI, real delivery and enablement remain.
+- Current state: committed and pushed with PR #26 open and CI green; real delivery, merge and enablement remain.
 - Excluded: SMS/email, queues, additional providers, production enablement and public release.
 
 ## Next Recommended Task
@@ -66,7 +67,7 @@ Review and deliver the candidate through an authorized commit and CI; keep flags
 
 ## Remaining Work
 
-- R1.1 Web Push commit/CI and real Push/system-notification/physical-device delivery validation.
+- R1.1 Web Push review/merge authorization and real Push/system-notification/physical-device delivery validation.
 - Reduced REL-04 reassessment using the existing validation environment.
 - Optional closed pilot observation before broader use.
 - Public DNS, HTTPS, exact CORS and public-entry smoke only when public access is requested.

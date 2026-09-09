@@ -10,12 +10,12 @@ pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: R1.1 Web Push Candidate
 executionStatus: IN_PROGRESS
-deliveryStatus: DONE_LOCAL_CANDIDATE
-currentWork: Minimal browser Web Push is implemented locally and has passed MySQL 8.4.9 integration plus controlled Chromium permission/subscription flows; real Push Service, system notification and physical-device delivery remain unverified
+deliveryStatus: DONE_PUSHED / PR_OPEN / CI_PASS / NOT_ENABLED
+currentWork: Web Push candidate is pushed at 7c7e8d663a913d7758cefd73918ca6239442369e with PR #26 open and both push/PR CI runs passing quality, db-validation and browser-qa; real Push Service, system notification and physical-device delivery remain unverified
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
 nextCanonicalTask: R1.1 Web Push Candidate
 nextCanonicalTaskAfterCompletion: R1.1_WEB_PUSH_DELIVERY_VALIDATION
-openPullRequests: []
+openPullRequests: [26]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED
@@ -36,13 +36,17 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - displayName: minimal browser external reminders
 - branch: codex/web-push-reminders
 - baseHead: 9c7bdf80919010053990a511f1c2d3bce97bd563
-- currentGate: FORMAL_COMPATIBILITY_VERIFIED_LOCAL / READY_FOR_COMMIT_AND_CI / REAL_PUSH_DELIVERY_PENDING
+- currentGate: PR_OPEN / CI_PASS / REVIEW_AND_MERGE_AUTHORIZATION_PENDING / REAL_PUSH_DELIVERY_PENDING
 - implementation: encrypted user-scoped subscriptions, idempotent per-device delivery records, Push API, generated PWA Service Worker extension, reminder-page permission UI and Web Push adapter
 - allowedScope: PR3/PR16/PR17 minimal browser Push implementation and validation
 - forbiddenScope: SMS/email, queues, production enablement, deployment and public release without independent authorization
 - validation: final full quality, locked install with npm 11.18.0, lint/typecheck/unit/full tests/build/Prisma/OpenAPI, governance 30/30, audit 0 and SBOM 1055 pass; temporary MySQL 8.4.9 applied 13 migrations and passed 18 files/161 tests; controlled Chromium subscribe/restore/unsubscribe/deny and five-width checks pass; real delivery remains
 - executionStatus: IN_PROGRESS
-- deliveryStatus: FORMAL_COMPATIBILITY_VERIFIED_LOCAL / UNCOMMITTED / CI_NOT_RUN / NOT_ENABLED
+- deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_OPEN / CI_PASS / NOT_ENABLED
+- commit: f2b9ef8791c6ccdb158df2f864fbe4383243d01a
+- prHead: 7c7e8d663a913d7758cefd73918ca6239442369e
+- pullRequest: https://github.com/Dada-sys101/richangzhushou/pull/26
+- ci: push 34306110105 and pull_request 34306130568; quality/db-validation/browser-qa all SUCCESS
 
 ## Previous Active Task
 

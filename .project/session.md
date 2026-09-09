@@ -2,13 +2,13 @@
 
 ## Session Status
 
-IN_PROGRESS / R1_1_WEB_PUSH / FORMAL_COMPATIBILITY_VERIFIED_LOCAL / READY_FOR_COMMIT_AND_CI / REAL_PUSH_DELIVERY_NOT_VERIFIED
+IN_PROGRESS / R1_1_WEB_PUSH / PR_OPEN / CI_PASS / NOT_ENABLED / REAL_PUSH_DELIVERY_NOT_VERIFIED
 
 ## Task
 
 - ID: `R1.1 Web Push Candidate`（合并执行 PR3、PR16、PR17 的最小可用范围）
 - Execution: `IN_PROGRESS`
-- Delivery: `FORMAL_COMPATIBILITY_VERIFIED_LOCAL / UNCOMMITTED / CI_NOT_RUN / NOT_ENABLED`
+- Delivery: `DONE_COMMITTED / DONE_PUSHED / PR_OPEN / CI_PASS / NOT_ENABLED`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/web-push-reminders`
 - Base HEAD: `9c7bdf80919010053990a511f1c2d3bce97bd563`
@@ -26,7 +26,7 @@ IN_PROGRESS / R1_1_WEB_PUSH / FORMAL_COMPATIBILITY_VERIFIED_LOCAL / READY_FOR_CO
 
 ## Remaining Work
 
-1. 复核完整 diff，提交、推送并进入远端 CI（需对应授权）。
+1. 等待 PR #26 review 与独立 merge 授权。
 2. 启用前使用测试 VAPID 配置完成真实 Push Service、系统通知与手机/PWA 送达证据。
 
 ## Verification Status
@@ -41,6 +41,7 @@ IN_PROGRESS / R1_1_WEB_PUSH / FORMAL_COMPATIBILITY_VERIFIED_LOCAL / READY_FOR_CO
 - Chromium controlled Push API validation: `PASS`（订阅、刷新恢复、退订、权限拒绝及 375/390/430/768/1440 五档宽度）。
 - Real Push Service/system notification/physical-device delivery: `NOT_RUN`；功能保持关闭。
 - Final full `npm run quality`: `PASS` after all security and isolation fixes.
+- Git/PR/CI: feature commit `f2b9ef8`; PR head `7c7e8d6`; PR #26 open and mergeable; push run `34306110105` and PR run `34306130568` all three jobs `SUCCESS`.
 
 ## Resume Instructions
 
@@ -51,4 +52,4 @@ IN_PROGRESS / R1_1_WEB_PUSH / FORMAL_COMPATIBILITY_VERIFIED_LOCAL / READY_FOR_CO
 
 ## Last Updated
 
-2026-09-09 11:03 +08:00 — Web Push 候选通过临时 MySQL 8.4.9、Chromium 受控权限/订阅流程和最终完整 quality；已具备提交与 CI 条件，真实 Push 送达仍未验证。
+2026-09-09 11:20 +08:00 — Web Push 候选已提交、推送并创建 PR #26；push/PR 两轮 CI 全绿，等待 review/merge 授权，真实 Push 送达仍未验证。
