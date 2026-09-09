@@ -2,9 +2,9 @@
 
 仅使用 `NOT_STARTED`、`IN_PROGRESS`、`BLOCKED`、`DONE`、`CANCELLED`。
 
-## 当前执行记录（2026-09-03）
+## 当前执行记录（2026-09-08）
 
-R1 依赖门禁已完成一次最小安全修复：仅更新 `package-lock.json` 中的 `fast-uri` 和 `qs`，并完成 `npm ci`、SBOM、license、治理及完整质量流程复核。审计仍剩 `1 moderate / 5 high` 的 Prisma 依赖链问题，DA-1513 与 PR-25 继续保持阻塞；本次修复独立提交推送，未部署候选，也未混入后续功能。
+R1 Quality Gate 已关闭。用户明确决定不建设独立 Staging，REL-02 为 `CANCELLED / SEPARATE_STAGING_WAIVED`；现有 Alibaba 私有预览作为验证环境。当前下一步是在现有环境完成 REL-03 轻量 readiness 与发布流程收口；公网 HTTPS/CORS 只阻塞公网入口。
 
 | ID | 任务 | 状态 | 工作包 |
 | --- | --- | --- | --- |
@@ -76,7 +76,7 @@ R1 依赖门禁已完成一次最小安全修复：仅更新 `package-lock.json`
 | DA-1001 | 首页界面优化（今日概览/友好认证状态/精简导航/移动端底部导航/本月财务/空状态/同步状态；仅前端） | DONE | UI |
 | DA-1002 | 发布准备第一阶段：推送 `codex/wp8-release-prep` 并完成远端 CI 验证（含 CI 纯净环境修复） | DONE | RELEASE |
 | DA-1003 | 发布准备第二阶段：建立并推送正式 `main` 分支（wp8 完整包含 wp1，main CI 通过） | DONE | RELEASE |
-| DA-1004 | 发布准备第三阶段：staging 创建/部署（需用户授权） | NOT_STARTED | RELEASE |
+| DA-1004 | 发布准备第三阶段：独立 Staging 创建/部署 | CANCELLED | RELEASE（独立 Staging 已豁免） |
 | DA-1005 | GitHub 默认分支切换为 `main`（用户网页操作完成） | DONE | RELEASE |
 | DA-1101 | OPEN-007 账户期满删除清理（保留期/调度/附件删除/取消/重试上限/匿名墓碑） | DONE | RELEASE |
 | DA-1102 | 修正 staging 发布清单过期内容（docs/27 + 状态文档同步） | DONE | RELEASE |
@@ -88,8 +88,8 @@ R1 依赖门禁已完成一次最小安全修复：仅更新 `package-lock.json`
 | DA-1204 | main browser-qa 修复（E2E 时间助手 24 小时制，PR #4 已合并 `47c40c9`） | DONE | RELEASE |
 | DA-1205 | PR #3 合并后状态文档 PR（`codex/post-pr3-merge-status`，已随 PR #5 合并到 main `6927d93`） | DONE | RELEASE |
 | DA-1301 | OPEN-006 对象存储接入代码（OSS 适配器/STORAGE_PROVIDER 切换/键服务/测试/示例） | DONE（已随 PR #6 squash 合并到 main，`db5c5d3`） | RELEASE |
-| DA-1302 | 真实私有 OSS Bucket + 最小权限 RAM + 真实连通/备份上传验证（需授权） | NOT_STARTED | RELEASE |
-| DA-1303 | 状态文档记录 PR #6 合并与 OSS 就绪（`codex/post-pr6-merge-status`） | IN_PROGRESS（PR 待合并） | RELEASE |
+| DA-1302 | 真实私有 OSS Bucket + 最小权限 RAM + 真实连通/备份上传验证 | CANCELLED | RELEASE（当前范围不新建 OSS） |
+| DA-1303 | 状态文档记录 PR #6 合并与 OSS 适配器状态 | DONE | RELEASE |
 | DA-1501 | V15-CTRL-001 治理重基线经 PR #10 合入并核验 integration HEAD | DONE | V1.5 |
 | DA-1502 | PR6a 临时 MySQL 8.4 安全入口、scoped user、失败/信号 cleanup、重复执行与 evidence | DONE | V1.5 |
 | DA-1503 | AI-DECISION-001：ADR-027 v1.0 Final 接入、安全、预算、韧性与评测策略本地落地 | DONE | V1.5 |
@@ -98,18 +98,19 @@ R1 依赖门禁已完成一次最小安全修复：仅更新 `package-lock.json`
 | DA-1506 | PR20 adapter integration：foundation/configuration/DeepSeek/OpenAI（GitHub PR #20/#21/#22/#23） | DONE | V1.5 |
 | DA-1507 | QUALITY-R1-GOVERNANCE-RECONCILIATION Gate 1：事实、ADR-028 草案、状态/镜像同步 | DONE | V1.5 |
 | DA-1508 | PR20 Live Provider Validation（H7） | DONE_LOCAL / H7_CLOSED | V1.5 |
-| DA-1509 | R1 Quality Gate | BLOCKED | V1.5 |
+| DA-1509 | R1 Quality Gate | DONE | V1.5 |
 | DA-1510 | R1 依赖审计兼容性复核（候选因 SBOM 无效撤回，依赖树恢复） | DONE_LOCAL / CANDIDATE_REJECTED | V1.5 |
 | DA-1511 | REL-01 Staging 架构、资源、权限、成本、RPO/RTO 与发布边界设计（D1-D8 已批准；资源创建另行授权） | DONE | V1.5 |
 | R1-APPROVAL-PACKAGE-01 | R1 剩余阻塞复核与 REL-01 审批决策汇总（不创建资源） | DONE | V1.5 |
 | REL-01-DECISION-RECORD-01 | 固化 D1-D8 批准并生成 REL-02 执行前检查（不创建资源） | DONE | V1.5 |
 | DA-1512 | 现有 Alibaba 私有预览正式基线核验、备份与恢复校验 | DONE | V1.5 |
-| DA-1513 | 依赖审计兼容修复并重新通过供应链门禁 | BLOCKED | V1.5 |
+| DA-1513 | 依赖审计兼容修复并重新通过供应链门禁 | DONE | V1.5 |
 | DA-1514 | 私有预览每日备份、7 天保留与过期清理 | DONE | RELEASE |
 | DA-1515 | 域名审批后的公网 HTTPS 入口切换与复验 | NOT_STARTED | RELEASE |
 | DA-1516 | 保留私有预览 live AI，并对齐环境/数据库开关与当前用户决定 | DONE | RELEASE |
+| DA-1517 | 现有私有预览轻量 readiness 与发布/回滚流程收口 | NOT_STARTED | REL-03 |
 | RELEASE-CANDIDATE-01 | 整理已验证修改并形成私有预览发布候选（Web/同步、AI、契约/测试、状态与备份运营） | DONE | RELEASE |
-| PR-25 | GitHub PR #25：Integration 对齐、远端 CI 与候选发布门禁 | BLOCKED | RELEASE |
+| PR-25 | GitHub PR #25：Integration 对齐、远端 CI 与候选发布门禁 | DONE | RELEASE |
 | WEB-UX-03 | 核心功能闭环整改（Web；数据库 E2E 未验证） | DONE | UI |
 | WEB-UX-03.1 | 验收收口（删除确认/服务端删除数据/日程提醒测试） | DONE | UI |
 | SYNC-01 | 实时同步整改（前端协调器；真实数据库/双浏览器验收已补齐，完整 Web smoke 已由 WEB-SMOKE-01 收口） | DONE | UI |
@@ -120,14 +121,14 @@ R1 依赖门禁已完成一次最小安全修复：仅更新 `package-lock.json`
 
 ## V1.5 Governance Approval / Normative Freeze note
 
-- 当前远端 Integration HEAD（只读重核）：`299b1f71debbd5a3140d1ee19f9781372e67134b`；历史 PR20 记录仍保留旧 ref；H7：`CLOSED`；R1 Quality Gate：`BLOCKED / NOT_READY`。
+- 当前远端 Integration HEAD：`6515b8fd0f13969a0e434d3d8223f60a82cb0310`；历史 PR20 记录仍保留旧 ref；H7：`CLOSED`；R1 Quality Gate：`APPROVED / DONE`；H1/H2：`WAIVED_FOR_R1 / UNVERIFIED`。
 - ADR-028：`Accepted`；PR20-03A/#22、PR20-03B/#23 deviation：
   `KEEP_AND_RECONCILE`（Dada 已批准）。
 - GitHub PR #22/#23 是 PR20 实现切片；canonical R3 PR22/PR23 仍未开始且未修改。
 - PR20 Adapter Integration：`DONE_INTEGRATION`；PR20 Live Provider Validation：`DONE_LOCAL / H7_CLOSED`；DeepSeek 本机
   `h7-adr027-fixed-v1` 200 条合成评估已形成脱敏证据，199/200 schema-valid、effect proxy 199/200，提示词补强后的
   3 条定向回归和 `case-146` 三次复测通过；Dada 已确认暂定 DeepSeek、接受条款/结果，并批准 ADR-029 的自然月/暂不设金额上限策略；H7 已由 owner 明确关闭。
-- REL-02/03/04：`BLOCKED / NOT_STARTED`，不表示已授权或已完成。
+- REL-02：`CANCELLED / SEPARATE_STAGING_WAIVED`；REL-03：`READY / EXISTING_ENVIRONMENT`；REL-04：`BLOCKED / NOT_STARTED`。
 - CI run `33043413216` 的 `quality`、`db-validation`、`browser-qa` SUCCESS；Playwright report upload skipped。
 - 规范冻结提交 `6adc111...` 已完成 post-write review 并进入 Integration；本轮已按用户明确授权创建并推送 release candidate：
   `f7fb90a`、`1545e21`、`d649ad4`，并以 `b7734d0` 完成 Integration 冲突收口。PR20 H7 证据已就绪，
@@ -135,3 +136,30 @@ R1 依赖门禁已完成一次最小安全修复：仅更新 `package-lock.json`
 - 2026-09-02 已完成 WebKit `iPhone 13` 本机模拟验收：H1 核心页面流程通过，H2 离线新增/联网同步收敛通过；离线重开出现 WebKit 资源错误。记录见 `docs/46-r1-webkit-emulation-validation.md`，不替代 H1/H2 真机门禁。
 - 2026-09-02 已通过 `REL-01-DECISION-RECORD-01` 按推荐值批准 D1-D8；`docs/47`/`docs/48` 已同步决策与 REL-02 执行前清单。仍不创建资源、不补充真实记录、不修改部署配置；具体执行参数、R1 通过和独立资源/费用授权仍是 REL-02 前置条件。
 - PR #25 当前 `db-validation`、`browser-qa` 通过，`quality` 在依赖审计处 fail-closed；候选未部署，现有 Alibaba 私有预览仍运行 `299b1f71`。通过依赖门禁后再合并部署，后续新功能另开分支/PR。
+
+## 历史交付快照
+
+以下日期记录保留当时的提交、CI、部署准备和门禁事实，已由文件顶部当前执行记录及后续日期覆盖，不作为当前任务状态。
+
+## 2026-09-08 — Prisma candidate delivery authorization
+
+- 用户明确授权继续候选提交、推送及 CI；不包含 merge、部署或 R1 门禁关闭。
+- 本次交付仅包含 15 个已审阅的依赖、工具链、安装治理、CI、测试及 README 文件；原有 15 个混合 Markdown 修改保留本地，不混入候选提交。
+- 提交前治理测试 30/30、git diff --check 与 staged diff 检查通过。许可证人工结论和发布环境证据仍待完成。
+- Delivery: DONE_COMMITTED / DONE_PUSHED / CI_PASS；commit 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e，parent 1b8354575cc195584af5ee3b1fe8882eda8c3bdd；PR #25 已自动更新；PR CI 34181552275、push CI 34181550054 均 SUCCESS；各自 quality、db-validation、browser-qa 全部 PASS。此条覆盖前文候选 UNCOMMITTED / CI_NOT_RUN 的历史快照；R1 仍 BLOCKED / NOT_READY。
+
+## 2026-09-08 — PR25 merge and scoped license decision
+
+- 用户明确接受本次许可证处理方案：保留第三方许可证和版权声明，不修改第三方库源码，按实际交付内容核对工具链组件；对外分发后端包/容器或修改库时重新评审。此为当前范围的人工决定，不是对任意未来分发的法律批准。
+- 用户独立授权合并 PR #25；已匹配 candidate HEAD 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e，并核验 PR/push 两轮 quality、db-validation、browser-qa 全绿。
+- PR #25 于 2026-09-08T03:00:13Z MERGED；merge commit 6515b8fd0f13969a0e434d3d8223f60a82cb0310，远端 codex/v15-integration-foundation HEAD 已一致核验。Candidate delivery: DONE_INTEGRATION。合并后 CI 34181985716 SUCCESS，quality、db-validation、browser-qa 全部 PASS：https://github.com/Dada-sys101/richangzhushou/actions/runs/34181985716 。
+- 本记录覆盖前文 PR_OPEN、候选 UNCOMMITTED/CI_NOT_RUN 和 LICENSE_APPROVAL_PENDING 的历史快照；本地原有 15 个混合 Markdown 修改保留，当前工作分支不切换，不额外提交记录。
+- R1 仍 BLOCKED / NOT_READY：实际发布包许可证声明、目标环境差异与部署验收尚未完成。本次未授权或执行部署、真实数据库迁移、公网切换或发布门禁关闭。
+
+## 2026-09-08 — Release bundle preparation
+
+- 基于已合并且 CI 全绿的 6515b8fd0f13969a0e434d3d8223f60a82cb0310，在 D:/daily-assistant-release-6515b8f 导出精确源码并完成独立 npm 11.18.0 安装（audit 0）、Prisma generate、全部 workspace build/PWA、SBOM 1043 components 校验和许可证清单。
+- 准备包：D:/daily-assistant-release-6515b8f/daily-assistant-6515b8f-preparation.tar.gz；说明与逐文件校验：bundle/RELEASE-README.md、bundle/SHA256SUMS.txt。LOCAL_BUNDLE_PREPARED / TARGET_ENVIRONMENT_UNVERIFIED / NOT_DEPLOYED。
+- 许可证原文收集覆盖 Windows 已安装包中的 1051/1083；32 包无顶层许可证文件，不能推定无许可或替换通用文本。Linux 原生依赖未打包，最终 Linux 包须按锁文件重建并核对实际交付 notices。
+- 相比原服务器基线 299b1f71，Prisma schema/migrations 无变化。未操作服务器、读取真实凭据、执行数据库迁移或部署。下一步只读核对目标路径、Node/npm、数据库实际 transport、代理和备份；不要为未使用的 TLS/代理构造额外门禁。
+- 原有 15 个 Markdown 修改保留，当前源码包不含它们；本次无新提交或推送。R1 保持 BLOCKED / NOT_READY。

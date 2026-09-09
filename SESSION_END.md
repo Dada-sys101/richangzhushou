@@ -1,5 +1,28 @@
 # Session End
 
+## 2026-09-08 — Prisma override 正式兼容性验证（FORMAL_COMPATIBILITY_VERIFIED_LOCAL）
+
+- 候选保留 Prisma 7.9.1，精确 override `deepmerge-ts@8.0.2`、`mariadb@3.4.7`、`mysql2@3.24.3`，固定 npm 11.18.0，并移除活动安全例外。
+- clean install、npm ls、audit 0、lock/tree SBOM、治理 30/30、license inventory、quality、一次性 MySQL 8.4.11 18 files/160 tests 和真实数据库 smoke 44/44 PASS。
+- license 的 8 项 missing/unresolved 与 24 项 manual review 尚未人工批准；远程 TLS/网络故障路径、新候选 CI、提交/推送/PR/部署均未开展。R1 不解除。
+- 审阅证据：`D:\daily-assistant-prisma-override-compat-20260908-093516`。
+
+> 本文件是按日期保存的历史结束记录。旧条目中的 `BLOCKED`、旧 commit 和未部署状态只表示当时事实；当前状态以 `PLANS.md`、`.project/v15-execution-state.md` 和 `.project/session.md` 为准。
+
+## 2026-09-03 — R1-STABLE-PRISMA-MATCH-RECHECK（BLOCKED / NOT_READY）
+
+- 重新核对 npm registry：稳定匹配三件套为 `prisma@7.10.0`、`@prisma/client@7.10.0`、`@prisma/adapter-mariadb@7.10.0`，但仍精确依赖 `deepmerge-ts@7.1.5`、`mariadb@3.4.5`、`mysql2@3.15.3`；可修复稳定版本（`deepmerge-ts@8.0.2`、`mariadb@3.4.7`、`mysql2@3.24.3`）无法自然解析进入上游链。
+- `npm ci`、`npm ls`、SBOM（1044）、license inventory（1163）和治理 14/14 通过；`npm audit` 为 `1 moderate / 5 high`，`npm run audit:dependencies` 和 `npm run quality` fail-closed；`npm run audit` 脚本不存在。
+- Prisma `latest` 为预发布 `8.0.0-rc.12`，且配套客户端/适配器/配置包没有完整匹配版本；本轮未采用预发布、override 或临时例外，未修改依赖、未运行 CI、未部署候选。R1 和私有预览正式门禁继续 `BLOCKED / NOT_READY`。
+- 当前实际 HEAD 为既有锁文件补丁提交 `1b835457...`；本轮未创建新提交，状态/证据文档保留为未提交修改。
+
+## 2026-09-03 — PRIVATE-PREVIEW-FORMAL-STANDARD-RECONFIRMATION（BLOCKED / NOT_READY）
+
+- Dada 明确要求私有预览版按照正式版标准验收；现有 Alibaba Integration `299b1f71` 服务继续运行，但只作为旧版本运行基线，不视为已通过正式发布门禁。
+- 复核 npm registry 后确认：稳定 Prisma `7.10.0` 仍精确锁定未通过审计的 `deepmerge-ts`、`mariadb`、`mysql2` 版本；Prisma 8 当前仍为 RC，且配套客户端/适配器不完整。本轮没有可安全交付的兼容依赖修复，没有修改业务代码，也没有部署候选。
+- `npm run audit:dependencies` 仍 fail-closed；PR #25 的 `db-validation`、`browser-qa` 通过，`quality` 仍失败。真实 iPhone 仍按用户决定跳过，但不放宽其他正式发布门禁。
+- 下一步：等待或取得依赖负责人确认的稳定兼容修复，重新通过 audit/SBOM/license/quality，再部署候选并按正式标准复验；未满足前不发布预览新版本。
+
 ## 2026-09-03 — R1 依赖门禁增量修复（DONE_PUSHED / QUALITY_STILL_BLOCKED）
 
 - 在不改变业务代码、架构、Prisma/schema/migration 或部署配置的前提下，仅更新 `package-lock.json`：`fast-uri` `3.1.5 -> 3.1.7`、`qs` `6.15.3 -> 6.16.0`。
@@ -333,3 +356,32 @@
 
 - 不要修改 `D:\codex-worker` 的开封旅游助手仓库。
 - 本次已获授权建立并推送正式 `main` 并完成状态文档收尾；仍禁止创建 PR、部署、修改远端默认分支或生产资源（默认分支已切换为 main，无需再操作）。
+
+## 2026-09-08 — Prisma candidate delivery authorization
+
+- 用户明确授权继续候选提交、推送及 CI；不包含 merge、部署或 R1 门禁关闭。
+- 本次交付仅包含 15 个已审阅的依赖、工具链、安装治理、CI、测试及 README 文件；原有 15 个混合 Markdown 修改保留本地，不混入候选提交。
+- 提交前治理测试 30/30、git diff --check 与 staged diff 检查通过。许可证人工结论和发布环境证据仍待完成。
+- Delivery: DONE_COMMITTED / DONE_PUSHED / CI_PASS；commit 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e，parent 1b8354575cc195584af5ee3b1fe8882eda8c3bdd；PR #25 已自动更新；PR CI 34181552275、push CI 34181550054 均 SUCCESS；各自 quality、db-validation、browser-qa 全部 PASS。此条覆盖前文候选 UNCOMMITTED / CI_NOT_RUN 的历史快照；R1 仍 BLOCKED / NOT_READY。
+
+## 2026-09-08 — PR25 merge and scoped license decision
+
+- 用户明确接受本次许可证处理方案：保留第三方许可证和版权声明，不修改第三方库源码，按实际交付内容核对工具链组件；对外分发后端包/容器或修改库时重新评审。此为当前范围的人工决定，不是对任意未来分发的法律批准。
+- 用户独立授权合并 PR #25；已匹配 candidate HEAD 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e，并核验 PR/push 两轮 quality、db-validation、browser-qa 全绿。
+- PR #25 于 2026-09-08T03:00:13Z MERGED；merge commit 6515b8fd0f13969a0e434d3d8223f60a82cb0310，远端 codex/v15-integration-foundation HEAD 已一致核验。Candidate delivery: DONE_INTEGRATION。合并后 CI 34181985716 SUCCESS，quality、db-validation、browser-qa 全部 PASS：https://github.com/Dada-sys101/richangzhushou/actions/runs/34181985716 。
+- 本记录覆盖前文 PR_OPEN、候选 UNCOMMITTED/CI_NOT_RUN 和 LICENSE_APPROVAL_PENDING 的历史快照；本地原有 15 个混合 Markdown 修改保留，当前工作分支不切换，不额外提交记录。
+- R1 仍 BLOCKED / NOT_READY：实际发布包许可证声明、目标环境差异与部署验收尚未完成。本次未授权或执行部署、真实数据库迁移、公网切换或发布门禁关闭。
+
+## 2026-09-08 — Release bundle preparation
+
+- 基于已合并且 CI 全绿的 6515b8fd0f13969a0e434d3d8223f60a82cb0310，在 D:/daily-assistant-release-6515b8f 导出精确源码并完成独立 npm 11.18.0 安装（audit 0）、Prisma generate、全部 workspace build/PWA、SBOM 1043 components 校验和许可证清单。
+- 准备包：D:/daily-assistant-release-6515b8f/daily-assistant-6515b8f-preparation.tar.gz；说明与逐文件校验：bundle/RELEASE-README.md、bundle/SHA256SUMS.txt。LOCAL_BUNDLE_PREPARED / TARGET_ENVIRONMENT_UNVERIFIED / NOT_DEPLOYED。
+- 许可证原文收集覆盖 Windows 已安装包中的 1051/1083；32 包无顶层许可证文件，不能推定无许可或替换通用文本。Linux 原生依赖未打包，最终 Linux 包须按锁文件重建并核对实际交付 notices。
+- 相比原服务器基线 299b1f71，Prisma schema/migrations 无变化。未操作服务器、读取真实凭据、执行数据库迁移或部署。下一步只读核对目标路径、Node/npm、数据库实际 transport、代理和备份；不要为未使用的 TLS/代理构造额外门禁。
+- 原有 15 个 Markdown 修改保留，当前源码包不含它们；本次无新提交或推送。R1 保持 BLOCKED / NOT_READY。
+
+## 2026-09-08 — Private-preview smoke handoff
+
+- Active release: `6515b8fd-2db6b6a2f199db4c`; service active and health 200.
+- Post-deployment login/password-change/task/calendar/transaction/persistence smoke passed with zero blocking browser errors.
+- Disposable account, cascaded data and temporary credentials were removed; next work is readiness and formal/public release review.
