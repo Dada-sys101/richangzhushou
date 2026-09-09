@@ -16,6 +16,7 @@ import { FinanceModule } from "./finance/finance.module.js";
 import { HealthController } from "./health/health.controller.js";
 import { IntegrationsModule } from "./integrations/integrations.module.js";
 import { PrismaModule } from "./prisma/prisma.module.js";
+import { PushModule } from "./push/push.module.js";
 import { RemindersModule } from "./reminders/reminders.module.js";
 import { ShortcutsModule } from "./shortcuts/shortcuts.module.js";
 import { SyncModule } from "./sync/sync.module.js";
@@ -37,6 +38,7 @@ import { TripsModule } from "./trips/trips.module.js";
     FinanceModule,
     IntegrationsModule,
     PrismaModule,
+    PushModule,
     RateLimiterModule,
     RemindersModule,
     SecurityModule,

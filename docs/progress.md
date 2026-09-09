@@ -1,5 +1,21 @@
 # 项目进度（派生摘要）
 
+## 2026-09-09 — R1.1 Web Push 本地候选
+
+- `codex/web-push-reminders` 已完成订阅/送达模型、字段加密、用户隔离 API、PWA
+  Service Worker、提醒页开关、真实 Web Push 适配器、重试与失效处理。
+- 临时 MySQL 8.4.9 完成 13 migrations、schema zero-diff 和 18 files/161 tests；Chromium
+  受控 Push API 的订阅、刷新恢复、退订、权限拒绝及五档宽度验证通过。
+- 最终完整 `npm run quality` 与 audit 0 通过；真实 Push/系统通知/设备送达、远端 CI、部署和启用仍未执行。
+
+## 2026-09-09 — R1.1 Web Push 本地候选
+
+- `codex/web-push-reminders` 已完成订阅/送达模型、字段加密、用户隔离 API、PWA
+  Service Worker、提醒页开关、真实 Web Push 适配器、重试与失效处理。
+- 临时 MySQL 8.4.9 完成 13 migrations、schema zero-diff 和 18 files/161 tests；Chromium
+  受控 Push API 的订阅、刷新恢复、退订、权限拒绝及五档宽度验证通过。
+- 最终完整 `npm run quality` 与 audit 0 通过；真实 Push/系统通知/设备送达、远端 CI、部署和启用仍未执行。
+
 ## 2026-09-08 — Prisma override 正式兼容性验证（FORMAL_COMPATIBILITY_VERIFIED_LOCAL）
 
 - 复核仓库外最小复现并验证哈希：旧 SBOM `invalid` 根因是 npm 11.13.0 未跨 workspace/file link 传播根 overrides，不是 patched 依赖天然不兼容。

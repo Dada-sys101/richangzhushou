@@ -221,7 +221,12 @@ WP6 契约要点：
 
 - 邮件与 OCR/AI：WP9 已下线（不再收集邮箱、不提供截图识别）。
 - 对象存储：上传采用短期签名和服务端完成确认；失败不创建悬空正式附件。
-- 通知：无推送权限时保留应用内提醒并显示通知未开启。
+- 通知：`GET /push/status`、`POST /push/subscriptions`、`DELETE
+  /push/subscriptions` 管理当前用户浏览器订阅。真实发送同时受
+  `V15_WEB_PUSH_ALLOWED` 与 `V15_LIVE_PUSH_ALLOWED` 控制；缺少 VAPID 或字段加密
+  配置时 fail-closed。无订阅、浏览器不支持或功能关闭时保留应用内提醒。
+- Web Push 使用逐订阅送达记录；404/410 将订阅标为失效，临时 Provider 错误沿用
+  提醒调度器重试。Service Worker 将通知点击导向提醒页。
 
 ## OpenAPI 要求
 

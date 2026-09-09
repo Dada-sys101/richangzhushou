@@ -1,5 +1,19 @@
 # 变更日志（Changelog）
 
+## 2026-09-09 — Web Push 应用外提醒候选
+
+- 新增用户隔离的 Push 订阅 API、加密订阅存储、幂等送达记录和 Web Push 适配器。
+- PWA Service Worker 支持 `push` 与通知点击，提醒页可在浏览器和服务端支持时订阅。
+- 增加 VAPID/字段加密配置、OpenAPI、账户删除清理和安全测试；功能默认关闭。
+- 临时 MySQL 8.4.9 的 13 migrations、18 files/161 tests，以及 Chromium 受控订阅、权限和五档宽度验证通过；真实送达仍未验证。
+
+## 2026-09-09 — Web Push 应用外提醒候选
+
+- 新增用户隔离的 Push 订阅 API、加密订阅存储、幂等送达记录和 Web Push 适配器。
+- PWA Service Worker 支持 `push` 与通知点击，提醒页可在浏览器支持且服务端启用时订阅。
+- 增加 VAPID/字段加密配置、OpenAPI、账户删除清理和安全测试；功能默认关闭。
+- 临时 MySQL 8.4.9 的 13 migrations、18 files/161 tests，以及 Chromium 受控订阅、权限和五档宽度验证通过；真实送达仍未验证。
+
 ## 2026-09-08 — Prisma override 正式兼容性验证（FORMAL_COMPATIBILITY_VERIFIED_LOCAL）
 
 - 本地形成 Prisma 7.9.1 + 精确 patched overrides + npm 11.18.0 候选，清空过期安全例外并补充 fail-closed audit/SBOM 回归测试。

@@ -142,7 +142,9 @@ AI 和 Push 均不得绕过 Feature Flag、审计、幂等和人工门禁。
   发布配置仍需 H7/REL-04 独立门禁。
 - AI credential 仅允许 server secret/env reference 或未来经批准的 secret manager；唯一字段白名单、
   raw response 不持久化、正文不入普通日志、预算与 timeout/retry/breaker 见 ADR-027。
-- Notification：站内提醒为保底；Web Push 为 R1.1，可关闭。
+- Notification：站内提醒为保底；R1.1 Web Push 通过适配层接入，订阅密钥字段加密，
+  逐设备记录 Push Service 接受/失败状态，并可由双开关整体关闭。它是 best-effort
+  通道，Reminder 仍是提醒事实源。
 - `RecurrenceEngine`：PR1 已 DB Expand；R2 才完成新引擎和切换。
 - Repository：R1 统一现有访问；完整加密迁移在 R3。
 - Import：PR4/PR14/PR15 在 R2。
