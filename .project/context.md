@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-08 16:00 +08:00 — R1 Quality Gate approved; separate Staging waived; existing Alibaba private preview selected as the validation environment; REL-03 lightweight readiness is next.
+2026-09-09 11:46 +08:00 — mixed PR #26 was replaced by governance/dependency PR #27 and isolated Web Push PR #28; both final CI matrices pass, merge authorization and real delivery remain.
 
 ## Repository State
 
@@ -10,11 +10,11 @@
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
 - Verified Integration HEAD: `6515b8fd0f13969a0e434d3d8223f60a82cb0310`
-- Active worktree: `D:\daily-assistant`
-- Active branch: `codex/v15-v2-ui-visual-freeze`
-- Active branch HEAD: `1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e`
+- Active worktree: `D:\daily-assistant-worktrees\web-push-clean-pr`
+- Active branch: `codex/web-push-reminders-clean`
+- Active delivery: PR #28, temporarily based on governance PR #27 so its diff contains only Web Push changes
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
-- Local state/evidence documentation changes remain uncommitted.
+- Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 
 ## Project Summary
 
@@ -29,7 +29,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `REL-03 Private Preview Readiness / READY`.
+- Current canonical task: `R1.1 Web Push Candidate / IN_PROGRESS`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -46,15 +46,15 @@
 
 ## Current Task
 
-- ID: `REL-03 Private Preview Readiness`
-- Goal: add the smallest non-sensitive readiness mechanism and close the release/rollback procedure on the existing private-preview environment.
-- Scope: readiness code and focused tests, controlled verification on the existing server, and documentation of backup/deploy/liveness/readiness/smoke/application rollback.
-- Excluded: new cloud resources or fees, database schema changes unless separately approved, public entry, production release, Provider expansion and unrelated V1.5 features.
-- Current `/api/v1/health` is liveness-only; authenticated `/api/v1/admin/health` checks the database.
+- ID: `R1.1 Web Push Candidate`.
+- Goal: add browser system notifications to existing reminders with a small, reversible implementation.
+- Scope: encrypted user-scoped subscriptions, delivery records, Push API/provider, PWA Service Worker and permission UI.
+- Current state: reviewed local implementation, final quality, MySQL 8.4.9 integration and controlled Chromium flows pass; commit/CI, real delivery and enablement remain.
+- Excluded: SMS/email, queues, additional providers, production enablement and public release.
 
 ## Next Recommended Task
 
-Implement REL-03 lightweight readiness locally, test success and database-failure behavior, then verify it on the existing private-preview environment under the applicable deployment authorization. After REL-03, reassess the reduced REL-04 scope before any invited-user expansion or public entry.
+Review and deliver the candidate through an authorized commit and CI; keep flags off until real Push Service, system notification and physical-device delivery are verified.
 
 ## Completed Work
 
@@ -66,7 +66,7 @@ Implement REL-03 lightweight readiness locally, test success and database-failur
 
 ## Remaining Work
 
-- REL-03 lightweight readiness and release/rollback procedure closure.
+- R1.1 Web Push commit/CI and real Push/system-notification/physical-device delivery validation.
 - Reduced REL-04 reassessment using the existing validation environment.
 - Optional closed pilot observation before broader use.
 - Public DNS, HTTPS, exact CORS and public-entry smoke only when public access is requested.

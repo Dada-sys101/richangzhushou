@@ -107,6 +107,8 @@ export class AccountDeletionService {
 
     await this.prisma.$transaction(async (tx) => {
       await tx.syncMutation.deleteMany({ where: { userId } });
+      await tx.pushDelivery.deleteMany({ where: { userId } });
+      await tx.pushSubscription.deleteMany({ where: { userId } });
       await tx.reminder.deleteMany({ where: { userId } });
       await tx.task.deleteMany({ where: { userId } });
       await tx.calendarEvent.deleteMany({ where: { userId } });

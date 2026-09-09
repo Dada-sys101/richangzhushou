@@ -93,6 +93,22 @@ enum ReminderTargetType {
   STANDALONE
 }
 
+enum PushSubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  INVALID
+}
+
+enum PushDeliveryStatus {
+  QUEUED
+  SENDING
+  ACCEPTED_BY_PUSH_SERVICE
+  RETRY_SCHEDULED
+  EXPIRED_SUBSCRIPTION
+  PERMANENT_FAILURE
+}
+
 enum SyncState {
   SYNCED
   PENDING_SYNC
@@ -256,6 +272,8 @@ model User {
   calendarEvents         CalendarEvent[]
   tasks                  Task[]
   reminders              Reminder[]
+  pushSubscriptions      PushSubscription[]
+  pushDeliveries         PushDelivery[]
   trips                  Trip[]
   syncMutations          SyncMutation[]
   aiRequests             AiRequest[]
@@ -264,6 +282,52 @@ model User {
   @@index([status])
   @@index([createdAt])
   @@map("users")
+}
+
+model PushSubscription {
+  id                   String                 @id @default(cuid())
+  userId               String                 @map("user_id")
+  endpointHash         String                 @unique @map("endpoint_hash") @db.Char(64)
+  endpointCiphertext   String                 @map("endpoint_ciphertext") @db.Text
+  p256dhCiphertext     String                 @map("p256dh_ciphertext") @db.Text
+  authCiphertext       String                 @map("auth_ciphertext") @db.Text
+  encryptionKeyVersion Int                    @default(1) @map("encryption_key_version")
+  status               PushSubscriptionStatus @default(ACTIVE)
+  failureCount         Int                    @default(0) @map("failure_count")
+  userAgent            String?                @map("user_agent") @db.VarChar(255)
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime               @updatedAt @map("updated_at")
+  lastUsedAt           DateTime?              @map("last_used_at")
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries           PushDelivery[]
+
+  @@index([userId, updatedAt])
+  @@map("push_subscriptions")
+}
+
+model PushDelivery {
+  id                 String             @id @default(cuid())
+  userId             String             @map("user_id")
+  subscriptionId     String?            @map("subscription_id")
+  reminderId         String?            @map("reminder_id")
+  idempotencyKey     String             @unique @map("idempotency_key") @db.VarChar(200)
+  payloadFingerprint String             @map("payload_fingerprint") @db.Char(64)
+  deepLink           String?            @map("deep_link") @db.VarChar(500)
+  status             PushDeliveryStatus @default(QUEUED)
+  attemptCount       Int                @default(0) @map("attempt_count")
+  lastAttemptAt      DateTime?          @map("last_attempt_at")
+  acceptedAt         DateTime?          @map("accepted_at")
+  failedAt           DateTime?          @map("failed_at")
+  httpStatus         Int?               @map("http_status") @db.SmallInt
+  failureCategory    String?            @map("failure_category") @db.VarChar(50)
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription       PushSubscription?  @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status, createdAt])
+  @@index([reminderId])
+  @@map("push_deliveries")
 }
 
 model Session {

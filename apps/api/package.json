@@ -41,7 +41,8 @@
     "jose": "^6.2.8",
     "multer": "2.3.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "web-push": "3.6.7"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.24",
@@ -49,6 +50,7 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/node": "^24.10.4",
     "@types/supertest": "^7.2.1",
+    "@types/web-push": "3.6.4",
     "prisma": "7.9.1",
     "supertest": "^7.2.2",
     "tsx": "^4.23.7",

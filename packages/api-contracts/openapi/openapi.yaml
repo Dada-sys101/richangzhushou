@@ -1098,6 +1098,55 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ReminderSummary" }
         "404": { $ref: "#/components/responses/ResourceNotFound" }
+  /push/status:
+    get:
+      operationId: getPushStatus
+      summary: Get Web Push availability and subscription status
+      tags: [Reminders]
+      responses:
+        "200":
+          description: Web Push status for the current user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PushStatus" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+  /push/subscriptions:
+    post:
+      operationId: savePushSubscription
+      summary: Register or refresh a browser Web Push subscription
+      tags: [Reminders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PushSubscriptionRequest" }
+      responses:
+        "201":
+          description: Subscription saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PushStatus" }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "409": { $ref: "#/components/responses/ApiError" }
+        "503": { $ref: "#/components/responses/ApiError" }
+    delete:
+      operationId: deletePushSubscription
+      summary: Remove the current browser Web Push subscription
+      tags: [Reminders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              { $ref: "#/components/schemas/PushSubscriptionDeleteRequest" }
+      responses:
+        "204": { description: Subscription removed }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
   /trips:
     get:
       operationId: listTrips
@@ -3501,6 +3550,38 @@ components:
           anyOf:
             - { $ref: "#/components/schemas/Identifier" }
             - { type: "null" }
+    PushStatus:
+      type: object
+      additionalProperties: false
+      required: [enabled, publicKey, subscribed, subscriptions]
+      properties:
+        enabled: { type: boolean }
+        publicKey:
+          anyOf:
+            - { type: string, minLength: 1 }
+            - { type: "null" }
+        subscribed: { type: boolean }
+        subscriptions: { type: integer, minimum: 0 }
+    PushSubscriptionKeys:
+      type: object
+      additionalProperties: false
+      required: [auth, p256dh]
+      properties:
+        auth: { type: string, minLength: 1, maxLength: 255 }
+        p256dh: { type: string, minLength: 1, maxLength: 255 }
+    PushSubscriptionRequest:
+      type: object
+      additionalProperties: false
+      required: [endpoint, keys]
+      properties:
+        endpoint: { type: string, format: uri, maxLength: 2048 }
+        keys: { $ref: "#/components/schemas/PushSubscriptionKeys" }
+    PushSubscriptionDeleteRequest:
+      type: object
+      additionalProperties: false
+      required: [endpoint]
+      properties:
+        endpoint: { type: string, format: uri, maxLength: 2048 }
     ShortcutCredentialSummary:
       type: object
       additionalProperties: false

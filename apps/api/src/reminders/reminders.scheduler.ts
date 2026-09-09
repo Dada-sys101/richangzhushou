@@ -118,6 +118,7 @@ export class RemindersScheduler implements OnModuleInit, OnModuleDestroy {
       try {
         await this.notificationAdapter.send({
           body: row.note ?? undefined,
+          reminderId: row.id,
           scheduledAt: row.scheduledAt,
           title: row.title,
           userId: row.userId,

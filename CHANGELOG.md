@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-09-09 — R1.1 Web Push 本地候选
+
+- 完成最小应用外提醒链路；订阅密钥加密、按用户隔离、发送幂等并保留应用内降级。
+- 临时 MySQL 8.4.9 的 13 migrations、18 files/161 tests，以及 Chromium 受控订阅/权限/五档宽度验证通过。
+- 当前为 `FORMAL_COMPATIBILITY_VERIFIED_LOCAL / REAL_DELIVERY_NOT_VERIFIED`，未提交、未推送、未部署、未启用。
+
+## 2026-09-09 — R1.1 Web Push 本地候选
+
+- 完成最小应用外提醒链路；订阅密钥加密、按用户隔离、发送幂等并保留应用内降级。
+- 临时 MySQL 8.4.9 的 13 migrations、18 files/161 tests，以及 Chromium 受控订阅/权限/五档宽度验证通过。
+- 当前为 `FORMAL_COMPATIBILITY_VERIFIED_LOCAL / REAL_DELIVERY_NOT_VERIFIED`，未提交、未推送、未部署、未启用。
+
 ## 2026-09-08 — Prisma override 正式兼容性验证（FORMAL_COMPATIBILITY_VERIFIED_LOCAL）
 
 - 本地形成 Prisma 7.9.1 + 精确 patched overrides + npm 11.18.0 候选，清空过期安全例外并补充 fail-closed audit/SBOM 回归测试。

@@ -2,58 +2,53 @@
 
 ## Session Status
 
-READY / REL_03_PRIVATE_PREVIEW_READINESS / R1_APPROVED / REL_02_SEPARATE_STAGING_WAIVED / PRIVATE_PREVIEW_DEPLOYED / CI_PASS / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
+IN_PROGRESS / R1_1_WEB_PUSH / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORIZATION_PENDING / REAL_PUSH_DELIVERY_NOT_VERIFIED
 
 ## Task
 
-- ID: `REL-03 Private Preview Readiness`
-- Phase: existing private-preview validation and release hardening
-- Execution: `READY`
-- Delivery: `NOT_STARTED`
-- Worktree: `D:\daily-assistant`
-- Branch: `codex/v15-v2-ui-visual-freeze`
-- Active branch HEAD: `1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e`
-- Active private-preview release: Integration `6515b8fd0f13969a0e434d3d8223f60a82cb0310` at `/opt/daily-assistant-preview/releases/6515b8fd-2db6b6a2f199db4c`
-- Scope: add lightweight, non-sensitive readiness and close the backup/deploy/health/smoke/rollback procedure on the existing Alibaba private-preview environment.
-- Excluded: new Staging resources or fees, public switch, production release, Provider expansion, real-user/provider evaluation and unrelated V1.5 features.
+- ID: `R1.1 Web Push Candidate`（合并执行 PR3、PR16、PR17 的最小可用范围）
+- Execution: `IN_PROGRESS`
+- Delivery: `DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PASS / NOT_ENABLED`
+- Worktree: `D:\daily-assistant-worktrees\web-push-clean-pr`
+- Branch: `codex/web-push-reminders-clean`
+- Base HEAD: Integration `6515b8fd0f13969a0e434d3d8223f60a82cb0310`; stacked temporarily on governance PR #27 for a feature-only diff
+- Scope: 浏览器 Web Push 订阅、加密存储、逐设备送达、PWA 权限 UI 和现有提醒调度器接入。
+- Excluded: SMS、邮件、多 Provider、消息队列、生产启用和公网发布。
 
 ## Current Progress
 
-- PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa.
-- Prisma 7.9.1 with exact overrides `deepmerge-ts@8.0.2`, `mariadb@3.4.7` and `mysql2@3.24.3`, using npm 11.18.0, passed local and target-host audit/SBOM/build verification.
-- The private-preview release is active. API, Web and Admin entry checks pass, and post-switch warning/error logs were empty.
-- Real business smoke passed login, forced password change, task, calendar, transaction and refresh persistence. The disposable account and cascaded data were removed with `deleted=1 / remaining=0`.
-- Daily backup, 7-day cleanup and an isolated database restore have been verified.
-- `/api/v1/health` is liveness-only; authenticated `/api/v1/admin/health` checks the database. REL-03 must provide a non-sensitive readiness endpoint or an equivalent controlled probe without exposing credentials or topology.
-- R1 Quality Gate is `APPROVED / DONE`. H1/H2 are `WAIVED_FOR_R1 / UNVERIFIED` and are not physical-device passes.
-- The user explicitly waived a separate Staging environment. REL-02 is `CANCELLED / SEPARATE_STAGING_WAIVED`; the existing private preview is the validation environment.
+- 新增 `PushSubscription`/`PushDelivery` migration；订阅敏感字段使用 AES-256-GCM，索引仅存 endpoint SHA-256。
+- 新增用户隔离的 Push status/save/delete API、OpenAPI 契约、PWA Service Worker 与提醒页开关。
+- Web Push 适配器记录幂等发送状态，404/410 标记失效，临时错误交给现有提醒调度器重试。
+- 无订阅、浏览器不支持或功能关闭时继续应用内提醒；两个功能开关默认关闭。
+- lint、类型、全仓测试、构建、Prisma 校验/migration diff、OpenAPI 均通过；`npm audit` 为 0。
+- 候选复核修复了 Service Worker 反斜杠跨源深链风险，并为逐设备 delivery 增加原子领取与超时恢复，防止重复执行并发发送。
 
 ## Remaining Work
 
-1. Define and implement the smallest non-sensitive readiness check for the existing environment.
-2. Add focused tests for readiness success and dependency failure.
-3. Verify readiness on the private-preview host without changing public DNS, Provider settings or database schema.
-4. Consolidate the release procedure: backup, deploy immutable release, liveness/readiness, business smoke and application rollback.
-5. Reassess REL-04 after REL-03; public DNS/HTTPS/CORS and production release remain separate decisions.
+1. 审阅并在独立授权后合并 PR #27；随后将 PR #28 基线切回 Integration，再经独立授权合并。
+2. 启用前使用测试 VAPID 配置完成真实 Push Service、系统通知与手机/PWA 送达证据。
 
 ## Verification Status
 
-- Merged CI: `PASS` (`quality`, `db-validation`, `browser-qa`).
-- Target Linux install/build/audit/SBOM: `PASS`.
-- Private-preview entry and service health: `PASS`.
-- Post-deployment business smoke and cleanup: `PASS`.
-- Backup timer, cleanup and isolated restore: `PASS`.
-- Lightweight readiness implementation: `NOT_STARTED`.
-- Public DNS/HTTPS/CORS: `NOT_RUN / OUT_OF_CURRENT_SCOPE`.
-- Physical iPhone Safari/PWA: `WAIVED_FOR_R1 / UNVERIFIED`.
+- API/Web lint and typecheck: `PASS`.
+- Unit/full repository tests: `PASS`；临时 MySQL 8.4.9 数据库集成为 `18 files / 161 tests PASS`。
+- Build, Prisma validate/migration diff, OpenAPI: `PASS`.
+- Dependency audit: `PASS / 0 vulnerabilities` after current safe patch updates.
+- Locked install: `PASS` using project-required npm `11.18.0` via one-shot npx; host-global npm remains `11.13.0` and direct `npm ci` correctly failed the engine gate.
+- Governance/SBOM/license: `PASS`（30/30；SBOM 1055 components；1174 packages inventoried）.
+- Temporary MySQL validation: `PASS`（13 migrations、schema zero-diff、18 files / 161 tests，含订阅加密与跨用户隔离）。
+- Chromium controlled Push API validation: `PASS`（订阅、刷新恢复、退订、权限拒绝及 375/390/430/768/1440 五档宽度）。
+- Real Push Service/system notification/physical-device delivery: `NOT_RUN`；功能保持关闭。
+- Final full `npm run quality`: `PASS` after all security and isolation fixes.
 
 ## Resume Instructions
 
-1. Read `AGENTS.md`, `PLANS.md` and `.project/v15-execution-state.md`, then verify the current branch, HEAD and worktree.
-2. Treat Integration `6515b8f` and the active private-preview release as the current verified release facts.
-3. Work only on REL-03 lightweight readiness and release-procedure closure; do not recreate the waived independent Staging plan.
-4. Preserve uncommitted documentation changes and do not commit, push, switch public traffic or expand Provider use without applicable authorization.
+1. 读取 `AGENTS.md`、`PLANS.md`、`.project/v15-execution-state.md` 并核验分支和工作树。
+2. 本地候选可进入提交与 CI；不在缺少真实送达证据时启用 Push。
+3. 保持应用内提醒降级、用户隔离和字段加密，不引入额外通知基础设施。
+4. 未获对应授权不得提交、推送、部署或修改服务器开关。
 
 ## Last Updated
 
-2026-09-08 16:00 +08:00 — R1 approved; separate Staging waived; current task set to REL-03 readiness on the existing private-preview environment.
+2026-09-09 11:46 +08:00 — 原混合 PR #26 已关闭并拆分为 PR #27/#28；两项 PR 的最终 quality、db-validation、browser-qa 均通过，等待独立 merge 授权。

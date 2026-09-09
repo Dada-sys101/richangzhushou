@@ -585,10 +585,73 @@ describeWithDb("WP5 calendar, tasks, and reminders integration", () => {
     expect(createResponse.status).toBe(403);
   });
 
+  it("Web Push subscriptions are encrypted and isolated by user", async () => {
+    const aToken = await loginNewUser();
+    const bToken = await loginNewUser();
+    process.env.V15_WEB_PUSH_ALLOWED = "true";
+    process.env.V15_LIVE_PUSH_ALLOWED = "true";
+    process.env.WEB_PUSH_VAPID_PUBLIC_KEY = "test-public-key";
+    process.env.WEB_PUSH_ENCRYPTION_KEY = Buffer.alloc(32, 9).toString(
+      "base64",
+    );
+    const endpoint = "https://push.example.test/subscriptions/private-value";
+    try {
+      const saved = await request(app.getHttpServer())
+        .post("/api/v1/push/subscriptions")
+        .set("Authorization", `Bearer ${aToken}`)
+        .send({
+          endpoint,
+          keys: { auth: "auth-secret", p256dh: "p256dh-secret" },
+        });
+      expect(saved.status).toBe(201);
+      expect(saved.body).toMatchObject({ subscribed: true, subscriptions: 1 });
+
+      const aUserId = await userIdOf(aToken);
+      const stored = await prisma.pushSubscription.findFirstOrThrow({
+        where: { userId: aUserId },
+      });
+      expect(stored.endpointCiphertext).not.toContain("private-value");
+      expect(stored.authCiphertext).not.toContain("auth-secret");
+
+      const bStatus = await request(app.getHttpServer())
+        .get("/api/v1/push/status")
+        .set("Authorization", `Bearer ${bToken}`);
+      expect(bStatus.body).toMatchObject({
+        subscribed: false,
+        subscriptions: 0,
+      });
+
+      await request(app.getHttpServer())
+        .post("/api/v1/push/subscriptions")
+        .set("Authorization", `Bearer ${bToken}`)
+        .send({
+          endpoint,
+          keys: { auth: "other-auth", p256dh: "other-p256dh" },
+        })
+        .expect(409);
+
+      await request(app.getHttpServer())
+        .delete("/api/v1/push/subscriptions")
+        .set("Authorization", `Bearer ${bToken}`)
+        .send({ endpoint })
+        .expect(204);
+      expect(
+        await prisma.pushSubscription.count({ where: { userId: aUserId } }),
+      ).toBe(1);
+    } finally {
+      delete process.env.V15_WEB_PUSH_ALLOWED;
+      delete process.env.V15_LIVE_PUSH_ALLOWED;
+      delete process.env.WEB_PUSH_VAPID_PUBLIC_KEY;
+      delete process.env.WEB_PUSH_ENCRYPTION_KEY;
+    }
+  });
+
   async function resetDatabase(): Promise<void> {
     await prisma.packingItem.deleteMany();
     await prisma.tripItem.deleteMany();
     await prisma.trip.deleteMany();
+    await prisma.pushDelivery.deleteMany();
+    await prisma.pushSubscription.deleteMany();
     await prisma.reminder.deleteMany();
     await prisma.task.deleteMany();
     await prisma.calendarEvent.deleteMany();

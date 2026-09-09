@@ -13,6 +13,7 @@ export interface StorageAdapter {
 
 export interface NotificationMessage {
   body?: string;
+  reminderId?: string;
   scheduledAt: Date;
   title: string;
   userId: string;

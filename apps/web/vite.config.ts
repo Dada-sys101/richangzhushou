@@ -26,6 +26,7 @@ export default defineConfig({
       },
       registerType: "prompt",
       workbox: {
+        importScripts: ["/push-sw.js"],
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [],

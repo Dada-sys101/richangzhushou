@@ -2,12 +2,13 @@
 
 仅使用 `NOT_STARTED`、`IN_PROGRESS`、`BLOCKED`、`DONE`、`CANCELLED`。
 
-## 当前执行记录（2026-09-08）
+## 当前执行记录（2026-09-09）
 
-R1 Quality Gate 已关闭。用户明确决定不建设独立 Staging，REL-02 为 `CANCELLED / SEPARATE_STAGING_WAIVED`；现有 Alibaba 私有预览作为验证环境。当前下一步是在现有环境完成 REL-03 轻量 readiness 与发布流程收口；公网 HTTPS/CORS 只阻塞公网入口。
+当前执行 R1.1 Web Push 最小候选；最终 quality、本地 MySQL 与受控 Chromium 验证通过，等待提交/CI 和真实 Push/设备送达验证，功能保持关闭。
 
 | ID | 任务 | 状态 | 工作包 |
 | --- | --- | --- | --- |
+| DA-1101 | Web Push 订阅、送达、Service Worker 与权限 UI | IN_PROGRESS | R1.1 PR3/PR16/PR17 |
 | DA-0001 | 完成产品与功能范围 | DONE | WP0 |
 | DA-0002 | 完成页面、流程和业务规则 | DONE | WP0 |
 | DA-0003 | 完成权限、数据模型和数据字典 | DONE | WP0 |
