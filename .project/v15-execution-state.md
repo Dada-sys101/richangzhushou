@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-08T16:00:45+08:00
+updatedAt: 2026-09-09T11:03:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -8,14 +8,14 @@ integrationBranch: codex/v15-integration-foundation
 integrationHead: 6515b8fd0f13969a0e434d3d8223f60a82cb0310
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: REL-03 Private Preview Readiness
-executionStatus: READY
-deliveryStatus: NOT_STARTED
-currentWork: PR #25 is merged at Integration 6515b8f and deployed to the Alibaba private preview; Linux audit/SBOM/build checks and target-host business smoke pass. Login, forced password change, task, calendar, transaction and refresh persistence passed with zero blocking browser errors; the disposable account and cascaded data were removed with zero residue. Formal/public readiness gates remain; real iPhone evidence is waived for this private preview and remains unverified
+currentTask: R1.1 Web Push Candidate / PR #28
+executionStatus: IN_PROGRESS
+deliveryStatus: DONE_LOCAL_CANDIDATE
+currentWork: Minimal browser Web Push is implemented locally and has passed MySQL 8.4.9 integration plus controlled Chromium permission/subscription flows; real Push Service, system notification and physical-device delivery remain unverified
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: REL-03 Private Preview Readiness
-nextCanonicalTaskAfterCompletion: REL-04_REASSESSMENT
-openPullRequests: []
+nextCanonicalTask: R1.1 Web Push Candidate / PR #28 CI and review
+nextCanonicalTaskAfterCompletion: R1.1_WEB_PUSH_DELIVERY_VALIDATION
+openPullRequests: ["#27 governance reconciliation", "#28 Web Push candidate"]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED
@@ -31,6 +31,20 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - Local worktree: contains 15 uncommitted governance/evidence Markdown changes; deployed source is the clean Integration merge and excludes these local documentation changes.
 
 ## Active Task
+
+- id: R1.1 Web Push Candidate
+- displayName: minimal browser external reminders
+- branch: codex/web-push-reminders-clean
+- baseHead: Integration 6515b8fd0f13969a0e434d3d8223f60a82cb0310; temporarily stacked on PR #27 to keep the feature diff isolated
+- currentGate: FORMAL_COMPATIBILITY_VERIFIED_LOCAL / READY_FOR_COMMIT_AND_CI / REAL_PUSH_DELIVERY_PENDING
+- implementation: encrypted user-scoped subscriptions, idempotent per-device delivery records, Push API, generated PWA Service Worker extension, reminder-page permission UI and Web Push adapter
+- allowedScope: PR3/PR16/PR17 minimal browser Push implementation and validation
+- forbiddenScope: SMS/email, queues, production enablement, deployment and public release without independent authorization
+- validation: final full quality, locked install with npm 11.18.0, lint/typecheck/unit/full tests/build/Prisma/OpenAPI, governance 30/30, audit 0 and SBOM 1055 pass; temporary MySQL 8.4.9 applied 13 migrations and passed 18 files/161 tests; controlled Chromium subscribe/restore/unsubscribe/deny and five-width checks pass; real delivery remains
+- executionStatus: IN_PROGRESS
+- deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PENDING / NOT_ENABLED
+
+## Previous Active Task
 
 - id: REL-03 Private Preview Readiness
 - displayName: existing private-preview readiness and release hardening
@@ -191,7 +205,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 | PR6a | DONE | DONE_INTEGRATION | R1 | V15-CTRL-001 DONE_INTEGRATION | PR #11 merged; integration `01292ef...` verified |
 | AI-DECISION-001 | DONE | DONE_INTEGRATION | R1 | V15-CTRL-001; before PR2 first-layer decision | PR #12 merged; integration `c4cca65...`; CI 218 success; ADR-027 v1.0 Final Accepted |
 | PR2 | DONE | DONE_INTEGRATION | R1 | V15-CTRL-001 + PR6a + AI-DECISION-001 first-layer decision | PR #13 squash merged; integration `042b2bc9...`; CI #222 SUCCESS |
-| PR3 | PENDING | NOT_STARTED | R1.1 | PR6a | later |
+| PR3 | IN_PROGRESS | DONE_LOCAL_CANDIDATE | R1.1 | PR6a | schema/migration written; MySQL validation pending |
 | PR4 | PENDING | NOT_STARTED | R2 | PR6a | later |
 | PR5 | DONE | DONE_INTEGRATION | R1 | PR1 + PR2 + PR6a | PR #14 squash merged；integration `9b4b685...`；CI #225 SUCCESS |
 | PR6 | DONE | DONE_INTEGRATION | R1 | PR6a | PR #15 squash merged；integration `24b6a392...`；final CI #230 SUCCESS |
@@ -199,7 +213,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 | PR9 | DONE | DONE_INTEGRATION | R1 | PR5 DONE_INTEGRATION | PR #16 MERGED/CLOSED；source `4017218...`；squash `3caa93b...`；CI #235/#236/#237 SUCCESS |
 | PR10/PR11/PR12 | PENDING | NOT_STARTED | R3 | PLANS dependencies | later |
 | PR14/PR15 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
-| PR16/PR17 | PENDING | NOT_STARTED | R1.1 | H6/H8 affect PR17 | later |
+| PR16/PR17 | IN_PROGRESS | DONE_LOCAL_CANDIDATE / NOT_ENABLED | R1.1 | H6/H8 affect PR17 | API/SW/provider local; browser/device/CI pending |
 | PR18 | DONE | DONE_INTEGRATION | R1 | PR2 + PR5 DONE_INTEGRATION | source `9bee2f8...`；PR #17 MERGED/CLOSED；Squash `7caf892...`；CI #263 SUCCESS；Integration CI #264 SUCCESS；governance-close `f90f4ea...` PUSHED；Final Acceptance/Integration ACCEPT |
 | PR19 | DONE | DONE_INTEGRATION | R1 | PR18 + PR6 | GitHub PR #18 merge `c42c19ec...`; historical implementation is integrated; V10 contract scope remains unchanged |
 | QUALITY-R1-GOVERNANCE-RECONCILIATION | DONE | DONE_INTEGRATION / POST_WRITE_REVIEW_PASS | Governance | Gate 2 explicit approval | ADR-028 Accepted; PR20-03A/#22 and PR20-03B/#23 `KEEP_AND_RECONCILE`; commit `6adc111...`; review PASS |

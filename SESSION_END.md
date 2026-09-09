@@ -1,5 +1,11 @@
 # Session End
 
+## 2026-09-09 — R1.1 Web Push 本地候选（IN_PROGRESS）
+
+- 完成加密订阅、逐设备幂等送达、用户隔离 API、PWA Service Worker、提醒页权限开关和真实 Web Push 适配器；功能默认关闭。
+- 临时 MySQL 8.4.9 完成 13 migrations、schema zero-diff 和 18 files/161 tests；Chromium 受控 Push API 完成订阅、刷新、退订、拒绝及五档宽度验证。
+- 最终完整 `npm run quality` 通过；当前未提交、未推送、未运行 CI、未部署、未启用，真实 Push Service/系统通知/实机送达仍待验证。
+
 ## 2026-09-08 — Prisma override 正式兼容性验证（FORMAL_COMPATIBILITY_VERIFIED_LOCAL）
 
 - 候选保留 Prisma 7.9.1，精确 override `deepmerge-ts@8.0.2`、`mariadb@3.4.7`、`mysql2@3.24.3`，固定 npm 11.18.0，并移除活动安全例外。

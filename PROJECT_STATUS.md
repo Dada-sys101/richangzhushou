@@ -1,18 +1,18 @@
 # Project Status
 
-updatedAt: 2026-09-08T16:00:45+08:00
+updatedAt: 2026-09-09T11:03:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 integrationHead: 6515b8fd0f13969a0e434d3d8223f60a82cb0310
-activeBranch: codex/v15-v2-ui-visual-freeze
-activeHead: 1e8bd5fe2d5e7312993f7e8b618a098eaa74b69e
-activeTask: REL-03 Private Preview Readiness
-executionStatus: READY
-deliveryStatus: NOT_STARTED
-nextCanonicalTask: REL-03 Private Preview Readiness
-nextCanonicalTaskAfterCompletion: REL-04_REASSESSMENT
-localRevision: UNCOMMITTED_DOCUMENTATION_RECONCILIATION
+activeBranch: codex/web-push-reminders-clean
+activeHead: f0621ee (feature commit; later state/merge commits do not alter feature behavior)
+activeTask: R1.1 Web Push Candidate
+executionStatus: IN_PROGRESS
+deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PENDING / REAL_DELIVERY_PENDING
+nextCanonicalTask: R1.1 Web Push Candidate
+nextCanonicalTaskAfterCompletion: R1.1_WEB_PUSH_DELIVERY_VALIDATION
+localRevision: COMMITTED_AND_PUSHED_WEB_PUSH_CANDIDATE
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
@@ -30,7 +30,7 @@ privatePreviewRelease: 6515b8fd0f13969a0e434d3d8223f60a82cb0310 / 6515b8fd-2db6b
 
 ## Current
 
-`REL-03 Private Preview Readiness` will add the smallest non-sensitive readiness mechanism and consolidate the existing backup, immutable deployment, liveness/readiness, business-smoke and application-rollback procedure on the Alibaba private-preview environment.
+`R1.1 Web Push Candidate` passed local MySQL migration/API isolation and controlled Chromium permission flows. It remains disabled until real Push Service, system-notification and physical-device delivery are verified.
 
 ## Remaining
 
@@ -44,7 +44,8 @@ privatePreviewRelease: 6515b8fd0f13969a0e434d3d8223f60a82cb0310 / 6515b8fd-2db6b
 ## Verification
 
 - Local quality and dependency governance: `PASS`.
-- MySQL 8.4.11 integration: `18 files / 160 tests PASS`.
+- Web Push MySQL 8.4.9 integration: `13 migrations / 18 files / 161 tests PASS`.
+- Controlled Chromium Web Push flows and five widths: `2/2 PASS`.
 - Database-backed browser smoke: `44/44 PASS`.
 - Merged CI: `PASS`.
 - Target Linux build/audit/SBOM: `PASS`.
