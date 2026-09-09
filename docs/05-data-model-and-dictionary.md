@@ -214,6 +214,14 @@ erDiagram
 - 附件二进制不进入离线同步队列：V1 仅同步元数据/引用，上传仍走在线接口
   （`[待确认]`，见 `docs/23`）。
 
+## R1.1 Web Push 数据补充说明（2026-09-09）
+
+- `push_subscriptions` 按 `user_id + endpoint_hash` 唯一；endpoint、p256dh 和 auth
+  使用 AES-256-GCM 字段加密，索引只保存 SHA-256 摘要，密钥版本随记录保存。
+- `push_deliveries` 按提醒发生时间与订阅形成幂等发送记录，明确区分排队、发送中、
+  Push Service 已接受、待重试与订阅失效；“已接受”不代表用户已经看到通知。
+- 两类记录均强制用户隔离，并纳入账号期满删除清理。
+
 ## PR2 AI 表补充说明（2026-08-12）
 
 - 新增 `ai_requests`/`ai_proposals`/`ai_operations`/`ai_provider_attempts` 与五个

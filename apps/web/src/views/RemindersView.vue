@@ -7,6 +7,7 @@ import type {
   ReminderScheduleType,
   ReminderSummary,
 } from "../api/client";
+import { api } from "../api/client";
 import PageHeader from "../components/PageHeader.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
@@ -30,6 +31,10 @@ const editingId = ref("");
 const saving = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
+const pushAvailable = ref(false);
+const pushEnabled = ref(false);
+const pushLoading = ref(false);
+const pushPublicKey = ref<string | null>(null);
 
 const weekdays = [1, 2, 3, 4, 5, 6, 7];
 
@@ -68,8 +73,69 @@ useUnsavedChanges(
 onMounted(() => {
   if (auth.isAuthenticated) {
     void reload();
+    void loadPushStatus();
   }
 });
+
+async function loadPushStatus() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+  try {
+    const status = await api.getPushStatus();
+    pushAvailable.value = status.enabled;
+    pushPublicKey.value = status.publicKey;
+    const registration = await navigator.serviceWorker.ready;
+    pushEnabled.value = Boolean(
+      await registration.pushManager.getSubscription(),
+    );
+  } catch {
+    pushAvailable.value = false;
+  }
+}
+
+async function togglePush() {
+  errorMessage.value = "";
+  successMessage.value = "";
+  pushLoading.value = true;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const existing = await registration.pushManager.getSubscription();
+    if (existing) {
+      await api.deletePushSubscription(existing.endpoint);
+      await existing.unsubscribe();
+      pushEnabled.value = false;
+      successMessage.value = "应用外提醒已关闭";
+      return;
+    }
+    if (!pushPublicKey.value) throw new Error("应用外提醒尚未配置");
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") throw new Error("需要允许系统通知才能开启");
+    const subscription = await registration.pushManager.subscribe({
+      applicationServerKey: base64UrlToBytes(pushPublicKey.value),
+      userVisibleOnly: true,
+    });
+    const json = subscription.toJSON();
+    if (!json.endpoint || !json.keys?.auth || !json.keys.p256dh) {
+      await subscription.unsubscribe();
+      throw new Error("浏览器未返回完整的通知订阅");
+    }
+    await api.savePushSubscription({
+      endpoint: json.endpoint,
+      keys: { auth: json.keys.auth, p256dh: json.keys.p256dh },
+    });
+    pushEnabled.value = true;
+    successMessage.value = "应用外提醒已开启";
+  } catch (error) {
+    errorMessage.value = messageOf(error);
+  } finally {
+    pushLoading.value = false;
+  }
+}
+
+function base64UrlToBytes(value: string): Uint8Array<ArrayBuffer> {
+  const padded = `${value}${"=".repeat((4 - (value.length % 4)) % 4)}`;
+  const binary = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+}
 
 watch([statusFilter, includeDeleted], () => {
   void reload();
@@ -340,9 +406,20 @@ function messageOf(error: unknown): string {
       </template>
     </PageHeader>
 
-    <p class="panel-copy">
-      V1 提醒仅应用内查看：打开应用即可看到提醒，不会发送系统通知、短信或邮件。
-    </p>
+    <div class="panel-copy">
+      <template v-if="pushAvailable">
+        <span>应用外提醒可在浏览器关闭时发送系统通知。</span>
+        <button
+          class="secondary-button"
+          :disabled="pushLoading"
+          type="button"
+          @click="togglePush"
+        >
+          {{ pushEnabled ? "关闭应用外提醒" : "开启应用外提醒" }}
+        </button>
+      </template>
+      <span v-else>当前仅支持应用内查看提醒。</span>
+    </div>
     <p v-if="errorMessage" class="form-error" role="alert">
       {{ errorMessage }}
     </p>

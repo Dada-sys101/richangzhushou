@@ -81,6 +81,13 @@ export interface AuthSessionResponse {
   user: UserSummary;
 }
 
+export interface PushStatusResponse {
+  enabled: boolean;
+  publicKey: string | null;
+  subscribed: boolean;
+  subscriptions: number;
+}
+
 export type TransactionType = "EXPENSE" | "INCOME" | "REFUND";
 export type CategoryKind = "EXPENSE" | "INCOME";
 export type FinancialAccountKind =
@@ -687,6 +694,24 @@ async function refreshAccessTokenOnce(): Promise<boolean> {
 }
 
 export const api = {
+  getPushStatus() {
+    return http<PushStatusResponse>("/push/status");
+  },
+  savePushSubscription(body: {
+    endpoint: string;
+    keys: { auth: string; p256dh: string };
+  }) {
+    return http<PushStatusResponse>("/push/subscriptions", {
+      body,
+      method: "POST",
+    });
+  },
+  deletePushSubscription(endpoint: string) {
+    return http<void>("/push/subscriptions", {
+      body: { endpoint },
+      method: "DELETE",
+    });
+  },
   cancelReminder(
     id: string,
     body: { status: "CANCELLED" | "SCHEDULED"; version: number },
