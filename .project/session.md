@@ -2,13 +2,13 @@
 
 ## Session Status
 
-IN_PROGRESS / R1_1_WEB_PUSH / DONE_PUSHED / PR_28_OPEN / CI_PENDING / REAL_PUSH_DELIVERY_NOT_VERIFIED
+IN_PROGRESS / R1_1_WEB_PUSH / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORIZATION_PENDING / REAL_PUSH_DELIVERY_NOT_VERIFIED
 
 ## Task
 
 - ID: `R1.1 Web Push Candidate`（合并执行 PR3、PR16、PR17 的最小可用范围）
 - Execution: `IN_PROGRESS`
-- Delivery: `DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PENDING / NOT_ENABLED`
+- Delivery: `DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PASS / NOT_ENABLED`
 - Worktree: `D:\daily-assistant-worktrees\web-push-clean-pr`
 - Branch: `codex/web-push-reminders-clean`
 - Base HEAD: Integration `6515b8fd0f13969a0e434d3d8223f60a82cb0310`; stacked temporarily on governance PR #27 for a feature-only diff
@@ -26,7 +26,7 @@ IN_PROGRESS / R1_1_WEB_PUSH / DONE_PUSHED / PR_28_OPEN / CI_PENDING / REAL_PUSH_
 
 ## Remaining Work
 
-1. 等待 PR #27 与 PR #28 的远端 CI；PR #27 合并后将 PR #28 基线切回 Integration。
+1. 审阅并在独立授权后合并 PR #27；随后将 PR #28 基线切回 Integration，再经独立授权合并。
 2. 启用前使用测试 VAPID 配置完成真实 Push Service、系统通知与手机/PWA 送达证据。
 
 ## Verification Status
@@ -51,4 +51,4 @@ IN_PROGRESS / R1_1_WEB_PUSH / DONE_PUSHED / PR_28_OPEN / CI_PENDING / REAL_PUSH_
 
 ## Last Updated
 
-2026-09-09 11:35 +08:00 — 原混合 PR #26 已拆分为治理 PR #27 与纯 Web Push PR #28；候选已提交推送，等待最终 CI，真实 Push 送达仍未验证。
+2026-09-09 11:46 +08:00 — 原混合 PR #26 已关闭并拆分为 PR #27/#28；两项 PR 的最终 quality、db-validation、browser-qa 均通过，等待独立 merge 授权。

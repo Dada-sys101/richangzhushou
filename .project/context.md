@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-09 11:03 +08:00 — R1.1 Web Push candidate passed final quality, local MySQL integration and controlled Chromium permission/subscription validation; ready for commit and CI, real delivery remains.
+2026-09-09 11:46 +08:00 — mixed PR #26 was replaced by governance/dependency PR #27 and isolated Web Push PR #28; both final CI matrices pass, merge authorization and real delivery remain.
 
 ## Repository State
 
@@ -14,7 +14,7 @@
 - Active branch: `codex/web-push-reminders-clean`
 - Active delivery: PR #28, temporarily based on governance PR #27 so its diff contains only Web Push changes
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
-- Original mixed PR #26 is being replaced by separate governance PR #27 and Web Push PR #28.
+- Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 
 ## Project Summary
 

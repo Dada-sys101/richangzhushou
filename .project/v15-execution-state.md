@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-09T11:03:00+08:00
+updatedAt: 2026-09-09T11:46:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -13,7 +13,7 @@ executionStatus: IN_PROGRESS
 deliveryStatus: DONE_LOCAL_CANDIDATE
 currentWork: Minimal browser Web Push is implemented locally and has passed MySQL 8.4.9 integration plus controlled Chromium permission/subscription flows; real Push Service, system notification and physical-device delivery remain unverified
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: R1.1 Web Push Candidate / PR #28 CI and review
+nextCanonicalTask: Review and merge PR #27, then retarget and review PR #28
 nextCanonicalTaskAfterCompletion: R1.1_WEB_PUSH_DELIVERY_VALIDATION
 openPullRequests: ["#27 governance reconciliation", "#28 Web Push candidate"]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
@@ -42,7 +42,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - forbiddenScope: SMS/email, queues, production enablement, deployment and public release without independent authorization
 - validation: final full quality, locked install with npm 11.18.0, lint/typecheck/unit/full tests/build/Prisma/OpenAPI, governance 30/30, audit 0 and SBOM 1055 pass; temporary MySQL 8.4.9 applied 13 migrations and passed 18 files/161 tests; controlled Chromium subscribe/restore/unsubscribe/deny and five-width checks pass; real delivery remains
 - executionStatus: IN_PROGRESS
-- deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PENDING / NOT_ENABLED
+- deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORIZATION_PENDING / NOT_ENABLED
 
 ## Previous Active Task
 

@@ -1,6 +1,6 @@
 # Project Status
 
-updatedAt: 2026-09-09T11:03:00+08:00
+updatedAt: 2026-09-09T11:46:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -9,7 +9,7 @@ activeBranch: codex/web-push-reminders-clean
 activeHead: f0621ee (feature commit; later state/merge commits do not alter feature behavior)
 activeTask: R1.1 Web Push Candidate
 executionStatus: IN_PROGRESS
-deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PENDING / REAL_DELIVERY_PENDING
+deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORIZATION_PENDING / REAL_DELIVERY_PENDING
 nextCanonicalTask: R1.1 Web Push Candidate
 nextCanonicalTaskAfterCompletion: R1.1_WEB_PUSH_DELIVERY_VALIDATION
 localRevision: COMMITTED_AND_PUSHED_WEB_PUSH_CANDIDATE
