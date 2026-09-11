@@ -26,6 +26,9 @@ Make the existing Vue PWA navigation behave predictably like a mobile applicatio
 - `apps/web/src/components/PageHeader.vue` and focused tests
 - `apps/web/src/components/SiteHeader.vue` and focused tests
 - `apps/web/src/main.ts` only if needed to initialize navigation policy
+- `apps/web/public/push-sw.js` only for automatic version activation and client refresh
+- `apps/web/src/views/AccountView.vue` for the authenticated logout navigation fix
+- `apps/web/vite.config.ts` for automatic installed-PWA update activation
 - `apps/web/src/styles.css` only for `100dvh`, safe-area, or navigation-shell corrections
 - `apps/web/index.html` only for `viewport-fit=cover`
 - `tests/e2e/navigation-shell.spec.ts` and focused navigation test support
@@ -37,7 +40,7 @@ Make the existing Vue PWA navigation behave predictably like a mobile applicatio
 - A second or custom application navigation stack
 - `popstate` interception that competes with Vue Router or Browser History
 - AI behavior, sync algorithms, API contracts, database models or migrations
-- Service Worker, Web Push, notification delivery or feature flags
+- Web Push, notification delivery or feature flags; Service Worker behavior is limited to automatic version activation and client refresh
 - Broad route renaming, page-directory reorganization, visual redesign or unrelated refactoring
 - Deployment, production configuration, public access, commit, push, PR or merge without separate authorization
 
