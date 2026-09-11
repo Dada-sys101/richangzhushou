@@ -8,6 +8,10 @@ import {
 export { setAccessToken };
 
 import { handleOffline, matchOfflineRoute } from "../offline/handler";
+import {
+  localizedApiErrorMessage,
+  localizedFieldErrors,
+} from "./error-messages";
 
 export interface FieldError {
   field: string;
@@ -669,8 +673,11 @@ async function http<T>(
       throw new ApiClientError(
         response.status,
         error.code ?? "SERVICE_UNAVAILABLE",
-        error.message ?? "服务暂时不可用，请稍后重试",
-        error.fieldErrors,
+        localizedApiErrorMessage(
+          error.code ?? "SERVICE_UNAVAILABLE",
+          response.status,
+        ),
+        localizedFieldErrors(error.fieldErrors),
       );
     }
     return data as T;
