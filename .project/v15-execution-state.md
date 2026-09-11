@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-11T15:18:00+08:00
+updatedAt: 2026-09-11T15:48:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -11,7 +11,7 @@ pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-A PWA Navigation and Mobile Shell
 executionStatus: VERIFYING
 deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
-currentWork: MOBILE-A navigation is deployed; the authentication database-pool incident is fixed with fail-fast Prisma startup and database-aware readiness, and user-visible API errors are localized to Chinese while preserving Chinese business details; physical iPhone and Android navigation remains unverified
+currentWork: MOBILE-A navigation is deployed; authentication now fails closed on HTTP refresh failures so signed-out users cannot see prior-user cached data, logout waits for IndexedDB cleanup, and the last-user marker is removed; physical iPhone and Android navigation remains unverified
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
 nextCanonicalTask: Complete MOBILE-A physical-device acceptance, then request commit authorization if desired
 nextCanonicalTaskAfterCompletion: MOBILE-B PWA lifecycle and installation experience
@@ -22,7 +22,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-A auth/readiness fix `77718a0`, deployed at `/opt/daily-assistant-preview/releases/77718a00-20260911T0713Z`; previous `7103ad10-20260911T0634Z` remains the rollback release.
+- Active release: MOBILE-A signed-out cache isolation fix `fa0ee53`, deployed at `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z`; previous `77718a00-20260911T0713Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
@@ -38,7 +38,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - baseHead: Integration be9d89927aa39abe867e1df5594588bafda3b8cc
 - contract: tasks/MOBILE-A.md (`MOBILE_A_NAVIGATION_SHELL_V1`)
 - implementation: centralized navigation policy; root-tab replace semantics; one-level sanitized returnTo; direct-entry Browser History fallback; shared header/back controls
-- validation: full quality PASS; navigation/logout E2E PASS; auth/readiness fix push/PR quality, MySQL 8.4 and browser-qa matrices PASS; target Node 24/npm 11.18 sequential build, backup, database-aware health, public root, Chinese invalid-login response and error-log checks PASS
+- validation: full quality PASS; signed-out cache unit tests 12/12 PASS; push/PR quality, MySQL 8.4 and browser-qa matrices PASS; browser QA verifies logout, protected-route redirect and reload remain on the login page without app navigation; target Node 24/npm 11.18 sequential build, backup, database-aware health, public root, Chinese invalid-login response and error-log checks PASS
 - remaining: physical iPhone edge-swipe and Android system-back acceptance
 - executionStatus: VERIFYING
 - deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING

@@ -1,12 +1,12 @@
 # Project Status
 
-updatedAt: 2026-09-11T15:18:00+08:00
+updatedAt: 2026-09-11T15:48:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 integrationHead: be9d89927aa39abe867e1df5594588bafda3b8cc
 activeBranch: codex/mobile-a-navigation-shell
-activeHead: 77718a0
+activeHead: fa0ee53
 activeTask: MOBILE-A PWA Navigation and Mobile Shell
 executionStatus: VERIFYING
 deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
@@ -16,7 +16,7 @@ localRevision: COMMITTED_AND_PUSHED_MOBILE_A
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
-privatePreviewRelease: 77718a0 / 77718a00-20260911T0713Z
+privatePreviewRelease: fa0ee53 / fa0ee530-20260911T0738Z
 
 ## Completed
 
@@ -30,7 +30,7 @@ privatePreviewRelease: 77718a0 / 77718a00-20260911T0713Z
 
 ## Current
 
-`MOBILE-A` has passed unit, browser and CI acceptance and is deployed to the existing environment. Logout reliably returns to the login form, and installed PWA updates now activate and refresh open clients automatically. Physical iPhone edge-swipe and Android system-back checks remain; Web Push remains disabled pending its separate real-delivery gate.
+`MOBILE-A` has passed unit, browser and CI acceptance and is deployed to the existing environment. HTTP authentication failures now close the session without restoring prior-user cache; logout waits for IndexedDB cleanup and removes the last-user marker. Installed PWA updates activate and refresh open clients automatically. Physical iPhone edge-swipe and Android system-back checks remain; Web Push remains disabled pending its separate real-delivery gate.
 
 ## Remaining
 
@@ -56,6 +56,6 @@ privatePreviewRelease: 77718a0 / 77718a00-20260911T0713Z
 
 ## Git State
 
-- Current documentation reconciliation is uncommitted.
-- No commit or push is authorized by the current documentation-review instruction.
-- No production deployment, public switch, new resource creation or Provider expansion was performed.
+- Functional fix `fa0ee53` is committed and pushed; this state reconciliation is pending its documentation commit.
+- PR #29 remains open and unmerged.
+- Existing private-preview deployment was authorized and completed; no public switch, new resource creation or Provider expansion was performed.

@@ -2,6 +2,8 @@
 
 评估更新：2026-09-11（`Asia/Shanghai`）
 
+> 2026-09-11 MOBILE-A 未登录缓存隔离发布：刷新令牌返回 HTTP 401 时，客户端曾误进入离线模式并恢复上一账号的 IndexedDB 数据，造成界面显示未登录但仍可见旧数据。提交 `fa0ee53` 将离线恢复限定为真实网络故障；认证失败直接关闭会话，显式退出会等待用户缓存清除并删除最后用户标记。两组 CI 的 quality、db-validation、browser-qa 全绿，其中浏览器用例覆盖退出、访问受保护页面、刷新后仍停留登录页且无应用导航。发布前备份为 `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260911T073720Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z`，旧 release `77718a00-20260911T0713Z` 保留为回滚点。
+
 > 2026-09-11 MOBILE-A 认证修复发布：线上认证请求因 API 数据库连接池启动异常返回 500，重启后即时恢复。提交 `77718a0` 增加 Prisma 启动连接和数据库就绪检查，避免进程存活掩盖数据库故障；API 与 PWA 的可见英文/未知错误统一转换为中文，同时保留已有中文业务细节。两组 CI 全绿后部署至 `/opt/daily-assistant-preview/releases/77718a00-20260911T0713Z`；发布前备份、目标顺序构建、公开数据库健康检查、中文登录错误响应和日志检查通过。旧 release `7103ad10-20260911T0634Z` 保留为回滚点。
 
 ## 当前结论
@@ -18,7 +20,7 @@
 - Integration commit：`6515b8fd0f13969a0e434d3d8223f60a82cb0310`。
 - 来源：PR #25，状态 `MERGED`。
 - 合并后 CI：run `34181985716`，`quality`、`db-validation`、`browser-qa` 全部通过。
-- 服务器 release：`/opt/daily-assistant-preview/releases/6515b8fd-2db6b6a2f199db4c`。
+- 服务器 release：`/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z`（MOBILE-A PR #29 commit `fa0ee53`；PR 尚未合并）。
 - API、用户端和管理端入口均返回 HTTP 200；切换后的 warning/error 日志为空。
 - 本次没有执行 migration、修改 MySQL/Nginx、扩展域名或改变 Provider 开关。
 
@@ -54,10 +56,10 @@
 
 ## Readiness 现状
 
-- `/api/v1/health` 仅提供 liveness。
+- `/api/v1/health` 执行数据库查询并提供不泄露敏感细节的 readiness。
 - 认证后的 `/api/v1/admin/health` 会执行数据库检查。
 - 服务启动流程包含数据库 precheck，部署后真实业务 smoke 已通过。
-- REL-03 应增加最小、非敏感 readiness，或固化等价的受控组合探针；不得泄露凭据、内部拓扑或原始错误。
+- Prisma 启动阶段主动连接数据库；公开 readiness、服务状态和业务登录探针已在本次发布后通过。
 
 ## 已接受的范围简化
 

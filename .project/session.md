@@ -13,7 +13,7 @@ VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPL
 - Branch: `codex/mobile-a-navigation-shell`
 - Base HEAD: Integration `be9d89927aa39abe867e1df5594588bafda3b8cc`
 - Scope: 浏览器历史统一导航策略、根 Tab replace、直接父级 returnTo、深链接业务 fallback、应用内返回一致性。
-- Excluded: AI、同步算法、API、数据库、Service Worker、Push、视觉重做和发布。
+- Excluded: AI、同步算法、API、数据库、Service Worker、Push 和视觉重做；本轮按用户既有授权发布到现有私有预览。
 
 ## Current Progress
 
@@ -22,7 +22,7 @@ VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPL
 - `returnTo` 仅保留直接父级并拒绝外部地址；未保存表单守卫继续生效。
 - lint、typecheck、Web 121 项单元测试及导航 E2E 五档宽度与 WebKit mobile 已通过。
 - PR #29 首轮 browser-qa 发现 Browser Back 回到 AI 页面时被错误附加 `returnTo`；修复后定向 2/2 与完整浏览器 smoke 52/52 通过，等待远端 CI 复跑。
-- 修复后两组 CI 的 quality、db-validation、browser-qa 全部通过；线上数据库连接池异常已即时恢复，并由 `77718a0` 增加 Prisma 启动连接、数据库就绪检查和全中文可见错误。该提交已部署，发布前备份、目标构建、公开健康/登录响应和日志检查通过。
+- 修复后两组 CI 的 quality、db-validation、browser-qa 全部通过；`77718a0` 已解决数据库就绪和全中文错误。随后 `fa0ee53` 修复 HTTP 401 被误判为离线而恢复上一账号缓存的问题，退出登录会等待 IndexedDB 与最后用户标记清除；两组 CI 全绿并已部署，发布前备份、目标构建、公开健康/登录响应和日志检查通过。
 
 - 新增 `PushSubscription`/`PushDelivery` migration；订阅敏感字段使用 AES-256-GCM，索引仅存 endpoint SHA-256。
 - 新增用户隔离的 Push status/save/delete API、OpenAPI 契约、PWA Service Worker 与提醒页开关。
@@ -63,4 +63,4 @@ VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPL
 
 ## Last Updated
 
-2026-09-11 15:18 +08:00 — MOBILE-A 认证数据库就绪与中文错误修复 `77718a0` 已通过本地质量、两组远端 CI 并部署；公开登录错误响应已为中文，等待真实 iPhone/Android 返回验收，PR 尚未合并。
+2026-09-11 15:48 +08:00 — MOBILE-A 未登录缓存隔离修复 `fa0ee53` 已通过本地质量、两组远端 CI 并部署；未登录或刷新令牌失效时不再展示上一账号缓存，等待真实 iPhone/Android 返回验收，PR 尚未合并。
