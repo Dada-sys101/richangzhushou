@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
+ACCEPTED / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
 
 ## Task
 
 - ID: `MOBILE-A PWA Navigation and Mobile Shell`
-- Execution: `VERIFYING`
-- Delivery: `DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
+- Execution: `ACCEPTED`
+- Delivery: `DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-a-navigation-shell`
 - Base HEAD: Integration `be9d89927aa39abe867e1df5594588bafda3b8cc`
@@ -33,8 +33,8 @@ VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPL
 
 ## Remaining Work
 
-1. 在真实 iPhone 已安装 PWA 上验证边缘返回，在 Android 已安装 PWA 上验证系统返回。
-2. 若设备验收通过并需要交付，再单独授权提交、推送与 PR。
+1. PR #29 获得独立合并授权后合入 Integration，并复核合并后 CI。
+2. 从更新后的 Integration 建立独立 MOBILE-B 契约与分支。
 
 ## Previous Task Record
 
@@ -63,4 +63,4 @@ VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPL
 
 ## Last Updated
 
-2026-09-11 15:48 +08:00 — MOBILE-A 未登录缓存隔离修复 `fa0ee53` 已通过本地质量、两组远端 CI 并部署；未登录或刷新令牌失效时不再展示上一账号缓存，等待真实 iPhone/Android 返回验收，PR 尚未合并。
+2026-09-11 16:07 +08:00 — 用户确认 MOBILE-A 的 iPhone、Android 与未登录缓存实机验收通过；PR #29 全绿、已部署并可合并，等待独立合并授权后启动 MOBILE-B。

@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-11T15:48:00+08:00
+updatedAt: 2026-09-11T16:07:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -9,12 +9,12 @@ integrationHead: be9d89927aa39abe867e1df5594588bafda3b8cc
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-A PWA Navigation and Mobile Shell
-executionStatus: VERIFYING
-deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
-currentWork: MOBILE-A navigation is deployed; authentication now fails closed on HTTP refresh failures so signed-out users cannot see prior-user cached data, logout waits for IndexedDB cleanup, and the last-user marker is removed; physical iPhone and Android navigation remains unverified
+executionStatus: ACCEPTED
+deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
+currentWork: MOBILE-A automated, iPhone, Android and signed-out cache acceptance passed; PR #29 remains open and requires independent merge authorization before MOBILE-B starts from Integration
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Complete MOBILE-A physical-device acceptance, then request commit authorization if desired
-nextCanonicalTaskAfterCompletion: MOBILE-B PWA lifecycle and installation experience
+nextCanonicalTask: Merge accepted MOBILE-A PR #29 after explicit authorization, then start MOBILE-B PWA lifecycle and installation experience
+nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
 openPullRequests: []
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
@@ -39,9 +39,9 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - contract: tasks/MOBILE-A.md (`MOBILE_A_NAVIGATION_SHELL_V1`)
 - implementation: centralized navigation policy; root-tab replace semantics; one-level sanitized returnTo; direct-entry Browser History fallback; shared header/back controls
 - validation: full quality PASS; signed-out cache unit tests 12/12 PASS; push/PR quality, MySQL 8.4 and browser-qa matrices PASS; browser QA verifies logout, protected-route redirect and reload remain on the login page without app navigation; target Node 24/npm 11.18 sequential build, backup, database-aware health, public root, Chinese invalid-login response and error-log checks PASS
-- remaining: physical iPhone edge-swipe and Android system-back acceptance
-- executionStatus: VERIFYING
-- deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
+- remaining: PR #29 merge authorization and Integration landing verification
+- executionStatus: ACCEPTED
+- deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
 
 ## Previous Canonical Task
 

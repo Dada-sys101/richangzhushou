@@ -3,12 +3,12 @@
 ## Contract metadata
 
 - Contract: `MOBILE_A_NAVIGATION_SHELL_V1`
-- Contract status: `APPROVED / ACTIVE`
+- Contract status: `ACCEPTED / READY_TO_MERGE`
 - Approved by user: 2026-09-11
 - Required base: latest `codex/v15-integration-foundation`
 - Working branch: `codex/mobile-a-navigation-shell`
 - Previous task: `R1.1 Web Push Candidate` (`DONE_INTEGRATION` through PR #28; real delivery remains a separate disabled gate)
-- Commit authorization: `NOT_GRANTED`
+- Commit authorization: `GRANTED_AND_CONSUMED` on 2026-09-11
 - Push / PR authorization: `GRANTED_AND_CONSUMED` on 2026-09-11
 - Deployment authorization: `GRANTED_AND_CONSUMED` for the existing private-preview environment on 2026-09-11
 - Merge authorization: `NOT_GRANTED`

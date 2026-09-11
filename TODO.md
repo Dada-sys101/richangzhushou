@@ -4,11 +4,11 @@
 
 ## 当前执行记录（2026-09-11）
 
-当前执行 MOBILE-A；统一导航、退出登录、安装版自动更新、认证数据库就绪、全中文错误和未登录缓存隔离已完成并部署，等待真实 iPhone/Android 返回操作验收。Web Push 候选已合并但仍保持关闭，真实送达门禁独立保留。
+MOBILE-A 的自动化、iPhone、Android 与未登录缓存验收均已通过并部署；PR #29 等待独立合并授权。合并并复核 Integration 后启动 MOBILE-B。Web Push 候选保持关闭，真实送达门禁独立保留。
 
 | ID | 任务 | 状态 | 工作包 |
 | --- | --- | --- | --- |
-| DA-1201 | PWA 导航策略、根 Tab 历史与深链接返回 | IN_PROGRESS | MOBILE-A |
+| DA-1201 | PWA 导航策略、根 Tab 历史与深链接返回 | DONE | MOBILE-A（PR #29 待合并） |
 | DA-1101 | Web Push 订阅、送达、Service Worker 与权限 UI | DONE | R1.1 PR3/PR16/PR17（真实送达为独立门禁） |
 | DA-0001 | 完成产品与功能范围 | DONE | WP0 |
 | DA-0002 | 完成页面、流程和业务规则 | DONE | WP0 |

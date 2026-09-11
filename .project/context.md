@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-11 15:48 +08:00 — MOBILE-A signed-out cache isolation fix `fa0ee53` is CI green and active in the existing private-preview environment; physical-device acceptance and PR merge remain.
+2026-09-11 16:07 +08:00 — MOBILE-A automated, iPhone and Android acceptance passed; PR #29 is CI green, deployed and ready to merge, while merge authorization remains outstanding.
 
 ## Repository State
 
@@ -12,7 +12,7 @@
 - Verified Integration HEAD: `be9d89927aa39abe867e1df5594588bafda3b8cc`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/mobile-a-navigation-shell`
-- Active delivery: MOBILE-A `DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
+- Active delivery: MOBILE-A `DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 is open and both CI matrices pass; signed-out cache isolation commit `fa0ee53` is deployed at `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z` with `77718a00-20260911T0713Z` retained for rollback.
@@ -30,7 +30,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `MOBILE-A PWA Navigation and Mobile Shell / VERIFYING`.
+- Current canonical task: `MOBILE-A PWA Navigation and Mobile Shell / ACCEPTED / READY_TO_MERGE`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -55,7 +55,7 @@
 
 ## Next Recommended Task
 
-Complete physical iPhone/Android navigation acceptance; after MOBILE-A is delivered, start MOBILE-B as a separate task.
+After explicit authorization, merge PR #29 and verify Integration; then start MOBILE-B as a separate task from that clean base.
 
 ## Completed Work
 
@@ -81,7 +81,7 @@ Complete physical iPhone/Android navigation acceptance; after MOBILE-A is delive
 
 ## Known Issues
 
-- Physical iPhone Safari/PWA behavior remains unverified; WebKit emulation is supporting evidence only.
+- The user reported iPhone and Android MOBILE-A acceptance passed on 2026-09-11; detailed device screenshots/logs were not captured in the repository.
 - Public health performs a database query and returns readiness without exposing sensitive details.
 - Separate Staging, managed MySQL TLS/private networking and cross-location restore were deliberately waived for the current small private-preview scope; reassess them for public launch, larger scale or important real data.
 
