@@ -61,11 +61,20 @@ function initializeLifecycle() {
   });
 
   if ("serviceWorker" in navigator) {
+    const checkForUpdate = () => {
+      if (document.visibilityState === "visible") {
+        void registration?.update();
+      }
+    };
+    window.addEventListener("pageshow", checkForUpdate);
+    document.addEventListener("visibilitychange", checkForUpdate);
+
     const registerServiceWorker = () => {
       void navigator.serviceWorker
         .register("/sw.js")
         .then((nextRegistration) => {
           observeRegistration(nextRegistration);
+          void nextRegistration.update();
           window.setInterval(
             () => void nextRegistration.update(),
             60 * 60 * 1000,

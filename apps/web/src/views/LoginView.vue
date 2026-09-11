@@ -23,7 +23,7 @@ async function submit() {
         ? "/change-password"
         : typeof route.query.redirect === "string"
           ? route.query.redirect
-          : "/account",
+          : "/",
     );
   } catch (error) {
     errorMessage.value =
