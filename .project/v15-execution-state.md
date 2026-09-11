@@ -1,19 +1,19 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-11T16:07:00+08:00
+updatedAt: 2026-09-11T16:39:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: be9d89927aa39abe867e1df5594588bafda3b8cc
+integrationHead: 6e1313fd58da8d4fc34fc7912b579571a21a9ebe
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: MOBILE-A PWA Navigation and Mobile Shell
-executionStatus: ACCEPTED
-deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
-currentWork: MOBILE-A automated, iPhone, Android and signed-out cache acceptance passed; PR #29 remains open and requires independent merge authorization before MOBILE-B starts from Integration
+currentTask: MOBILE-B PWA Lifecycle and Installation Experience
+executionStatus: VERIFYING
+deliveryStatus: DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING
+currentWork: MOBILE-B implements complete manifest/icons, Android native install capture, iPhone add-to-home guide, standalone detection and safe user-controlled Service Worker updates; full quality passes and physical installed-device lifecycle checks remain
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Merge accepted MOBILE-A PR #29 after explicit authorization, then start MOBILE-B PWA lifecycle and installation experience
+nextCanonicalTask: Deliver MOBILE-B and complete physical installed-PWA lifecycle acceptance
 nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
 openPullRequests: []
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
@@ -32,16 +32,16 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Active Task
 
-- id: MOBILE-A
-- displayName: PWA navigation and mobile shell
-- branch: codex/mobile-a-navigation-shell
-- baseHead: Integration be9d89927aa39abe867e1df5594588bafda3b8cc
-- contract: tasks/MOBILE-A.md (`MOBILE_A_NAVIGATION_SHELL_V1`)
-- implementation: centralized navigation policy; root-tab replace semantics; one-level sanitized returnTo; direct-entry Browser History fallback; shared header/back controls
-- validation: full quality PASS; signed-out cache unit tests 12/12 PASS; push/PR quality, MySQL 8.4 and browser-qa matrices PASS; browser QA verifies logout, protected-route redirect and reload remain on the login page without app navigation; target Node 24/npm 11.18 sequential build, backup, database-aware health, public root, Chinese invalid-login response and error-log checks PASS
-- remaining: PR #29 merge authorization and Integration landing verification
-- executionStatus: ACCEPTED
-- deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
+- id: MOBILE-B
+- displayName: PWA lifecycle and installation experience
+- branch: codex/mobile-b-pwa-lifecycle
+- baseHead: Integration 6e1313fd58da8d4fc34fc7912b579571a21a9ebe
+- contract: tasks/MOBILE-B.md (`MOBILE_B_PWA_LIFECYCLE_V1`)
+- implementation: complete Manifest/icons; Android install prompt; iPhone add-to-home guide; standalone detection; safe user-controlled Service Worker updates
+- validation: full quality PASS; Web 25 files/129 tests, API 34 files/281 tests; generated Manifest/icon dimensions and SKIP_WAITING handler verified
+- remaining: commit/push/PR/CI/deployment and physical iPhone/Android installed lifecycle acceptance
+- executionStatus: VERIFYING
+- deliveryStatus: DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING
 
 ## Previous Canonical Task
 

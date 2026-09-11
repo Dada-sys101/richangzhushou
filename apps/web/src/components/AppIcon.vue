@@ -12,6 +12,7 @@ const ICONS: Record<string, string[]> = {
   calendar: ["M4 5h16v15H4z", "M8 3v4", "M16 3v4", "M4 10h16"],
   card: ["M2 6h20v12H2z", "M2 10h20"],
   check: ["m5 12 5 5L20 7"],
+  download: ["M12 3v12", "m7 10 5 5 5-5", "M5 21h14"],
   "chevron-down": ["m6 9 6 6 6-6"],
   "chevron-right": ["m9 6 6 6-6 6"],
   file: [

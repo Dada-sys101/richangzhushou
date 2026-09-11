@@ -1,5 +1,11 @@
 # Session End
 
+## 2026-09-11 — MOBILE-B PWA 生命周期（DONE_LOCAL）
+
+- 完成 Manifest、四套应用图标、Android 原生安装入口、iPhone 中文添加到主屏幕说明和 standalone 识别。
+- Service Worker 更新改为中文提示和用户确认；未保存内容或同步活动会安全暂缓刷新。
+- 完整质量通过，当前分支 `codex/mobile-b-pwa-lifecycle`，等待提交、CI、现有私有预览部署与实机生命周期验收。
+
 ## 2026-09-11 — MOBILE-A 导航与移动端壳（ACCEPTED / READY_TO_MERGE）
 
 - Navigation Policy、根 Tab replace、直接父级 `returnTo` 与详情深链接 fallback 已本地实现。

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-11 — MOBILE-B PWA 生命周期候选
+
+- 完善 Apple touch、192、512 和 maskable 图标，以及 id/scope/start URL、standalone、zh-CN 等 Manifest 字段。
+- 新增 Android 原生安装、iPhone 中文安装说明、安装模式识别与用户确认更新。
+- 未保存表单或同步活动期间暂缓刷新；本地完整质量通过，等待交付及实机验收。
+
 ## 2026-09-11 — MOBILE-A PWA 导航策略
 
 - 统一顶部/底部导航和页面返回逻辑，根 Tab 切换使用 replace，避免重复切换形成长返回链。

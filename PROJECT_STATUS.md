@@ -1,18 +1,18 @@
 # Project Status
 
-updatedAt: 2026-09-11T16:07:00+08:00
+updatedAt: 2026-09-11T16:39:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
-integrationHead: be9d89927aa39abe867e1df5594588bafda3b8cc
-activeBranch: codex/mobile-a-navigation-shell
-activeHead: fa0ee53
-activeTask: MOBILE-A PWA Navigation and Mobile Shell
-executionStatus: ACCEPTED
-deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
-nextCanonicalTask: Merge MOBILE-A PR #29 after explicit authorization, then start MOBILE-B
+integrationHead: 6e1313fd58da8d4fc34fc7912b579571a21a9ebe
+activeBranch: codex/mobile-b-pwa-lifecycle
+activeHead: 6e1313f
+activeTask: MOBILE-B PWA Lifecycle and Installation Experience
+executionStatus: VERIFYING
+deliveryStatus: DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING
+nextCanonicalTask: Complete MOBILE-B physical installed-PWA lifecycle acceptance
 nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
-localRevision: COMMITTED_AND_PUSHED_MOBILE_A
+localRevision: MOBILE_B_DONE_LOCAL
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
@@ -30,7 +30,7 @@ privatePreviewRelease: fa0ee53 / fa0ee530-20260911T0738Z
 
 ## Current
 
-`MOBILE-A` has passed unit, browser, iPhone and Android acceptance and is deployed to the existing environment. HTTP authentication failures close the session without restoring prior-user cache; logout waits for IndexedDB cleanup and removes the last-user marker. PR #29 is ready to merge. Web Push remains disabled pending its separate real-delivery gate.
+`MOBILE-A` is merged at Integration `6e1313f`. `MOBILE-B` now has complete install assets and Manifest, Android/iPhone installation guidance, standalone detection and safe user-controlled updates. Full local quality passes; delivery and installed-device lifecycle acceptance remain. Web Push remains disabled pending its separate real-delivery gate.
 
 ## Remaining
 

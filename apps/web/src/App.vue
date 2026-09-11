@@ -3,6 +3,7 @@ import { onMounted, onUnmounted, watch } from "vue";
 import { RouterView } from "vue-router";
 
 import BottomNav from "./components/BottomNav.vue";
+import PwaLifecyclePrompt from "./components/PwaLifecyclePrompt.vue";
 import SiteHeader from "./components/SiteHeader.vue";
 import { router } from "./router";
 import { useAuthStore } from "./stores/auth";
@@ -104,5 +105,6 @@ function handleSyncChanged(event: Event) {
       <RouterView />
     </main>
     <BottomNav v-if="auth.isAuthenticated" />
+    <PwaLifecyclePrompt />
   </div>
 </template>

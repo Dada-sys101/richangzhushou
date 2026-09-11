@@ -1,5 +1,11 @@
 # 变更日志（Changelog）
 
+## 2026-09-11 — MOBILE-B PWA 生命周期候选
+
+- 完善 Apple touch、192、512 和 maskable 图标，以及 id/scope/start URL、standalone、zh-CN 等 Manifest 字段。
+- 新增统一安装与更新策略：Android 原生安装、iPhone 添加到主屏幕说明、已安装模式识别、中文更新提示和安全暂缓。
+- 未保存表单和同步活动会阻止新版本刷新；本地完整质量通过，等待提交、CI、部署及实机验收。
+
 ## 2026-09-11 — MOBILE-A PWA 导航策略
 
 - 新增统一导航策略，根 Tab 切换不再堆积历史，详情页保留直接父级返回来源。

@@ -2,65 +2,51 @@
 
 ## Session Status
 
-ACCEPTED / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
+VERIFYING / MOBILE_B / DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING
 
 ## Task
 
-- ID: `MOBILE-A PWA Navigation and Mobile Shell`
-- Execution: `ACCEPTED`
-- Delivery: `DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE`
+- ID: `MOBILE-B PWA Lifecycle and Installation Experience`
+- Execution: `VERIFYING`
+- Delivery: `DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING`
 - Worktree: `D:\daily-assistant`
-- Branch: `codex/mobile-a-navigation-shell`
-- Base HEAD: Integration `be9d89927aa39abe867e1df5594588bafda3b8cc`
-- Scope: 浏览器历史统一导航策略、根 Tab replace、直接父级 returnTo、深链接业务 fallback、应用内返回一致性。
-- Excluded: AI、同步算法、API、数据库、Service Worker、Push 和视觉重做；本轮按用户既有授权发布到现有私有预览。
+- Branch: `codex/mobile-b-pwa-lifecycle`
+- Base HEAD: Integration `6e1313fd58da8d4fc34fc7912b579571a21a9ebe`
+- Scope: PWA 图标与 Manifest、克制的安装引导、安装模式识别、安全更新提示及主屏启动体验。
+- Excluded: 导航重构、AI、同步算法、API、数据库、Push、视觉重做和原生封装。
 
 ## Current Progress
 
-- `navigation-policy.ts` 成为根 Tab、普通页面、详情页和流程页的统一决策入口。
-- 首页/记录/计划/我的连续互切不累计历史；详情返回列表与直接打开详情后的应用内返回、浏览器返回均有确定结果。
-- `returnTo` 仅保留直接父级并拒绝外部地址；未保存表单守卫继续生效。
-- lint、typecheck、Web 121 项单元测试及导航 E2E 五档宽度与 WebKit mobile 已通过。
-- PR #29 首轮 browser-qa 发现 Browser Back 回到 AI 页面时被错误附加 `returnTo`；修复后定向 2/2 与完整浏览器 smoke 52/52 通过，等待远端 CI 复跑。
-- 修复后两组 CI 的 quality、db-validation、browser-qa 全部通过；`77718a0` 已解决数据库就绪和全中文错误。随后 `fa0ee53` 修复 HTTP 401 被误判为离线而恢复上一账号缓存的问题，退出登录会等待 IndexedDB 与最后用户标记清除；两组 CI 全绿并已部署，发布前备份、目标构建、公开健康/登录响应和日志检查通过。
-
-- 新增 `PushSubscription`/`PushDelivery` migration；订阅敏感字段使用 AES-256-GCM，索引仅存 endpoint SHA-256。
-- 新增用户隔离的 Push status/save/delete API、OpenAPI 契约、PWA Service Worker 与提醒页开关。
-- Web Push 适配器记录幂等发送状态，404/410 标记失效，临时错误交给现有提醒调度器重试。
-- 无订阅、浏览器不支持或功能关闭时继续应用内提醒；两个功能开关默认关闭。
-- lint、类型、全仓测试、构建、Prisma 校验/migration diff、OpenAPI 均通过；`npm audit` 为 0。
-- 候选复核修复了 Service Worker 反斜杠跨源深链风险，并为逐设备 delivery 增加原子领取与超时恢复，防止重复执行并发发送。
+- MOBILE-A PR #29 已合入 Integration `6e1313f`，合并后 CI run `34578075462` 的 quality、db-validation、browser-qa 全部通过。
+- 已从该 Integration 基线创建独立分支 `codex/mobile-b-pwa-lifecycle`。
+- 已创建 `tasks/MOBILE-B.md`，冻结图标、Manifest、安装引导、主屏启动和安全更新提示范围。
+- 初步检查确认已有 `beforeinstallprompt` 逻辑位于 `SyncBadge.vue`，但公共资源只有 SVG 图标，尚缺 180/192/512/maskable 图标和完整生命周期策略。
+- 已将安装逻辑从同步徽标移至统一生命周期策略，并在“我的”提供安卓原生安装入口或 iPhone 中文添加到主屏幕说明。
+- 已增加 180/192/512/maskable 图标、完整 Manifest、standalone 检测和按小时更新检查。
+- 新版本更新改为中文“稍后/更新”提示；存在未保存表单或正在同步时暂缓刷新。
+- 完整 `npm run quality` 与 `git diff --check` 通过；Web 25 files/129 tests、API 34 files/281 tests 通过，生成 SW 含 `SKIP_WAITING` 监听。
 
 ## Remaining Work
 
-1. PR #29 获得独立合并授权后合入 Integration，并复核合并后 CI。
-2. 从更新后的 Integration 建立独立 MOBILE-B 契约与分支。
+1. 在 iPhone Safari/PWA 与 Android Chrome/PWA 验证安装、主屏启动和安全更新。
+2. 实机通过后更新状态；提交、推送、PR 和部署仍按独立授权执行。
 
 ## Previous Task Record
 
-1. 审阅并在独立授权后合并 PR #27；随后将 PR #28 基线切回 Integration，再经独立授权合并。
-2. 启用前使用测试 VAPID 配置完成真实 Push Service、系统通知与手机/PWA 送达证据。
+1. MOBILE-A：`DONE_INTEGRATION / DEVICE_ACCEPTANCE_PASS`，merge `6e1313f`。
+2. R1.1 Web Push：`DONE_INTEGRATION / DISABLED / REAL_DELIVERY_PENDING`。
 
 ## Verification Status
 
-- API/Web lint and typecheck: `PASS`.
-- Unit/full repository tests: `PASS`；临时 MySQL 8.4.9 数据库集成为 `18 files / 161 tests PASS`。
-- Build, Prisma validate/migration diff, OpenAPI: `PASS`.
-- Dependency audit: `PASS / 0 vulnerabilities` after current safe patch updates.
-- Locked install: `PASS` using project-required npm `11.18.0` via one-shot npx; host-global npm remains `11.13.0` and direct `npm ci` correctly failed the engine gate.
-- Governance/SBOM/license: `PASS`（30/30；SBOM 1055 components；1174 packages inventoried）.
-- Temporary MySQL validation: `PASS`（13 migrations、schema zero-diff、18 files / 161 tests，含订阅加密与跨用户隔离）。
-- Chromium controlled Push API validation: `PASS`（订阅、刷新恢复、退订、权限拒绝及 375/390/430/768/1440 五档宽度）。
-- Real Push Service/system notification/physical-device delivery: `NOT_RUN`；功能保持关闭。
-- Final full `npm run quality`: `PASS` after all security and isolation fixes.
+- MOBILE-A merged Integration CI: `PASS`（run `34578075462`）。
+- MOBILE-B implementation validation: `NOT_RUN / NOT_IMPLEMENTED`。
 
 ## Resume Instructions
 
-1. 读取 `AGENTS.md`、`PLANS.md`、`.project/v15-execution-state.md` 并核验分支和工作树。
-2. 本地候选可进入提交与 CI；不在缺少真实送达证据时启用 Push。
-3. 保持应用内提醒降级、用户隔离和字段加密，不引入额外通知基础设施。
-4. 未获对应授权不得提交、推送、部署或修改服务器开关。
+1. 以 `tasks/MOBILE-B.md` 为唯一执行契约。
+2. 先完成现状审查和实施计划，再修改允许范围内文件。
+3. 提交、推送、PR、合并和部署分别遵守适用授权边界。
 
 ## Last Updated
 
-2026-09-11 16:07 +08:00 — 用户确认 MOBILE-A 的 iPhone、Android 与未登录缓存实机验收通过；PR #29 全绿、已部署并可合并，等待独立合并授权后启动 MOBILE-B。
+2026-09-11 16:39 +08:00 — MOBILE-B Manifest、图标、安装引导、standalone 识别和安全更新策略已完成，本地完整质量通过，等待提交、CI、部署与实机生命周期验收。

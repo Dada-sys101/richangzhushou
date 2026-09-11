@@ -2,20 +2,20 @@
 
 ## Last Updated
 
-2026-09-11 16:07 +08:00 — MOBILE-A automated, iPhone and Android acceptance passed; PR #29 is CI green, deployed and ready to merge, while merge authorization remains outstanding.
+2026-09-11 16:39 +08:00 — MOBILE-A is merged at Integration `6e1313f`; MOBILE-B install, manifest and safe-update lifecycle is complete locally with full quality pass, awaiting delivery and device acceptance.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `be9d89927aa39abe867e1df5594588bafda3b8cc`
+- Verified Integration HEAD: `6e1313fd58da8d4fc34fc7912b579571a21a9ebe`
 - Active worktree: `D:\daily-assistant`
-- Active branch: `codex/mobile-a-navigation-shell`
-- Active delivery: MOBILE-A `DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE`
+- Active branch: `codex/mobile-b-pwa-lifecycle`
+- Active delivery: MOBILE-B `DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
-- MOBILE-A PR #29 is open and both CI matrices pass; signed-out cache isolation commit `fa0ee53` is deployed at `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z` with `77718a00-20260911T0713Z` retained for rollback.
+- MOBILE-A PR #29 merged at Integration `6e1313f`; merged quality, db-validation and browser-qa pass. Deployed release remains `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z`.
 
 ## Project Summary
 
@@ -30,7 +30,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `MOBILE-A PWA Navigation and Mobile Shell / ACCEPTED / READY_TO_MERGE`.
+- Current canonical task: `MOBILE-B PWA Lifecycle and Installation Experience / VERIFYING`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -47,15 +47,15 @@
 
 ## Current Task
 
-- ID: `R1.1 Web Push Candidate`.
-- Goal: add browser system notifications to existing reminders with a small, reversible implementation.
-- Scope: encrypted user-scoped subscriptions, delivery records, Push API/provider, PWA Service Worker and permission UI.
-- Current state: reviewed local implementation, final quality, MySQL 8.4.9 integration and controlled Chromium flows pass; commit/CI, real delivery and enablement remain.
-- Excluded: SMS/email, queues, additional providers, production enablement and public release.
+- ID: `MOBILE-B PWA Lifecycle and Installation Experience`.
+- Goal: make installation, main-screen launch and updates predictable on iPhone and Android.
+- Scope: Manifest/icons, Android native install, iPhone add-to-home guidance, standalone detection and safe update confirmation.
+- Current state: `DONE_LOCAL / DEVICE_ACCEPTANCE_PENDING`; full quality passes.
+- Excluded: navigation, business logic, API/database, Push enablement, native wrappers and visual redesign.
 
 ## Next Recommended Task
 
-After explicit authorization, merge PR #29 and verify Integration; then start MOBILE-B as a separate task from that clean base.
+Deliver the verified MOBILE-B candidate, then complete iPhone and Android installed-PWA lifecycle acceptance.
 
 ## Completed Work
 
