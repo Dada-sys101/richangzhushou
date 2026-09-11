@@ -91,6 +91,12 @@ test.describe("用户端认证", () => {
     await expect(page.getByLabel("密码")).toBeVisible();
     await page.goto("/transactions");
     await expect(page).toHaveURL(/\/login/);
+    await page.reload();
+    await expect(page).toHaveURL(/\/login/);
+    await expect(
+      page.getByRole("heading", { name: "登录日常助手" }),
+    ).toBeVisible();
+    await expect(page.locator(".bottom-nav")).toHaveCount(0);
     await expectNoBlockingErrors(page);
   });
 });

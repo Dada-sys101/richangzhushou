@@ -314,12 +314,9 @@ router.beforeEach(async (to, from) => {
     try {
       await auth.refresh();
     } catch {
-      const entered = await auth.enterOfflineMode();
-      if (!entered) {
-        auth.clear();
-        if (to.name !== "home") {
-          return { name: "login", query: { redirect: to.fullPath } };
-        }
+      auth.clear();
+      if (to.name !== "home") {
+        return { name: "login", query: { redirect: to.fullPath } };
       }
     }
   }

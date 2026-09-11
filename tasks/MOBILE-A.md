@@ -30,6 +30,7 @@ Make the existing Vue PWA navigation behave predictably like a mobile applicatio
 - `apps/web/src/views/AccountView.vue` for the authenticated logout navigation fix
 - `apps/web/vite.config.ts` for automatic installed-PWA update activation
 - `apps/web/src/api/client.ts` and `apps/web/src/api/error-messages.ts` for consistent Chinese user-facing errors
+- `apps/web/src/api/session.ts`, `apps/web/src/stores/auth.ts`, `apps/web/src/offline/sync.ts` and the auth route guard for fail-closed logout/cache handling
 - `apps/api/src/prisma/prisma.service.ts`, `apps/api/src/health/health.controller.ts` and the global exception filter for database readiness and Chinese fallback errors
 - `apps/web/src/styles.css` only for `100dvh`, safe-area, or navigation-shell corrections
 - `apps/web/index.html` only for `viewport-fit=cover`
