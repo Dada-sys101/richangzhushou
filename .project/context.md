@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-11 11:30 +08:00 — PR #28 is merged at Integration `be9d899`; MOBILE-A navigation policy is complete locally with automated browser coverage, while physical-device acceptance remains.
+2026-09-11 14:10 +08:00 — MOBILE-A PR #29 is CI green and commit `26399f9` is active in the existing private-preview environment; physical-device acceptance and PR merge remain.
 
 ## Repository State
 
@@ -12,10 +12,10 @@
 - Verified Integration HEAD: `be9d89927aa39abe867e1df5594588bafda3b8cc`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/mobile-a-navigation-shell`
-- Active delivery: MOBILE-A `DONE_PUSHED / PR_29_OPEN / CI_RECHECK_PENDING / DEVICE_ACCEPTANCE_PENDING`
+- Active delivery: MOBILE-A `DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
-- MOBILE-A PR #29 is open; its initial quality and db-validation passed, while browser-qa exposed a Browser Back `returnTo` regression that is fixed locally and awaiting CI recheck.
+- MOBILE-A PR #29 is open and both CI matrices pass; commit `26399f9` is deployed at `/opt/daily-assistant-preview/releases/26399f93-20260911T0351Z` with the previous release retained for rollback.
 
 ## Project Summary
 
@@ -62,7 +62,7 @@ Complete physical iPhone/Android navigation acceptance; after MOBILE-A is delive
 - V1 and the V1.5 R1 foundation, AI proposal/router/provider adapter integration, offline synchronization, Web UX closure and release candidate integration are complete.
 - H7 is closed based on the recorded synthetic-data Provider evaluation; this does not authorize broader/public Provider use.
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
-- The active release is `/opt/daily-assistant-preview/releases/6515b8fd-2db6b6a2f199db4c`.
+- The active release is `/opt/daily-assistant-preview/releases/26399f93-20260911T0351Z`.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
 
 ## Remaining Work

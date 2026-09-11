@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_RECHECK_PENDING / DEVICE_ACCEPTANCE_PENDING
+VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
 
 ## Task
 
 - ID: `MOBILE-A PWA Navigation and Mobile Shell`
 - Execution: `VERIFYING`
-- Delivery: `DONE_PUSHED / PR_29_OPEN / CI_RECHECK_PENDING / DEVICE_ACCEPTANCE_PENDING`
+- Delivery: `DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-a-navigation-shell`
 - Base HEAD: Integration `be9d89927aa39abe867e1df5594588bafda3b8cc`
@@ -22,6 +22,7 @@ VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_RECHECK_PENDING / DEVICE_AC
 - `returnTo` 仅保留直接父级并拒绝外部地址；未保存表单守卫继续生效。
 - lint、typecheck、Web 121 项单元测试及导航 E2E 五档宽度与 WebKit mobile 已通过。
 - PR #29 首轮 browser-qa 发现 Browser Back 回到 AI 页面时被错误附加 `returnTo`；修复后定向 2/2 与完整浏览器 smoke 52/52 通过，等待远端 CI 复跑。
+- 修复后两组 CI 的 quality、db-validation、browser-qa 全部通过；提交 `26399f9` 已部署至现有环境，发布前备份、目标构建、API/Nginx、公网根页面、深链接、manifest、Service Worker 和日志检查通过。
 
 - 新增 `PushSubscription`/`PushDelivery` migration；订阅敏感字段使用 AES-256-GCM，索引仅存 endpoint SHA-256。
 - 新增用户隔离的 Push status/save/delete API、OpenAPI 契约、PWA Service Worker 与提醒页开关。
@@ -62,4 +63,4 @@ VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_RECHECK_PENDING / DEVICE_AC
 
 ## Last Updated
 
-2026-09-11 11:40 +08:00 — MOBILE-A 已推送并创建 PR #29；首轮 browser-qa 回归已修复并完成本地全量复验，等待远端 CI 重跑与实机验收。
+2026-09-11 14:10 +08:00 — MOBILE-A PR #29 CI 全绿，提交 `26399f9` 已部署至现有环境；等待真实 iPhone/Android 返回验收，PR 尚未合并。
