@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-11T16:39:00+08:00
+updatedAt: 2026-09-11T16:52:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -10,25 +10,25 @@ pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-B PWA Lifecycle and Installation Experience
 executionStatus: VERIFYING
-deliveryStatus: DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING
-currentWork: MOBILE-B implements complete manifest/icons, Android native install capture, iPhone add-to-home guide, standalone detection and safe user-controlled Service Worker updates; full quality passes and physical installed-device lifecycle checks remain
+deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
+currentWork: MOBILE-B is committed, pushed and deployed to the private preview after two green PR CI matrices; physical installed-device lifecycle checks remain
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Deliver MOBILE-B and complete physical installed-PWA lifecycle acceptance
+nextCanonicalTask: Complete MOBILE-B physical installed-PWA lifecycle acceptance
 nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
-openPullRequests: []
+openPullRequests: [PR #30]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-A signed-out cache isolation fix `fa0ee53`, deployed at `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z`; previous `77718a00-20260911T0713Z` remains the rollback release.
+- Active release: MOBILE-B commit `4d86f90`, deployed at `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`; previous `fa0ee530-20260911T0738Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
 - H1/H2: `WAIVED_FOR_R1 / UNVERIFIED` by explicit user approval on 2026-09-08; never treat this as physical-device pass evidence, and reassess before public support claims.
 - Remaining gate: R1 Quality Gate is `APPROVED / DONE`; REL-02 requires independent resource/fee authorization. Non-sensitive readiness belongs to REL-03 under the approved REL-01 D7 boundary; public DNS/HTTPS/CORS validation belongs to the later public-entry gate. Local daily backup with 7-day cleanup is configured, and live AI is retained by explicit user decision for the private preview.
-- Local worktree: contains 15 uncommitted governance/evidence Markdown changes; deployed source is the clean Integration merge and excludes these local documentation changes.
+- MOBILE-B release backup: `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260911T084533Z.sql.gz`.
 
 ## Active Task
 
@@ -39,9 +39,11 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - contract: tasks/MOBILE-B.md (`MOBILE_B_PWA_LIFECYCLE_V1`)
 - implementation: complete Manifest/icons; Android install prompt; iPhone add-to-home guide; standalone detection; safe user-controlled Service Worker updates
 - validation: full quality PASS; Web 25 files/129 tests, API 34 files/281 tests; generated Manifest/icon dimensions and SKIP_WAITING handler verified
-- remaining: commit/push/PR/CI/deployment and physical iPhone/Android installed lifecycle acceptance
+- commit: 4d86f9086f9db68897d08e044bddb1fe8a7b30de
+- delivery: PR #30 open; CI runs `34580364107` and `34580381945` passed quality, db-validation and browser-qa; private preview deployment and entry-point checks passed
+- remaining: physical iPhone/Android installed lifecycle acceptance; merge remains separately gated
 - executionStatus: VERIFYING
-- deliveryStatus: DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING
+- deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
 
 ## Previous Canonical Task
 

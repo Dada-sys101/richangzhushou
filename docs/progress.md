@@ -1,11 +1,12 @@
 # 项目进度（派生摘要）
 
-## 2026-09-11 — MOBILE-B PWA 生命周期（DONE_LOCAL）
+## 2026-09-11 — MOBILE-B PWA 生命周期（PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING）
 
 - 增加 180/192/512/maskable 图标和完整中文 standalone Manifest。
 - 将安装入口从同步徽标移至“我的”：Android 调用原生安装提示，iPhone 展示中文添加到主屏幕步骤，并识别已安装模式。
 - Service Worker 改为用户确认更新；检测到新版本时提供“稍后/更新”，存在未保存表单或同步活动时暂缓刷新。
-- 完整 `npm run quality` 通过：Web 25 files/129 tests、API 34 files/281 tests，构建、Prisma、OpenAPI、migration diff 与依赖审计通过；实机生命周期验收待部署后执行。
+- 完整 `npm run quality` 通过：Web 25 files/129 tests、API 34 files/281 tests，构建、Prisma、OpenAPI、migration diff 与依赖审计通过。
+- 提交 `4d86f90` 已推送至 PR #30，两组 CI 矩阵全绿；私有预览已部署 `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z` 并通过入口、健康、静态资源与日志检查，等待 iPhone/Android 安装版生命周期验收。
 
 ## 2026-09-11 — MOBILE-A 导航与移动端壳（ACCEPTED / READY_TO_MERGE）
 

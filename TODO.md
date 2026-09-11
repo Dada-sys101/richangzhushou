@@ -4,12 +4,12 @@
 
 ## 当前执行记录（2026-09-11）
 
-MOBILE-A 已通过 PR #29 合入 Integration。MOBILE-B 的 Manifest、图标、安装引导和安全更新策略已完成本地实现与质量验证，等待交付和 iPhone/Android 安装版生命周期验收。Web Push 候选保持关闭，真实送达门禁独立保留。
+MOBILE-A 已通过 PR #29 合入 Integration。MOBILE-B 提交 `4d86f90` 已推送至 PR #30，两组 CI 矩阵全绿并已部署私有预览，等待 iPhone/Android 安装版生命周期验收。Web Push 候选保持关闭，真实送达门禁独立保留。
 
 | ID | 任务 | 状态 | 工作包 |
 | --- | --- | --- | --- |
 | DA-1201 | PWA 导航策略、根 Tab 历史与深链接返回 | DONE | MOBILE-A（PR #29 已合并） |
-| DA-1202 | PWA Manifest、安装、主屏启动与安全更新 | IN_PROGRESS | MOBILE-B（DONE_LOCAL / DEVICE_ACCEPTANCE_PENDING） |
+| DA-1202 | PWA Manifest、安装、主屏启动与安全更新 | IN_PROGRESS | MOBILE-B（PR #30 / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING） |
 | DA-1101 | Web Push 订阅、送达、Service Worker 与权限 UI | DONE | R1.1 PR3/PR16/PR17（真实送达为独立门禁） |
 | DA-0001 | 完成产品与功能范围 | DONE | WP0 |
 | DA-0002 | 完成页面、流程和业务规则 | DONE | WP0 |

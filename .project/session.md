@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_B / DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING
+VERIFYING / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
 
 ## Task
 
 - ID: `MOBILE-B PWA Lifecycle and Installation Experience`
 - Execution: `VERIFYING`
-- Delivery: `DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING`
+- Delivery: `DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-b-pwa-lifecycle`
 - Base HEAD: Integration `6e1313fd58da8d4fc34fc7912b579571a21a9ebe`
@@ -25,11 +25,13 @@ VERIFYING / MOBILE_B / DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING
 - 已增加 180/192/512/maskable 图标、完整 Manifest、standalone 检测和按小时更新检查。
 - 新版本更新改为中文“稍后/更新”提示；存在未保存表单或正在同步时暂缓刷新。
 - 完整 `npm run quality` 与 `git diff --check` 通过；Web 25 files/129 tests、API 34 files/281 tests 通过，生成 SW 含 `SKIP_WAITING` 监听。
+- 功能提交 `4d86f90` 已推送并创建 PR #30；CI runs `34580364107`、`34580381945` 的 quality、db-validation、browser-qa 全部通过。
+- 已备份数据库并部署至 `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`；入口、健康检查、图标、Manifest、Service Worker 和日志检查通过。
 
 ## Remaining Work
 
 1. 在 iPhone Safari/PWA 与 Android Chrome/PWA 验证安装、主屏启动和安全更新。
-2. 实机通过后更新状态；提交、推送、PR 和部署仍按独立授权执行。
+2. 实机通过后更新状态并申请 PR #30 的独立合并授权。
 
 ## Previous Task Record
 
@@ -39,7 +41,7 @@ VERIFYING / MOBILE_B / DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING
 ## Verification Status
 
 - MOBILE-A merged Integration CI: `PASS`（run `34578075462`）。
-- MOBILE-B implementation validation: `NOT_RUN / NOT_IMPLEMENTED`。
+- MOBILE-B implementation validation: `PASS`；两组 PR CI 矩阵全绿，私有预览部署后检查通过。
 
 ## Resume Instructions
 
@@ -49,4 +51,4 @@ VERIFYING / MOBILE_B / DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING
 
 ## Last Updated
 
-2026-09-11 16:39 +08:00 — MOBILE-B Manifest、图标、安装引导、standalone 识别和安全更新策略已完成，本地完整质量通过，等待提交、CI、部署与实机生命周期验收。
+2026-09-11 16:52 +08:00 — MOBILE-B 已提交、推送、通过两组 PR CI 并部署到私有预览，等待 iPhone/Android 安装版生命周期验收；PR #30 尚未合并。

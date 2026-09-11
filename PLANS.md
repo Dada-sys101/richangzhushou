@@ -5,7 +5,7 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前 canonical 任务：`MOBILE-B PWA Lifecycle and Installation Experience`（`DONE_LOCAL / DEVICE_ACCEPTANCE_PENDING`；基于 Integration `6e1313f`）
+当前 canonical 任务：`MOBILE-B PWA Lifecycle and Installation Experience`（`DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`；commit `4d86f90`，基于 Integration `6e1313f`）
 PR18 Integration：`7caf892022c9bb6833c7316893bfddeb169b7243`（PR #17，历史事实）
 PR19 Integration：`c42c19ecb606893b1384fab4a13af2afb6b9981c`（PR #18，`DONE_INTEGRATION`）
 PR20 Adapter Integration：历史证据为 `d53f84a4ff99208f69d209e98a1d3f07c588d760`（PR #20/#21/#22/#23，`DONE_INTEGRATION`）

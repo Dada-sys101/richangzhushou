@@ -1,22 +1,22 @@
 # Project Status
 
-updatedAt: 2026-09-11T16:39:00+08:00
+updatedAt: 2026-09-11T16:52:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 integrationHead: 6e1313fd58da8d4fc34fc7912b579571a21a9ebe
 activeBranch: codex/mobile-b-pwa-lifecycle
-activeHead: 6e1313f
+activeHead: 4d86f90
 activeTask: MOBILE-B PWA Lifecycle and Installation Experience
 executionStatus: VERIFYING
-deliveryStatus: DONE_LOCAL / NOT_COMMITTED / DEVICE_ACCEPTANCE_PENDING
+deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
 nextCanonicalTask: Complete MOBILE-B physical installed-PWA lifecycle acceptance
 nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
-localRevision: MOBILE_B_DONE_LOCAL
+localRevision: 4d86f90
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
-privatePreviewRelease: fa0ee53 / fa0ee530-20260911T0738Z
+privatePreviewRelease: 4d86f90 / 4d86f900-20260911T0846Z
 
 ## Completed
 
@@ -30,7 +30,7 @@ privatePreviewRelease: fa0ee53 / fa0ee530-20260911T0738Z
 
 ## Current
 
-`MOBILE-A` is merged at Integration `6e1313f`. `MOBILE-B` now has complete install assets and Manifest, Android/iPhone installation guidance, standalone detection and safe user-controlled updates. Full local quality passes; delivery and installed-device lifecycle acceptance remain. Web Push remains disabled pending its separate real-delivery gate.
+`MOBILE-A` is merged at Integration `6e1313f`. `MOBILE-B` commit `4d86f90` is pushed in PR #30, both CI matrices pass, and the private preview is running the new release. Installed-device lifecycle acceptance remains. Web Push remains disabled pending its separate real-delivery gate.
 
 ## Remaining
 
@@ -56,6 +56,6 @@ privatePreviewRelease: fa0ee53 / fa0ee530-20260911T0738Z
 
 ## Git State
 
-- Functional fix `fa0ee53` is committed and pushed; this state reconciliation is pending its documentation commit.
-- PR #29 remains open and unmerged.
+- MOBILE-B functional commit `4d86f90` is committed and pushed; this state reconciliation is pending its documentation commit.
+- PR #30 remains open and unmerged; PR #29 is merged at Integration `6e1313f`.
 - Existing private-preview deployment was authorized and completed; no public switch, new resource creation or Provider expansion was performed.
