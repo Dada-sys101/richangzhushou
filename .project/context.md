@@ -2,17 +2,17 @@
 
 ## Last Updated
 
-2026-09-09 11:46 +08:00 — mixed PR #26 was replaced by governance/dependency PR #27 and isolated Web Push PR #28; both final CI matrices pass, merge authorization and real delivery remain.
+2026-09-11 11:30 +08:00 — PR #28 is merged at Integration `be9d899`; MOBILE-A navigation policy is complete locally with automated browser coverage, while physical-device acceptance remains.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `6515b8fd0f13969a0e434d3d8223f60a82cb0310`
-- Active worktree: `D:\daily-assistant-worktrees\web-push-clean-pr`
-- Active branch: `codex/web-push-reminders-clean`
-- Active delivery: PR #28, temporarily based on governance PR #27 so its diff contains only Web Push changes
+- Verified Integration HEAD: `be9d89927aa39abe867e1df5594588bafda3b8cc`
+- Active worktree: `D:\daily-assistant`
+- Active branch: `codex/mobile-a-navigation-shell`
+- Active delivery: MOBILE-A `DONE_COMMITTED / DEVICE_ACCEPTANCE_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 
@@ -29,7 +29,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `R1.1 Web Push Candidate / IN_PROGRESS`.
+- Current canonical task: `MOBILE-A PWA Navigation and Mobile Shell / VERIFYING`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -54,7 +54,7 @@
 
 ## Next Recommended Task
 
-Review and deliver the candidate through an authorized commit and CI; keep flags off until real Push Service, system notification and physical-device delivery are verified.
+Complete physical iPhone/Android navigation acceptance; after MOBILE-A is delivered, start MOBILE-B as a separate task.
 
 ## Completed Work
 

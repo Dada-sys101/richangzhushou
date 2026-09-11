@@ -60,6 +60,14 @@ export default defineConfig({
         viewport: { height: 932, width: 430 },
       },
     },
+    {
+      name: "tablet-768",
+      use: {
+        ...devices["Desktop Chrome"],
+        hasTouch: true,
+        viewport: { height: 1024, width: 768 },
+      },
+    },
   ],
   reporter: [
     ["list"],

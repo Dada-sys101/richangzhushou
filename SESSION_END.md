@@ -1,5 +1,11 @@
 # Session End
 
+## 2026-09-11 — MOBILE-A 导航与移动端壳（VERIFYING）
+
+- Navigation Policy、根 Tab replace、直接父级 `returnTo` 与详情深链接 fallback 已本地实现。
+- Web lint/typecheck、121 项单元测试以及 375/390/430/768/1440 与 WebKit mobile 导航 E2E 通过。
+- 已创建本地任务提交；未推送、未创建 PR、未部署，真实 iPhone 边缘返回与 Android 系统返回待验收。
+
 ## 2026-09-09 — R1.1 Web Push 本地候选（IN_PROGRESS）
 
 - 完成加密订阅、逐设备幂等送达、用户隔离 API、PWA Service Worker、提醒页权限开关和真实 Web Push 适配器；功能默认关闭。

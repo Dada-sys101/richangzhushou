@@ -5,7 +5,7 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前 canonical 任务：`REL-03 Private Preview Readiness`（`READY`；独立 Staging 资源建设已由用户于 2026-09-08 明确豁免，现有 Alibaba 私有预览作为验证环境）
+当前 canonical 任务：`MOBILE-A PWA Navigation and Mobile Shell`（`VERIFYING / DONE_COMMITTED`；自动化验证通过，实机验收待完成）
 PR18 Integration：`7caf892022c9bb6833c7316893bfddeb169b7243`（PR #17，历史事实）
 PR19 Integration：`c42c19ecb606893b1384fab4a13af2afb6b9981c`（PR #18，`DONE_INTEGRATION`）
 PR20 Adapter Integration：历史证据为 `d53f84a4ff99208f69d209e98a1d3f07c588d760`（PR #20/#21/#22/#23，`DONE_INTEGRATION`）
@@ -17,6 +17,8 @@ Current Governance Gate：`REL-03 PRIVATE PREVIEW READINESS（READY / EXISTING_E
 Governance write state：`DONE_INTEGRATION / POST_WRITE_REVIEW_PASS`（commit `6adc111492dcbeb35e79475a3d69f6a63007e5bb`）
 Commit authorization：`NOT_GRANTED`
 Persisted Successor Gate：`REL-03 PRIVATE PREVIEW READINESS READY；REL-02 SEPARATE_STAGING_WAIVED；R1 APPROVED`
+
+移动端优化执行顺序（2026-09-11 批准）：`R1.1 Web Push Candidate（DONE_INTEGRATION）→ MOBILE-A → MOBILE-B → MOBILE-C`。MOBILE-A 以 `tasks/MOBILE-A.md` 为唯一执行契约，不改变冻结架构、发布范围或 Push 启用门禁。
 
 ## 1. 版本目标与边界
 

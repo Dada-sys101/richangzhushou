@@ -7,6 +7,7 @@ import {
   clearScrollPosition,
   readScrollPosition,
   safeReturnTo,
+  sanitizeInternalPath,
   saveScrollPosition,
 } from "./navigation";
 
@@ -30,6 +31,15 @@ describe("navigation context", () => {
     expect(
       appendReturnTo("/tasks/task-1?mode=detail", "/plan?range=week"),
     ).toBe("/tasks/task-1?mode=detail&returnTo=%2Fplan%3Frange%3Dweek");
+  });
+
+  it("removes nested return context from the direct source", () => {
+    expect(
+      appendReturnTo("/tasks/task-1", "/plan?range=week&returnTo=%2Faccount"),
+    ).toBe("/tasks/task-1?returnTo=%2Fplan%3Frange%3Dweek");
+    expect(sanitizeInternalPath("/plan?range=week&returnTo=%2Faccount")).toBe(
+      "/plan?range=week",
+    );
   });
 
   it("keeps root routes without a parent and maps child routes to their parent", () => {

@@ -28,8 +28,10 @@ import PlannerDetailView from "./views/PlannerDetailView.vue";
 import {
   clearScrollPosition,
   readScrollPosition,
+  sanitizeInternalPath,
   saveScrollPosition,
 } from "./utils/navigation";
+import { ensureDirectEntryFallback } from "./navigation-policy";
 
 const recordsParent = { title: "记录", path: "/records" };
 const planParent = { title: "计划", path: "/plan" };
@@ -47,11 +49,11 @@ const collectionPathsWithoutImplicitReturnContext = new Set([
 ]);
 
 function rootPage(title: string) {
-  return { page: { title } };
+  return { navigationKind: "ROOT_TAB" as const, page: { title } };
 }
 
 function childPage(title: string, parent: { title: string; path: string }) {
-  return { page: { title, parent } };
+  return { navigationKind: "STACK_PAGE" as const, page: { title, parent } };
 }
 
 export const router = createRouter({
@@ -80,7 +82,11 @@ export const router = createRouter({
       path: "/login",
       name: "login",
       component: LoginView,
-      meta: { ...rootPage("登录"), public: true },
+      meta: {
+        ...rootPage("登录"),
+        navigationKind: "FLOW_PAGE",
+        public: true,
+      },
     },
     {
       path: "/account",
@@ -92,7 +98,11 @@ export const router = createRouter({
       path: "/change-password",
       name: "change-password",
       component: ChangePasswordView,
-      meta: { ...childPage("修改密码", accountParent), requiresAuth: true },
+      meta: {
+        ...childPage("修改密码", accountParent),
+        navigationKind: "FLOW_PAGE",
+        requiresAuth: true,
+      },
     },
     {
       path: "/transactions",
@@ -104,13 +114,21 @@ export const router = createRouter({
       path: "/transactions/new",
       name: "transaction-new",
       component: TransactionFormView,
-      meta: { ...childPage("新增记账", recordsParent), requiresAuth: true },
+      meta: {
+        ...childPage("新增记账", recordsParent),
+        navigationKind: "FLOW_PAGE",
+        requiresAuth: true,
+      },
     },
     {
       path: "/transactions/:id/edit",
       name: "transaction-edit",
       component: TransactionFormView,
-      meta: { ...childPage("编辑记账", recordsParent), requiresAuth: true },
+      meta: {
+        ...childPage("编辑记账", recordsParent),
+        navigationKind: "FLOW_PAGE",
+        requiresAuth: true,
+      },
     },
     {
       path: "/capture",
@@ -118,6 +136,7 @@ export const router = createRouter({
       component: QuickCaptureView,
       meta: {
         ...childPage("快速新增", { title: "首页", path: "/" }),
+        navigationKind: "FLOW_PAGE",
         requiresAuth: true,
       },
     },
@@ -145,6 +164,7 @@ export const router = createRouter({
       component: ProposalReviewView,
       meta: {
         ...childPage("提案确认", { title: "AI 助手", path: "/ai" }),
+        navigationKind: "FLOW_PAGE",
         requiresAuth: true,
       },
     },
@@ -172,6 +192,7 @@ export const router = createRouter({
       component: PlannerDetailView,
       meta: {
         ...childPage("日程详情", planParent),
+        navigationKind: "DETAIL_PAGE",
         plannerEntity: "calendar-event",
         requiresAuth: true,
       },
@@ -188,6 +209,7 @@ export const router = createRouter({
       component: PlannerDetailView,
       meta: {
         ...childPage("待办详情", planParent),
+        navigationKind: "DETAIL_PAGE",
         plannerEntity: "task",
         requiresAuth: true,
       },
@@ -204,6 +226,7 @@ export const router = createRouter({
       component: PlannerDetailView,
       meta: {
         ...childPage("提醒详情", planParent),
+        navigationKind: "DETAIL_PAGE",
         plannerEntity: "reminder",
         requiresAuth: true,
       },
@@ -226,6 +249,7 @@ export const router = createRouter({
       component: TripDetailView,
       meta: {
         ...childPage("行程详情", { title: "行程", path: "/trips" }),
+        navigationKind: "DETAIL_PAGE",
         requiresAuth: true,
       },
     },
@@ -260,6 +284,25 @@ router.beforeEach(async (to, from) => {
     saveScrollPosition(from.fullPath, window.scrollY);
   }
 
+  if (to.query.returnTo !== undefined) {
+    const directReturn = sanitizeInternalPath(to.query.returnTo);
+    if (directReturn !== to.query.returnTo) {
+      const query = { ...to.query };
+      if (directReturn) {
+        query.returnTo = directReturn;
+      } else {
+        delete query.returnTo;
+      }
+      return {
+        name: to.name,
+        params: to.params,
+        query,
+        hash: to.hash,
+        replace: true,
+      };
+    }
+  }
+
   const auth = useAuthStore();
   if (!auth.accessToken && !auth.offlineMode && !to.meta.public) {
     try {
@@ -292,13 +335,21 @@ router.beforeEach(async (to, from) => {
     from.meta.page &&
     !collectionPathsWithoutImplicitReturnContext.has(to.path)
   ) {
+    const directSource = sanitizeInternalPath(from.fullPath);
     return {
       name: to.name,
       params: to.params,
-      query: { ...to.query, returnTo: from.fullPath },
+      query: {
+        ...to.query,
+        returnTo: directSource ?? to.meta.page.parent.path,
+      },
       hash: to.hash,
     };
   }
 
   return true;
+});
+
+router.afterEach((to) => {
+  ensureDirectEntryFallback(to);
 });

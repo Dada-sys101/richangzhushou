@@ -2,20 +2,25 @@
 
 ## Session Status
 
-IN_PROGRESS / R1_1_WEB_PUSH / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORIZATION_PENDING / REAL_PUSH_DELIVERY_NOT_VERIFIED
+VERIFYING / MOBILE_A / DONE_COMMITTED / DEVICE_ACCEPTANCE_PENDING
 
 ## Task
 
-- ID: `R1.1 Web Push Candidate`（合并执行 PR3、PR16、PR17 的最小可用范围）
-- Execution: `IN_PROGRESS`
-- Delivery: `DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PASS / NOT_ENABLED`
-- Worktree: `D:\daily-assistant-worktrees\web-push-clean-pr`
-- Branch: `codex/web-push-reminders-clean`
-- Base HEAD: Integration `6515b8fd0f13969a0e434d3d8223f60a82cb0310`; stacked temporarily on governance PR #27 for a feature-only diff
-- Scope: 浏览器 Web Push 订阅、加密存储、逐设备送达、PWA 权限 UI 和现有提醒调度器接入。
-- Excluded: SMS、邮件、多 Provider、消息队列、生产启用和公网发布。
+- ID: `MOBILE-A PWA Navigation and Mobile Shell`
+- Execution: `VERIFYING`
+- Delivery: `DONE_COMMITTED / DEVICE_ACCEPTANCE_PENDING`
+- Worktree: `D:\daily-assistant`
+- Branch: `codex/mobile-a-navigation-shell`
+- Base HEAD: Integration `be9d89927aa39abe867e1df5594588bafda3b8cc`
+- Scope: 浏览器历史统一导航策略、根 Tab replace、直接父级 returnTo、深链接业务 fallback、应用内返回一致性。
+- Excluded: AI、同步算法、API、数据库、Service Worker、Push、视觉重做和发布。
 
 ## Current Progress
+
+- `navigation-policy.ts` 成为根 Tab、普通页面、详情页和流程页的统一决策入口。
+- 首页/记录/计划/我的连续互切不累计历史；详情返回列表与直接打开详情后的应用内返回、浏览器返回均有确定结果。
+- `returnTo` 仅保留直接父级并拒绝外部地址；未保存表单守卫继续生效。
+- lint、typecheck、Web 121 项单元测试及导航 E2E 五档宽度与 WebKit mobile 已通过。
 
 - 新增 `PushSubscription`/`PushDelivery` migration；订阅敏感字段使用 AES-256-GCM，索引仅存 endpoint SHA-256。
 - 新增用户隔离的 Push status/save/delete API、OpenAPI 契约、PWA Service Worker 与提醒页开关。
@@ -25,6 +30,11 @@ IN_PROGRESS / R1_1_WEB_PUSH / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORI
 - 候选复核修复了 Service Worker 反斜杠跨源深链风险，并为逐设备 delivery 增加原子领取与超时恢复，防止重复执行并发发送。
 
 ## Remaining Work
+
+1. 在真实 iPhone 已安装 PWA 上验证边缘返回，在 Android 已安装 PWA 上验证系统返回。
+2. 若设备验收通过并需要交付，再单独授权提交、推送与 PR。
+
+## Previous Task Record
 
 1. 审阅并在独立授权后合并 PR #27；随后将 PR #28 基线切回 Integration，再经独立授权合并。
 2. 启用前使用测试 VAPID 配置完成真实 Push Service、系统通知与手机/PWA 送达证据。
@@ -51,4 +61,4 @@ IN_PROGRESS / R1_1_WEB_PUSH / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORI
 
 ## Last Updated
 
-2026-09-09 11:46 +08:00 — 原混合 PR #26 已关闭并拆分为 PR #27/#28；两项 PR 的最终 quality、db-validation、browser-qa 均通过，等待独立 merge 授权。
+2026-09-11 11:30 +08:00 — PR #28 已合并至 Integration `be9d899`；MOBILE-A 本地实现、自动化验证和任务提交完成，等待实机验收，未推送。

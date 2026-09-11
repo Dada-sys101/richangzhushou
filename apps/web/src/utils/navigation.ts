@@ -58,7 +58,17 @@ export function safeReturnTo(
   fallback: string,
 ): string {
   const candidate = query?.returnTo;
-  return isInternalPath(candidate) ? candidate : fallback;
+  return sanitizeInternalPath(candidate) ?? fallback;
+}
+
+export function sanitizeInternalPath(value: unknown): string | null {
+  if (!isInternalPath(value)) {
+    return null;
+  }
+
+  const url = new URL(value, INTERNAL_ORIGIN);
+  url.searchParams.delete("returnTo");
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 export function resolveReturnTitle(
@@ -78,12 +88,13 @@ export function resolveReturnTitle(
 }
 
 export function appendReturnTo(target: string, source: string): string {
-  if (!isInternalPath(target) || !isInternalPath(source)) {
+  const directSource = sanitizeInternalPath(source);
+  if (!isInternalPath(target) || !directSource) {
     return target;
   }
 
   const url = new URL(target, INTERNAL_ORIGIN);
-  url.searchParams.set("returnTo", source);
+  url.searchParams.set("returnTo", directSource);
   return `${url.pathname}${url.search}${url.hash}`;
 }
 

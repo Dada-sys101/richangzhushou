@@ -1,21 +1,21 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-09T11:46:00+08:00
+updatedAt: 2026-09-11T11:30:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: 6515b8fd0f13969a0e434d3d8223f60a82cb0310
+integrationHead: be9d89927aa39abe867e1df5594588bafda3b8cc
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: R1.1 Web Push Candidate / PR #28
-executionStatus: IN_PROGRESS
-deliveryStatus: DONE_LOCAL_CANDIDATE
-currentWork: Minimal browser Web Push is implemented locally and has passed MySQL 8.4.9 integration plus controlled Chromium permission/subscription flows; real Push Service, system notification and physical-device delivery remain unverified
+currentTask: MOBILE-A PWA Navigation and Mobile Shell
+executionStatus: VERIFYING
+deliveryStatus: DONE_COMMITTED / DEVICE_ACCEPTANCE_PENDING
+currentWork: Browser History navigation policy, non-accumulating root tabs, direct-parent returnTo handling and deterministic deep-link fallbacks are implemented and automated checks pass; physical iPhone and Android behavior remains unverified
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Review and merge PR #27, then retarget and review PR #28
-nextCanonicalTaskAfterCompletion: R1.1_WEB_PUSH_DELIVERY_VALIDATION
-openPullRequests: ["#27 governance reconciliation", "#28 Web Push candidate"]
+nextCanonicalTask: Complete MOBILE-A physical-device acceptance, then request commit authorization if desired
+nextCanonicalTaskAfterCompletion: MOBILE-B PWA lifecycle and installation experience
+openPullRequests: []
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED
@@ -32,6 +32,19 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Active Task
 
+- id: MOBILE-A
+- displayName: PWA navigation and mobile shell
+- branch: codex/mobile-a-navigation-shell
+- baseHead: Integration be9d89927aa39abe867e1df5594588bafda3b8cc
+- contract: tasks/MOBILE-A.md (`MOBILE_A_NAVIGATION_SHELL_V1`)
+- implementation: centralized navigation policy; root-tab replace semantics; one-level sanitized returnTo; direct-entry Browser History fallback; shared header/back controls
+- validation: web lint/typecheck/unit PASS; navigation E2E PASS across Chromium 375/390/430/768/1440 and WebKit mobile, including the 20-cycle root-tab gate, deep-link app/browser back and dirty-form guard
+- remaining: physical iPhone edge-swipe and Android system-back acceptance
+- executionStatus: VERIFYING
+- deliveryStatus: DONE_COMMITTED / DEVICE_ACCEPTANCE_PENDING
+
+## Previous Canonical Task
+
 - id: R1.1 Web Push Candidate
 - displayName: minimal browser external reminders
 - branch: codex/web-push-reminders-clean
@@ -42,7 +55,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - forbiddenScope: SMS/email, queues, production enablement, deployment and public release without independent authorization
 - validation: final full quality, locked install with npm 11.18.0, lint/typecheck/unit/full tests/build/Prisma/OpenAPI, governance 30/30, audit 0 and SBOM 1055 pass; temporary MySQL 8.4.9 applied 13 migrations and passed 18 files/161 tests; controlled Chromium subscribe/restore/unsubscribe/deny and five-width checks pass; real delivery remains
 - executionStatus: IN_PROGRESS
-- deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORIZATION_PENDING / NOT_ENABLED
+- deliveryStatus: DONE_INTEGRATION / CI_PASS / NOT_ENABLED / REAL_DELIVERY_PENDING
 
 ## Previous Active Task
 

@@ -8,6 +8,67 @@ import {
   uniqueName,
 } from "./helpers/e2e";
 
+test("MOBILE-A root tabs do not accumulate history before list and detail navigation", async ({
+  page,
+  request,
+}) => {
+  const username = uniqueName("qa_mobile_nav");
+  await createActiveUserViaApi(request, username);
+  await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
+  await page.waitForURL("**/account");
+
+  const rootTargets = ["/", "/records", "/plan", "/account", "/"];
+  const rootNavigation = page.locator(
+    (await page.locator(".bottom-nav").isVisible())
+      ? ".bottom-nav"
+      : ".site-nav",
+  );
+  for (let cycle = 0; cycle < 20; cycle += 1) {
+    for (const target of rootTargets) {
+      await rootNavigation.locator(`a[href="${target}"]`).click();
+      await expect(page).toHaveURL(
+        new RegExp(`${target === "/" ? "/$" : `${target}$`}`),
+      );
+    }
+  }
+
+  await rootNavigation.locator('a[href="/plan"]').click();
+  const taskTitle = uniqueName("qa_mobile_history");
+  await page.goto("/tasks");
+  await page.getByLabel("标题").fill(taskTitle);
+  await page.getByRole("button", { name: "新建待办" }).click();
+  await page.getByRole("link", { name: "查看", exact: true }).click();
+  await expect(page).toHaveURL(/\/tasks\/[^/]+\?returnTo=%2Ftasks/);
+
+  await page.getByRole("button", { name: "返回待办" }).click();
+  await expect(page).toHaveURL(/\/tasks$/);
+});
+
+test("MOBILE-A direct detail entry seeds the same fallback for app and browser back", async ({
+  page,
+  request,
+}) => {
+  const username = uniqueName("qa_mobile_deep");
+  await createActiveUserViaApi(request, username);
+  await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
+  await page.waitForURL("**/account");
+
+  const taskTitle = uniqueName("qa_mobile_deep_task");
+  await page.goto("/tasks");
+  await page.getByLabel("标题").fill(taskTitle);
+  await page.getByRole("button", { name: "新建待办" }).click();
+  await page.getByRole("link", { name: "查看", exact: true }).click();
+  const detailUrl = page.url().replace(/\?returnTo=.*$/, "");
+
+  await page.goto(detailUrl);
+  await page.getByRole("button", { name: "返回计划" }).click();
+  await expect(page).toHaveURL(/\/plan$/);
+
+  await page.goto(detailUrl);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/plan$/);
+});
+
 test("统一页面壳保留来源、拦截未保存离开并支持刷新", async ({
   page,
   request,

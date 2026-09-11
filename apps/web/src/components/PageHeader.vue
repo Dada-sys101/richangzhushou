@@ -2,6 +2,7 @@
 import { computed } from "vue";
 
 import AppIcon from "./AppIcon.vue";
+import { navigateBack } from "../navigation-policy";
 import {
   resolveReturnTitle,
   safeReturnTo,
@@ -50,7 +51,7 @@ const parentTitle = computed(() =>
 
 async function goBack() {
   if (router) {
-    await router.replace(backTo.value);
+    await navigateBack(router, defaultBackTo.value);
     return;
   }
   window.history.back();
