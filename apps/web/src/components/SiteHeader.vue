@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { RouterLink, useRoute } from "vue-router";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 
+import { navigate } from "../navigation-policy";
 import { useAuthStore } from "../stores/auth";
 import { useSyncStore } from "../stores/sync";
 import AppIcon from "./AppIcon.vue";
@@ -9,6 +10,7 @@ import SyncBadge from "./SyncBadge.vue";
 
 const auth = useAuthStore();
 const route = useRoute();
+const router = useRouter();
 const sync = useSyncStore();
 const moreOpen = ref(false);
 const moreRef = ref<HTMLElement | null>(null);
@@ -23,6 +25,14 @@ const moreItems = computed(() => {
 
 function toggleMore() {
   moreOpen.value = !moreOpen.value;
+}
+
+function isRootActive(path: string) {
+  return route.path === path;
+}
+
+function navigateRoot(path: string) {
+  void navigate(router, path);
 }
 
 function onDocumentClick(event: MouseEvent) {
@@ -57,13 +67,22 @@ onBeforeUnmount(() => {
 
 <template>
   <header class="site-header">
-    <RouterLink class="wordmark" to="/">日常助手</RouterLink>
+    <a class="wordmark" href="/" @click.prevent="navigateRoot('/')">日常助手</a>
     <div class="header-right">
       <nav v-if="auth.isAuthenticated" class="site-nav" aria-label="主导航">
-        <RouterLink to="/">首页</RouterLink>
-        <RouterLink to="/records">记录</RouterLink>
-        <RouterLink to="/plan">计划</RouterLink>
-        <RouterLink to="/account">我的</RouterLink>
+        <a
+          v-for="item in [
+            { label: '首页', to: '/' },
+            { label: '记录', to: '/records' },
+            { label: '计划', to: '/plan' },
+            { label: '我的', to: '/account' },
+          ]"
+          :key="item.to"
+          :class="{ 'router-link-active': isRootActive(item.to) }"
+          :href="item.to"
+          @click.prevent="navigateRoot(item.to)"
+          >{{ item.label }}</a
+        >
         <RouterLink class="site-capture-link" to="/capture"
           >快速新增</RouterLink
         >

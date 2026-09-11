@@ -16,6 +16,7 @@ import {
   isSyncRateLimitedError,
   listLocal,
   pullChanges,
+  resetUserData,
   stopSync,
 } from "./sync";
 
@@ -144,6 +145,15 @@ describe("sync repository injection", () => {
     stopSync();
     vi.unstubAllGlobals();
     setOnline(originalOnline);
+  });
+
+  it("removes the last-user marker when clearing signed-out data", async () => {
+    const repository = repositoryDouble();
+
+    await resetUserData("user-1", repository);
+
+    expect(repository.clearUserData).toHaveBeenCalledWith("user-1");
+    expect(repository.metadataDelete).toHaveBeenCalledWith("lastUser");
   });
 
   it("applies pulled changes through the injected repository", async () => {

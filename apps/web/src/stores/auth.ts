@@ -6,7 +6,7 @@ import {
   type AuthSessionResponse,
   type UserSummary,
 } from "../api/client";
-import { refreshSessionOnce } from "../api/session";
+import { getLastRefreshFailure, refreshSessionOnce } from "../api/session";
 import { getLastUserId, hasAnyLocalData, resetUserData } from "../offline/sync";
 
 interface AuthState {
@@ -48,10 +48,15 @@ export const useAuthStore = defineStore("auth", {
       this.mustChangePassword = false;
       this.offlineMode = false;
       this.offlineUserId = null;
-      if (this.user) {
-        void resetUserData(this.user.id);
-      }
       this.user = null;
+    },
+    async clearUserData() {
+      const userId = this.user?.id ?? this.offlineUserId ?? getLastUserId();
+      this.clear();
+      const resolvedUserId = await userId;
+      if (resolvedUserId) {
+        await resetUserData(resolvedUserId);
+      }
     },
     async enterOfflineMode(): Promise<boolean> {
       if (this.offlineMode) {
@@ -82,7 +87,9 @@ export const useAuthStore = defineStore("auth", {
         this.applySession(session);
         return;
       }
-      const entered = await this.enterOfflineMode();
+      const entered =
+        getLastRefreshFailure() === "NETWORK" &&
+        (await this.enterOfflineMode());
       if (!entered) {
         throw new Error("SESSION_REFRESH_FAILED");
       }
@@ -91,16 +98,16 @@ export const useAuthStore = defineStore("auth", {
       try {
         await api.logout();
       } finally {
-        this.clear();
+        await this.clearUserData();
       }
     },
     async closeAccount(password: string, reason: string) {
       await api.closeAccount({ password, reason });
-      this.clear();
+      await this.clearUserData();
     },
     async requestDeletion(password: string, reason: string) {
       await api.requestDeletion({ password, reason });
-      this.clear();
+      await this.clearUserData();
     },
   },
 });

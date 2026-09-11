@@ -1,9 +1,10 @@
 import type { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AppModule } from "../app.module.js";
+import { PrismaService } from "../prisma/prisma.service.js";
 
 describe("health route", () => {
   let app: INestApplication | undefined;
@@ -15,7 +16,10 @@ describe("health route", () => {
   it("serves the versioned, non-sensitive health response", async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(PrismaService)
+      .useValue({ $queryRaw: vi.fn().mockResolvedValue([{ result: 1 }]) })
+      .compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix("/api/v1");

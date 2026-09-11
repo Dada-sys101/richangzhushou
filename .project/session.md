@@ -2,20 +2,27 @@
 
 ## Session Status
 
-IN_PROGRESS / R1_1_WEB_PUSH / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORIZATION_PENDING / REAL_PUSH_DELIVERY_NOT_VERIFIED
+ACCEPTED / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
 
 ## Task
 
-- ID: `R1.1 Web Push Candidate`（合并执行 PR3、PR16、PR17 的最小可用范围）
-- Execution: `IN_PROGRESS`
-- Delivery: `DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PASS / NOT_ENABLED`
-- Worktree: `D:\daily-assistant-worktrees\web-push-clean-pr`
-- Branch: `codex/web-push-reminders-clean`
-- Base HEAD: Integration `6515b8fd0f13969a0e434d3d8223f60a82cb0310`; stacked temporarily on governance PR #27 for a feature-only diff
-- Scope: 浏览器 Web Push 订阅、加密存储、逐设备送达、PWA 权限 UI 和现有提醒调度器接入。
-- Excluded: SMS、邮件、多 Provider、消息队列、生产启用和公网发布。
+- ID: `MOBILE-A PWA Navigation and Mobile Shell`
+- Execution: `ACCEPTED`
+- Delivery: `DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE`
+- Worktree: `D:\daily-assistant`
+- Branch: `codex/mobile-a-navigation-shell`
+- Base HEAD: Integration `be9d89927aa39abe867e1df5594588bafda3b8cc`
+- Scope: 浏览器历史统一导航策略、根 Tab replace、直接父级 returnTo、深链接业务 fallback、应用内返回一致性。
+- Excluded: AI、同步算法、API、数据库、Service Worker、Push 和视觉重做；本轮按用户既有授权发布到现有私有预览。
 
 ## Current Progress
+
+- `navigation-policy.ts` 成为根 Tab、普通页面、详情页和流程页的统一决策入口。
+- 首页/记录/计划/我的连续互切不累计历史；详情返回列表与直接打开详情后的应用内返回、浏览器返回均有确定结果。
+- `returnTo` 仅保留直接父级并拒绝外部地址；未保存表单守卫继续生效。
+- lint、typecheck、Web 121 项单元测试及导航 E2E 五档宽度与 WebKit mobile 已通过。
+- PR #29 首轮 browser-qa 发现 Browser Back 回到 AI 页面时被错误附加 `returnTo`；修复后定向 2/2 与完整浏览器 smoke 52/52 通过，等待远端 CI 复跑。
+- 修复后两组 CI 的 quality、db-validation、browser-qa 全部通过；`77718a0` 已解决数据库就绪和全中文错误。随后 `fa0ee53` 修复 HTTP 401 被误判为离线而恢复上一账号缓存的问题，退出登录会等待 IndexedDB 与最后用户标记清除；两组 CI 全绿并已部署，发布前备份、目标构建、公开健康/登录响应和日志检查通过。
 
 - 新增 `PushSubscription`/`PushDelivery` migration；订阅敏感字段使用 AES-256-GCM，索引仅存 endpoint SHA-256。
 - 新增用户隔离的 Push status/save/delete API、OpenAPI 契约、PWA Service Worker 与提醒页开关。
@@ -25,6 +32,11 @@ IN_PROGRESS / R1_1_WEB_PUSH / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORI
 - 候选复核修复了 Service Worker 反斜杠跨源深链风险，并为逐设备 delivery 增加原子领取与超时恢复，防止重复执行并发发送。
 
 ## Remaining Work
+
+1. PR #29 获得独立合并授权后合入 Integration，并复核合并后 CI。
+2. 从更新后的 Integration 建立独立 MOBILE-B 契约与分支。
+
+## Previous Task Record
 
 1. 审阅并在独立授权后合并 PR #27；随后将 PR #28 基线切回 Integration，再经独立授权合并。
 2. 启用前使用测试 VAPID 配置完成真实 Push Service、系统通知与手机/PWA 送达证据。
@@ -51,4 +63,4 @@ IN_PROGRESS / R1_1_WEB_PUSH / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORI
 
 ## Last Updated
 
-2026-09-09 11:46 +08:00 — 原混合 PR #26 已关闭并拆分为 PR #27/#28；两项 PR 的最终 quality、db-validation、browser-qa 均通过，等待独立 merge 授权。
+2026-09-11 16:07 +08:00 — 用户确认 MOBILE-A 的 iPhone、Android 与未登录缓存实机验收通过；PR #29 全绿、已部署并可合并，等待独立合并授权后启动 MOBILE-B。

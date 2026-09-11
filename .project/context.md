@@ -2,19 +2,20 @@
 
 ## Last Updated
 
-2026-09-09 11:46 +08:00 — mixed PR #26 was replaced by governance/dependency PR #27 and isolated Web Push PR #28; both final CI matrices pass, merge authorization and real delivery remain.
+2026-09-11 16:07 +08:00 — MOBILE-A automated, iPhone and Android acceptance passed; PR #29 is CI green, deployed and ready to merge, while merge authorization remains outstanding.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `6515b8fd0f13969a0e434d3d8223f60a82cb0310`
-- Active worktree: `D:\daily-assistant-worktrees\web-push-clean-pr`
-- Active branch: `codex/web-push-reminders-clean`
-- Active delivery: PR #28, temporarily based on governance PR #27 so its diff contains only Web Push changes
+- Verified Integration HEAD: `be9d89927aa39abe867e1df5594588bafda3b8cc`
+- Active worktree: `D:\daily-assistant`
+- Active branch: `codex/mobile-a-navigation-shell`
+- Active delivery: MOBILE-A `DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
+- MOBILE-A PR #29 is open and both CI matrices pass; signed-out cache isolation commit `fa0ee53` is deployed at `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z` with `77718a00-20260911T0713Z` retained for rollback.
 
 ## Project Summary
 
@@ -29,7 +30,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `R1.1 Web Push Candidate / IN_PROGRESS`.
+- Current canonical task: `MOBILE-A PWA Navigation and Mobile Shell / ACCEPTED / READY_TO_MERGE`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -54,14 +55,14 @@
 
 ## Next Recommended Task
 
-Review and deliver the candidate through an authorized commit and CI; keep flags off until real Push Service, system notification and physical-device delivery are verified.
+After explicit authorization, merge PR #29 and verify Integration; then start MOBILE-B as a separate task from that clean base.
 
 ## Completed Work
 
 - V1 and the V1.5 R1 foundation, AI proposal/router/provider adapter integration, offline synchronization, Web UX closure and release candidate integration are complete.
 - H7 is closed based on the recorded synthetic-data Provider evaluation; this does not authorize broader/public Provider use.
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
-- The active release is `/opt/daily-assistant-preview/releases/6515b8fd-2db6b6a2f199db4c`.
+- The active release is `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z`. HTTP refresh failures now close the session instead of restoring prior-user cache; explicit logout waits for IndexedDB cleanup and removes the last-user marker.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
 
 ## Remaining Work
@@ -80,8 +81,8 @@ Review and deliver the candidate through an authorized commit and CI; keep flags
 
 ## Known Issues
 
-- Physical iPhone Safari/PWA behavior remains unverified; WebKit emulation is supporting evidence only.
-- Current public health is liveness-only until REL-03 is implemented.
+- The user reported iPhone and Android MOBILE-A acceptance passed on 2026-09-11; detailed device screenshots/logs were not captured in the repository.
+- Public health performs a database query and returns readiness without exposing sensitive details.
 - Separate Staging, managed MySQL TLS/private networking and cross-location restore were deliberately waived for the current small private-preview scope; reassess them for public launch, larger scale or important real data.
 
 ## Verification Status

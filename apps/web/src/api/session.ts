@@ -2,6 +2,7 @@ export const API_BASE_URL = "/api/v1";
 
 let accessToken: string | null = null;
 let refreshInFlight: Promise<AuthSessionResponse | null> | null = null;
+let lastRefreshFailure: "HTTP" | "NETWORK" | null = null;
 
 export interface AuthSessionResponse {
   accessToken: string;
@@ -34,6 +35,10 @@ export function getAccessToken(): string | null {
   return accessToken;
 }
 
+export function getLastRefreshFailure(): "HTTP" | "NETWORK" | null {
+  return lastRefreshFailure;
+}
+
 /** Single-flight refresh so concurrent 401 retries and route guards cannot race each other's rotation. */
 export function refreshSessionOnce(): Promise<AuthSessionResponse | null> {
   if (!refreshInFlight) {
@@ -51,12 +56,15 @@ async function performRefresh(): Promise<AuthSessionResponse | null> {
       method: "POST",
     });
     if (!response.ok) {
+      lastRefreshFailure = "HTTP";
       return null;
     }
     const data = (await response.json()) as AuthSessionResponse;
+    lastRefreshFailure = null;
     setAccessToken(data.accessToken);
     return data;
   } catch {
+    lastRefreshFailure = "NETWORK";
     return null;
   }
 }

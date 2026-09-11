@@ -8,17 +8,28 @@ import { useAuthStore } from "../stores/auth";
 import { useSyncStore } from "../stores/sync";
 import SiteHeader from "./SiteHeader.vue";
 
+const router = vi.hoisted(() => ({
+  push: vi.fn(),
+  replace: vi.fn(),
+  resolve: vi.fn((to: string) => ({
+    fullPath: to,
+    meta: { navigationKind: "ROOT_TAB" },
+  })),
+}));
+
 vi.mock("vue-router", async (importOriginal) => {
   const actual = await importOriginal<typeof import("vue-router")>();
   return {
     ...actual,
-    useRoute: () => ({ fullPath: "/" }),
+    useRoute: () => ({ fullPath: "/", path: "/" }),
+    useRouter: () => router,
   };
 });
 
 describe("SiteHeader", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    vi.clearAllMocks();
   });
 
   it("hides the primary navigation until authenticated", () => {
@@ -35,7 +46,7 @@ describe("SiteHeader", () => {
     const wrapper = mount(SiteHeader, {
       global: { stubs: { RouterLink: RouterLinkStub } },
     });
-    const links = wrapper.findAllComponents(RouterLinkStub);
+    const links = wrapper.findAll("a");
     expect(links.map((link) => link.text())).toEqual([
       "日常助手",
       "首页",
@@ -44,6 +55,9 @@ describe("SiteHeader", () => {
       "我的",
       "快速新增",
     ]);
+    await wrapper.get('.site-nav a[href="/records"]').trigger("click");
+    expect(router.replace).toHaveBeenCalledWith("/records");
+    expect(router.push).not.toHaveBeenCalled();
   });
 
   it("collects secondary entries under 更多 and closes it on outside click", async () => {

@@ -1,28 +1,28 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-09T11:46:00+08:00
+updatedAt: 2026-09-11T16:07:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: 6515b8fd0f13969a0e434d3d8223f60a82cb0310
+integrationHead: be9d89927aa39abe867e1df5594588bafda3b8cc
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: R1.1 Web Push Candidate / PR #28
-executionStatus: IN_PROGRESS
-deliveryStatus: DONE_LOCAL_CANDIDATE
-currentWork: Minimal browser Web Push is implemented locally and has passed MySQL 8.4.9 integration plus controlled Chromium permission/subscription flows; real Push Service, system notification and physical-device delivery remain unverified
+currentTask: MOBILE-A PWA Navigation and Mobile Shell
+executionStatus: ACCEPTED
+deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
+currentWork: MOBILE-A automated, iPhone, Android and signed-out cache acceptance passed; PR #29 remains open and requires independent merge authorization before MOBILE-B starts from Integration
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Review and merge PR #27, then retarget and review PR #28
-nextCanonicalTaskAfterCompletion: R1.1_WEB_PUSH_DELIVERY_VALIDATION
-openPullRequests: ["#27 governance reconciliation", "#28 Web Push candidate"]
+nextCanonicalTask: Merge accepted MOBILE-A PR #29 after explicit authorization, then start MOBILE-B PWA lifecycle and installation experience
+nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
+openPullRequests: []
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED
 
 ## Current Private Preview Release Assessment
 
-- Active release: Integration `6515b8fd0f13969a0e434d3d8223f60a82cb0310`, deployed at `/opt/daily-assistant-preview/releases/6515b8fd-2db6b6a2f199db4c`.
+- Active release: MOBILE-A signed-out cache isolation fix `fa0ee53`, deployed at `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z`; previous `77718a00-20260911T0713Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
@@ -31,6 +31,19 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - Local worktree: contains 15 uncommitted governance/evidence Markdown changes; deployed source is the clean Integration merge and excludes these local documentation changes.
 
 ## Active Task
+
+- id: MOBILE-A
+- displayName: PWA navigation and mobile shell
+- branch: codex/mobile-a-navigation-shell
+- baseHead: Integration be9d89927aa39abe867e1df5594588bafda3b8cc
+- contract: tasks/MOBILE-A.md (`MOBILE_A_NAVIGATION_SHELL_V1`)
+- implementation: centralized navigation policy; root-tab replace semantics; one-level sanitized returnTo; direct-entry Browser History fallback; shared header/back controls
+- validation: full quality PASS; signed-out cache unit tests 12/12 PASS; push/PR quality, MySQL 8.4 and browser-qa matrices PASS; browser QA verifies logout, protected-route redirect and reload remain on the login page without app navigation; target Node 24/npm 11.18 sequential build, backup, database-aware health, public root, Chinese invalid-login response and error-log checks PASS
+- remaining: PR #29 merge authorization and Integration landing verification
+- executionStatus: ACCEPTED
+- deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
+
+## Previous Canonical Task
 
 - id: R1.1 Web Push Candidate
 - displayName: minimal browser external reminders
@@ -42,7 +55,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - forbiddenScope: SMS/email, queues, production enablement, deployment and public release without independent authorization
 - validation: final full quality, locked install with npm 11.18.0, lint/typecheck/unit/full tests/build/Prisma/OpenAPI, governance 30/30, audit 0 and SBOM 1055 pass; temporary MySQL 8.4.9 applied 13 migrations and passed 18 files/161 tests; controlled Chromium subscribe/restore/unsubscribe/deny and five-width checks pass; real delivery remains
 - executionStatus: IN_PROGRESS
-- deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORIZATION_PENDING / NOT_ENABLED
+- deliveryStatus: DONE_INTEGRATION / CI_PASS / NOT_ENABLED / REAL_DELIVERY_PENDING
 
 ## Previous Active Task
 

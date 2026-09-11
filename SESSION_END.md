@@ -1,5 +1,11 @@
 # Session End
 
+## 2026-09-11 — MOBILE-A 导航与移动端壳（ACCEPTED / READY_TO_MERGE）
+
+- Navigation Policy、根 Tab replace、直接父级 `returnTo` 与详情深链接 fallback 已本地实现。
+- Web lint/typecheck、121 项单元测试以及 375/390/430/768/1440 与 WebKit mobile 导航 E2E 通过。
+- 已完成任务提交、推送、PR #29 和现有环境部署；认证数据库就绪与全中文错误修复 `77718a0`、未登录缓存隔离修复 `fa0ee53` 的本地质量及两组 CI 全绿，当前 release 为 `fa0ee530-20260911T0738Z`。用户确认 iPhone 边缘返回、Android 系统返回及未登录缓存验收通过；PR 尚未合并。
+
 ## 2026-09-09 — R1.1 Web Push 本地候选（IN_PROGRESS）
 
 - 完成加密订阅、逐设备幂等送达、用户隔离 API、PWA Service Worker、提醒页权限开关和真实 Web Push 适配器；功能默认关闭。

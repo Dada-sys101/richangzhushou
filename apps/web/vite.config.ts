@@ -24,7 +24,7 @@ export default defineConfig({
         theme_color: "#2563eb",
         background_color: "#f8fafc",
       },
-      registerType: "prompt",
+      registerType: "autoUpdate",
       workbox: {
         importScripts: ["/push-sw.js"],
         navigateFallback: "/index.html",

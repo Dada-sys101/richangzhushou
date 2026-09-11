@@ -636,6 +636,7 @@ export async function resetUserData(
   repository: LocalRepository = defaultRepository,
 ): Promise<void> {
   await repository.clearUserData(userId);
+  await repository.metadataDelete(LAST_USER_KEY);
 }
 
 export function isNetworkOffline(): boolean {

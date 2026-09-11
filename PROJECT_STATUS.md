@@ -1,22 +1,22 @@
 # Project Status
 
-updatedAt: 2026-09-09T11:46:00+08:00
+updatedAt: 2026-09-11T16:07:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
-integrationHead: 6515b8fd0f13969a0e434d3d8223f60a82cb0310
-activeBranch: codex/web-push-reminders-clean
-activeHead: f0621ee (feature commit; later state/merge commits do not alter feature behavior)
-activeTask: R1.1 Web Push Candidate
-executionStatus: IN_PROGRESS
-deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_28_OPEN / CI_PASS / MERGE_AUTHORIZATION_PENDING / REAL_DELIVERY_PENDING
-nextCanonicalTask: R1.1 Web Push Candidate
-nextCanonicalTaskAfterCompletion: R1.1_WEB_PUSH_DELIVERY_VALIDATION
-localRevision: COMMITTED_AND_PUSHED_WEB_PUSH_CANDIDATE
+integrationHead: be9d89927aa39abe867e1df5594588bafda3b8cc
+activeBranch: codex/mobile-a-navigation-shell
+activeHead: fa0ee53
+activeTask: MOBILE-A PWA Navigation and Mobile Shell
+executionStatus: ACCEPTED
+deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
+nextCanonicalTask: Merge MOBILE-A PR #29 after explicit authorization, then start MOBILE-B
+nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
+localRevision: COMMITTED_AND_PUSHED_MOBILE_A
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
-privatePreviewRelease: 6515b8fd0f13969a0e434d3d8223f60a82cb0310 / 6515b8fd-2db6b6a2f199db4c
+privatePreviewRelease: fa0ee53 / fa0ee530-20260911T0738Z
 
 ## Completed
 
@@ -30,7 +30,7 @@ privatePreviewRelease: 6515b8fd0f13969a0e434d3d8223f60a82cb0310 / 6515b8fd-2db6b
 
 ## Current
 
-`R1.1 Web Push Candidate` passed local MySQL migration/API isolation and controlled Chromium permission flows. It remains disabled until real Push Service, system-notification and physical-device delivery are verified.
+`MOBILE-A` has passed unit, browser, iPhone and Android acceptance and is deployed to the existing environment. HTTP authentication failures close the session without restoring prior-user cache; logout waits for IndexedDB cleanup and removes the last-user marker. PR #29 is ready to merge. Web Push remains disabled pending its separate real-delivery gate.
 
 ## Remaining
 
@@ -56,6 +56,6 @@ privatePreviewRelease: 6515b8fd0f13969a0e434d3d8223f60a82cb0310 / 6515b8fd-2db6b
 
 ## Git State
 
-- Current documentation reconciliation is uncommitted.
-- No commit or push is authorized by the current documentation-review instruction.
-- No production deployment, public switch, new resource creation or Provider expansion was performed.
+- Functional fix `fa0ee53` is committed and pushed; this state reconciliation is pending its documentation commit.
+- PR #29 remains open and unmerged.
+- Existing private-preview deployment was authorized and completed; no public switch, new resource creation or Provider expansion was performed.

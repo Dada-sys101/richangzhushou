@@ -26,6 +26,7 @@ const { allowNavigation } = useUnsavedChanges(
 );
 
 async function logout() {
+  allowNavigation();
   await auth.logout();
   await router.replace("/login");
 }

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-09-11 — MOBILE-A PWA 导航策略
+
+- 统一顶部/底部导航和页面返回逻辑，根 Tab 切换使用 replace，避免重复切换形成长返回链。
+- `returnTo` 限制为直接父级；直接进入详情时提供浏览器历史 fallback。
+- 五档宽度与 WebKit mobile 自动化通过；实机 iPhone/Android 返回操作待验收。
+- 已获授权创建任务提交并推送，PR #29 已创建；未合并或部署。
+- PR #29 首轮 browser-qa 发现 Browser Back 被附加反向 `returnTo`；现已识别历史遍历并跳过隐式来源注入，本地完整 smoke 52/52 通过。
+- 修复后两组 CI 全绿；后续 `7103ad1` 修复退出登录和安装版更新，`77718a0` 修复认证数据库就绪并统一中文错误；`fa0ee53` 修复未登录时错误恢复上一账号缓存，并在退出时等待清除 IndexedDB 与最后用户标记。当前部署为 `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z`，备份、目标顺序构建、公开数据库健康、中文登录错误响应和日志检查通过，旧 release 保留用于回滚。
+- 用户确认 iPhone 边缘返回、Android 系统返回及未登录缓存实机验收通过；MOBILE-A 状态更新为 `ACCEPTED / READY_TO_MERGE`，PR #29 尚未合并。
+
 ## 2026-09-09 — R1.1 Web Push 本地候选
 
 - 完成最小应用外提醒链路；订阅密钥加密、按用户隔离、发送幂等并保留应用内降级。

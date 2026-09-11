@@ -1,9 +1,11 @@
 # 路线图（派生摘要）
 
-updatedAt: 2026-09-08
+updatedAt: 2026-09-11
 
 > 完整 canonical 依赖、当前有效规则和 Task Selection Policy 仍以 `PLANS.md` v2.1.1 为准。
 > ADR-028 已 Accepted；本页同步其有限 PR20 历史边界，不替代 canonical 规范。
+
+当前移动端顺序：`R1.1 Web Push Candidate（DONE_INTEGRATION）→ MOBILE-A（ACCEPTED / PR #29 READY_TO_MERGE）→ MOBILE-B → MOBILE-C`。MOBILE-A 自动化、iPhone 与 Android 验收均已通过；合并后从更新的 Integration 启动 MOBILE-B。
 
 ```text
 V15-CTRL-001 → PR6a → AI-DECISION-001 → PR2 → PR5 → PR6 → PR9

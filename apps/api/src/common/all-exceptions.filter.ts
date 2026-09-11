@@ -17,6 +17,40 @@ interface ErrorBody {
   fieldErrors?: unknown;
 }
 
+const API_ERROR_MESSAGES: Record<string, string> = {
+  ACCOUNT_NOT_ACTIVE: "账号当前不可用，请联系管理员",
+  CAPACITY_REACHED: "可用账号名额已满",
+  DUPLICATE_RESOURCE: "已存在相同内容",
+  FORBIDDEN: "没有权限执行该操作",
+  INTERNAL_ERROR: "服务器暂时不可用，请稍后重试",
+  INVALID_CREDENTIALS: "账号或密码错误",
+  INVALID_CURRENT_PASSWORD: "当前密码错误",
+  INVALID_STATE: "当前状态无法执行该操作",
+  PASSWORD_CHANGE_REQUIRED: "首次登录需要先修改密码",
+  RATE_LIMITED: "操作过于频繁，请稍后重试",
+  REFRESH_TOKEN_INVALID: "登录状态已失效，请重新登录",
+  REFRESH_TOKEN_REQUIRED: "请重新登录",
+  RESOURCE_NOT_FOUND: "未找到相关内容",
+  SETTING_LOWER_THAN_USAGE: "设置值不能低于当前使用量",
+  UNAUTHORIZED: "登录状态已过期，请重新登录",
+  VALIDATION_ERROR: "输入内容不符合要求，请检查后重试",
+  VERSION_CONFLICT: "内容已在其他位置更新，请刷新后确认",
+};
+
+function localizedMessage(code: string, status: number): string {
+  if (API_ERROR_MESSAGES[code]) return API_ERROR_MESSAGES[code];
+  if (status === 401) return "登录状态已过期，请重新登录";
+  if (status === 403) return "没有权限执行该操作";
+  if (status === 404) return "未找到相关内容";
+  if (status === 429) return "操作过于频繁，请稍后重试";
+  if (status >= 500) return "服务器暂时不可用，请稍后重试";
+  return "操作失败，请稍后重试";
+}
+
+function hasChineseText(message: string): boolean {
+  return /[\u3400-\u9fff]/u.test(message);
+}
+
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
@@ -29,7 +63,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let body: ErrorBody = {
       code: "INTERNAL_ERROR",
-      message: "Internal server error",
+      message: "服务器内部错误，请稍后重试",
       requestId,
     };
 
@@ -37,7 +71,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status = exception.statusCode;
       body = {
         code: exception.code,
-        message: exception.message,
+        message: hasChineseText(exception.message)
+          ? exception.message
+          : localizedMessage(exception.code, exception.statusCode),
         requestId,
         fieldErrors: exception.fieldErrors,
       };
@@ -57,11 +93,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const message = Array.isArray(
           (payload as { message?: unknown }).message,
         )
-          ? "Request validation failed"
+          ? "请求内容校验失败"
           : String(
               (payload as { message?: unknown }).message ??
                 exception.message ??
-                "Request failed",
+                "请求失败，请稍后重试",
             );
         body = {
           code: "VALIDATION_ERROR",
@@ -72,7 +108,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
                 payload as { message: Array<{ property?: string }> }
               ).message.map((item) => ({
                 field: String(item?.property ?? "body"),
-                message: String(item),
+                message: "输入内容不符合要求",
               }))
             : undefined,
         };
