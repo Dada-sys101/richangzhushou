@@ -47,6 +47,10 @@ function localizedMessage(code: string, status: number): string {
   return "操作失败，请稍后重试";
 }
 
+function hasChineseText(message: string): boolean {
+  return /[\u3400-\u9fff]/u.test(message);
+}
+
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
@@ -67,7 +71,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status = exception.statusCode;
       body = {
         code: exception.code,
-        message: localizedMessage(exception.code, exception.statusCode),
+        message: hasChineseText(exception.message)
+          ? exception.message
+          : localizedMessage(exception.code, exception.statusCode),
         requestId,
         fieldErrors: exception.fieldErrors,
       };

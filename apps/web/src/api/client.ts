@@ -676,6 +676,7 @@ async function http<T>(
         localizedApiErrorMessage(
           error.code ?? "SERVICE_UNAVAILABLE",
           response.status,
+          error.message,
         ),
         localizedFieldErrors(error.fieldErrors),
       );

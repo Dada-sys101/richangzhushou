@@ -47,7 +47,14 @@ const ERROR_MESSAGES: Record<string, string> = {
   VERSION_CONFLICT: "内容已在其他位置更新，请刷新后确认",
 };
 
-export function localizedApiErrorMessage(code: string, status: number): string {
+export function localizedApiErrorMessage(
+  code: string,
+  status: number,
+  serverMessage?: string,
+): string {
+  if (serverMessage && /[\u3400-\u9fff]/u.test(serverMessage)) {
+    return serverMessage;
+  }
   if (ERROR_MESSAGES[code]) return ERROR_MESSAGES[code];
   if (status === 401) return "登录状态已过期，请重新登录";
   if (status === 403) return "没有权限执行该操作";
@@ -60,8 +67,8 @@ export function localizedApiErrorMessage(code: string, status: number): string {
 export function localizedFieldErrors(
   fieldErrors?: Array<{ field: string; message: string }>,
 ) {
-  return fieldErrors?.map(({ field }) => ({
+  return fieldErrors?.map(({ field, message }) => ({
     field,
-    message: "输入内容不符合要求",
+    message: /[\u3400-\u9fff]/u.test(message) ? message : "输入内容不符合要求",
   }));
 }

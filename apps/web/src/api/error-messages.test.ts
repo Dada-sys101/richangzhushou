@@ -16,6 +16,9 @@ describe("localizedApiErrorMessage", () => {
     expect(localizedApiErrorMessage("UNKNOWN_ERROR", 503)).toBe(
       "服务器暂时不可用，请稍后重试",
     );
+    expect(
+      localizedApiErrorMessage("VALIDATION_ERROR", 400, "时间超出行程范围"),
+    ).toBe("时间超出行程范围");
   });
 
   it("does not expose server field-error text", () => {
