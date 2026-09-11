@@ -30,7 +30,7 @@ const { allowNavigation } = useUnsavedChanges(
 async function logout() {
   allowNavigation();
   await auth.logout();
-  await router.replace("/login");
+  await router.replace({ name: "login", query: { redirect: "/" } });
 }
 
 async function submit() {

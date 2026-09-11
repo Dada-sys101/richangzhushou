@@ -327,7 +327,7 @@ router.beforeEach(async (to, from) => {
     return { name: "change-password" };
   }
   if (to.name === "login" && auth.isAuthenticated) {
-    return { name: "home" };
+    return { name: "account" };
   }
 
   if (

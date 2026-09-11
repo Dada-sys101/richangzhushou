@@ -10,7 +10,7 @@ import LoginView from "./LoginView.vue";
 const replace = vi.fn();
 
 vi.mock("vue-router", () => ({
-  useRoute: () => ({ query: {} }),
+  useRoute: () => ({ query: { redirect: "/" } }),
   useRouter: () => ({ replace }),
 }));
 
@@ -20,7 +20,7 @@ describe("LoginView", () => {
     setActivePinia(createPinia());
   });
 
-  it("returns to the home page after a normal login", async () => {
+  it("honors the home redirect after logging out", async () => {
     const auth = useAuthStore();
     vi.spyOn(auth, "login").mockResolvedValue(undefined);
     const wrapper = mount(LoginView);
