@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-11 14:40 +08:00 — MOBILE-A logout and installed-PWA update fix `7103ad1` is CI green and active in the existing private-preview environment; physical-device acceptance and PR merge remain.
+2026-09-11 15:18 +08:00 — MOBILE-A auth/readiness and Chinese-error fix `77718a0` is CI green and active in the existing private-preview environment; physical-device acceptance and PR merge remain.
 
 ## Repository State
 
@@ -15,7 +15,7 @@
 - Active delivery: MOBILE-A `DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
-- MOBILE-A PR #29 is open and both CI matrices pass; fix commit `7103ad1` is deployed at `/opt/daily-assistant-preview/releases/7103ad10-20260911T0634Z` with `26399f93-20260911T0351Z` retained for rollback.
+- MOBILE-A PR #29 is open and both CI matrices pass; fix commit `77718a0` is deployed at `/opt/daily-assistant-preview/releases/77718a00-20260911T0713Z` with `7103ad10-20260911T0634Z` retained for rollback.
 
 ## Project Summary
 
@@ -62,7 +62,7 @@ Complete physical iPhone/Android navigation acceptance; after MOBILE-A is delive
 - V1 and the V1.5 R1 foundation, AI proposal/router/provider adapter integration, offline synchronization, Web UX closure and release candidate integration are complete.
 - H7 is closed based on the recorded synthetic-data Provider evaluation; this does not authorize broader/public Provider use.
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
-- The active release is `/opt/daily-assistant-preview/releases/7103ad10-20260911T0634Z`.
+- The active release is `/opt/daily-assistant-preview/releases/77718a00-20260911T0713Z`.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
 
 ## Remaining Work

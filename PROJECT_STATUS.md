@@ -1,12 +1,12 @@
 # Project Status
 
-updatedAt: 2026-09-11T14:40:00+08:00
+updatedAt: 2026-09-11T15:18:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 integrationHead: be9d89927aa39abe867e1df5594588bafda3b8cc
 activeBranch: codex/mobile-a-navigation-shell
-activeHead: 7103ad1
+activeHead: 77718a0
 activeTask: MOBILE-A PWA Navigation and Mobile Shell
 executionStatus: VERIFYING
 deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
@@ -16,7 +16,7 @@ localRevision: COMMITTED_AND_PUSHED_MOBILE_A
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
-privatePreviewRelease: 7103ad1 / 7103ad10-20260911T0634Z
+privatePreviewRelease: 77718a0 / 77718a00-20260911T0713Z
 
 ## Completed
 

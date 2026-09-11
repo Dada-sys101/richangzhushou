@@ -22,7 +22,7 @@ VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPL
 - `returnTo` 仅保留直接父级并拒绝外部地址；未保存表单守卫继续生效。
 - lint、typecheck、Web 121 项单元测试及导航 E2E 五档宽度与 WebKit mobile 已通过。
 - PR #29 首轮 browser-qa 发现 Browser Back 回到 AI 页面时被错误附加 `returnTo`；修复后定向 2/2 与完整浏览器 smoke 52/52 通过，等待远端 CI 复跑。
-- 修复后两组 CI 的 quality、db-validation、browser-qa 全部通过；退出登录受密码自动填充拦截和安装版不自动更新的问题已由提交 `7103ad1` 修复并部署。发布前备份、目标构建、API/Nginx、公网根页面、深链接、manifest、Service Worker 自动接管刷新和日志检查通过。
+- 修复后两组 CI 的 quality、db-validation、browser-qa 全部通过；线上数据库连接池异常已即时恢复，并由 `77718a0` 增加 Prisma 启动连接、数据库就绪检查和全中文可见错误。该提交已部署，发布前备份、目标构建、公开健康/登录响应和日志检查通过。
 
 - 新增 `PushSubscription`/`PushDelivery` migration；订阅敏感字段使用 AES-256-GCM，索引仅存 endpoint SHA-256。
 - 新增用户隔离的 Push status/save/delete API、OpenAPI 契约、PWA Service Worker 与提醒页开关。
@@ -63,4 +63,4 @@ VERIFYING / MOBILE_A / DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPL
 
 ## Last Updated
 
-2026-09-11 14:40 +08:00 — MOBILE-A 退出登录与安装版自动更新修复 `7103ad1` 已通过本地质量、两组远端 CI 并部署至现有环境；等待真实 iPhone/Android 返回验收，PR 尚未合并。
+2026-09-11 15:18 +08:00 — MOBILE-A 认证数据库就绪与中文错误修复 `77718a0` 已通过本地质量、两组远端 CI 并部署；公开登录错误响应已为中文，等待真实 iPhone/Android 返回验收，PR 尚未合并。

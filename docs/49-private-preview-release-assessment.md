@@ -2,7 +2,7 @@
 
 评估更新：2026-09-11（`Asia/Shanghai`）
 
-> 2026-09-11 MOBILE-A 修复发布：PR #29 head `7103ad1` 修复退出登录受隐藏表单自动填充拦截，以及安装版 PWA 不自动接管新版本的问题。两组 CI 全绿后部署至 `/opt/daily-assistant-preview/releases/7103ad10-20260911T0634Z`；发布前备份、目标 Node 24.19/npm 11.18 顺序构建、API、Nginx、公网根页面、深链接、manifest、Service Worker 自动接管刷新和错误日志检查通过。旧 release `26399f93-20260911T0351Z` 保留为回滚点。PR 尚未合并，真实 iPhone/Android 返回操作仍待验收。
+> 2026-09-11 MOBILE-A 认证修复发布：线上认证请求因 API 数据库连接池启动异常返回 500，重启后即时恢复。提交 `77718a0` 增加 Prisma 启动连接和数据库就绪检查，避免进程存活掩盖数据库故障；API 与 PWA 的可见英文/未知错误统一转换为中文，同时保留已有中文业务细节。两组 CI 全绿后部署至 `/opt/daily-assistant-preview/releases/77718a00-20260911T0713Z`；发布前备份、目标顺序构建、公开数据库健康检查、中文登录错误响应和日志检查通过。旧 release `7103ad10-20260911T0634Z` 保留为回滚点。
 
 ## 当前结论
 
