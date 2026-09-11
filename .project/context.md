@@ -62,7 +62,7 @@ Complete iPhone and Android installed-PWA lifecycle acceptance, then request the
 - V1 and the V1.5 R1 foundation, AI proposal/router/provider adapter integration, offline synchronization, Web UX closure and release candidate integration are complete.
 - H7 is closed based on the recorded synthetic-data Provider evaluation; this does not authorize broader/public Provider use.
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
-- The active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`; rollback release is `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z`. MOBILE-B installation assets and lifecycle policy are live in the private preview.
+- The active release is `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z`; rollback release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`. MOBILE-B foreground update checks and logout-to-home relogin behavior are live in the private preview.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
 
 ## Remaining Work

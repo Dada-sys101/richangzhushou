@@ -2,6 +2,8 @@
 
 评估更新：2026-09-11（`Asia/Shanghai`）
 
+> 2026-09-11 MOBILE-B 实机反馈修复：普通浏览器仍停留旧缓存、退出后重新登录仍回“我的”。提交 `5152fb8` 增加页面恢复前台时的版本检查，提交 `414bb5e` 让退出登录携带首页返回目标，`aebc257` 补充真实重登录浏览器验收。两组 CI 最终全绿；其中一次既有桌面导航用例波动后重跑通过。发布前备份为 `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260911T094516Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z`，旧 release `4d86f900-20260911T0846Z` 保留为回滚点。公开入口、API 健康、Manifest、Service Worker 和启动后日志复检通过。
+
 > 2026-09-11 MOBILE-B PWA 生命周期发布：提交 `4d86f90` 已推送至 PR #30，两组 CI runs `34580364107`、`34580381945` 的 quality、db-validation、browser-qa 全绿。发布前备份为 `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260911T084533Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`，旧 release `fa0ee530-20260911T0738Z` 保留为回滚点。用户端、API 健康、四个 PWA 图标、Manifest、Service Worker 更新处理和近期日志检查通过；iPhone/Android 安装版生命周期验收仍待实机执行，PR 尚未合并。
 
 > 2026-09-11 MOBILE-A 未登录缓存隔离发布：刷新令牌返回 HTTP 401 时，客户端曾误进入离线模式并恢复上一账号的 IndexedDB 数据，造成界面显示未登录但仍可见旧数据。提交 `fa0ee53` 将离线恢复限定为真实网络故障；认证失败直接关闭会话，显式退出会等待用户缓存清除并删除最后用户标记。两组 CI 的 quality、db-validation、browser-qa 全绿，其中浏览器用例覆盖退出、访问受保护页面、刷新后仍停留登录页且无应用导航。发布前备份为 `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260911T073720Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z`，旧 release `77718a00-20260911T0713Z` 保留为回滚点。
@@ -22,7 +24,7 @@
 - Integration commit：`6515b8fd0f13969a0e434d3d8223f60a82cb0310`。
 - 来源：PR #25，状态 `MERGED`。
 - 合并后 CI：run `34181985716`，`quality`、`db-validation`、`browser-qa` 全部通过。
-- 服务器 release：`/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`（MOBILE-B PR #30 commit `4d86f90`；PR 尚未合并）。
+- 服务器 release：`/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z`（MOBILE-B PR #30 commit `aebc257`；PR 尚未合并）。
 - API、用户端和管理端入口均返回 HTTP 200；切换后的 warning/error 日志为空。
 - 本次没有执行 migration、修改 MySQL/Nginx、扩展域名或改变 Provider 开关。
 

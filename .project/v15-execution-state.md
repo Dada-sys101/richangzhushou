@@ -22,13 +22,13 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-B commit `4d86f90`, deployed at `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`; previous `fa0ee530-20260911T0738Z` remains the rollback release.
+- Active release: MOBILE-B feedback-fix commit `aebc257`, deployed at `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z`; previous `4d86f900-20260911T0846Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
 - H1/H2: `WAIVED_FOR_R1 / UNVERIFIED` by explicit user approval on 2026-09-08; never treat this as physical-device pass evidence, and reassess before public support claims.
 - Remaining gate: R1 Quality Gate is `APPROVED / DONE`; REL-02 requires independent resource/fee authorization. Non-sensitive readiness belongs to REL-03 under the approved REL-01 D7 boundary; public DNS/HTTPS/CORS validation belongs to the later public-entry gate. Local daily backup with 7-day cleanup is configured, and live AI is retained by explicit user decision for the private preview.
-- MOBILE-B release backup: `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260911T084533Z.sql.gz`.
+- MOBILE-B feedback-fix backup: `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260911T094516Z.sql.gz`.
 
 ## Active Task
 

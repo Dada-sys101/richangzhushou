@@ -27,6 +27,7 @@ VERIFYING / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPL
 - 完整 `npm run quality` 与 `git diff --check` 通过；Web 25 files/129 tests、API 34 files/281 tests 通过，生成 SW 含 `SKIP_WAITING` 监听。
 - 功能提交 `4d86f90` 已推送并创建 PR #30；CI runs `34580364107`、`34580381945` 的 quality、db-validation、browser-qa 全部通过。
 - 已备份数据库并部署至 `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`；入口、健康检查、图标、Manifest、Service Worker 和日志检查通过。
+- 实机反馈修复最终提交 `aebc257` 已通过两组 CI，并部署至 `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z`；旧版本 `4d86f900-20260911T0846Z` 保留回滚。
 
 ## Remaining Work
 

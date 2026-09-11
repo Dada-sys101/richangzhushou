@@ -6,17 +6,17 @@ mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 integrationHead: 6e1313fd58da8d4fc34fc7912b579571a21a9ebe
 activeBranch: codex/mobile-b-pwa-lifecycle
-activeHead: 4d86f90
+activeHead: aebc257
 activeTask: MOBILE-B PWA Lifecycle and Installation Experience
 executionStatus: VERIFYING
 deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
 nextCanonicalTask: Complete MOBILE-B physical installed-PWA lifecycle acceptance
 nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
-localRevision: 4d86f90
+localRevision: aebc257
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
-privatePreviewRelease: 4d86f90 / 4d86f900-20260911T0846Z
+privatePreviewRelease: aebc257 / aebc2570-20260911T0946Z
 
 ## Completed
 

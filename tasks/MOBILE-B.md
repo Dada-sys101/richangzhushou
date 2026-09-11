@@ -62,4 +62,5 @@ MOBILE-B is complete only when implementation, automated validation and the two 
 - Full `npm run quality` and `git diff --check` pass; Web 25 files / 129 tests and API 34 files / 281 tests pass.
 - Commit `4d86f90` is pushed in PR #30; CI runs `34580364107` and `34580381945` pass all three jobs.
 - Private preview release `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z` is active; entry points, health, icons, Manifest, Service Worker and recent logs pass deployment checks.
+- Device-feedback fix `aebc257` checks for updates when the page returns to the foreground and returns logout/relogin to Home; both CI matrices pass and release `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z` is deployed.
 - Physical iPhone and Android installed-PWA lifecycle acceptance remains pending.
