@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-11T14:10:00+08:00
+updatedAt: 2026-09-11T14:40:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -11,7 +11,7 @@ pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-A PWA Navigation and Mobile Shell
 executionStatus: VERIFYING
 deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
-currentWork: Browser History navigation policy, non-accumulating root tabs, direct-parent returnTo handling and deterministic deep-link fallbacks are implemented and automated checks pass; physical iPhone and Android behavior remains unverified
+currentWork: MOBILE-A navigation is deployed; logout now reaches a visible login form even when password-manager autofill marks the account form dirty, and installed PWA updates activate and refresh open clients automatically; physical iPhone and Android navigation remains unverified
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
 nextCanonicalTask: Complete MOBILE-A physical-device acceptance, then request commit authorization if desired
 nextCanonicalTaskAfterCompletion: MOBILE-B PWA lifecycle and installation experience
@@ -22,7 +22,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-A commit `26399f9317b86dd68f3ea7af207e7df22419e733`, deployed at `/opt/daily-assistant-preview/releases/26399f93-20260911T0351Z`; previous `6515b8fd-2db6b6a2f199db4c` remains the rollback release.
+- Active release: MOBILE-A fix commit `7103ad1`, deployed at `/opt/daily-assistant-preview/releases/7103ad10-20260911T0634Z`; previous `26399f93-20260911T0351Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
@@ -38,7 +38,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - baseHead: Integration be9d89927aa39abe867e1df5594588bafda3b8cc
 - contract: tasks/MOBILE-A.md (`MOBILE_A_NAVIGATION_SHELL_V1`)
 - implementation: centralized navigation policy; root-tab replace semantics; one-level sanitized returnTo; direct-entry Browser History fallback; shared header/back controls
-- validation: web lint/typecheck/unit and full quality PASS; navigation E2E PASS across Chromium 375/390/430/768/1440 and WebKit mobile; initial PR browser-qa exposed Browser Back returnTo injection, fixed with targeted 2/2 and full smoke 52/52 PASS; both PR/push CI matrices PASS; target Node 24/npm 11.18 build, backup, health, public root/deep-link/manifest/SW and error-log checks PASS
+- validation: web lint/typecheck/unit and full quality PASS; navigation E2E PASS across Chromium 375/390/430/768/1440 and WebKit mobile; logout autofill regression 2/2 PASS; both fix push/PR CI matrices PASS; target Node 24/npm 11.18 sequential build, backup, health, public root/deep-link/manifest/SW update behavior and error-log checks PASS
 - remaining: physical iPhone edge-swipe and Android system-back acceptance
 - executionStatus: VERIFYING
 - deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING

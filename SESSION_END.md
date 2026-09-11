@@ -4,7 +4,7 @@
 
 - Navigation Policy、根 Tab replace、直接父级 `returnTo` 与详情深链接 fallback 已本地实现。
 - Web lint/typecheck、121 项单元测试以及 375/390/430/768/1440 与 WebKit mobile 导航 E2E 通过。
-- 已完成任务提交、推送、PR #29 和现有环境部署；修复后 CI 全绿，当前 release 为 `26399f93-20260911T0351Z`，PR 尚未合并，真实 iPhone 边缘返回与 Android 系统返回仍待验收。
+- 已完成任务提交、推送、PR #29 和现有环境部署；退出登录与安装版自动更新修复 `7103ad1` 的本地质量及两组 CI 全绿，当前 release 为 `7103ad10-20260911T0634Z`，PR 尚未合并，真实 iPhone 边缘返回与 Android 系统返回仍待验收。
 
 ## 2026-09-09 — R1.1 Web Push 本地候选（IN_PROGRESS）
 

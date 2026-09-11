@@ -7,7 +7,7 @@
 - 五档宽度与 WebKit mobile 自动化通过；实机 iPhone/Android 返回操作待验收。
 - 已获授权创建任务提交并推送，PR #29 已创建；未合并或部署。
 - PR #29 首轮 browser-qa 发现 Browser Back 被附加反向 `returnTo`；现已识别历史遍历并跳过隐式来源注入，本地完整 smoke 52/52 通过。
-- 修复后两组 CI 全绿；提交 `26399f9` 已按授权部署至现有环境，备份、目标构建、API/Nginx、公开深链接、PWA 资源和日志检查通过，旧 release 保留用于回滚。
+- 修复后两组 CI 全绿；后续提交 `7103ad1` 修复退出登录受隐藏表单自动填充拦截，以及安装版不自动接管更新的问题，并部署至 `/opt/daily-assistant-preview/releases/7103ad10-20260911T0634Z`。备份、目标顺序构建、API/Nginx、公开深链接、PWA 自动接管刷新和日志检查通过，旧 release 保留用于回滚。
 
 ## 2026-09-09 — R1.1 Web Push 本地候选
 

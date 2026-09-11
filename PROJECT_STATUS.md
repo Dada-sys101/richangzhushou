@@ -1,12 +1,12 @@
 # Project Status
 
-updatedAt: 2026-09-11T14:10:00+08:00
+updatedAt: 2026-09-11T14:40:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 integrationHead: be9d89927aa39abe867e1df5594588bafda3b8cc
 activeBranch: codex/mobile-a-navigation-shell
-activeHead: MOBILE-A task commit on top of be9d899 (resolve with Git)
+activeHead: 7103ad1
 activeTask: MOBILE-A PWA Navigation and Mobile Shell
 executionStatus: VERIFYING
 deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
@@ -16,7 +16,7 @@ localRevision: COMMITTED_AND_PUSHED_MOBILE_A
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
-privatePreviewRelease: 26399f9317b86dd68f3ea7af207e7df22419e733 / 26399f93-20260911T0351Z
+privatePreviewRelease: 7103ad1 / 7103ad10-20260911T0634Z
 
 ## Completed
 
@@ -30,7 +30,7 @@ privatePreviewRelease: 26399f9317b86dd68f3ea7af207e7df22419e733 / 26399f93-20260
 
 ## Current
 
-`MOBILE-A` has passed unit, browser and CI acceptance and is deployed to the existing environment. Physical iPhone edge-swipe and Android system-back checks remain; Web Push remains disabled pending its separate real-delivery gate.
+`MOBILE-A` has passed unit, browser and CI acceptance and is deployed to the existing environment. Logout reliably returns to the login form, and installed PWA updates now activate and refresh open clients automatically. Physical iPhone edge-swipe and Android system-back checks remain; Web Push remains disabled pending its separate real-delivery gate.
 
 ## Remaining
 
