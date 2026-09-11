@@ -10,7 +10,7 @@ pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-A PWA Navigation and Mobile Shell
 executionStatus: VERIFYING
-deliveryStatus: DONE_COMMITTED / DEVICE_ACCEPTANCE_PENDING
+deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_RECHECK_PENDING / DEVICE_ACCEPTANCE_PENDING
 currentWork: Browser History navigation policy, non-accumulating root tabs, direct-parent returnTo handling and deterministic deep-link fallbacks are implemented and automated checks pass; physical iPhone and Android behavior remains unverified
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
 nextCanonicalTask: Complete MOBILE-A physical-device acceptance, then request commit authorization if desired
@@ -38,10 +38,10 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - baseHead: Integration be9d89927aa39abe867e1df5594588bafda3b8cc
 - contract: tasks/MOBILE-A.md (`MOBILE_A_NAVIGATION_SHELL_V1`)
 - implementation: centralized navigation policy; root-tab replace semantics; one-level sanitized returnTo; direct-entry Browser History fallback; shared header/back controls
-- validation: web lint/typecheck/unit PASS; navigation E2E PASS across Chromium 375/390/430/768/1440 and WebKit mobile, including the 20-cycle root-tab gate, deep-link app/browser back and dirty-form guard
+- validation: web lint/typecheck/unit and full quality PASS; navigation E2E PASS across Chromium 375/390/430/768/1440 and WebKit mobile; initial PR browser-qa exposed Browser Back returnTo injection, fixed locally with targeted 2/2 and full smoke 52/52 PASS; CI recheck pending
 - remaining: physical iPhone edge-swipe and Android system-back acceptance
 - executionStatus: VERIFYING
-- deliveryStatus: DONE_COMMITTED / DEVICE_ACCEPTANCE_PENDING
+- deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_RECHECK_PENDING / DEVICE_ACCEPTANCE_PENDING
 
 ## Previous Canonical Task
 

@@ -5,7 +5,7 @@
 - 建立统一 Navigation Policy，根 Tab 使用 replace，业务列表/详情保留 Browser History；`returnTo` 只表达直接父级并过滤外部或递归值。
 - 直接打开详情时写入可预测的业务 fallback，使应用内返回与浏览器/系统返回采用同一浏览器历史来源。
 - 20 轮根 Tab 互切硬性场景、深链接返回、未保存表单保护在 375/390/430/768/1440 与 WebKit mobile 自动化中通过；真实 iPhone/Android 仍待验收。
-- 当前为 `DONE_COMMITTED / DEVICE_ACCEPTANCE_PENDING`，未推送、创建 PR 或部署。
+- 当前已推送并创建 PR #29；首轮 browser-qa 暴露的 Browser Back `returnTo` 回归已修复，本地定向 2/2、完整 smoke 52/52 和 quality 通过，等待 CI 重跑与实机验收。
 
 ## 2026-09-09 — R1.1 Web Push 本地候选
 

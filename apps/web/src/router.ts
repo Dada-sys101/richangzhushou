@@ -48,6 +48,12 @@ const collectionPathsWithoutImplicitReturnContext = new Set([
   "/trips",
 ]);
 
+function isBrowserBackNavigation(fromFullPath: string) {
+  if (typeof window === "undefined") return false;
+  const forward = window.history.state?.forward;
+  return typeof forward === "string" && forward === fromFullPath;
+}
+
 function rootPage(title: string) {
   return { navigationKind: "ROOT_TAB" as const, page: { title } };
 }
@@ -333,6 +339,7 @@ router.beforeEach(async (to, from) => {
     from.name &&
     from.name !== "login" &&
     from.meta.page &&
+    !isBrowserBackNavigation(from.fullPath) &&
     !collectionPathsWithoutImplicitReturnContext.has(to.path)
   ) {
     const directSource = sanitizeInternalPath(from.fullPath);

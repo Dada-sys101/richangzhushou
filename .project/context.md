@@ -12,9 +12,10 @@
 - Verified Integration HEAD: `be9d89927aa39abe867e1df5594588bafda3b8cc`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/mobile-a-navigation-shell`
-- Active delivery: MOBILE-A `DONE_COMMITTED / DEVICE_ACCEPTANCE_PENDING`
+- Active delivery: MOBILE-A `DONE_PUSHED / PR_29_OPEN / CI_RECHECK_PENDING / DEVICE_ACCEPTANCE_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
+- MOBILE-A PR #29 is open; its initial quality and db-validation passed, while browser-qa exposed a Browser Back `returnTo` regression that is fixed locally and awaiting CI recheck.
 
 ## Project Summary
 

@@ -5,7 +5,8 @@
 - 统一顶部/底部导航和页面返回逻辑，根 Tab 切换使用 replace，避免重复切换形成长返回链。
 - `returnTo` 限制为直接父级；直接进入详情时提供浏览器历史 fallback。
 - 五档宽度与 WebKit mobile 自动化通过；实机 iPhone/Android 返回操作待验收。
-- 已获授权创建本地任务提交；未推送、创建 PR 或部署。
+- 已获授权创建任务提交并推送，PR #29 已创建；未合并或部署。
+- PR #29 首轮 browser-qa 发现 Browser Back 被附加反向 `returnTo`；现已识别历史遍历并跳过隐式来源注入，本地完整 smoke 52/52 通过。
 
 ## 2026-09-09 — R1.1 Web Push 本地候选
 

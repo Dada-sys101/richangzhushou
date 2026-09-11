@@ -9,10 +9,10 @@ activeBranch: codex/mobile-a-navigation-shell
 activeHead: MOBILE-A task commit on top of be9d899 (resolve with Git)
 activeTask: MOBILE-A PWA Navigation and Mobile Shell
 executionStatus: VERIFYING
-deliveryStatus: DONE_COMMITTED / DEVICE_ACCEPTANCE_PENDING
+deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_RECHECK_PENDING / DEVICE_ACCEPTANCE_PENDING
 nextCanonicalTask: MOBILE-A physical-device acceptance
 nextCanonicalTaskAfterCompletion: MOBILE-B PWA lifecycle and installation experience
-localRevision: COMMITTED_MOBILE_A
+localRevision: COMMITTED_AND_PUSHED_MOBILE_A
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
