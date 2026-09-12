@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_C1 / DONE_PUSHED / PR_31_OPEN / CI_PASS / PREVIEW_DEPLOYMENT_PENDING
+VERIFYING / MOBILE_C1 / DONE_PUSHED / PR_31_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
 
 ## Task
 
 - ID: `MOBILE-C1 Secondary Shell and Tokens`
 - Execution: `VERIFYING`
-- Delivery: `DONE_PUSHED / PR_31_OPEN / CI_PASS / PREVIEW_DEPLOYMENT_PENDING`
+- Delivery: `DONE_PUSHED / PR_31_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-c1-secondary-shell`
 - Base HEAD: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
@@ -22,6 +22,7 @@ VERIFYING / MOBILE_C1 / DONE_PUSHED / PR_31_OPEN / CI_PASS / PREVIEW_DEPLOYMENT_
 - `AccountsView`、`CategoriesView`、`BudgetsView`、`SyncConflictsView`、`ChangePasswordView` 已迁移到统一页面壳和内容分区。
 - 完整 `npm run quality` 与 `git diff --check` 通过：Web 28 files/132 tests、API 34 files/281 tests；五档浏览器矩阵待远端候选 CI 验证。
 - 提交 `91c4fed` 已推送并创建 PR #31；CI runs `34667896982`、`34667898608` 的 quality、db-validation、browser-qa 全部通过。
+- 部署前备份 `daily_assistant_preview_20260912T023810Z.sql.gz`；功能提交已部署到 `/opt/daily-assistant-preview/releases/91c4fed0-20260912T0238Z`，入口、API 健康、Manifest、SW、五个页面深链接、资源与日志检查通过。
 
 - MOBILE-A PR #29 已合入 Integration `6e1313f`，合并后 CI run `34578075462` 的 quality、db-validation、browser-qa 全部通过。
 - 已从该 Integration 基线创建独立分支 `codex/mobile-b-pwa-lifecycle`。
@@ -43,7 +44,7 @@ VERIFYING / MOBILE_C1 / DONE_PUSHED / PR_31_OPEN / CI_PASS / PREVIEW_DEPLOYMENT_
 
 ## Remaining Work
 
-1. 获得独立授权后部署到私有预览并完成实机视觉验收。
+1. 完成 iPhone/Android 五个二级页面的视觉、滚动、返回和键盘验收。
 2. 验收通过后单独决定 PR #31 合并。
 3. 不自动进入 MOBILE-C2。
 
@@ -65,4 +66,4 @@ VERIFYING / MOBILE_C1 / DONE_PUSHED / PR_31_OPEN / CI_PASS / PREVIEW_DEPLOYMENT_
 
 ## Last Updated
 
-2026-09-12 10:40 +08:00 — MOBILE-C1 提交 `91c4fed` 已推送至 PR #31，两组 CI 全绿；等待私有预览部署授权和实机视觉验收。
+2026-09-12 10:43 +08:00 — MOBILE-C1 已部署私有预览并通过部署后检查；等待 iPhone/Android 实机视觉验收，PR #31 尚未合并。

@@ -6,6 +6,7 @@
 - 新增 `SecondaryPageShell`、`SectionCard`、`FormActions`，统一二级页面宽度、分区、间距、安全区和移动端操作尺寸。
 - 首批迁移资金账户、分类管理、月度预算、同步冲突、修改密码；保留原路由、返回策略和业务逻辑。
 - 完整 quality 与差异检查通过：Web 28 files/132 tests、API 34 files/281 tests；提交 `91c4fed` 已推送到 PR #31，两组 CI 的 quality、db-validation、browser-qa 全绿，等待私有预览部署授权和实机视觉验收。
+- 已在备份后部署 `/opt/daily-assistant-preview/releases/91c4fed0-20260912T0238Z`；入口、API 健康、Manifest、Service Worker、五个页面深链接、新构建资源与服务日志检查通过，等待实机视觉验收。
 
 ## 2026-09-11 — MOBILE-B PWA 生命周期（PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING）
 

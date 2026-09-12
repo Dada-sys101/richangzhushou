@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T10:40:00+08:00
+updatedAt: 2026-09-12T10:43:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -10,10 +10,10 @@ pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-C1 Secondary Shell and Tokens
 executionStatus: VERIFYING
-deliveryStatus: DONE_PUSHED / PR_31_OPEN / CI_PASS / PREVIEW_DEPLOYMENT_PENDING
-currentWork: MOBILE-C1 commit 91c4fed is pushed in PR #31 and both CI matrices pass; private-preview deployment and physical visual acceptance remain
+deliveryStatus: DONE_PUSHED / PR_31_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
+currentWork: MOBILE-C1 commit 91c4fed passes both CI matrices and is deployed to private preview; physical visual acceptance remains
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Complete MOBILE-C1 private-preview and physical visual acceptance
+nextCanonicalTask: Complete MOBILE-C1 physical visual acceptance
 nextCanonicalTaskAfterCompletion: MOBILE-C2 app dialogs and feedback
 openPullRequests: [PR #31]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
