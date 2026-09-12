@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T09:35:00+08:00
+updatedAt: 2026-09-12T10:08:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -22,7 +22,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-B second feedback-fix commit `927dea3`, deployed at `/opt/daily-assistant-preview/releases/927dea30-20260912T0129Z`; previous `aebc2570-20260911T0946Z` remains the rollback release.
+- Active release: MOBILE-B update-takeover commit `727cb60`, deployed at `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z`; previous `927dea30-20260912T0129Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
@@ -44,6 +44,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - feedbackFix: `927dea3` adds visible update progress/error and an iOS reload fallback; plan center defaults to a visibly selected current date
 - successorDraft: `d7860cd` adds tasks/MOBILE-C.md for staged secondary-page, dialog and date/time control refinement; it remains blocked by MOBILE-B acceptance
 - feedbackValidation: CI runs `34664717946` and `34664718882` passed quality, db-validation and browser-qa; private-preview entry, API health, Manifest, Service Worker, asset and logs passed
+- updateTakeover: commits `e756c0b` and `727cb60`; CI runs `34666350469` and `34666354055` pass all jobs; deployed Worker contains skipWaiting and clientsClaim, while reload remains guarded by user action
 - remaining: physical iPhone/Android installed lifecycle acceptance; merge remains separately gated
 - executionStatus: VERIFYING
 - deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING

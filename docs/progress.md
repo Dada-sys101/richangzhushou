@@ -10,6 +10,7 @@
 - 根据实机反馈增加页面恢复前台时的版本检查，并让退出后重新登录返回首页；提交 `aebc257` 的两组 CI 最终全绿，修复版已部署至 `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z` 并通过部署后复检。
 - 第二轮反馈修复 `927dea3` 为更新按钮增加“更新中”和中文失败反馈，重新获取 Service Worker registration，并在 iOS 未触发 controllerchange 时兜底刷新；计划中心默认明确选中当天。本地完整 quality 与两组 CI 全绿，已部署 release `927dea30-20260912T0129Z`，部署后检查通过。
 - `d7860cd` 新增 MOBILE-C 草案，将二级页面整理、统一弹窗、日期时间控件和复杂页面迁移拆成四阶段；MOBILE-B 验收前不启动实施。
+- `e756c0b`/`727cb60` 让新 Worker 后台接管、用户按钮只负责安全刷新，并兼容精简 Service Worker 接口；首次 CI 暴露并修复测试桩兼容问题，最终两组 CI 全绿，release `727cb600-20260912T0203Z` 部署检查通过。根页面增加横向过度滚动抑制，下级页面返回历史不变。
 
 ## 2026-09-11 — MOBILE-A 导航与移动端壳（ACCEPTED / READY_TO_MERGE）
 

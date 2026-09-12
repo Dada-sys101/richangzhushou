@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-12 09:35 +08:00 — MOBILE-B second feedback fix `927dea3` passes two CI matrices and is deployed to private preview; installed-device acceptance remains.
+2026-09-12 10:08 +08:00 — MOBILE-B update takeover fix `727cb60` passes two CI matrices and is deployed to private preview; installed-device acceptance remains.
 
 ## Repository State
 
@@ -66,7 +66,7 @@ After MOBILE-B acceptance and merge, execute the staged MOBILE-C contract: secon
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
 - The active release is `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z`; rollback release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`. MOBILE-B foreground update checks and logout-to-home relogin behavior are live in the private preview.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
-- MOBILE-B feedback fix `927dea3` and MOBILE-C planning commit `d7860cd` pass full local quality and two CI matrices; private preview runs `/opt/daily-assistant-preview/releases/927dea30-20260912T0129Z` with `aebc2570-20260911T0946Z` retained for rollback.
+- MOBILE-B update takeover fixes `e756c0b`/`727cb60` and MOBILE-C planning commit `d7860cd` pass required validation; private preview runs `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z` with `927dea30-20260912T0129Z` retained for rollback.
 
 ## Remaining Work
 
