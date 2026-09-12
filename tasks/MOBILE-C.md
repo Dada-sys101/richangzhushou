@@ -3,9 +3,9 @@
 ## Metadata
 
 - Contract: `MOBILE_C_SECONDARY_UI_V1`
-- Status: `MOBILE_C1_DONE_INTEGRATION / MOBILE_C2_IN_PROGRESS`
-- Branch: `codex/mobile-c1-secondary-shell`
-- Base: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
+- Status: `MOBILE_C1_C2_C3_DONE_INTEGRATION / MOBILE_C4_FROZEN_READY`
+- Branch: successor branch not created
+- Base: Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
 - Predecessor: MOBILE-B `DONE_INTEGRATION / ACCEPTED_WITH_DEFERRED_LIMITATIONS`
 - Delivery model: 每个阶段独立提交、独立 PR 验证；不得形成一次性全站重写。
 
@@ -54,6 +54,7 @@
 
 - 按风险依次迁移：`TransactionFormView` → `CalendarView`/`TasksView`/`RemindersView` → `PlannerDetailView` → `TripDetailView` → AI 草稿/提案页面。
 - 每组迁移单独验证，不借机重写业务 store 或页面数据加载。
+- 独立冻结契约见 `tasks/MOBILE-C4.md`；四个切片必须按 C4.1 至 C4.4 顺序执行并分别提交。
 
 ## Forbidden scope
 
@@ -74,4 +75,4 @@
 
 ## Recommended execution order
 
-MOBILE-B 实机验收与合并 → MOBILE-C1 → MOBILE-C2 → MOBILE-C3 → MOBILE-C4。每阶段通过后再进入下一阶段。
+MOBILE-B → MOBILE-C1 → MOBILE-C2 → MOBILE-C3 已进入 Integration；下一步为 MOBILE-C4，按其四个顺序切片执行。

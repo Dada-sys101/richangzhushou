@@ -218,3 +218,9 @@ ADR-029 的无金额上限策略不等于生产预算 enforcement。后续新功
 
 - 2026-09-12 用户确认 iPhone/Android 实机日期、月份和日期时间控件验收通过；MOBILE-C3 更新为 `ACCEPTED / READY_TO_MERGE`，PR #33 合并仍需独立授权。
 - 用户随后授权合并；PR #33 已合并为 Integration `5a0dc52`。合并 CI run `34683019629` 的 quality、db-validation 通过，browser-qa 首次出现一个详情重载时序断言失败，未改代码重跑后 job `103525654367` 通过，最终矩阵全绿。MOBILE-C3 状态更新为 `DONE_INTEGRATION / MERGED_CI_PASS`。
+
+## 2026-09-12 — MOBILE-C4 复杂二级页面契约冻结
+
+- 新增 `tasks/MOBILE-C4.md`，将复杂页面迁移冻结为四个严格顺序切片：记账表单、日程/待办/提醒、计划/行程详情、AI 草稿/提案。
+- 契约限制为布局、信息层级、响应式、可访问性和应用内反馈；路由、Navigation Policy、store、API、数据库、同步、认证、SW、Push 和业务语义均禁止修改。
+- 当前状态为 `FROZEN / READY / IMPLEMENTATION_NOT_STARTED`；下一步只执行 C4.1 TransactionFormView。

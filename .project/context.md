@@ -2,14 +2,14 @@
 
 ## Last Updated
 
-2026-09-12 16:35 +08:00 — MOBILE-C3 PR #33 merged into Integration `5a0dc52`; merged CI is green after an unchanged browser-qa rerun.
+2026-09-12 16:55 +08:00 — MOBILE-C4 complex secondary-page contract frozen locally from Integration `45d52c6`; implementation has not started.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `5a0dc529fd9d34a9a2c70788a6d0e87a7745ce2b`
+- Verified Integration HEAD: `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
 - Active worktree: `D:\daily-assistant-worktrees\quality-r1-governance-draft-write`
 - Active branch: `codex/v15-integration-foundation`
 - Active delivery: MOBILE-C3 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
@@ -30,7 +30,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `NONE`; MOBILE-C4 contract is the next recommended task.
+- Current canonical task: `MOBILE-C4 Complex Secondary Pages / READY`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -48,15 +48,15 @@
 
 ## Current Task
 
-- ID: `NONE`.
-- Goal: no implementation is active; preserve the merged MOBILE-C3 baseline.
-- Scope: next task selection and an independent MOBILE-C4 contract only.
-- Current state: `READY / NO_ACTIVE_TASK`.
-- Excluded: starting MOBILE-C4 implementation before its contract is frozen.
+- ID: `MOBILE-C4 Complex Secondary Pages`.
+- Goal: migrate complex secondary pages to the shared C1-C3 UI foundation without changing business behavior.
+- Scope: four strict sequential slices defined by `tasks/MOBILE-C4.md`; C4.1 TransactionFormView is first.
+- Current state: `FROZEN / READY / IMPLEMENTATION_NOT_STARTED`.
+- Excluded: routes, navigation policy, stores, API/database, sync, auth, SW, Push and business semantics.
 
 ## Next Recommended Task
 
-Freeze an independent MOBILE-C4 complex secondary pages task contract from Integration `5a0dc52`; do not start implementation until that scope is established.
+Execute only MOBILE-C4 C4.1 TransactionFormView from Integration `45d52c6`, then verify and close that slice before C4.2.
 
 MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of the frozen MOBILE-C sequence.
 

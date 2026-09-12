@@ -5,6 +5,7 @@
 - 用户确认 iPhone/Android 日期、月份和日期时间控件实机验收通过。
 - MOBILE-C3 状态更新为 `ACCEPTED / READY_TO_MERGE`；PR #33 尚未合并。
 - 用户随后授权合并；PR #33 已合并为 Integration `5a0dc52`。合并 CI run `34683019629` 最终全绿，其中 browser-qa 在未改代码重跑后通过。
+- 冻结 `tasks/MOBILE-C4.md`：复杂二级页面按四个顺序切片实施，当前仅完成本地任务契约，业务实现尚未开始。
 
 ## 2026-09-12 — MOBILE-C3 自定义日期时间控件
 

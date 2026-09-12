@@ -2,21 +2,23 @@
 
 ## Session Status
 
-IDLE / NO_ACTIVE_TASK / MOBILE_C3_DONE_INTEGRATION / MERGED_CI_PASS
+READY / MOBILE_C4 / CONTRACT_FROZEN_LOCAL / IMPLEMENTATION_NOT_STARTED
 
 ## Task
 
-- ID: `NONE`
+- ID: `MOBILE-C4 Complex Secondary Pages`
 - Execution: `READY`
-- Delivery: `MOBILE-C3 DONE_INTEGRATION / MERGED_CI_PASS`
+- Delivery: `CONTRACT_FROZEN_LOCAL / IMPLEMENTATION_NOT_STARTED`
 - Worktree: `D:\daily-assistant-worktrees\quality-r1-governance-draft-write`
 - Branch: `codex/v15-integration-foundation`
-- Base HEAD: Integration `5a0dc529fd9d34a9a2c70788a6d0e87a7745ce2b`
-- Scope: 当前无实施任务；下一步冻结 MOBILE-C4 独立任务契约。
-- Excluded: 未建立契约前不启动 MOBILE-C4 实现，不重复部署 MOBILE-C3。
+- Base HEAD: Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
+- Contract: `tasks/MOBILE-C4.md` (`MOBILE_C4_COMPLEX_SECONDARY_PAGES_V1`).
+- Scope: 四个顺序切片迁移复杂二级页面；下一步只执行 C4.1 `TransactionFormView`。
+- Excluded: 路由、Navigation Policy、store、API、数据库、同步、认证、SW、Push 和业务语义。
 
 ## Current Progress
 
+- MOBILE-C4 独立任务契约已在本地冻结，明确 C4.1 至 C4.4 顺序、允许文件、禁止范围、兼容性门禁、五档视口和设备验收矩阵；业务实现尚未开始。
 - PR #33 已合并为 Integration `5a0dc52`。合并 CI run `34683019629` 的 quality、db-validation 通过；browser-qa 首次因详情重载时序断言失败，未改代码重跑后 job `103525654367` 通过，最终矩阵全绿。
 - MOBILE-C3 状态为 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`；当前没有活动实施任务。
 
