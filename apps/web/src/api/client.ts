@@ -909,11 +909,18 @@ export const api = {
   deleteTransaction(id: string) {
     return http<void>(`/transactions/${id}`, { method: "DELETE" });
   },
-  exportFinanceCsv(params: { month?: string; type?: TransactionType }) {
+  exportFinanceCsv(params: {
+    endDate?: string;
+    month?: string;
+    startDate?: string;
+    type?: TransactionType;
+  }) {
     const query = new URLSearchParams();
     if (params.month) {
       query.set("month", params.month);
     }
+    if (params.startDate) query.set("startDate", params.startDate);
+    if (params.endDate) query.set("endDate", params.endDate);
     if (params.type) {
       query.set("type", params.type);
     }
@@ -1021,6 +1028,8 @@ export const api = {
       includeDeleted?: boolean;
       limit?: number;
       month?: string;
+      startDate?: string;
+      endDate?: string;
       status?: CalendarEventStatus;
     } = {},
   ) {

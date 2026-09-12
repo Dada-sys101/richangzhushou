@@ -21,8 +21,10 @@ import type { SyncEntityType } from "../offline/sync";
 import { useAuthStore } from "./auth";
 
 type TransactionParams = {
+  endDate?: string;
   includeDeleted?: boolean;
   month?: string;
+  startDate?: string;
   type?: "EXPENSE" | "INCOME" | "REFUND";
 };
 
@@ -356,18 +358,34 @@ export const useFinanceStore = defineStore("finance", {
     },
     async deleteTransaction(id: string) {
       await api.deleteTransaction(id);
-      await this.loadTransactions({ includeDeleted: true });
+      await this.loadTransactions({
+        ...this.lastTransactionParams,
+        includeDeleted: true,
+      });
       await this.loadSummary(this.summary?.month ?? currentMonth());
     },
     async restoreTransaction(id: string) {
       await api.restoreTransaction(id);
-      await this.loadTransactions({ includeDeleted: true });
+      await this.loadTransactions({
+        ...this.lastTransactionParams,
+        includeDeleted: true,
+      });
       await this.loadSummary(this.summary?.month ?? currentMonth());
     },
-    async exportCsv(month?: string) {
-      const result = await api.exportFinanceCsv({ month });
-      const filename = month
-        ? `daily-assistant-transactions-${month}.csv`
+    async exportCsv(
+      params: {
+        endDate?: string;
+        startDate?: string;
+        type?: "EXPENSE" | "INCOME" | "REFUND";
+      } = {},
+    ) {
+      const result = await api.exportFinanceCsv(params);
+      const rangeName =
+        params.startDate && params.endDate
+          ? `${params.startDate}-${params.endDate}`
+          : undefined;
+      const filename = rangeName
+        ? `daily-assistant-transactions-${rangeName}.csv`
         : "daily-assistant-transactions-all.csv";
       const blob = new Blob([result.content], {
         type: "text/csv;charset=utf-8",

@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-12 11:50 +08:00 — MOBILE-C1 third feedback fix `8c3e9e7` passes both CI matrices and is deployed to private preview; device recheck remains.
+2026-09-12 12:11 +08:00 — MOBILE-C1 fourth feedback fix is validated locally: transaction filters are single-column on mobile and support start/end dates; commit, CI and preview deployment remain.
 
 ## Repository State
 
@@ -12,7 +12,7 @@
 - Verified Integration HEAD: `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/mobile-c1-secondary-shell`
-- Active delivery: MOBILE-C1 `THIRD_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING`
+- Active delivery: MOBILE-C1 `FOURTH_FEEDBACK_FIX_LOCAL / PR_31_OPEN / CI_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.
@@ -55,7 +55,7 @@
 
 ## Next Recommended Task
 
-Complete MOBILE-C1 physical device recheck on the updated private preview, then prepare its merge decision.
+Commit and validate the MOBILE-C1 fourth feedback fix in CI, deploy the exact passing commit to private preview, then complete physical device recheck.
 
 After MOBILE-B acceptance and merge, execute the staged MOBILE-C contract: secondary-page shell, custom dialogs, custom date/time fields, then complex page migration.
 

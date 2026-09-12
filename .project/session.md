@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_C1 / THIRD_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING
+VERIFYING / MOBILE_C1 / FOURTH_FEEDBACK_FIX_LOCAL / PR_31_OPEN / CI_PENDING
 
 ## Task
 
 - ID: `MOBILE-C1 Secondary Shell and Tokens`
 - Execution: `VERIFYING`
-- Delivery: `THIRD_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING`
+- Delivery: `FOURTH_FEEDBACK_FIX_LOCAL / PR_31_OPEN / CI_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-c1-secondary-shell`
 - Base HEAD: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
@@ -29,6 +29,7 @@ VERIFYING / MOBILE_C1 / THIRD_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEV
 - 修复提交 `4ffd32d` 已推送；CI runs `34670447518`、`34670449345` 的 quality、db-validation、browser-qa 全部通过。部署前备份 `daily_assistant_preview_20260912T033240Z.sql.gz`，私有预览已切换至 `/opt/daily-assistant-preview/releases/4ffd32d0-20260912T0332Z`；API、账单深链接、构建资源、Manifest、SW、服务状态和 warning 日志检查通过。
 - 第三轮反馈仍显示旧式重叠；已核实线上 CSS 确实包含第二轮规则，判断为设备实际 CSS 视口未进入 520px 断点。现将账单筛选区、复选行、工具栏和页头强制布局扩展到完整 768px 移动端断点；完整 `npm run quality` 与差异检查通过，等待候选 CI 和预览更新。
 - 修复提交 `8c3e9e7` 的 CI runs `34670998656`、`34671001838` 全绿；部署前备份 `daily_assistant_preview_20260912T034420Z.sql.gz`，私有预览已切换至 `/opt/daily-assistant-preview/releases/8c3e9e70-20260912T0346Z`，API、账单入口、新 CSS、SW、服务状态和 warning 日志检查通过。
+- 第四轮浏览器截图确认月份原生控件仍会溢出并与类型重叠；移动端筛选现固定为单列。按用户要求，账单列表和 CSV 改为起止日期筛选，默认当月首日至当天，并保留旧 `month` API 参数兼容；删除/恢复和 CSV 类型筛选保持当前筛选上下文。专项 API 8 tests、Web build、完整 `npm run quality` 与 `git diff --check` 通过，等待提交和候选 CI。
 
 - MOBILE-A PR #29 已合入 Integration `6e1313f`，合并后 CI run `34578075462` 的 quality、db-validation、browser-qa 全部通过。
 - 已从该 Integration 基线创建独立分支 `codex/mobile-b-pwa-lifecycle`。
@@ -72,4 +73,4 @@ VERIFYING / MOBILE_C1 / THIRD_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEV
 
 ## Last Updated
 
-2026-09-12 11:50 +08:00 — MOBILE-C1 第三轮实机布局反馈修复已通过两组 CI 并部署私有预览；等待设备复验，PR #31 尚未合并。
+2026-09-12 12:11 +08:00 — MOBILE-C1 第四轮反馈修复已在本地完成并通过完整质量门禁；等待提交、CI 和私有预览更新，PR #31 尚未合并。

@@ -20,6 +20,7 @@ import {
 } from "@daily-assistant/api-contracts";
 
 const MONTH_PATTERN = /^(19|20)\d{2}-(0[1-9]|1[0-2])$/;
+const DATE_PATTERN = /^(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 const COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 const MONEY_PATTERN = /^\d+\.\d{2}$/;
 const CURRENCY_PATTERN = /^[A-Z]{3}$/;
@@ -160,6 +161,14 @@ export class ListTransactionsQueryDto {
   @IsOptional()
   @Matches(MONTH_PATTERN)
   month?: string;
+
+  @IsOptional()
+  @Matches(DATE_PATTERN)
+  startDate?: string;
+
+  @IsOptional()
+  @Matches(DATE_PATTERN)
+  endDate?: string;
 
   @IsOptional()
   @IsIn(TRANSACTION_TYPES)
@@ -334,6 +343,14 @@ export class ExportCsvQueryDto {
   @IsOptional()
   @Matches(MONTH_PATTERN)
   month?: string;
+
+  @IsOptional()
+  @Matches(DATE_PATTERN)
+  startDate?: string;
+
+  @IsOptional()
+  @Matches(DATE_PATTERN)
+  endDate?: string;
 
   @IsOptional()
   @IsIn(TRANSACTION_TYPES)
