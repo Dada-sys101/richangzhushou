@@ -178,7 +178,9 @@ test("V2 Capture 真实财务草稿确认入账且不重复", async ({ page, req
   ).toBeVisible();
 
   await page.reload();
-  await expect(page.getByRole("heading", { name: "账单" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { exact: true, name: "账单明细" }),
+  ).toBeVisible();
   await expect(page.locator("li").filter({ hasText: marker })).toHaveCount(1);
   await expect(
     page.locator("li").filter({ hasText: marker }).getByText("-¥38.50", {
