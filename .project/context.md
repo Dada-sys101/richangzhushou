@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-12 16:05 +08:00 — MOBILE-C3 PR #33 HEAD `b18b91d` is deployed to private preview with post-deployment checks passing; physical-device acceptance remains.
+2026-09-12 16:20 +08:00 — User confirmed MOBILE-C3 iPhone/Android date and time control acceptance; PR #33 is ready for an independent merge decision.
 
 ## Repository State
 
@@ -12,7 +12,7 @@
 - Verified Integration HEAD: `e4b6567e1613f37e689429bd541b0644ab4d9657`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/mobile-c3-date-time-controls`
-- Active delivery: MOBILE-C3 `VERIFYING / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
+- Active delivery: MOBILE-C3 `ACCEPTED / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / MERGE_AUTHORIZATION_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.
@@ -55,7 +55,7 @@
 
 ## Next Recommended Task
 
-Complete MOBILE-C3 date/month/date-time control acceptance on iPhone and Android, then decide whether to merge PR #33.
+Obtain authorization to merge accepted MOBILE-C3 PR #33 into Integration, then verify merged CI before starting MOBILE-C4.
 
 After MOBILE-B acceptance and merge, execute the staged MOBILE-C contract: secondary-page shell, custom dialogs, custom date/time fields, then complex page migration.
 
@@ -64,7 +64,7 @@ After MOBILE-B acceptance and merge, execute the staged MOBILE-C contract: secon
 - V1 and the V1.5 R1 foundation, AI proposal/router/provider adapter integration, offline synchronization, Web UX closure and release candidate integration are complete.
 - H7 is closed based on the recorded synthetic-data Provider evaluation; this does not authorize broader/public Provider use.
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
-- The active release is `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`; rollback release is `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`. MOBILE-C3 custom temporal controls are live in private preview pending physical-device acceptance.
+- The active release is `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`; rollback release is `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`. MOBILE-C3 custom temporal controls are live in private preview accepted on physical devices; merge authorization is pending.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
 - MOBILE-B update takeover fixes `e756c0b`/`727cb60` and MOBILE-C planning commit `d7860cd` pass required validation; private preview runs `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z` with `927dea30-20260912T0129Z` retained for rollback.
 

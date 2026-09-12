@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-12 — MOBILE-C3 实机验收通过
+
+- 用户确认 iPhone/Android 日期、月份和日期时间控件实机验收通过。
+- MOBILE-C3 状态更新为 `ACCEPTED / READY_TO_MERGE`；PR #33 尚未合并。
+
 ## 2026-09-12 — MOBILE-C3 自定义日期时间控件
 
 - 新增统一应用内日期、月份和日期时间选择器，并替换用户端原生时间字段。

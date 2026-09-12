@@ -214,4 +214,6 @@ ADR-029 的无金额上限策略不等于生产预算 enforcement。后续新功
 - 组件和 Planner 列表专项测试、Web lint/typecheck 通过；随后完成复杂详情与 AI 卡片迁移。
 - 计划详情、行程详情和 AI 草稿/操作卡片已迁移；用户端不再残留原生日期类型。完整 quality 通过：Web 31 files/137 tests、API 34 files/283 tests、contracts 5 files/151 tests、config 1 file/8 tests。
 - PR #33 HEAD `7ec404d` 已推送；E2E 已改为真实操作自定义时间选择器。CI runs `34680683732`、`34680685271` 的 quality、db-validation、browser-qa 全绿。
-- PR #33 当前 HEAD `b18b91d` 已在备份 `daily_assistant_preview_20260912T074830Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`。既有 Web Push migration 补齐成功；用户端、深链接、API、管理端、Manifest、Service Worker、新日期控件资源和启动日志检查通过，等待 iPhone/Android 实机验收。
+- PR #33 当前 HEAD `b18b91d` 已在备份 `daily_assistant_preview_20260912T074830Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`。既有 Web Push migration 补齐成功；用户端、深链接、API、管理端、Manifest、Service Worker、新日期控件资源和启动日志检查通过；用户随后确认 iPhone/Android 实机验收通过，PR #33 等待独立合并授权。
+
+- 2026-09-12 用户确认 iPhone/Android 实机日期、月份和日期时间控件验收通过；MOBILE-C3 更新为 `ACCEPTED / READY_TO_MERGE`，PR #33 合并仍需独立授权。

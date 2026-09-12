@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T16:05:00+08:00
+updatedAt: 2026-09-12T16:20:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -9,11 +9,11 @@ integrationHead: e4b6567e1613f37e689429bd541b0644ab4d9657
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-C3 Date and Time Controls
-executionStatus: VERIFYING
-deliveryStatus: DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
-currentWork: custom temporal controls replace all user-web native temporal fields; PR #33 candidate is deployed at b18b91d0-20260912T0735Z with post-deployment checks passing, pending device acceptance
+executionStatus: ACCEPTED
+deliveryStatus: DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / MERGE_AUTHORIZATION_PENDING
+currentWork: custom temporal controls replace all user-web native temporal fields; PR #33 candidate is deployed at b18b91d0-20260912T0735Z with post-deployment checks and user-confirmed iPhone/Android acceptance passing; merge authorization is pending
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Complete MOBILE-C3 physical-device date and time control acceptance
+nextCanonicalTask: Obtain authorization to merge accepted MOBILE-C3 PR #33 into Integration
 nextCanonicalTaskAfterCompletion: MOBILE-C4 complex secondary pages
 openPullRequests: [#33]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED

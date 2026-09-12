@@ -4,13 +4,13 @@
 
 ## 当前执行记录（2026-09-12）
 
-MOBILE-C2 已通过 PR #32 合入 Integration。MOBILE-C3 PR #33 HEAD `b18b91d` 的两组 CI 全绿并已部署私有预览，等待 iPhone/Android 日期、月份和日期时间控件验收。Web Push 候选保持关闭，真实送达门禁独立保留。
+MOBILE-C2 已通过 PR #32 合入 Integration。MOBILE-C3 PR #33 HEAD `b18b91d` 的两组 CI 全绿并已部署私有预览，iPhone/Android 日期、月份和日期时间控件验收已通过，等待合并授权。Web Push 候选保持关闭，真实送达门禁独立保留。
 
 | ID | 任务 | 状态 | 工作包 |
 | --- | --- | --- | --- |
 | DA-1201 | PWA 导航策略、根 Tab 历史与深链接返回 | DONE | MOBILE-A（PR #29 已合并） |
 | DA-1202 | PWA Manifest、安装、主屏启动与安全更新 | IN_PROGRESS | MOBILE-B（PR #30 / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING） |
-| DA-1203 | 应用内日期、月份和日期时间选择器 | IN_PROGRESS | MOBILE-C3（PR #33 / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING） |
+| DA-1203 | 应用内日期、月份和日期时间选择器 | IN_PROGRESS | MOBILE-C3（PR #33 / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / MERGE_AUTHORIZATION_PENDING） |
 | DA-1101 | Web Push 订阅、送达、Service Worker 与权限 UI | DONE | R1.1 PR3/PR16/PR17（真实送达为独立门禁） |
 | DA-0001 | 完成产品与功能范围 | DONE | WP0 |
 | DA-0002 | 完成页面、流程和业务规则 | DONE | WP0 |

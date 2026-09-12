@@ -2,6 +2,8 @@
 
 评估更新：2026-09-11（`Asia/Shanghai`）
 
+> 2026-09-12 MOBILE-C3 实机验收：用户确认 iPhone/Android 日期、月份和日期时间控件通过，任务更新为 `ACCEPTED / READY_TO_MERGE`；PR #33 合并仍需独立授权。
+
 > 2026-09-12 MOBILE-C3 自定义日期时间控件发布：PR #33 当前 HEAD `b18b91d` 的两组 CI 全绿。发布前备份为 `daily_assistant_preview_20260912T074830Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`，旧 release `b6208500-20260912T0627Z` 保留为回滚点。既有 Web Push migration 已补齐；用户端、日期控件资源、深链接、API、管理端、Manifest、Service Worker 和启动日志检查通过，等待物理设备验收。
 
 > 2026-09-12 MOBILE-C2 应用内弹窗发布：PR #32 HEAD `3a07d28` 已通过两组 CI，并在受保护备份 `daily_assistant_preview_20260912T060714Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/3a07d280-20260912T0608Z`。用户端、账单深链接、API 健康、Manifest、Service Worker、管理端、新构建资源和启动后 warning/error 日志复核通过；旧 release `9a991200-20260912T0415Z` 保留回滚，物理设备弹窗验收待完成。

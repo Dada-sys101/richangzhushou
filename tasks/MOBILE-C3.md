@@ -3,7 +3,7 @@
 ## Metadata
 
 - Contract: `MOBILE_C3_DATE_TIME_CONTROLS_V1`
-- Status: `VERIFYING / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
+- Status: `ACCEPTED / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / MERGE_AUTHORIZATION_PENDING`
 - Branch: `codex/mobile-c3-date-time-controls`
 - Base: Integration `e4b6567e1613f37e689429bd541b0644ab4d9657`
 - Predecessor: MOBILE-C2 `DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED`
@@ -47,4 +47,4 @@
 - PR: #33, HEAD `7ec404d`.
 - CI: runs `34680683732` and `34680685271`; quality, db-validation and browser-qa all passed.
 - Private preview deployed at `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`; backup `daily_assistant_preview_20260912T074830Z.sql.gz`; public entry, deep links, API, PWA assets and logs passed.
-- Merge remains separately unauthorized; physical-device acceptance is pending.
+- Merge remains separately unauthorized; physical-device acceptance passed; merge authorization remains pending.
