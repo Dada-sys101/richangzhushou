@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-12 13:46 +08:00 — MOBILE-C2 application dialogs are complete locally; focused tests and full quality pass, and candidate delivery authorization remains.
+2026-09-12 13:57 +08:00 — MOBILE-C2 PR #32 is open; first browser QA exposed stale native-dialog E2E steps, now updated locally with full quality passing for recheck.
 
 ## Repository State
 
@@ -12,7 +12,7 @@
 - Verified Integration HEAD: `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/mobile-c1-secondary-shell`
-- Active delivery: MOBILE-C2 `VERIFYING / DONE_LOCAL / QUALITY_PASS / DELIVERY_AUTHORIZATION_PENDING`
+- Active delivery: MOBILE-C2 `VERIFYING / DONE_PUSHED / PR_32_OPEN / BROWSER_QA_RECHECK_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.
@@ -55,7 +55,7 @@
 
 ## Next Recommended Task
 
-After authorization, create the isolated MOBILE-C2 commit and PR, then run candidate CI and private-preview acceptance.
+Push the browser E2E compatibility fix, pass both PR CI matrices, then request private-preview deployment authorization.
 
 After MOBILE-B acceptance and merge, execute the staged MOBILE-C contract: secondary-page shell, custom dialogs, custom date/time fields, then complex page migration.
 

@@ -10,12 +10,12 @@ pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-C2 App Dialogs and Feedback
 executionStatus: VERIFYING
-deliveryStatus: DONE_LOCAL / QUALITY_PASS / DELIVERY_AUTHORIZATION_PENDING
-currentWork: Accessible application confirmation foundation and all existing business window.confirm replacements pass focused and full local quality validation
+deliveryStatus: DONE_PUSHED / PR_32_OPEN / BROWSER_QA_RECHECK_PENDING
+currentWork: MOBILE-C2 candidate 4b873f5 is in PR #32; E2E navigation test has been updated for the new application dialog after the first browser-qa run retained native-dialog steps
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Deliver MOBILE-C2 candidate after authorization, then run PR CI and private-preview acceptance
+nextCanonicalTask: Pass MOBILE-C2 PR browser QA, then request private-preview deployment authorization
 nextCanonicalTaskAfterCompletion: MOBILE-C3 date and time controls
-openPullRequests: []
+openPullRequests: [PR #32]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED

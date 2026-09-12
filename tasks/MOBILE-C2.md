@@ -3,7 +3,7 @@
 ## Metadata
 
 - Contract: `MOBILE_C2_APP_DIALOGS_V1`
-- Status: `VERIFYING / DONE_LOCAL / QUALITY_PASS / DELIVERY_AUTHORIZATION_PENDING`
+- Status: `VERIFYING / PR_32_OPEN / BROWSER_QA_RECHECK_PENDING`
 - Branch: `codex/mobile-c2-app-dialogs`
 - Base: Integration `7ce7805f04ac6366b5047dc0fde365f433e4be3c`
 - Predecessor: MOBILE-C1 `DONE_INTEGRATION / CI_PASS`
