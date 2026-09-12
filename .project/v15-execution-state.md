@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T11:42:00+08:00
+updatedAt: 2026-09-12T11:50:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -10,8 +10,8 @@ pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-C1 Secondary Shell and Tokens
 executionStatus: VERIFYING
-deliveryStatus: THIRD_FEEDBACK_FIX_DONE_LOCAL / PR_31_OPEN / QUALITY_PASS / PREVIEW_UPDATE_PENDING
-currentWork: MOBILE-C1 third feedback fix expands forced transaction layout through the 768px mobile breakpoint; local quality passes and candidate CI remains
+deliveryStatus: THIRD_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING
+currentWork: MOBILE-C1 third feedback fix 8c3e9e7 passes both CI matrices and is deployed to private preview; physical device recheck remains
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
 nextCanonicalTask: Complete MOBILE-C1 physical visual acceptance
 nextCanonicalTaskAfterCompletion: MOBILE-C2 app dialogs and feedback
