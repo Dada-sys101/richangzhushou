@@ -3,7 +3,8 @@ import { computed, ref } from "vue";
 
 import { useAuthStore } from "../stores/auth";
 import { useSyncStore } from "../stores/sync";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import SectionCard from "../components/SectionCard.vue";
 
 const auth = useAuthStore();
 const sync = useSyncStore();
@@ -30,54 +31,61 @@ async function choose(mutationId: string, choice: "local" | "server") {
 </script>
 
 <template>
-  <section class="finance-page" aria-labelledby="conflicts-title">
-    <PageHeader title="冲突处理" title-id="conflicts-title" subtitle="同步" />
-
+  <SecondaryPageShell
+    title="冲突处理"
+    title-id="conflicts-title"
+    subtitle="同步"
+  >
     <p v-if="actionMessage" class="form-success" role="status">
       {{ actionMessage }}
     </p>
-    <p v-if="conflicts.length === 0" class="empty-copy">
-      当前没有待处理的冲突。
-    </p>
-    <ul v-else class="conflict-list">
-      <li
-        v-for="conflict in conflicts"
-        :key="conflict.id"
-        class="conflict-card"
-      >
-        <div class="conflict-head">
-          <strong>{{ conflict.entityType }} · {{ conflict.action }}</strong>
-          <small>{{ conflict.errorMessage }}</small>
-        </div>
-        <div class="conflict-grid">
-          <div class="conflict-pane">
-            <h2>本地内容</h2>
-            <pre>{{ JSON.stringify(conflict.payload, null, 2) }}</pre>
+    <SectionCard
+      title="待处理内容"
+      description="选择保留本地修改或服务端当前内容。"
+    >
+      <p v-if="conflicts.length === 0" class="empty-copy">
+        当前没有待处理的冲突。
+      </p>
+      <ul v-else class="conflict-list">
+        <li
+          v-for="conflict in conflicts"
+          :key="conflict.id"
+          class="conflict-card"
+        >
+          <div class="conflict-head">
+            <strong>{{ conflict.entityType }} · {{ conflict.action }}</strong>
+            <small>{{ conflict.errorMessage }}</small>
           </div>
-          <div class="conflict-pane">
-            <h2>服务端当前</h2>
-            <pre>{{
-              JSON.stringify(conflict.current?.data ?? {}, null, 2)
-            }}</pre>
+          <div class="conflict-grid">
+            <div class="conflict-pane">
+              <h2>本地内容</h2>
+              <pre>{{ JSON.stringify(conflict.payload, null, 2) }}</pre>
+            </div>
+            <div class="conflict-pane">
+              <h2>服务端当前</h2>
+              <pre>{{
+                JSON.stringify(conflict.current?.data ?? {}, null, 2)
+              }}</pre>
+            </div>
           </div>
-        </div>
-        <div class="conflict-actions">
-          <button
-            class="primary-button"
-            type="button"
-            @click="choose(conflict.id, 'local')"
-          >
-            保留本地
-          </button>
-          <button
-            class="secondary-button"
-            type="button"
-            @click="choose(conflict.id, 'server')"
-          >
-            保留服务端
-          </button>
-        </div>
-      </li>
-    </ul>
-  </section>
+          <div class="conflict-actions">
+            <button
+              class="primary-button"
+              type="button"
+              @click="choose(conflict.id, 'local')"
+            >
+              保留本地
+            </button>
+            <button
+              class="secondary-button"
+              type="button"
+              @click="choose(conflict.id, 'server')"
+            >
+              保留服务端
+            </button>
+          </div>
+        </li>
+      </ul>
+    </SectionCard>
+  </SecondaryPageShell>
 </template>

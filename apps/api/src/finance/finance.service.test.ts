@@ -37,6 +37,40 @@ function transactionRow(overrides: Partial<Transaction> = {}): Transaction {
 }
 
 describe("FinanceService business rules", () => {
+  it("filters transactions by inclusive Shanghai date range", async () => {
+    const findMany = vi.fn().mockResolvedValue([]);
+    const service = createService({ transaction: { findMany } });
+
+    await service.listTransactions("user_1", {
+      endDate: "2026-09-12",
+      startDate: "2026-09-01",
+    });
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          occurredAt: {
+            gte: new Date("2026-08-31T16:00:00.000Z"),
+            lt: new Date("2026-09-12T16:00:00.000Z"),
+          },
+        }),
+      }),
+    );
+  });
+
+  it("rejects a reversed transaction date range", async () => {
+    const findMany = vi.fn();
+    const service = createService({ transaction: { findMany } });
+
+    await expect(
+      service.listTransactions("user_1", {
+        endDate: "2026-09-01",
+        startDate: "2026-09-12",
+      }),
+    ).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
+    expect(findMany).not.toHaveBeenCalled();
+  });
+
   it("QA-FIN-002: rejects a refund without an original or unlinked marker", async () => {
     const prisma = {
       transaction: {

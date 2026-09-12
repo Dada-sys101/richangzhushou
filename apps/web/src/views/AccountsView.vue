@@ -2,7 +2,8 @@
 import { computed, onMounted, ref } from "vue";
 
 import { ApiClientError } from "../api/client";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import SectionCard from "../components/SectionCard.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
@@ -65,26 +66,33 @@ function messageOf(error: unknown): string {
 </script>
 
 <template>
-  <section class="finance-page" aria-labelledby="accounts-title">
-    <PageHeader title="资金账户" title-id="accounts-title" subtitle="设置" />
-
-    <form class="inline-create" @submit.prevent="createAccount">
-      <select v-model="newKind">
-        <option value="CASH">现金</option>
-        <option value="DEBIT_CARD">储蓄卡</option>
-        <option value="CREDIT_CARD">信用卡</option>
-        <option value="DIGITAL_WALLET">电子钱包</option>
-        <option value="OTHER">其他</option>
-      </select>
-      <input
-        v-model="newName"
-        maxlength="40"
-        placeholder="新账户名称"
-        required
-        type="text"
-      />
-      <button class="primary-button" type="submit">新增</button>
-    </form>
+  <SecondaryPageShell
+    title="资金账户"
+    title-id="accounts-title"
+    subtitle="设置"
+  >
+    <SectionCard
+      title="新增账户"
+      description="为账单选择常用的付款或收款账户。"
+    >
+      <form class="inline-create" @submit.prevent="createAccount">
+        <select v-model="newKind">
+          <option value="CASH">现金</option>
+          <option value="DEBIT_CARD">储蓄卡</option>
+          <option value="CREDIT_CARD">信用卡</option>
+          <option value="DIGITAL_WALLET">电子钱包</option>
+          <option value="OTHER">其他</option>
+        </select>
+        <input
+          v-model="newName"
+          maxlength="40"
+          placeholder="新账户名称"
+          required
+          type="text"
+        />
+        <button class="primary-button" type="submit">新增</button>
+      </form>
+    </SectionCard>
 
     <p v-if="finance.errorMessage" class="form-error" role="alert">
       {{ finance.errorMessage }}
@@ -93,43 +101,46 @@ function messageOf(error: unknown): string {
       {{ errorMessage }}
     </p>
 
-    <ul class="resource-list">
-      <li
-        v-for="item in finance.accounts.filter((a) => !a.isArchived)"
-        :key="item.id"
-      >
-        <span class="account-kind">{{
-          accountKindLabels[item.kind] ?? item.kind
-        }}</span>
-        <span>{{ item.name }}</span>
-        <button
-          class="text-button danger"
-          type="button"
-          @click="toggleArchive(item.id, item.isArchived, item.version)"
+    <SectionCard title="使用中的账户">
+      <ul class="resource-list">
+        <li
+          v-for="item in finance.accounts.filter((a) => !a.isArchived)"
+          :key="item.id"
         >
-          归档
-        </button>
-      </li>
-    </ul>
+          <span class="account-kind">{{
+            accountKindLabels[item.kind] ?? item.kind
+          }}</span>
+          <span>{{ item.name }}</span>
+          <button
+            class="text-button danger"
+            type="button"
+            @click="toggleArchive(item.id, item.isArchived, item.version)"
+          >
+            归档
+          </button>
+        </li>
+      </ul>
+    </SectionCard>
 
-    <h2>已归档</h2>
-    <ul class="resource-list">
-      <li
-        v-for="item in finance.accounts.filter((a) => a.isArchived)"
-        :key="item.id"
-      >
-        <span class="account-kind">{{
-          accountKindLabels[item.kind] ?? item.kind
-        }}</span>
-        <span>{{ item.name }}</span>
-        <button
-          class="text-button"
-          type="button"
-          @click="toggleArchive(item.id, item.isArchived, item.version)"
+    <SectionCard title="已归档" tone="muted">
+      <ul class="resource-list">
+        <li
+          v-for="item in finance.accounts.filter((a) => a.isArchived)"
+          :key="item.id"
         >
-          恢复
-        </button>
-      </li>
-    </ul>
-  </section>
+          <span class="account-kind">{{
+            accountKindLabels[item.kind] ?? item.kind
+          }}</span>
+          <span>{{ item.name }}</span>
+          <button
+            class="text-button"
+            type="button"
+            @click="toggleArchive(item.id, item.isArchived, item.version)"
+          >
+            恢复
+          </button>
+        </li>
+      </ul>
+    </SectionCard>
+  </SecondaryPageShell>
 </template>

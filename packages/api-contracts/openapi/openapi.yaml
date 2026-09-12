@@ -207,6 +207,8 @@ paths:
         - $ref: "#/components/parameters/Cursor"
         - $ref: "#/components/parameters/Limit"
         - $ref: "#/components/parameters/Month"
+        - $ref: "#/components/parameters/StartDate"
+        - $ref: "#/components/parameters/EndDate"
         - $ref: "#/components/parameters/TransactionTypeQuery"
         - $ref: "#/components/parameters/CategoryId"
         - $ref: "#/components/parameters/AccountId"
@@ -510,6 +512,8 @@ paths:
         deterministic attachment filename.
       parameters:
         - $ref: "#/components/parameters/Month"
+        - $ref: "#/components/parameters/StartDate"
+        - $ref: "#/components/parameters/EndDate"
         - $ref: "#/components/parameters/TransactionTypeQuery"
       responses:
         "200":
@@ -2024,6 +2028,16 @@ components:
       in: query
       required: false
       schema: { $ref: "#/components/schemas/Month" }
+    StartDate:
+      name: startDate
+      in: query
+      required: false
+      schema: { type: string, format: date }
+    EndDate:
+      name: endDate
+      in: query
+      required: false
+      schema: { type: string, format: date }
     TransactionTypeQuery:
       name: type
       in: query

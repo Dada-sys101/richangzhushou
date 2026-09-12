@@ -74,12 +74,7 @@ export class FinanceService {
       ...(query.type ? { type: query.type } : {}),
       ...(query.categoryId ? { categoryId: query.categoryId } : {}),
       ...(query.accountId ? { accountId: query.accountId } : {}),
-      ...(query.month
-        ? (() => {
-            const bounds = this.monthRange(query.month);
-            return { occurredAt: { gte: bounds.start, lt: bounds.end } };
-          })()
-        : {}),
+      ...this.transactionDateFilter(query),
     };
     const rows = await this.prisma.transaction.findMany({
       cursor: query.cursor ? { id: query.cursor } : undefined,
@@ -866,12 +861,7 @@ export class FinanceService {
       deletedAt: null,
       status: "CONFIRMED",
       userId,
-      ...(query.month
-        ? (() => {
-            const bounds = this.monthRange(query.month);
-            return { occurredAt: { gte: bounds.start, lt: bounds.end } };
-          })()
-        : {}),
+      ...this.transactionDateFilter(query),
       ...(query.type ? { type: query.type } : {}),
     };
     const rows = await this.prisma.transaction.findMany({
@@ -928,8 +918,12 @@ export class FinanceService {
     );
     const content =
       "\uFEFF" + [header.map(csvEscape).join(","), ...lines].join("\r\n");
-    const filename = query.month
-      ? `daily-assistant-transactions-${query.month}.csv`
+    const rangeName =
+      query.startDate && query.endDate
+        ? `${query.startDate}-${query.endDate}`
+        : query.month;
+    const filename = rangeName
+      ? `daily-assistant-transactions-${rangeName}.csv`
       : "daily-assistant-transactions-all.csv";
     return { content, filename };
   }
@@ -995,6 +989,37 @@ export class FinanceService {
 
   private monthRange(month: string): { start: Date; end: Date } {
     return monthBounds(month);
+  }
+
+  private transactionDateFilter(query: {
+    endDate?: string;
+    month?: string;
+    startDate?: string;
+  }): Prisma.TransactionWhereInput {
+    if (query.startDate || query.endDate) {
+      const start = query.startDate
+        ? dayBounds(query.startDate).start
+        : undefined;
+      const end = query.endDate ? dayBounds(query.endDate).end : undefined;
+      if (start && end && start >= end) {
+        throw new ApiException(
+          "VALIDATION_ERROR",
+          400,
+          "开始日期不能晚于结束日期",
+        );
+      }
+      return {
+        occurredAt: {
+          ...(start ? { gte: start } : {}),
+          ...(end ? { lt: end } : {}),
+        },
+      };
+    }
+    if (query.month) {
+      const bounds = this.monthRange(query.month);
+      return { occurredAt: { gte: bounds.start, lt: bounds.end } };
+    }
+    return {};
   }
 
   private normalizeCreateInput(

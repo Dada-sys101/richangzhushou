@@ -2,17 +2,17 @@
 
 ## Last Updated
 
-2026-09-12 10:15 +08:00 — MOBILE-B is accepted with two deferred non-blocking PWA limitations; PR #30 merge authorization is pending before MOBILE-C1.
+2026-09-12 12:19 +08:00 — MOBILE-C1 fourth feedback fix `9a99120` passes both CI matrices and is deployed to private preview; device recheck remains.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `6e1313fd58da8d4fc34fc7912b579571a21a9ebe`
+- Verified Integration HEAD: `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
 - Active worktree: `D:\daily-assistant`
-- Active branch: `codex/mobile-b-pwa-lifecycle`
-- Active delivery: MOBILE-B `ACCEPTED_WITH_DEFERRED_LIMITATIONS / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING`
+- Active branch: `codex/mobile-c1-secondary-shell`
+- Active delivery: MOBILE-C1 `FOURTH_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.
@@ -30,7 +30,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `MOBILE-B PWA Lifecycle and Installation Experience / ACCEPTED_WITH_DEFERRED_LIMITATIONS / MERGE_PENDING`.
+- Current canonical task: `MOBILE-C1 Secondary Shell and Tokens / VERIFYING`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -55,7 +55,7 @@
 
 ## Next Recommended Task
 
-Obtain the independent merge decision for PR #30; after merged Integration CI passes, start MOBILE-C1 from the clean Integration baseline.
+Complete MOBILE-C1 physical device recheck on the updated private preview, then prepare its merge decision.
 
 After MOBILE-B acceptance and merge, execute the staged MOBILE-C contract: secondary-page shell, custom dialogs, custom date/time fields, then complex page migration.
 

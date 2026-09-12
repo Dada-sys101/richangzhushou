@@ -2,9 +2,11 @@
 
 ## Metadata
 
-- Contract: `MOBILE_C_SECONDARY_UI_V1_DRAFT`
-- Status: `DRAFT / BLOCKED_BY_PR_30_MERGE`
-- Predecessor: MOBILE-B `ACCEPTED_WITH_DEFERRED_LIMITATIONS / PR_30_OPEN`
+- Contract: `MOBILE_C_SECONDARY_UI_V1`
+- Status: `MOBILE_C1_FOURTH_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING`
+- Branch: `codex/mobile-c1-secondary-shell`
+- Base: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
+- Predecessor: MOBILE-B `DONE_INTEGRATION / ACCEPTED_WITH_DEFERRED_LIMITATIONS`
 - Delivery model: 每个阶段独立提交、独立 PR 验证；不得形成一次性全站重写。
 
 ## Objective
@@ -27,6 +29,13 @@
 - 建立 `SecondaryPageShell`、`SectionCard`、`FormActions` 等共享壳组件。
 - 收敛间距、圆角、字号、阴影、分隔线、安全区和触控尺寸变量。
 - 先迁移 `AccountsView`、`CategoriesView`、`BudgetsView`、`SyncConflictsView`、`ChangePasswordView` 验证基础模式。
+- Allowed files: the three shared shell components and their tests, the five named views, `apps/web/src/styles.css`, and required task/state documentation.
+- Excluded: other views, router/navigation policy, stores, API, database, Service Worker, dialogs and date/time control replacement.
+- 实机反馈修复：移动端二级页标题取消错误的粘性偏移；预算内容改为纵向布局；窄屏表单、资源行和操作按钮允许安全换行，避免内容遮挡和按钮重叠。
+- 第二轮实机反馈：账单筛选区在窄屏改为两列字段加独立复选行，操作按钮等宽排列；公共返回操作扩大触控区并增加与标题的间距。
+- 第三轮实机反馈：确认线上已包含规则后，将账单筛选和工具栏强制布局断点由 520px 扩展至完整移动端 768px，覆盖 standalone WebView 与系统显示缩放产生的宽视口。
+- 第四轮实机反馈扩展：账单筛选在 768px 及以下固定为单列，彻底避免原生控件溢出；账单列表与 CSV 导出由单月改为起止日期筛选，默认当月首日至当天，保留旧 `month` 查询参数兼容性。预算月份仍是预算周期，不属于列表筛选。
+- 本扩展经用户明确要求，允许修改账单页面、finance store/client、Finance API DTO/service/test 和 OpenAPI；不修改数据库、同步算法、路由、Service Worker 或其他业务页面。
 
 ### MOBILE-C2 — App dialogs and feedback
 

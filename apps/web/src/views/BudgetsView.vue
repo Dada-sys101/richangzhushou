@@ -2,7 +2,8 @@
 import { computed, onMounted, ref, watch } from "vue";
 
 import { ApiClientError } from "../api/client";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import SectionCard from "../components/SectionCard.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
@@ -103,37 +104,40 @@ function messageOf(error: unknown): string {
 </script>
 
 <template>
-  <section class="finance-page" aria-labelledby="budgets-title">
-    <PageHeader title="月度预算" title-id="budgets-title" subtitle="预算">
-      <template #actions>
-        <label>
-          月份
-          <input v-model="month" type="month" />
-        </label>
-      </template>
-    </PageHeader>
+  <SecondaryPageShell title="月度预算" title-id="budgets-title" subtitle="预算">
+    <template #actions>
+      <label class="secondary-page-filter">
+        月份
+        <input v-model="month" type="month" />
+      </label>
+    </template>
 
-    <form class="inline-create" @submit.prevent="createBudget">
-      <select v-model="categoryId">
-        <option value="">整体预算</option>
-        <option
-          v-for="item in expenseCategories()"
-          :key="item.id"
-          :value="item.id"
-        >
-          {{ item.name }}
-        </option>
-      </select>
-      <input
-        v-model="amount"
-        inputmode="decimal"
-        placeholder="预算金额，如 1000.00"
-        required
-        step="0.01"
-        type="text"
-      />
-      <button class="primary-button" type="submit">新增预算</button>
-    </form>
+    <SectionCard
+      title="设置预算"
+      description="可设置整体预算或单独控制某个支出分类。"
+    >
+      <form class="inline-create" @submit.prevent="createBudget">
+        <select v-model="categoryId">
+          <option value="">整体预算</option>
+          <option
+            v-for="item in expenseCategories()"
+            :key="item.id"
+            :value="item.id"
+          >
+            {{ item.name }}
+          </option>
+        </select>
+        <input
+          v-model="amount"
+          inputmode="decimal"
+          placeholder="预算金额，如 1000.00"
+          required
+          step="0.01"
+          type="text"
+        />
+        <button class="primary-button" type="submit">新增预算</button>
+      </form>
+    </SectionCard>
 
     <p v-if="finance.errorMessage" class="form-error" role="alert">
       {{ finance.errorMessage }}
@@ -142,60 +146,64 @@ function messageOf(error: unknown): string {
       {{ errorMessage }}
     </p>
 
-    <p v-if="budgetsForMonth().length === 0" class="empty-copy">
-      本月还没有预算，先设置一个整体预算吧。
-    </p>
-    <ul v-else class="resource-list budget-list">
-      <li v-for="item in budgetsForMonth()" :key="item.id">
-        <div class="budget-line">
-          <strong>
-            {{ categoryName(item.categoryId) }}
-          </strong>
-          <span>
-            {{ money(progressOf(item.id)?.spent ?? "0.00") }} /
-            {{ money(item.amount) }}
-          </span>
-          <span
-            class="budget-ratio"
-            :class="{ over: Number(progressOf(item.id)?.progress ?? 0) > 1 }"
-          >
-            {{ percent(progressOf(item.id)?.progress ?? "0.00") }}
-          </span>
-        </div>
-        <div class="progress-track" aria-hidden="true">
-          <div
-            class="progress-fill"
-            :style="{ width: widthOf(progressOf(item.id)?.progress ?? '0.00') }"
-          ></div>
-        </div>
-        <div class="budget-actions">
-          <label class="inline-amount">
-            金额
-            <input
-              :value="item.amount"
-              inputmode="decimal"
-              step="0.01"
-              type="text"
-              @change="
-                updateAmount(
-                  item.id,
-                  item.version,
-                  ($event.target as HTMLInputElement).value,
-                )
-              "
-            />
-          </label>
-          <button
-            class="text-button danger"
-            type="button"
-            @click="removeBudget(item.id)"
-          >
-            删除
-          </button>
-        </div>
-      </li>
-    </ul>
-  </section>
+    <SectionCard title="本月预算">
+      <p v-if="budgetsForMonth().length === 0" class="empty-copy">
+        本月还没有预算，先设置一个整体预算吧。
+      </p>
+      <ul v-else class="resource-list budget-list">
+        <li v-for="item in budgetsForMonth()" :key="item.id">
+          <div class="budget-line">
+            <strong>
+              {{ categoryName(item.categoryId) }}
+            </strong>
+            <span>
+              {{ money(progressOf(item.id)?.spent ?? "0.00") }} /
+              {{ money(item.amount) }}
+            </span>
+            <span
+              class="budget-ratio"
+              :class="{ over: Number(progressOf(item.id)?.progress ?? 0) > 1 }"
+            >
+              {{ percent(progressOf(item.id)?.progress ?? "0.00") }}
+            </span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div
+              class="progress-fill"
+              :style="{
+                width: widthOf(progressOf(item.id)?.progress ?? '0.00'),
+              }"
+            ></div>
+          </div>
+          <div class="budget-actions">
+            <label class="inline-amount">
+              金额
+              <input
+                :value="item.amount"
+                inputmode="decimal"
+                step="0.01"
+                type="text"
+                @change="
+                  updateAmount(
+                    item.id,
+                    item.version,
+                    ($event.target as HTMLInputElement).value,
+                  )
+                "
+              />
+            </label>
+            <button
+              class="text-button danger"
+              type="button"
+              @click="removeBudget(item.id)"
+            >
+              删除
+            </button>
+          </div>
+        </li>
+      </ul>
+    </SectionCard>
+  </SecondaryPageShell>
 </template>
 
 <script lang="ts">

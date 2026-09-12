@@ -11,7 +11,10 @@ import { appendReturnTo, useOptionalRoute } from "../utils/navigation";
 const auth = useAuthStore();
 const finance = useFinanceStore();
 const route = useOptionalRoute();
-const month = ref(currentMonth());
+const { startDate: initialStartDate, endDate: initialEndDate } =
+  currentMonthRange();
+const startDate = ref(initialStartDate);
+const endDate = ref(initialEndDate);
 const type = ref<"" | "EXPENSE" | "INCOME" | "REFUND">("");
 const includeDeleted = ref(false);
 const actionError = ref("");
@@ -29,7 +32,7 @@ onMounted(() => {
   }
 });
 
-watch([month, type, includeDeleted], () => {
+watch([startDate, endDate, type, includeDeleted], () => {
   void reload();
 });
 
@@ -37,7 +40,8 @@ async function reload() {
   actionError.value = "";
   await finance.loadTransactions({
     includeDeleted: includeDeleted.value || undefined,
-    month: month.value || undefined,
+    startDate: startDate.value || undefined,
+    endDate: endDate.value || undefined,
     type: type.value || undefined,
   });
 }
@@ -63,7 +67,11 @@ async function restore(id: string) {
 async function downloadCsv() {
   actionError.value = "";
   try {
-    await finance.exportCsv(month.value || undefined);
+    await finance.exportCsv({
+      startDate: startDate.value || undefined,
+      endDate: endDate.value || undefined,
+      type: type.value || undefined,
+    });
   } catch (error) {
     actionError.value = messageOf(error);
   }
@@ -86,8 +94,20 @@ function withTransactionsSource(path: string) {
       <template #actions>
         <div class="filters">
           <label>
-            月份
-            <input v-model="month" type="month" />
+            开始日期
+            <input
+              v-model="startDate"
+              :max="endDate || undefined"
+              type="date"
+            />
+          </label>
+          <label>
+            结束日期
+            <input
+              v-model="endDate"
+              :min="startDate || undefined"
+              type="date"
+            />
           </label>
           <label>
             类型
@@ -174,9 +194,10 @@ function withTransactionsSource(path: string) {
 <script lang="ts">
 import type { TransactionSummary } from "../api/client";
 
-function currentMonth(): string {
+function currentMonthRange(): { startDate: string; endDate: string } {
   const now = new Date();
   const parts = new Intl.DateTimeFormat("en-CA", {
+    day: "2-digit",
     month: "2-digit",
     timeZone: "Asia/Shanghai",
     year: "numeric",
@@ -184,7 +205,13 @@ function currentMonth(): string {
   const byType = Object.fromEntries(
     parts.map((part) => [part.type, part.value]),
   );
-  return `${byType.year ?? "2026"}-${byType.month ?? "01"}`;
+  const year = byType.year ?? "2026";
+  const month = byType.month ?? "01";
+  const day = byType.day ?? "01";
+  return {
+    startDate: `${year}-${month}-01`,
+    endDate: `${year}-${month}-${day}`,
+  };
 }
 
 function typeLabel(type: string): string {

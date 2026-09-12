@@ -2,20 +2,35 @@
 
 ## Session Status
 
-ACCEPTED_WITH_DEFERRED_LIMITATIONS / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING
+VERIFYING / MOBILE_C1 / FOURTH_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING
 
 ## Task
 
-- ID: `MOBILE-B PWA Lifecycle and Installation Experience`
-- Execution: `ACCEPTED_WITH_DEFERRED_LIMITATIONS`
-- Delivery: `DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING`
+- ID: `MOBILE-C1 Secondary Shell and Tokens`
+- Execution: `VERIFYING`
+- Delivery: `FOURTH_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING`
 - Worktree: `D:\daily-assistant`
-- Branch: `codex/mobile-b-pwa-lifecycle`
-- Base HEAD: Integration `6e1313fd58da8d4fc34fc7912b579571a21a9ebe`
-- Scope: PWA 图标与 Manifest、克制的安装引导、安装模式识别、安全更新提示及主屏启动体验。
-- Excluded: 导航重构、AI、同步算法、API、数据库、Push、视觉重做和原生封装。
+- Branch: `codex/mobile-c1-secondary-shell`
+- Base HEAD: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
+- Scope: 二级页面共享壳、分区卡片、表单操作区、样式变量，以及首批五个页面迁移。
+- Excluded: 路由/返回策略、业务 store、API、数据库、SW、Push、弹窗和日期时间控件。
 
 ## Current Progress
+
+- MOBILE-B PR #30 已合并为 Integration `5d6c5c5`，合并后 CI run `34667321147` 全绿。
+- 已建立 `SecondaryPageShell`、`SectionCard`、`FormActions` 和组件测试。
+- `AccountsView`、`CategoriesView`、`BudgetsView`、`SyncConflictsView`、`ChangePasswordView` 已迁移到统一页面壳和内容分区。
+- 完整 `npm run quality` 与 `git diff --check` 通过：Web 28 files/132 tests、API 34 files/281 tests；五档浏览器矩阵待远端候选 CI 验证。
+- 提交 `91c4fed` 已推送并创建 PR #31；CI runs `34667896982`、`34667898608` 的 quality、db-validation、browser-qa 全部通过。
+- 部署前备份 `daily_assistant_preview_20260912T023810Z.sql.gz`；功能提交已部署到 `/opt/daily-assistant-preview/releases/91c4fed0-20260912T0238Z`，入口、API 健康、Manifest、SW、五个页面深链接、资源与日志检查通过。
+- 实机反馈发现移动端页头遮挡及窄屏按钮重叠；已取消错误的 `64px` 粘性页头偏移，修正预算纵向布局，并为表单、资源行和操作区增加安全换行。完整 `npm run quality` 与 `git diff --check` 通过，等待提交、候选 CI 和私有预览更新。
+- 修复提交 `32c44e0` 已推送；CI runs `34669502403`、`34669504808` 的 quality、db-validation、browser-qa 全部通过。部署前备份 `daily_assistant_preview_20260912T031203Z.sql.gz`，私有预览已切换到 `/opt/daily-assistant-preview/releases/32c44e00-20260912T0313Z`；入口、API、Manifest、SW、五个深链接、构建资源和 warning 日志检查通过。
+- 第二轮截图反馈显示账单筛选区仍重叠且返回操作离标题过近；已将 520px 以下筛选区改为月份/类型两列和独立复选行，按钮等宽排列，并扩大公共返回触控区及标题间距。完整 `npm run quality` 与 `git diff --check` 通过，等待候选 CI 和私有预览更新。
+- 修复提交 `4ffd32d` 已推送；CI runs `34670447518`、`34670449345` 的 quality、db-validation、browser-qa 全部通过。部署前备份 `daily_assistant_preview_20260912T033240Z.sql.gz`，私有预览已切换至 `/opt/daily-assistant-preview/releases/4ffd32d0-20260912T0332Z`；API、账单深链接、构建资源、Manifest、SW、服务状态和 warning 日志检查通过。
+- 第三轮反馈仍显示旧式重叠；已核实线上 CSS 确实包含第二轮规则，判断为设备实际 CSS 视口未进入 520px 断点。现将账单筛选区、复选行、工具栏和页头强制布局扩展到完整 768px 移动端断点；完整 `npm run quality` 与差异检查通过，等待候选 CI 和预览更新。
+- 修复提交 `8c3e9e7` 的 CI runs `34670998656`、`34671001838` 全绿；部署前备份 `daily_assistant_preview_20260912T034420Z.sql.gz`，私有预览已切换至 `/opt/daily-assistant-preview/releases/8c3e9e70-20260912T0346Z`，API、账单入口、新 CSS、SW、服务状态和 warning 日志检查通过。
+- 第四轮浏览器截图确认月份原生控件仍会溢出并与类型重叠；移动端筛选现固定为单列。按用户要求，账单列表和 CSV 改为起止日期筛选，默认当月首日至当天，并保留旧 `month` API 参数兼容；删除/恢复和 CSV 类型筛选保持当前筛选上下文。专项 API 8 tests、Web build、完整 `npm run quality` 与 `git diff --check` 通过，等待提交和候选 CI。
+- 第四轮修复提交 `9a99120` 已推送；CI runs `34672356593`、`34672358704` 的 quality、db-validation、browser-qa 全部通过。部署前备份 `daily_assistant_preview_20260912T041524Z.sql.gz`，私有预览已切换至 `/opt/daily-assistant-preview/releases/9a991200-20260912T0415Z`；API、账单入口、新资源、Manifest、SW、服务状态和 warning/error 日志检查通过。
 
 - MOBILE-A PR #29 已合入 Integration `6e1313f`，合并后 CI run `34578075462` 的 quality、db-validation、browser-qa 全部通过。
 - 已从该 Integration 基线创建独立分支 `codex/mobile-b-pwa-lifecycle`。
@@ -37,9 +52,9 @@ ACCEPTED_WITH_DEFERRED_LIMITATIONS / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PA
 
 ## Remaining Work
 
-1. 获得独立授权后合并 PR #30，并核验合并后 Integration CI。
-2. 从合并后的 Integration 创建 MOBILE-C1 独立分支并冻结实施契约。
-3. 延后处理两个不阻塞使用的限制：旧安装实例更新按钮仍可能失效；iOS 系统边缘手势不能由 PWA 完全关闭。
+1. 完成 iPhone/Android 五个二级页面的视觉、滚动、返回和键盘验收。
+2. 验收通过后单独决定 PR #31 合并。
+3. 不自动进入 MOBILE-C2。
 
 ## Previous Task Record
 
@@ -59,4 +74,4 @@ ACCEPTED_WITH_DEFERRED_LIMITATIONS / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PA
 
 ## Last Updated
 
-2026-09-12 10:15 +08:00 — 用户接受将更新按钮和 iOS 根页面边缘手势作为非阻塞已知限制暂时搁置；MOBILE-B 等待 PR #30 独立合并授权，MOBILE-C1 等待合并基线。
+2026-09-12 12:19 +08:00 — MOBILE-C1 第四轮反馈修复已通过两组 CI 并部署私有预览；等待设备复验，PR #31 尚未合并。
