@@ -70,7 +70,7 @@ function initializeLifecycle() {
     };
     window.addEventListener("pageshow", checkForUpdate);
     document.addEventListener("visibilitychange", checkForUpdate);
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
+    navigator.serviceWorker.addEventListener?.("controllerchange", () => {
       if (!updateApplying.value) {
         needRefresh.value = true;
       }
