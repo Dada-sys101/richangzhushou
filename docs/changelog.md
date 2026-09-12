@@ -746,3 +746,8 @@
 
 - 用户明确决定取消独立 Staging 资源建设；REL-02 更新为 `CANCELLED / SEPARATE_STAGING_WAIVED`，不新增云资源或费用。
 - 现有 Alibaba 私有预览作为验证环境，canonical task 转为 `REL-03 Private Preview Readiness / READY`。公网、生产、Provider 扩展与未来扩容仍需独立门禁，并在届时重新评估独立 Staging。
+## 2026-09-12 — MOBILE-C2 应用内弹窗与反馈
+
+- MOBILE-C1 PR #31 已合并为 Integration `7ce7805`，合并后 CI `34675913987` 全绿。
+- 新增可访问的应用内弹窗、确认服务、操作表和 Toast 基础组件；将现存业务 `window.confirm` 替换为统一中文确认，保留浏览器关闭标签页时的平台 `beforeunload` 安全提示。
+- 焦点进入/恢复、Tab 约束、Escape、滚动锁定和并发确认服务均有专项测试；完整 quality 与差异检查通过，尚未提交、推送、创建 PR 或部署。

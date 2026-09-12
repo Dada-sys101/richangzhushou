@@ -12,6 +12,7 @@ import {
 } from "../api/client";
 import PageHeader from "../components/PageHeader.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
+import { requestAppConfirm } from "../composables/useAppConfirm";
 import { usePlannerStore } from "../stores/planner";
 import type { PlannerEntity } from "../utils/navigation";
 import {
@@ -408,9 +409,12 @@ async function deleteCurrent(confirmBefore = true) {
   }
   if (
     confirmBefore &&
-    !window.confirm(
-      `确定删除${entityLabel.value}“${current.title}”吗？删除后仍可恢复。`,
-    )
+    !(await requestAppConfirm({
+      confirmLabel: "删除",
+      description: `确定删除${entityLabel.value}“${current.title}”吗？删除后仍可恢复。`,
+      destructive: true,
+      title: `删除${entityLabel.value}？`,
+    }))
   ) {
     return;
   }

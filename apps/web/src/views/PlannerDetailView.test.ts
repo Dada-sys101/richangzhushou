@@ -15,6 +15,7 @@ import {
   type ReminderSummary,
   type TaskSummary,
 } from "../api/client";
+import * as AppConfirm from "../composables/useAppConfirm";
 import { usePlannerStore } from "../stores/planner";
 import PlannerDetailView from "./PlannerDetailView.vue";
 
@@ -151,6 +152,7 @@ function findButton(wrapper: ReturnType<typeof mount>, label: string) {
 describe("PlannerDetailView", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(AppConfirm, "requestAppConfirm").mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -215,7 +217,6 @@ describe("PlannerDetailView", () => {
     expect(complete).toHaveBeenCalledWith("task-1");
     expect(wrapper.text()).toContain("已完成");
 
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
     await findButton(wrapper, "删除").trigger("click");
     await flushPromises();
     expect(remove).toHaveBeenCalledWith("task-1");
@@ -239,18 +240,21 @@ describe("PlannerDetailView", () => {
     const { planner, wrapper } = await mountDetail("/tasks/task-1");
     planner.tasks = [initial];
     const remove = vi.spyOn(planner, "deleteTask").mockResolvedValue(deleted);
-    const confirm = vi.fn().mockReturnValue(false);
-    vi.stubGlobal("confirm", confirm);
+    const confirm = vi
+      .mocked(AppConfirm.requestAppConfirm)
+      .mockResolvedValueOnce(false);
 
     await findButton(wrapper, "删除").trigger("click");
     await flushPromises();
     expect(confirm).toHaveBeenCalledWith(
-      "确定删除待办“整理发票”吗？删除后仍可恢复。",
+      expect.objectContaining({
+        description: "确定删除待办“整理发票”吗？删除后仍可恢复。",
+      }),
     );
     expect(remove).not.toHaveBeenCalled();
     expect(wrapper.text()).not.toContain("已删除，可恢复");
 
-    confirm.mockReturnValue(true);
+    confirm.mockResolvedValueOnce(true);
     await findButton(wrapper, "删除").trigger("click");
     await flushPromises();
     expect(remove).toHaveBeenCalledWith("task-1");
@@ -337,7 +341,6 @@ describe("PlannerDetailView", () => {
     const restore = vi
       .spyOn(planner, "restoreCalendarEvent")
       .mockResolvedValue(restored);
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
 
     await findButton(wrapper, "编辑").trigger("click");
     await wrapper.find("input[required]").setValue("更新后的评审");
@@ -408,7 +411,6 @@ describe("PlannerDetailView", () => {
     const restore = vi
       .spyOn(planner, "restoreReminder")
       .mockResolvedValue(restored);
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
 
     await findButton(wrapper, "编辑").trigger("click");
     await wrapper.find("input[required]").setValue("更新后的提醒");
@@ -463,22 +465,21 @@ describe("PlannerDetailView", () => {
     vi.spyOn(api, "getTask").mockResolvedValue(initial);
     const first = await mountDetail("/tasks/task-1");
     await findButton(first.wrapper, "编辑").trigger("click");
-    const confirm = vi.fn().mockReturnValue(false);
-    vi.stubGlobal("confirm", confirm);
+    const confirm = vi.mocked(AppConfirm.requestAppConfirm);
     await first.router.push("/plan");
     expect(confirm).not.toHaveBeenCalled();
     expect(first.router.currentRoute.value.fullPath).toBe("/plan");
 
     vi.restoreAllMocks();
-    vi.stubGlobal("confirm", confirm);
+    vi.spyOn(AppConfirm, "requestAppConfirm").mockResolvedValue(false);
     vi.spyOn(api, "getTask").mockResolvedValue(initial);
     const second = await mountDetail("/tasks/task-1");
     await findButton(second.wrapper, "编辑").trigger("click");
     await second.wrapper.find("input[required]").setValue("已修改");
     await second.router.push("/plan");
-    expect(confirm).toHaveBeenCalledOnce();
+    expect(AppConfirm.requestAppConfirm).toHaveBeenCalledOnce();
     expect(second.router.currentRoute.value.fullPath).toBe("/tasks/task-1");
-    confirm.mockReturnValue(true);
+    vi.mocked(AppConfirm.requestAppConfirm).mockResolvedValueOnce(true);
     await second.router.push("/plan");
     expect(second.router.currentRoute.value.fullPath).toBe("/plan");
   });

@@ -14,6 +14,7 @@ import {
   type ReminderSummary,
   type TaskSummary,
 } from "../api/client";
+import * as AppConfirm from "../composables/useAppConfirm";
 import CalendarView from "./CalendarView.vue";
 import RemindersView from "./RemindersView.vue";
 import TasksView from "./TasksView.vue";
@@ -124,6 +125,7 @@ function deleteButton(wrapper: ReturnType<typeof mount>) {
 describe("planner list delete confirmation", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(AppConfirm, "requestAppConfirm").mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -140,16 +142,20 @@ describe("planner list delete confirmation", () => {
       },
     );
     const remove = vi.spyOn(planner, "deleteTask");
-    const confirm = vi.fn().mockReturnValue(false);
-    vi.stubGlobal("confirm", confirm);
+    const confirm = vi
+      .mocked(AppConfirm.requestAppConfirm)
+      .mockResolvedValueOnce(false);
 
     await deleteButton(wrapper).trigger("click");
     expect(confirm).toHaveBeenCalledWith(
-      "确定删除待办“整理发票”吗？删除后仍可在“显示已删除”中恢复。",
+      expect.objectContaining({
+        description:
+          "确定删除待办“整理发票”吗？删除后仍可在“显示已删除”中恢复。",
+      }),
     );
     expect(remove).not.toHaveBeenCalled();
 
-    confirm.mockReturnValue(true);
+    confirm.mockResolvedValueOnce(true);
     remove.mockResolvedValue(task({ deletedAt: "2026-08-29T01:00:00.000Z" }));
     await deleteButton(wrapper).trigger("click");
     await flushPromises();
@@ -166,16 +172,20 @@ describe("planner list delete confirmation", () => {
       },
     );
     const remove = vi.spyOn(planner, "deleteCalendarEvent");
-    const confirm = vi.fn().mockReturnValue(false);
-    vi.stubGlobal("confirm", confirm);
+    const confirm = vi
+      .mocked(AppConfirm.requestAppConfirm)
+      .mockResolvedValueOnce(false);
 
     await deleteButton(wrapper).trigger("click");
     expect(confirm).toHaveBeenCalledWith(
-      "确定删除日程“产品评审”吗？删除后仍可在“显示已删除”中恢复。",
+      expect.objectContaining({
+        description:
+          "确定删除日程“产品评审”吗？删除后仍可在“显示已删除”中恢复。",
+      }),
     );
     expect(remove).not.toHaveBeenCalled();
 
-    confirm.mockReturnValue(true);
+    confirm.mockResolvedValueOnce(true);
     remove.mockResolvedValue(
       calendarEvent({ deletedAt: "2026-08-29T01:00:00.000Z" }),
     );
@@ -194,16 +204,20 @@ describe("planner list delete confirmation", () => {
       },
     );
     const remove = vi.spyOn(planner, "deleteReminder");
-    const confirm = vi.fn().mockReturnValue(false);
-    vi.stubGlobal("confirm", confirm);
+    const confirm = vi
+      .mocked(AppConfirm.requestAppConfirm)
+      .mockResolvedValueOnce(false);
 
     await deleteButton(wrapper).trigger("click");
     expect(confirm).toHaveBeenCalledWith(
-      "确定删除提醒“提交报销”吗？删除后仍可在“显示已删除”中恢复。",
+      expect.objectContaining({
+        description:
+          "确定删除提醒“提交报销”吗？删除后仍可在“显示已删除”中恢复。",
+      }),
     );
     expect(remove).not.toHaveBeenCalled();
 
-    confirm.mockReturnValue(true);
+    confirm.mockResolvedValueOnce(true);
     remove.mockResolvedValue(
       reminder({ deletedAt: "2026-08-29T01:00:00.000Z" }),
     );

@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { reactive } from "vue";
 
 import { ApiClientError, api, type AiProposalDetail } from "../api/client";
+import * as AppConfirm from "../composables/useAppConfirm";
 import { useAiStore } from "../stores/ai";
 import ProposalReviewView from "./ProposalReviewView.vue";
 
@@ -94,6 +95,7 @@ afterEach(() => {
 describe("ProposalReviewView", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(AppConfirm, "requestAppConfirm").mockResolvedValue(true);
     pushMock.mockReset();
     routeMock.params.proposalId = "proposal_1";
     vi.spyOn(api, "getAiProposal");
@@ -229,7 +231,6 @@ describe("ProposalReviewView", () => {
     const wrapper = mountReview(pinia);
     await flushPromises();
 
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     await wrapper.find("button.reject-proposal-button").trigger("click");
     await flushPromises();
 

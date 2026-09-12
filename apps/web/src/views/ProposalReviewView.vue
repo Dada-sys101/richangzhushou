@@ -5,6 +5,7 @@ import { RouterLink, useRoute } from "vue-router";
 import type { AiOperation, AiProposalDetail } from "../api/client";
 import AiOperationCard from "../components/AiOperationCard.vue";
 import PageHeader from "../components/PageHeader.vue";
+import { requestAppConfirm } from "../composables/useAppConfirm";
 import { useAiStore, type AiProposalLoadMode } from "../stores/ai";
 import { appendReturnTo } from "../utils/navigation";
 
@@ -196,7 +197,14 @@ async function rejectProposal() {
   ) {
     return;
   }
-  if (!window.confirm("确定要拒绝整个 Proposal 吗？此操作不可撤销。")) {
+  if (
+    !(await requestAppConfirm({
+      confirmLabel: "拒绝",
+      description: "确定要拒绝整个方案吗？此操作不可撤销。",
+      destructive: true,
+      title: "拒绝整个方案？",
+    }))
+  ) {
     return;
   }
   if (

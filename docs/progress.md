@@ -196,3 +196,9 @@ ADR-029 的无金额上限策略不等于生产预算 enforcement。后续新功
 - `/api/v1/health` 仅为 liveness，认证后的 `/api/v1/admin/health` 检查数据库；REL-01 D7 已将非敏感 readiness/受控运维组合归入 REL-03，故不作为 REL-02 前置条件。当前私有预览已有启动前数据库检查、liveness 和真实业务 smoke 组合证据。
 - 用户已明确批准 H1/H2 对本次 R1 advancement 豁免；H1/H2 保持 `WAIVED_FOR_R1 / UNVERIFIED`，不记为真机通过。R1 Quality Gate 更新为 `APPROVED / DONE`。
 - 用户明确决定不建设独立 Staging；REL-02 为 `CANCELLED / SEPARATE_STAGING_WAIVED`，现有 Alibaba 私有预览作为验证环境。当前转入 `REL-03 Private Preview Readiness / READY`；公网 DNS/HTTPS/CORS、Provider 扩展、REL-04 和生产发布分别保留在其适用门禁。
+## 2026-09-12 — MOBILE-C2 应用内弹窗与反馈（VERIFYING / DONE_LOCAL / QUALITY_PASS）
+
+- MOBILE-C1 PR #31 已合并为 Integration `7ce7805`，合并后 CI run `34675913987` 三项全绿。
+- 从该基线创建独立分支 `codex/mobile-c2-app-dialogs` 与任务契约 `tasks/MOBILE-C2.md`。
+- 已建立应用内弹窗、确认服务、操作表和 Toast 基础组件，并替换日程、待办、提醒、计划详情、Proposal 拒绝和未保存内容离开的业务原生确认框。
+- 专项组件/确认服务 3 tests、受影响页面 59 tests、完整 quality 与差异检查通过；Web 总计 30 files/135 tests。当前等待独立提交、推送和 PR 授权，五档浏览器检查由候选 CI 和预览验收完成。

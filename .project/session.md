@@ -2,20 +2,26 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_C1 / FOURTH_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING
+VERIFYING / MOBILE_C2 / DONE_LOCAL / QUALITY_PASS / DELIVERY_AUTHORIZATION_PENDING
 
 ## Task
 
-- ID: `MOBILE-C1 Secondary Shell and Tokens`
+- ID: `MOBILE-C2 App Dialogs and Feedback`
 - Execution: `VERIFYING`
-- Delivery: `FOURTH_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING`
+- Delivery: `DONE_LOCAL / QUALITY_PASS / DELIVERY_AUTHORIZATION_PENDING`
 - Worktree: `D:\daily-assistant`
-- Branch: `codex/mobile-c1-secondary-shell`
-- Base HEAD: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
-- Scope: 二级页面共享壳、分区卡片、表单操作区、样式变量，以及首批五个页面迁移。
-- Excluded: 路由/返回策略、业务 store、API、数据库、SW、Push、弹窗和日期时间控件。
+- Branch: `codex/mobile-c2-app-dialogs`
+- Base HEAD: Integration `7ce7805f04ac6366b5047dc0fde365f433e4be3c`
+- Scope: 应用内弹窗、确认服务、操作表、Toast 基础组件，以及现有业务原生确认框替换。
+- Excluded: 路由/返回策略、业务 store、API、数据库、SW、Push 和日期时间控件。
 
 ## Current Progress
+
+- MOBILE-C1 PR #31 已合并为 Integration `7ce7805`，合并后 CI run `34675913987` 的 quality、db-validation、browser-qa 全部通过。
+- 已从该 Integration 基线创建 `codex/mobile-c2-app-dialogs`，任务契约见 `tasks/MOBILE-C2.md`。
+- 已实现全局 Promise 确认服务、`AppDialog`、`ConfirmDialog`、`ActionSheet`、`ToastMessage` 和宿主；日程、待办、提醒、计划详情、Proposal 拒绝及未保存离开已切换为应用内中文确认。
+- 弹窗支持焦点进入/恢复、Tab 约束、Escape、背景滚动锁定和移动端安全区；专项测试与完整门禁待完成。
+- 专项组件/确认服务 2 files/3 tests、受影响页面 3 files/59 tests 通过；完整 `npm run quality` 与 `git diff --check` 通过，Web 总计 30 files/135 tests。当前等待独立提交、推送和 PR 授权。
 
 - MOBILE-B PR #30 已合并为 Integration `5d6c5c5`，合并后 CI run `34667321147` 全绿。
 - 已建立 `SecondaryPageShell`、`SectionCard`、`FormActions` 和组件测试。
@@ -74,4 +80,4 @@ VERIFYING / MOBILE_C1 / FOURTH_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DE
 
 ## Last Updated
 
-2026-09-12 12:19 +08:00 — MOBILE-C1 第四轮反馈修复已通过两组 CI 并部署私有预览；等待设备复验，PR #31 尚未合并。
+2026-09-12 13:46 +08:00 — MOBILE-C2 本地实现与完整质量门禁通过；等待提交、推送和 PR 授权。
