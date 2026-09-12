@@ -1,5 +1,18 @@
 # 项目进度（派生摘要）
 
+## 2026-09-11 — MOBILE-B PWA 生命周期（PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING）
+
+- 增加 180/192/512/maskable 图标和完整中文 standalone Manifest。
+- 将安装入口从同步徽标移至“我的”：Android 调用原生安装提示，iPhone 展示中文添加到主屏幕步骤，并识别已安装模式。
+- Service Worker 改为用户确认更新；检测到新版本时提供“稍后/更新”，存在未保存表单或同步活动时暂缓刷新。
+- 完整 `npm run quality` 通过：Web 25 files/129 tests、API 34 files/281 tests，构建、Prisma、OpenAPI、migration diff 与依赖审计通过。
+- 提交 `4d86f90` 已推送至 PR #30，两组 CI 矩阵全绿；私有预览已部署 `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z` 并通过入口、健康、静态资源与日志检查，等待 iPhone/Android 安装版生命周期验收。
+- 根据实机反馈增加页面恢复前台时的版本检查，并让退出后重新登录返回首页；提交 `aebc257` 的两组 CI 最终全绿，修复版已部署至 `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z` 并通过部署后复检。
+- 第二轮反馈修复 `927dea3` 为更新按钮增加“更新中”和中文失败反馈，重新获取 Service Worker registration，并在 iOS 未触发 controllerchange 时兜底刷新；计划中心默认明确选中当天。本地完整 quality 与两组 CI 全绿，已部署 release `927dea30-20260912T0129Z`，部署后检查通过。
+- `d7860cd` 新增 MOBILE-C 草案，将二级页面整理、统一弹窗、日期时间控件和复杂页面迁移拆成四阶段；MOBILE-B 验收前不启动实施。
+- 用户于 2026-09-12 接受将旧安装实例更新按钮仍不完全可靠、iOS 根页面系统边缘手势无法完全关闭作为非阻塞已知限制暂时搁置；MOBILE-B 进入 `ACCEPTED_WITH_DEFERRED_LIMITATIONS`，等待 PR #30 独立合并授权后再启动 MOBILE-C1。
+- `e756c0b`/`727cb60` 让新 Worker 后台接管、用户按钮只负责安全刷新，并兼容精简 Service Worker 接口；首次 CI 暴露并修复测试桩兼容问题，最终两组 CI 全绿，release `727cb600-20260912T0203Z` 部署检查通过。根页面增加横向过度滚动抑制，下级页面返回历史不变。
+
 ## 2026-09-11 — MOBILE-A 导航与移动端壳（ACCEPTED / READY_TO_MERGE）
 
 - 建立统一 Navigation Policy，根 Tab 使用 replace，业务列表/详情保留 Browser History；`returnTo` 只表达直接父级并过滤外部或递归值。

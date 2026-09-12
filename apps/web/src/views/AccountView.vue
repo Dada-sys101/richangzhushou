@@ -7,9 +7,11 @@ import AppIcon from "../components/AppIcon.vue";
 import AssistantMark from "../components/AssistantMark.vue";
 import PageHeader from "../components/PageHeader.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
+import { usePwaLifecycle } from "../composables/usePwaLifecycle";
 import { useAuthStore } from "../stores/auth";
 
 const auth = useAuthStore();
+const pwa = usePwaLifecycle();
 const router = useRouter();
 const password = ref("");
 const reason = ref("");
@@ -28,7 +30,7 @@ const { allowNavigation } = useUnsavedChanges(
 async function logout() {
   allowNavigation();
   await auth.logout();
-  await router.replace("/login");
+  await router.replace({ name: "login", query: { redirect: "/" } });
 }
 
 async function submit() {
@@ -113,6 +115,48 @@ async function submit() {
           ><span><strong>同步状态</strong><small>待同步与冲突记录</small></span
           ><AppIcon name="chevron-right" :size="16"
         /></RouterLink>
+      </div>
+    </section>
+    <section class="account-group" aria-labelledby="app-settings-title">
+      <p class="section-label">应用</p>
+      <h2 id="app-settings-title" class="visually-hidden">应用设置</h2>
+      <div class="settings-list">
+        <button
+          v-if="pwa.canInstall.value"
+          class="settings-row settings-button"
+          type="button"
+          @click="pwa.install"
+        >
+          <span class="settings-icon is-blue"
+            ><AppIcon name="download" :size="16"
+          /></span>
+          <span
+            ><strong>添加到主屏幕</strong
+            ><small>{{
+              pwa.ios.value
+                ? "按 Safari 步骤安装，打开更方便"
+                : "安装为独立应用，打开更方便"
+            }}</small></span
+          >
+          <AppIcon name="chevron-right" :size="16" />
+        </button>
+        <div v-else-if="pwa.standalone.value" class="settings-row">
+          <span class="settings-icon is-blue"
+            ><AppIcon name="check" :size="16"
+          /></span>
+          <span
+            ><strong>主屏幕应用</strong><small>当前已使用应用模式</small></span
+          >
+        </div>
+        <div v-else class="settings-row">
+          <span class="settings-icon is-blue"
+            ><AppIcon name="home" :size="16"
+          /></span>
+          <span
+            ><strong>浏览器模式</strong
+            ><small>当前浏览器暂未提供安装入口</small></span
+          >
+        </div>
       </div>
     </section>
     <section

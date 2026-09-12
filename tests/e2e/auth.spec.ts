@@ -83,12 +83,25 @@ test.describe("用户端认证", () => {
       .click();
     await page.getByLabel("当前密码").fill(E2E_ACTIVE_PASSWORD);
     await page.getByRole("button", { name: "退出登录" }).click();
-    await page.waitForURL("**/login");
+    await page.waitForURL("**/login?redirect=/");
     await expect(
       page.getByRole("heading", { name: "登录日常助手" }),
     ).toBeVisible();
     await expect(page.getByLabel("账号")).toBeVisible();
     await expect(page.getByLabel("密码")).toBeVisible();
+    await page.getByLabel("账号").fill(username);
+    await page.getByLabel("密码").fill(E2E_ACTIVE_PASSWORD);
+    await page.getByRole("button", { name: "登录", exact: true }).click();
+    await page.waitForURL(/\/$/);
+    await expect(page.locator("#home-title")).toBeVisible();
+
+    await page.goto("/account");
+    await page
+      .locator("details.account-danger-details")
+      .locator("summary")
+      .click();
+    await page.getByRole("button", { name: "退出登录" }).click();
+    await page.waitForURL("**/login?redirect=/");
     await page.goto("/transactions");
     await expect(page).toHaveURL(/\/login/);
     await page.reload();

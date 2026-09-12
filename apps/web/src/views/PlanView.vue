@@ -90,6 +90,10 @@ async function loadPlan() {
 
 function setRange(next: Range) {
   range.value = next;
+  if (next === "TODAY") {
+    selectedDate.value = todayInShanghai();
+    displayMode.value = "DAY";
+  }
   syncQuery();
 }
 function selectDate(date: string) {
@@ -212,7 +216,10 @@ function readRange(value: unknown): Range {
       <button
         v-for="date in dateRail"
         :key="date"
-        :class="{ active: selectedDate === date && range === 'DATE' }"
+        :class="{
+          active:
+            selectedDate === date && (range === 'DATE' || range === 'TODAY'),
+        }"
         type="button"
         @click="selectDate(date)"
       >

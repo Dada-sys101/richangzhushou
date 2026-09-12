@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed } from "vue";
 import { RouterLink } from "vue-router";
 
 import { useAuthStore } from "../stores/auth";
@@ -7,7 +7,6 @@ import { useSyncStore } from "../stores/sync";
 
 const auth = useAuthStore();
 const sync = useSyncStore();
-const installPrompt = ref<{ prompt: () => Promise<void> } | null>(null);
 
 const label = computed(() => {
   if (sync.syncing) {
@@ -36,47 +35,10 @@ const lastSyncLabel = computed(() => {
     timeZone: "Asia/Shanghai",
   }).format(new Date(sync.lastSyncedAt));
 });
-
-onMounted(() => {
-  window.addEventListener("beforeinstallprompt", handleInstallPrompt);
-  window.addEventListener("appinstalled", handleInstalled);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
-  window.removeEventListener("appinstalled", handleInstalled);
-});
-
-function handleInstallPrompt(event: Event) {
-  event.preventDefault();
-  installPrompt.value = event as unknown as {
-    prompt: () => Promise<void>;
-  };
-}
-
-function handleInstalled() {
-  installPrompt.value = null;
-}
-
-async function install() {
-  if (!installPrompt.value) {
-    return;
-  }
-  await installPrompt.value.prompt();
-  installPrompt.value = null;
-}
 </script>
 
 <template>
   <div class="sync-area">
-    <button
-      v-if="installPrompt"
-      class="install-button"
-      type="button"
-      @click="install"
-    >
-      安装应用
-    </button>
     <div
       v-if="auth.isAuthenticated"
       class="sync-badge"

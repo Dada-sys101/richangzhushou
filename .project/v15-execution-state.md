@@ -1,47 +1,54 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-11T16:07:00+08:00
+updatedAt: 2026-09-12T10:15:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: be9d89927aa39abe867e1df5594588bafda3b8cc
+integrationHead: 6e1313fd58da8d4fc34fc7912b579571a21a9ebe
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: MOBILE-A PWA Navigation and Mobile Shell
-executionStatus: ACCEPTED
-deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
-currentWork: MOBILE-A automated, iPhone, Android and signed-out cache acceptance passed; PR #29 remains open and requires independent merge authorization before MOBILE-B starts from Integration
+currentTask: MOBILE-B PWA Lifecycle and Installation Experience
+executionStatus: ACCEPTED_WITH_DEFERRED_LIMITATIONS
+deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING
+currentWork: MOBILE-B is accepted with two non-blocking deferred limitations; PR #30 merge authorization is required before MOBILE-C1 starts from Integration
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Merge accepted MOBILE-A PR #29 after explicit authorization, then start MOBILE-B PWA lifecycle and installation experience
+nextCanonicalTask: Merge accepted MOBILE-B PR #30 after independent authorization
 nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
-openPullRequests: []
+openPullRequests: [PR #30]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-A signed-out cache isolation fix `fa0ee53`, deployed at `/opt/daily-assistant-preview/releases/fa0ee530-20260911T0738Z`; previous `77718a00-20260911T0713Z` remains the rollback release.
+- Active release: MOBILE-B update-takeover commit `727cb60`, deployed at `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z`; previous `927dea30-20260912T0129Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
 - H1/H2: `WAIVED_FOR_R1 / UNVERIFIED` by explicit user approval on 2026-09-08; never treat this as physical-device pass evidence, and reassess before public support claims.
 - Remaining gate: R1 Quality Gate is `APPROVED / DONE`; REL-02 requires independent resource/fee authorization. Non-sensitive readiness belongs to REL-03 under the approved REL-01 D7 boundary; public DNS/HTTPS/CORS validation belongs to the later public-entry gate. Local daily backup with 7-day cleanup is configured, and live AI is retained by explicit user decision for the private preview.
-- Local worktree: contains 15 uncommitted governance/evidence Markdown changes; deployed source is the clean Integration merge and excludes these local documentation changes.
+- MOBILE-B feedback-fix backup: `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260911T094516Z.sql.gz`.
 
 ## Active Task
 
-- id: MOBILE-A
-- displayName: PWA navigation and mobile shell
-- branch: codex/mobile-a-navigation-shell
-- baseHead: Integration be9d89927aa39abe867e1df5594588bafda3b8cc
-- contract: tasks/MOBILE-A.md (`MOBILE_A_NAVIGATION_SHELL_V1`)
-- implementation: centralized navigation policy; root-tab replace semantics; one-level sanitized returnTo; direct-entry Browser History fallback; shared header/back controls
-- validation: full quality PASS; signed-out cache unit tests 12/12 PASS; push/PR quality, MySQL 8.4 and browser-qa matrices PASS; browser QA verifies logout, protected-route redirect and reload remain on the login page without app navigation; target Node 24/npm 11.18 sequential build, backup, database-aware health, public root, Chinese invalid-login response and error-log checks PASS
-- remaining: PR #29 merge authorization and Integration landing verification
-- executionStatus: ACCEPTED
-- deliveryStatus: DONE_PUSHED / PR_29_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / READY_TO_MERGE
+- id: MOBILE-B
+- displayName: PWA lifecycle and installation experience
+- branch: codex/mobile-b-pwa-lifecycle
+- baseHead: Integration 6e1313fd58da8d4fc34fc7912b579571a21a9ebe
+- contract: tasks/MOBILE-B.md (`MOBILE_B_PWA_LIFECYCLE_V1`)
+- implementation: complete Manifest/icons; Android install prompt; iPhone add-to-home guide; standalone detection; safe user-controlled Service Worker updates
+- validation: full quality PASS; Web 25 files/129 tests, API 34 files/281 tests; generated Manifest/icon dimensions and SKIP_WAITING handler verified
+- commit: 4d86f9086f9db68897d08e044bddb1fe8a7b30de
+- delivery: PR #30 open; CI runs `34580364107` and `34580381945` passed quality, db-validation and browser-qa; private preview deployment and entry-point checks passed
+- feedbackFix: `927dea3` adds visible update progress/error and an iOS reload fallback; plan center defaults to a visibly selected current date
+- successorDraft: `d7860cd` adds tasks/MOBILE-C.md for staged secondary-page, dialog and date/time control refinement; it remains blocked by MOBILE-B acceptance
+- feedbackValidation: CI runs `34664717946` and `34664718882` passed quality, db-validation and browser-qa; private-preview entry, API health, Manifest, Service Worker, asset and logs passed
+- updateTakeover: commits `e756c0b` and `727cb60`; CI runs `34666350469` and `34666354055` pass all jobs; deployed Worker contains skipWaiting and clientsClaim, while reload remains guarded by user action
+- deferredLimitations: legacy installed-client update action remains imperfect; iOS system edge navigation on root pages cannot be fully disabled by PWA code
+- remaining: PR #30 merge remains separately gated; after merged Integration CI passes, start MOBILE-C1
+- executionStatus: ACCEPTED_WITH_DEFERRED_LIMITATIONS
+- deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING
 
 ## Previous Canonical Task
 
