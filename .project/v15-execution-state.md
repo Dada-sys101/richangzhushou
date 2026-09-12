@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T00:00:00+08:00
+updatedAt: 2026-09-12T09:35:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -10,8 +10,8 @@ pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-B PWA Lifecycle and Installation Experience
 executionStatus: VERIFYING
-deliveryStatus: FEEDBACK_FIX_COMMITTED / PUSH_PENDING / PR_30_OPEN / CI_PENDING / DEPLOY_PENDING / DEVICE_ACCEPTANCE_PENDING
-currentWork: MOBILE-B second feedback fixes are committed and pass local quality; push, CI, private-preview deployment and physical installed-device update acceptance remain
+deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
+currentWork: MOBILE-B second feedback fixes pass local quality and two CI matrices and are deployed to private preview; physical installed-device update acceptance remains
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
 nextCanonicalTask: Complete MOBILE-B physical installed-PWA lifecycle acceptance
 nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
@@ -22,7 +22,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-B feedback-fix commit `aebc257`, deployed at `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z`; previous `4d86f900-20260911T0846Z` remains the rollback release.
+- Active release: MOBILE-B second feedback-fix commit `927dea3`, deployed at `/opt/daily-assistant-preview/releases/927dea30-20260912T0129Z`; previous `aebc2570-20260911T0946Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
@@ -43,9 +43,10 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - delivery: PR #30 open; CI runs `34580364107` and `34580381945` passed quality, db-validation and browser-qa; private preview deployment and entry-point checks passed
 - feedbackFix: `927dea3` adds visible update progress/error and an iOS reload fallback; plan center defaults to a visibly selected current date
 - successorDraft: `d7860cd` adds tasks/MOBILE-C.md for staged secondary-page, dialog and date/time control refinement; it remains blocked by MOBILE-B acceptance
-- remaining: push and CI, private-preview deployment, then physical iPhone/Android installed lifecycle acceptance; merge remains separately gated
+- feedbackValidation: CI runs `34664717946` and `34664718882` passed quality, db-validation and browser-qa; private-preview entry, API health, Manifest, Service Worker, asset and logs passed
+- remaining: physical iPhone/Android installed lifecycle acceptance; merge remains separately gated
 - executionStatus: VERIFYING
-- deliveryStatus: FEEDBACK_FIX_COMMITTED / PUSH_PENDING / PR_30_OPEN / CI_PENDING / DEPLOY_PENDING / DEVICE_ACCEPTANCE_PENDING
+- deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
 
 ## Previous Canonical Task
 

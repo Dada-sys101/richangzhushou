@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_B / FEEDBACK_FIX_COMMITTED / PR_30_OPEN / CI_PENDING / PRIVATE_PREVIEW_PREVIOUS_RELEASE / DEVICE_ACCEPTANCE_PENDING
+VERIFYING / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
 
 ## Task
 
 - ID: `MOBILE-B PWA Lifecycle and Installation Experience`
 - Execution: `VERIFYING`
-- Delivery: `FEEDBACK_FIX_COMMITTED / PUSH_PENDING / PR_30_OPEN / CI_PENDING / DEPLOY_PENDING / DEVICE_ACCEPTANCE_PENDING`
+- Delivery: `DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-b-pwa-lifecycle`
 - Base HEAD: Integration `6e1313fd58da8d4fc34fc7912b579571a21a9ebe`
@@ -30,13 +30,13 @@ VERIFYING / MOBILE_B / FEEDBACK_FIX_COMMITTED / PR_30_OPEN / CI_PENDING / PRIVAT
 - 实机反馈修复最终提交 `aebc257` 已通过两组 CI，并部署至 `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z`；旧版本 `4d86f900-20260911T0846Z` 保留回滚。
 - 第二轮反馈修复提交 `927dea3`：更新按钮增加执行中与中文失败状态，重新获取 waiting worker，并为 iOS 增加受控刷新兜底；计划中心“今天”默认高亮并在切回今天时重置当天。
 - `d7860cd` 新增 MOBILE-C 草案，将二级页面壳、统一弹窗、日期时间选择器和复杂页面迁移分为四个独立阶段；不改变 MOBILE-B canonical task。
-- 本轮完整 `npm run quality` 与 `git diff --check` 通过：Web 26 files/130 tests、API 34 files/281 tests；等待推送后的 CI 与私有预览部署。
+- 本轮完整 `npm run quality` 与 `git diff --check` 通过：Web 26 files/130 tests、API 34 files/281 tests；两组 CI runs `34664717946`、`34664718882` 全绿。
+- 功能提交 `927dea3` 已部署至 `/opt/daily-assistant-preview/releases/927dea30-20260912T0129Z`；备份、公开入口、API 健康、Manifest、Service Worker、新构建资源与日志检查通过。
 
 ## Remaining Work
 
-1. 推送 `927dea3`、`d7860cd` 及状态提交，等待 PR #30 CI 全绿后部署私有预览。
-2. 在 iPhone Safari/PWA 与 Android Chrome/PWA 验证更新按钮、安装和主屏启动。
-3. 实机通过后更新状态并申请 PR #30 的独立合并授权。
+1. 在 iPhone Safari/PWA 与 Android Chrome/PWA 验证更新按钮、安装和主屏启动。
+2. 实机通过后更新状态并申请 PR #30 的独立合并授权。
 
 ## Previous Task Record
 
@@ -56,4 +56,4 @@ VERIFYING / MOBILE_B / FEEDBACK_FIX_COMMITTED / PR_30_OPEN / CI_PENDING / PRIVAT
 
 ## Last Updated
 
-2026-09-12 00:00 +08:00 — MOBILE-B 第二轮反馈修复与 MOBILE-C 分阶段规划已提交，本地完整质量通过；等待推送、CI、私有预览部署与实机验收，PR #30 尚未合并。
+2026-09-12 09:35 +08:00 — MOBILE-B 第二轮反馈修复已推送、两组 CI 全绿并部署私有预览；等待更新按钮与当天选择的实机验收，PR #30 尚未合并。
