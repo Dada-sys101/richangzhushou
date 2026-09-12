@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-12 11:08 +08:00 — MOBILE-C1 device feedback remediation for obstruction and button overlap passes local quality; candidate CI and preview update remain.
+2026-09-12 11:21 +08:00 — MOBILE-C1 layout feedback fix `32c44e0` passes both CI matrices and is deployed to private preview; device recheck remains.
 
 ## Repository State
 
@@ -12,7 +12,7 @@
 - Verified Integration HEAD: `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/mobile-c1-secondary-shell`
-- Active delivery: MOBILE-C1 `FEEDBACK_FIX_DONE_LOCAL / PR_31_OPEN / QUALITY_PASS / PREVIEW_UPDATE_PENDING`
+- Active delivery: MOBILE-C1 `FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.
@@ -55,7 +55,7 @@
 
 ## Next Recommended Task
 
-Push the MOBILE-C1 layout feedback fix, pass candidate CI, update the private preview, then resume physical visual acceptance.
+Complete MOBILE-C1 physical device recheck on the updated private preview, then prepare its merge decision.
 
 After MOBILE-B acceptance and merge, execute the staged MOBILE-C contract: secondary-page shell, custom dialogs, custom date/time fields, then complex page migration.
 
