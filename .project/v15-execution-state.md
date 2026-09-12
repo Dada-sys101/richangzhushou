@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T14:04:00+08:00
+updatedAt: 2026-09-12T14:16:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -10,10 +10,10 @@ pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-C2 App Dialogs and Feedback
 executionStatus: VERIFYING
-deliveryStatus: DONE_PUSHED / PR_32_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYMENT_AUTHORIZATION_PENDING
-currentWork: MOBILE-C2 candidate 999426f is in PR #32; push run 34676910173 and PR run 34676911672 passed quality, db-validation and browser-qa
+deliveryStatus: DONE_PUSHED / PR_32_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
+currentWork: MOBILE-C2 PR #32 head 3a07d28 is deployed; device feedback exposed a transparent bottom-aligned confirm panel, and a centered opaque high-contrast CSS correction is DONE_LOCAL with quality passing
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Obtain authorization to deploy MOBILE-C2 PR #32 candidate 999426f to private preview
+nextCanonicalTask: Obtain commit, push and private-preview redeployment authorization for the MOBILE-C2 dialog visibility correction; then repeat device acceptance
 nextCanonicalTaskAfterCompletion: MOBILE-C3 date and time controls
 openPullRequests: [PR #32]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
@@ -22,7 +22,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-B update-takeover commit `727cb60`, deployed at `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z`; previous `927dea30-20260912T0129Z` remains the rollback release.
+- Active release: MOBILE-C2 PR #32 head `3a07d28`, deployed at `/opt/daily-assistant-preview/releases/3a07d280-20260912T0608Z`; previous `9a991200-20260912T0415Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.

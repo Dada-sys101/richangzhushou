@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-12 14:04 +08:00 — MOBILE-C2 PR #32 candidate `999426f` passed push and PR CI; private-preview deployment requires separate authorization.
+2026-09-12 14:23 +08:00 — MOBILE-C2 device feedback found a transparent bottom-aligned dialog; the centered opaque high-contrast correction is complete locally and passes quality, pending Git delivery and redeployment authorization.
 
 ## Repository State
 
@@ -12,7 +12,7 @@
 - Verified Integration HEAD: `7ce7805f04ac6366b5047dc0fde365f433e4be3c`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/mobile-c2-app-dialogs`
-- Active delivery: MOBILE-C2 `VERIFYING / DONE_PUSHED / PR_32_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYMENT_AUTHORIZATION_PENDING`
+- Active delivery: MOBILE-C2 `VERIFYING / FEEDBACK_FIX_DONE_LOCAL / QUALITY_PASS / GIT_AND_REDEPLOY_AUTHORIZATION_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.

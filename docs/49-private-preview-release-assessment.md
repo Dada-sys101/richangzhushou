@@ -2,6 +2,8 @@
 
 评估更新：2026-09-11（`Asia/Shanghai`）
 
+> 2026-09-12 MOBILE-C2 应用内弹窗发布：PR #32 HEAD `3a07d28` 已通过两组 CI，并在受保护备份 `daily_assistant_preview_20260912T060714Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/3a07d280-20260912T0608Z`。用户端、账单深链接、API 健康、Manifest、Service Worker、管理端、新构建资源和启动后 warning/error 日志复核通过；旧 release `9a991200-20260912T0415Z` 保留回滚，物理设备弹窗验收待完成。
+
 > 2026-09-11 MOBILE-B 实机反馈修复：普通浏览器仍停留旧缓存、退出后重新登录仍回“我的”。提交 `5152fb8` 增加页面恢复前台时的版本检查，提交 `414bb5e` 让退出登录携带首页返回目标，`aebc257` 补充真实重登录浏览器验收。两组 CI 最终全绿；其中一次既有桌面导航用例波动后重跑通过。发布前备份为 `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260911T094516Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z`，旧 release `4d86f900-20260911T0846Z` 保留为回滚点。公开入口、API 健康、Manifest、Service Worker 和启动后日志复检通过。
 
 > 2026-09-11 MOBILE-B PWA 生命周期发布：提交 `4d86f90` 已推送至 PR #30，两组 CI runs `34580364107`、`34580381945` 的 quality、db-validation、browser-qa 全绿。发布前备份为 `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260911T084533Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`，旧 release `fa0ee530-20260911T0738Z` 保留为回滚点。用户端、API 健康、四个 PWA 图标、Manifest、Service Worker 更新处理和近期日志检查通过；iPhone/Android 安装版生命周期验收仍待实机执行，PR 尚未合并。
