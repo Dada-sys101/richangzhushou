@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_C1 / DONE_PUSHED / PR_31_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
+VERIFYING / MOBILE_C1 / FEEDBACK_FIX_DONE_LOCAL / PR_31_OPEN / QUALITY_PASS / PREVIEW_UPDATE_PENDING
 
 ## Task
 
 - ID: `MOBILE-C1 Secondary Shell and Tokens`
 - Execution: `VERIFYING`
-- Delivery: `DONE_PUSHED / PR_31_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
+- Delivery: `FEEDBACK_FIX_DONE_LOCAL / PR_31_OPEN / QUALITY_PASS / PREVIEW_UPDATE_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-c1-secondary-shell`
 - Base HEAD: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
@@ -23,6 +23,7 @@ VERIFYING / MOBILE_C1 / DONE_PUSHED / PR_31_OPEN / CI_PASS / PRIVATE_PREVIEW_DEP
 - 完整 `npm run quality` 与 `git diff --check` 通过：Web 28 files/132 tests、API 34 files/281 tests；五档浏览器矩阵待远端候选 CI 验证。
 - 提交 `91c4fed` 已推送并创建 PR #31；CI runs `34667896982`、`34667898608` 的 quality、db-validation、browser-qa 全部通过。
 - 部署前备份 `daily_assistant_preview_20260912T023810Z.sql.gz`；功能提交已部署到 `/opt/daily-assistant-preview/releases/91c4fed0-20260912T0238Z`，入口、API 健康、Manifest、SW、五个页面深链接、资源与日志检查通过。
+- 实机反馈发现移动端页头遮挡及窄屏按钮重叠；已取消错误的 `64px` 粘性页头偏移，修正预算纵向布局，并为表单、资源行和操作区增加安全换行。完整 `npm run quality` 与 `git diff --check` 通过，等待提交、候选 CI 和私有预览更新。
 
 - MOBILE-A PR #29 已合入 Integration `6e1313f`，合并后 CI run `34578075462` 的 quality、db-validation、browser-qa 全部通过。
 - 已从该 Integration 基线创建独立分支 `codex/mobile-b-pwa-lifecycle`。
@@ -66,4 +67,4 @@ VERIFYING / MOBILE_C1 / DONE_PUSHED / PR_31_OPEN / CI_PASS / PRIVATE_PREVIEW_DEP
 
 ## Last Updated
 
-2026-09-12 10:43 +08:00 — MOBILE-C1 已部署私有预览并通过部署后检查；等待 iPhone/Android 实机视觉验收，PR #31 尚未合并。
+2026-09-12 11:08 +08:00 — MOBILE-C1 实机布局反馈修复已在本地通过完整质量门禁；等待候选 CI 和私有预览更新，PR #31 尚未合并。

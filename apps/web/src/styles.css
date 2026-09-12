@@ -146,13 +146,10 @@ body {
   }
 
   .secondary-page .page-header {
-    position: sticky;
-    top: 64px;
-    z-index: 20;
-    margin-inline: -16px;
-    padding-inline: 16px;
-    background: rgb(251 250 255 / 94%);
-    backdrop-filter: blur(14px);
+    position: static;
+    margin-inline: 0;
+    padding-inline: 0;
+    background: transparent;
   }
 
   .section-card-header,
@@ -174,6 +171,26 @@ body {
 
   .form-actions > * {
     min-height: 44px;
+  }
+}
+
+@media (max-width: 520px) {
+  .secondary-page .inline-create > input,
+  .secondary-page .inline-create > select,
+  .secondary-page .inline-create > button {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .secondary-page .form-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .secondary-page .form-actions > * {
+    width: 100%;
+    min-width: 0;
   }
 }
 
@@ -891,6 +908,22 @@ textarea {
   flex-wrap: wrap;
 }
 
+.resource-list li > span:not(.color-dot):not(.account-kind) {
+  min-width: 0;
+  flex: 1 1 140px;
+  overflow-wrap: anywhere;
+}
+
+.resource-list li > input {
+  min-width: 0;
+  flex: 1 1 180px;
+}
+
+.resource-list li > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .color-dot {
   width: 12px;
   height: 12px;
@@ -929,6 +962,17 @@ textarea {
   justify-content: space-between;
   margin-top: 10px;
   flex-wrap: wrap;
+}
+
+.budget-list > li {
+  display: block;
+  width: 100%;
+}
+
+.budget-list .budget-line,
+.budget-list .progress-track,
+.budget-list .budget-actions {
+  width: 100%;
 }
 
 .inline-amount input {
@@ -1795,6 +1839,32 @@ textarea {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+@media (max-width: 520px) {
+  .budget-actions {
+    align-items: flex-end;
+  }
+
+  .budget-actions .inline-amount {
+    min-width: 0;
+    flex: 1 1 180px;
+  }
+
+  .budget-actions .inline-amount input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .conflict-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .conflict-actions > * {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .visually-hidden {
