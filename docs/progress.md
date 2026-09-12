@@ -1,6 +1,6 @@
 # 项目进度（派生摘要）
 
-## 2026-09-12 — MOBILE-C1 二级页面壳（FEEDBACK_FIX_DEPLOYED / DEVICE_RECHECK_PENDING）
+## 2026-09-12 — MOBILE-C1 二级页面壳（SECOND_FEEDBACK_FIX_DONE_LOCAL / QUALITY_PASS / PREVIEW_UPDATE_PENDING）
 
 - MOBILE-B PR #30 已合并为 Integration `5d6c5c5`，合并后 CI run `34667321147` 的三个任务全部通过。
 - 新增 `SecondaryPageShell`、`SectionCard`、`FormActions`，统一二级页面宽度、分区、间距、安全区和移动端操作尺寸。
@@ -9,6 +9,7 @@
 - 已在备份后部署 `/opt/daily-assistant-preview/releases/91c4fed0-20260912T0238Z`；入口、API 健康、Manifest、Service Worker、五个页面深链接、新构建资源与服务日志检查通过，等待实机视觉验收。
 - 实机反馈发现标题区域遮挡和按钮重叠；共享样式已取消移动端错误页头偏移，修正预算卡片纵向布局，并收紧 375–520px 表单、资源行和双按钮操作区的换行规则。完整 quality 与差异检查通过，待候选 CI 和预览更新。
 - 修复提交 `32c44e0` 的两组 CI 全绿；备份后已部署 `/opt/daily-assistant-preview/releases/32c44e00-20260912T0313Z`，部署后入口、API、PWA 资源、五个深链接和服务日志检查通过，等待设备复验。
+- 第二轮实机截图反馈后，账单页手机筛选区调整为稳定的两列字段和独立复选行，工具按钮等宽排列；返回操作扩大触控区并增加与标题间距。完整 quality 与差异检查通过，等待候选 CI 和预览更新。
 
 ## 2026-09-11 — MOBILE-B PWA 生命周期（PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING）
 

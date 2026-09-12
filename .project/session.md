@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_C1 / FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING
+VERIFYING / MOBILE_C1 / SECOND_FEEDBACK_FIX_DONE_LOCAL / PR_31_OPEN / QUALITY_PASS / PREVIEW_UPDATE_PENDING
 
 ## Task
 
 - ID: `MOBILE-C1 Secondary Shell and Tokens`
 - Execution: `VERIFYING`
-- Delivery: `FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING`
+- Delivery: `SECOND_FEEDBACK_FIX_DONE_LOCAL / PR_31_OPEN / QUALITY_PASS / PREVIEW_UPDATE_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-c1-secondary-shell`
 - Base HEAD: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
@@ -25,6 +25,7 @@ VERIFYING / MOBILE_C1 / FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RE
 - 部署前备份 `daily_assistant_preview_20260912T023810Z.sql.gz`；功能提交已部署到 `/opt/daily-assistant-preview/releases/91c4fed0-20260912T0238Z`，入口、API 健康、Manifest、SW、五个页面深链接、资源与日志检查通过。
 - 实机反馈发现移动端页头遮挡及窄屏按钮重叠；已取消错误的 `64px` 粘性页头偏移，修正预算纵向布局，并为表单、资源行和操作区增加安全换行。完整 `npm run quality` 与 `git diff --check` 通过，等待提交、候选 CI 和私有预览更新。
 - 修复提交 `32c44e0` 已推送；CI runs `34669502403`、`34669504808` 的 quality、db-validation、browser-qa 全部通过。部署前备份 `daily_assistant_preview_20260912T031203Z.sql.gz`，私有预览已切换到 `/opt/daily-assistant-preview/releases/32c44e00-20260912T0313Z`；入口、API、Manifest、SW、五个深链接、构建资源和 warning 日志检查通过。
+- 第二轮截图反馈显示账单筛选区仍重叠且返回操作离标题过近；已将 520px 以下筛选区改为月份/类型两列和独立复选行，按钮等宽排列，并扩大公共返回触控区及标题间距。完整 `npm run quality` 与 `git diff --check` 通过，等待候选 CI 和私有预览更新。
 
 - MOBILE-A PR #29 已合入 Integration `6e1313f`，合并后 CI run `34578075462` 的 quality、db-validation、browser-qa 全部通过。
 - 已从该 Integration 基线创建独立分支 `codex/mobile-b-pwa-lifecycle`。
@@ -68,4 +69,4 @@ VERIFYING / MOBILE_C1 / FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RE
 
 ## Last Updated
 
-2026-09-12 11:21 +08:00 — MOBILE-C1 实机布局反馈修复已通过两组 CI 并部署私有预览；等待设备复验，PR #31 尚未合并。
+2026-09-12 11:28 +08:00 — MOBILE-C1 第二轮实机布局反馈修复已通过完整本地门禁；等待候选 CI 和私有预览更新，PR #31 尚未合并。
