@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_C2 / DONE_PUSHED / PR_32_OPEN / BROWSER_QA_RECHECK_PENDING
+VERIFYING / MOBILE_C2 / DONE_PUSHED / PR_32_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYMENT_AUTHORIZATION_PENDING
 
 ## Task
 
 - ID: `MOBILE-C2 App Dialogs and Feedback`
 - Execution: `VERIFYING`
-- Delivery: `DONE_PUSHED / PR_32_OPEN / BROWSER_QA_RECHECK_PENDING`
+- Delivery: `DONE_PUSHED / PR_32_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYMENT_AUTHORIZATION_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-c2-app-dialogs`
 - Base HEAD: Integration `7ce7805f04ac6366b5047dc0fde365f433e4be3c`
@@ -22,7 +22,7 @@ VERIFYING / MOBILE_C2 / DONE_PUSHED / PR_32_OPEN / BROWSER_QA_RECHECK_PENDING
 - 已实现全局 Promise 确认服务、`AppDialog`、`ConfirmDialog`、`ActionSheet`、`ToastMessage` 和宿主；日程、待办、提醒、计划详情、Proposal 拒绝及未保存离开已切换为应用内中文确认。
 - 弹窗支持焦点进入/恢复、Tab 约束、Escape、背景滚动锁定和移动端安全区；专项测试与完整门禁待完成。
 - 专项组件/确认服务 2 files/3 tests、受影响页面 3 files/59 tests 通过；完整 `npm run quality` 与 `git diff --check` 通过，Web 总计 30 files/135 tests。当前等待独立提交、推送和 PR 授权。
-- 功能提交 `4b873f5` 已推送并创建 PR #32。首轮 push browser-qa 发现导航 E2E 仍等待原生浏览器 dialog；已改为操作新的应用内“取消/离开/删除”按钮，完整 quality 与差异检查再次通过，等待修复提交和 CI 重跑。
+- 功能提交 `4b873f5` 及 E2E 修正提交 `999426f` 已推送到 PR #32；push run `34676910173` 与 PR run `34676911672` 的 quality、db-validation、browser-qa 全部通过。下一步需单独授权部署到私有预览环境。
 
 - MOBILE-B PR #30 已合并为 Integration `5d6c5c5`，合并后 CI run `34667321147` 全绿。
 - 已建立 `SecondaryPageShell`、`SectionCard`、`FormActions` 和组件测试。
@@ -81,4 +81,4 @@ VERIFYING / MOBILE_C2 / DONE_PUSHED / PR_32_OPEN / BROWSER_QA_RECHECK_PENDING
 
 ## Last Updated
 
-2026-09-12 13:57 +08:00 — MOBILE-C2 PR #32 已创建；首轮 browser-qa 暴露并已修复旧 E2E 操作方式，等待 CI 重跑。
+2026-09-12 14:04 +08:00 — MOBILE-C2 PR #32 候选 `999426f` 的 push 与 PR CI 全绿；等待私有预览部署授权。

@@ -202,4 +202,4 @@ ADR-029 的无金额上限策略不等于生产预算 enforcement。后续新功
 - 从该基线创建独立分支 `codex/mobile-c2-app-dialogs` 与任务契约 `tasks/MOBILE-C2.md`。
 - 已建立应用内弹窗、确认服务、操作表和 Toast 基础组件，并替换日程、待办、提醒、计划详情、Proposal 拒绝和未保存内容离开的业务原生确认框。
 - 专项组件/确认服务 3 tests、受影响页面 59 tests、完整 quality 与差异检查通过；Web 总计 30 files/135 tests。当前等待独立提交、推送和 PR 授权，五档浏览器检查由候选 CI 和预览验收完成。
-- 提交 `4b873f5` 已推送并创建 PR #32；首轮 browser-qa 因导航测试仍监听原生 dialog 失败，现已将测试切换到应用内取消、离开和删除按钮，完整 quality 再次通过，等待 CI 重跑。
+- 提交 `4b873f5` 与 E2E 修正提交 `999426f` 已推送到 PR #32；push run `34676910173`、PR run `34676911672` 的 quality、db-validation、browser-qa 全部通过，等待私有预览部署授权。

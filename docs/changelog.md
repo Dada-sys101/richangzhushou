@@ -751,4 +751,4 @@
 - MOBILE-C1 PR #31 已合并为 Integration `7ce7805`，合并后 CI `34675913987` 全绿。
 - 新增可访问的应用内弹窗、确认服务、操作表和 Toast 基础组件；将现存业务 `window.confirm` 替换为统一中文确认，保留浏览器关闭标签页时的平台 `beforeunload` 安全提示。
 - 焦点进入/恢复、Tab 约束、Escape、滚动锁定和并发确认服务均有专项测试；完整 quality 与差异检查通过，尚未提交、推送、创建 PR 或部署。
-- 提交 `4b873f5` 已进入 PR #32；导航浏览器测试同步改用应用内确认按钮，修复首轮 CI 中因继续等待原生 dialog 导致的超时。
+- 提交 `4b873f5` 与 E2E 修正提交 `999426f` 已进入 PR #32；push run `34676910173`、PR run `34676911672` 的 quality、db-validation、browser-qa 全部通过。

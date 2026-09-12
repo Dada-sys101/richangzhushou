@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T13:46:00+08:00
+updatedAt: 2026-09-12T14:04:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -10,10 +10,10 @@ pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-C2 App Dialogs and Feedback
 executionStatus: VERIFYING
-deliveryStatus: DONE_PUSHED / PR_32_OPEN / BROWSER_QA_RECHECK_PENDING
-currentWork: MOBILE-C2 candidate 4b873f5 is in PR #32; E2E navigation test has been updated for the new application dialog after the first browser-qa run retained native-dialog steps
+deliveryStatus: DONE_PUSHED / PR_32_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYMENT_AUTHORIZATION_PENDING
+currentWork: MOBILE-C2 candidate 999426f is in PR #32; push run 34676910173 and PR run 34676911672 passed quality, db-validation and browser-qa
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Pass MOBILE-C2 PR browser QA, then request private-preview deployment authorization
+nextCanonicalTask: Obtain authorization to deploy MOBILE-C2 PR #32 candidate 999426f to private preview
 nextCanonicalTaskAfterCompletion: MOBILE-C3 date and time controls
 openPullRequests: [PR #32]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
