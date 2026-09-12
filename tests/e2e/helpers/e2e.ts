@@ -134,7 +134,9 @@ export async function selectDateTimeViaUi(
   await expect(dialog).toBeVisible();
 
   for (let attempts = 0; attempts < 24; attempts += 1) {
-    const heading = (await dialog.locator(".temporal-picker-heading strong").textContent()) ?? "";
+    const heading =
+      (await dialog.locator(".temporal-picker-heading strong").textContent()) ??
+      "";
     const match = heading.match(/(\d+)年(\d+)月/);
     if (!match) throw new Error(`无法读取日期选择器月份：${heading}`);
     const visibleIndex = Number(match[1]) * 12 + Number(match[2]);
