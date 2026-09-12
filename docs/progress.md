@@ -8,6 +8,8 @@
 - 完整 `npm run quality` 通过：Web 25 files/129 tests、API 34 files/281 tests，构建、Prisma、OpenAPI、migration diff 与依赖审计通过。
 - 提交 `4d86f90` 已推送至 PR #30，两组 CI 矩阵全绿；私有预览已部署 `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z` 并通过入口、健康、静态资源与日志检查，等待 iPhone/Android 安装版生命周期验收。
 - 根据实机反馈增加页面恢复前台时的版本检查，并让退出后重新登录返回首页；提交 `aebc257` 的两组 CI 最终全绿，修复版已部署至 `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z` 并通过部署后复检。
+- 第二轮反馈修复 `927dea3` 为更新按钮增加“更新中”和中文失败反馈，重新获取 Service Worker registration，并在 iOS 未触发 controllerchange 时兜底刷新；计划中心默认明确选中当天。本地完整 quality 通过，等待推送、CI 与部署。
+- `d7860cd` 新增 MOBILE-C 草案，将二级页面整理、统一弹窗、日期时间控件和复杂页面迁移拆成四阶段；MOBILE-B 验收前不启动实施。
 
 ## 2026-09-11 — MOBILE-A 导航与移动端壳（ACCEPTED / READY_TO_MERGE）
 

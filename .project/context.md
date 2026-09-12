@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-11 16:52 +08:00 — MOBILE-B commit `4d86f90` is pushed in PR #30, both CI matrices pass, and the private preview deployment is healthy; installed-device acceptance remains.
+2026-09-12 00:00 +08:00 — MOBILE-B second feedback fix `927dea3` and MOBILE-C draft `d7860cd` are committed and pass local quality; push, CI, deployment and installed-device acceptance remain.
 
 ## Repository State
 
@@ -12,7 +12,7 @@
 - Verified Integration HEAD: `6e1313fd58da8d4fc34fc7912b579571a21a9ebe`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/mobile-b-pwa-lifecycle`
-- Active delivery: MOBILE-B `DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
+- Active delivery: MOBILE-B `FEEDBACK_FIX_COMMITTED / PUSH_PENDING / PR_30_OPEN / CI_PENDING / DEPLOY_PENDING / DEVICE_ACCEPTANCE_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.
@@ -50,12 +50,14 @@
 - ID: `MOBILE-B PWA Lifecycle and Installation Experience`.
 - Goal: make installation, main-screen launch and updates predictable on iPhone and Android.
 - Scope: Manifest/icons, Android native install, iPhone add-to-home guidance, standalone detection and safe update confirmation.
-- Current state: `DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`.
+- Current state: `FEEDBACK_FIX_COMMITTED / PUSH_PENDING / PR_30_OPEN / CI_PENDING / DEPLOY_PENDING / DEVICE_ACCEPTANCE_PENDING`.
 - Excluded: navigation, business logic, API/database, Push enablement, native wrappers and visual redesign.
 
 ## Next Recommended Task
 
 Complete iPhone and Android installed-PWA lifecycle acceptance, then request the independent merge decision for PR #30.
+
+After MOBILE-B acceptance and merge, execute the staged MOBILE-C contract: secondary-page shell, custom dialogs, custom date/time fields, then complex page migration.
 
 ## Completed Work
 
@@ -64,6 +66,7 @@ Complete iPhone and Android installed-PWA lifecycle acceptance, then request the
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
 - The active release is `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z`; rollback release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`. MOBILE-B foreground update checks and logout-to-home relogin behavior are live in the private preview.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
+- MOBILE-B feedback fix `927dea3` and MOBILE-C planning commit `d7860cd` pass full local quality; the private preview still runs `aebc257` until the new PR CI is green.
 
 ## Remaining Work
 
@@ -96,6 +99,7 @@ Complete iPhone and Android installed-PWA lifecycle acceptance, then request the
 - Backup timer, retention cleanup and isolated restore: `PASS`.
 - REL-03 readiness: `NOT_STARTED`.
 - Public entry and physical iPhone: `NOT_VERIFIED`.
+- MOBILE-B second feedback fix local quality: `PASS`（Web 26 files/130 tests、API 34 files/281 tests）；remote CI and deployment pending.
 
 ## Recent Changes
 
@@ -103,6 +107,7 @@ Complete iPhone and Android installed-PWA lifecycle acceptance, then request the
 - Merged and deployed the verified dependency candidate.
 - Closed R1 with an explicit H1/H2 waiver while retaining the unverified status.
 - Waived separate Staging and redirected REL-03 to the existing private-preview environment.
+- Made PWA update actions observable and resilient when the waiting worker changes, selected today visibly by default in Plan Center, and drafted MOBILE-C as four bounded UI phases.
 
 ## Important Constraints
 
