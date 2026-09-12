@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-12 11:35 +08:00 — MOBILE-C1 second device feedback fix `4ffd32d` passes both CI matrices and is deployed to private preview; device recheck remains.
+2026-09-12 11:42 +08:00 — MOBILE-C1 third feedback fix expands the forced transaction layout to the full 768px mobile breakpoint; local quality passes and candidate CI remains.
 
 ## Repository State
 
@@ -12,7 +12,7 @@
 - Verified Integration HEAD: `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/mobile-c1-secondary-shell`
-- Active delivery: MOBILE-C1 `SECOND_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING`
+- Active delivery: MOBILE-C1 `THIRD_FEEDBACK_FIX_DONE_LOCAL / PR_31_OPEN / QUALITY_PASS / PREVIEW_UPDATE_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.
