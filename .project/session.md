@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
+ACCEPTED_WITH_DEFERRED_LIMITATIONS / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING
 
 ## Task
 
 - ID: `MOBILE-B PWA Lifecycle and Installation Experience`
-- Execution: `VERIFYING`
-- Delivery: `DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
+- Execution: `ACCEPTED_WITH_DEFERRED_LIMITATIONS`
+- Delivery: `DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-b-pwa-lifecycle`
 - Base HEAD: Integration `6e1313fd58da8d4fc34fc7912b579571a21a9ebe`
@@ -37,8 +37,9 @@ VERIFYING / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPL
 
 ## Remaining Work
 
-1. 在 iPhone Safari/PWA 与 Android Chrome/PWA 验证更新按钮、安装和主屏启动。
-2. 实机通过后更新状态并申请 PR #30 的独立合并授权。
+1. 获得独立授权后合并 PR #30，并核验合并后 Integration CI。
+2. 从合并后的 Integration 创建 MOBILE-C1 独立分支并冻结实施契约。
+3. 延后处理两个不阻塞使用的限制：旧安装实例更新按钮仍可能失效；iOS 系统边缘手势不能由 PWA 完全关闭。
 
 ## Previous Task Record
 
@@ -58,4 +59,4 @@ VERIFYING / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPL
 
 ## Last Updated
 
-2026-09-12 10:08 +08:00 — MOBILE-B 更新接管修复已通过两组 CI 并部署私有预览；等待旧安装实例重启接管及更新按钮、根页面左滑的实机验收，PR #30 尚未合并。
+2026-09-12 10:15 +08:00 — 用户接受将更新按钮和 iOS 根页面边缘手势作为非阻塞已知限制暂时搁置；MOBILE-B 等待 PR #30 独立合并授权，MOBILE-C1 等待合并基线。

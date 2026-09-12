@@ -3,8 +3,8 @@
 ## Metadata
 
 - Contract: `MOBILE_C_SECONDARY_UI_V1_DRAFT`
-- Status: `DRAFT / BLOCKED_BY_MOBILE_B_ACCEPTANCE`
-- Predecessor: MOBILE-B `DEVICE_ACCEPTANCE_PENDING`
+- Status: `DRAFT / BLOCKED_BY_PR_30_MERGE`
+- Predecessor: MOBILE-B `ACCEPTED_WITH_DEFERRED_LIMITATIONS / PR_30_OPEN`
 - Delivery model: 每个阶段独立提交、独立 PR 验证；不得形成一次性全站重写。
 
 ## Objective

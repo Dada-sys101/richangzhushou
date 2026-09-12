@@ -3,7 +3,7 @@
 ## Metadata
 
 - Contract: `MOBILE_B_PWA_LIFECYCLE_V1`
-- Status: `DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
+- Status: `ACCEPTED_WITH_DEFERRED_LIMITATIONS / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED`
 - Branch: `codex/mobile-b-pwa-lifecycle`
 - Base: Integration `6e1313fd58da8d4fc34fc7912b579571a21a9ebe`
 - Predecessor: MOBILE-A `DONE_INTEGRATION / DEVICE_ACCEPTANCE_PASS`
@@ -63,4 +63,4 @@ MOBILE-B is complete only when implementation, automated validation and the two 
 - Commit `4d86f90` is pushed in PR #30; CI runs `34580364107` and `34580381945` pass all three jobs.
 - Private preview release `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z` is active; entry points, health, icons, Manifest, Service Worker and recent logs pass deployment checks.
 - Device-feedback fix `aebc257` checks for updates when the page returns to the foreground and returns logout/relogin to Home; both CI matrices pass and release `/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z` is deployed.
-- Physical iPhone and Android installed-PWA lifecycle acceptance remains pending.
+- User accepted MOBILE-B on 2026-09-12 with two deferred, non-blocking limitations: the update action is not fully reliable in the already-installed legacy client, and iOS root-page system edge navigation cannot be fully disabled by a PWA. These limitations must not be reported as implemented or device-verified.

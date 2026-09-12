@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T10:08:00+08:00
+updatedAt: 2026-09-12T10:15:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -9,11 +9,11 @@ integrationHead: 6e1313fd58da8d4fc34fc7912b579571a21a9ebe
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-B PWA Lifecycle and Installation Experience
-executionStatus: VERIFYING
-deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
-currentWork: MOBILE-B second feedback fixes pass local quality and two CI matrices and are deployed to private preview; physical installed-device update acceptance remains
+executionStatus: ACCEPTED_WITH_DEFERRED_LIMITATIONS
+deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING
+currentWork: MOBILE-B is accepted with two non-blocking deferred limitations; PR #30 merge authorization is required before MOBILE-C1 starts from Integration
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Complete MOBILE-B physical installed-PWA lifecycle acceptance
+nextCanonicalTask: Merge accepted MOBILE-B PR #30 after independent authorization
 nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
 openPullRequests: [PR #30]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
@@ -45,9 +45,10 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - successorDraft: `d7860cd` adds tasks/MOBILE-C.md for staged secondary-page, dialog and date/time control refinement; it remains blocked by MOBILE-B acceptance
 - feedbackValidation: CI runs `34664717946` and `34664718882` passed quality, db-validation and browser-qa; private-preview entry, API health, Manifest, Service Worker, asset and logs passed
 - updateTakeover: commits `e756c0b` and `727cb60`; CI runs `34666350469` and `34666354055` pass all jobs; deployed Worker contains skipWaiting and clientsClaim, while reload remains guarded by user action
-- remaining: physical iPhone/Android installed lifecycle acceptance; merge remains separately gated
-- executionStatus: VERIFYING
-- deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
+- deferredLimitations: legacy installed-client update action remains imperfect; iOS system edge navigation on root pages cannot be fully disabled by PWA code
+- remaining: PR #30 merge remains separately gated; after merged Integration CI passes, start MOBILE-C1
+- executionStatus: ACCEPTED_WITH_DEFERRED_LIMITATIONS
+- deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING
 
 ## Previous Canonical Task
 
