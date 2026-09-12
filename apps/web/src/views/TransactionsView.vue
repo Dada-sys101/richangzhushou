@@ -4,7 +4,8 @@ import { RouterLink } from "vue-router";
 
 import { ApiClientError } from "../api/client";
 import DateField from "../components/DateField.vue";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import SectionCard from "../components/SectionCard.vue";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
 import { appendReturnTo, useOptionalRoute } from "../utils/navigation";
@@ -90,98 +91,112 @@ function withTransactionsSource(path: string) {
 </script>
 
 <template>
-  <section class="finance-page" aria-labelledby="transactions-title">
-    <PageHeader title="账单" title-id="transactions-title" subtitle="记账">
-      <template #actions>
-        <div class="filters">
-          <label>
-            开始日期
-            <DateField v-model="startDate" :max="endDate || undefined" />
-          </label>
-          <label>
-            结束日期
-            <DateField v-model="endDate" :min="startDate || undefined" />
-          </label>
-          <label>
-            类型
-            <select v-model="type">
-              <option value="">全部</option>
-              <option value="EXPENSE">支出</option>
-              <option value="INCOME">收入</option>
-              <option value="REFUND">退款</option>
-            </select>
-          </label>
-          <label class="check-label">
-            <input v-model="includeDeleted" type="checkbox" />
-            显示已删除
-          </label>
-        </div>
-      </template>
-    </PageHeader>
+  <SecondaryPageShell
+    class="finance-page transactions-page"
+    title="账单明细"
+    title-id="transactions-title"
+    subtitle="记账"
+  >
+    <SectionCard
+      title="筛选账单"
+      description="按起止日期和收支类型查看，也可以包含已删除记录。"
+    >
+      <div class="transaction-filters">
+        <label class="transaction-form-field">
+          <span>开始日期</span>
+          <DateField v-model="startDate" :max="endDate || undefined" />
+        </label>
+        <label class="transaction-form-field">
+          <span>结束日期</span>
+          <DateField v-model="endDate" :min="startDate || undefined" />
+        </label>
+        <label class="transaction-form-field">
+          <span>类型</span>
+          <select v-model="type">
+            <option value="">全部</option>
+            <option value="EXPENSE">支出</option>
+            <option value="INCOME">收入</option>
+            <option value="REFUND">退款</option>
+          </select>
+        </label>
+        <label class="check-label transaction-deleted-filter">
+          <input v-model="includeDeleted" type="checkbox" />
+          <span>显示已删除</span>
+        </label>
+      </div>
+    </SectionCard>
 
-    <div class="toolbar">
-      <RouterLink
-        class="primary-button"
-        :to="withTransactionsSource('/transactions/new')"
-        >记一笔</RouterLink
-      >
-      <button class="secondary-button" type="button" @click="downloadCsv">
-        导出 CSV
-      </button>
+    <div
+      v-if="finance.errorMessage || actionError"
+      class="transaction-form-feedback"
+      role="alert"
+    >
+      {{ actionError || finance.errorMessage }}
     </div>
 
-    <p v-if="finance.errorMessage" class="form-error" role="alert">
-      {{ finance.errorMessage }}
-    </p>
-    <p v-if="actionError" class="form-error" role="alert">{{ actionError }}</p>
-
-    <p v-if="visibleTransactions().length === 0" class="empty-copy">
-      当前筛选下没有账单。
-    </p>
-    <ul v-else class="transaction-list">
-      <li
-        v-for="item in visibleTransactions()"
-        :key="item.id"
-        :class="{ 'is-deleted': item.deletedAt }"
-      >
-        <div class="transaction-row">
-          <div class="transaction-main">
-            <strong>{{ item.merchant || typeLabel(item.type) }}</strong>
-            <small>{{ formatTime(item.occurredAt) }}</small>
-            <small v-if="item.note" class="note">{{ item.note }}</small>
-          </div>
-          <div class="transaction-amount" :class="amountClass(item.type)">
-            {{ signedMoney(item) }}
-          </div>
-          <div class="row-actions">
-            <RouterLink
-              v-if="!item.deletedAt"
-              class="text-button"
-              :to="withTransactionsSource(`/transactions/${item.id}/edit`)"
-            >
-              编辑
-            </RouterLink>
-            <button
-              v-if="!item.deletedAt"
-              class="text-button danger"
-              type="button"
-              @click="remove(item.id)"
-            >
-              删除
-            </button>
-            <button
-              v-else
-              class="text-button"
-              type="button"
-              @click="restore(item.id)"
-            >
-              恢复
-            </button>
-          </div>
+    <SectionCard title="账单记录">
+      <template #default>
+        <div class="transaction-list-toolbar">
+          <RouterLink
+            class="primary-button"
+            :to="withTransactionsSource('/transactions/new')"
+          >
+            记一笔
+          </RouterLink>
+          <button class="secondary-button" type="button" @click="downloadCsv">
+            导出 CSV
+          </button>
         </div>
-      </li>
-    </ul>
-  </section>
+
+        <p v-if="visibleTransactions().length === 0" class="empty-copy">
+          当前筛选下没有账单。
+        </p>
+        <ul v-else class="transaction-list transaction-detail-list">
+          <li
+            v-for="item in visibleTransactions()"
+            :key="item.id"
+            :class="{ 'is-deleted': item.deletedAt }"
+          >
+            <div class="transaction-row">
+              <div class="transaction-main">
+                <strong>{{ item.merchant || typeLabel(item.type) }}</strong>
+                <small>{{ formatTime(item.occurredAt) }}</small>
+                <small v-if="item.note" class="note">{{ item.note }}</small>
+              </div>
+              <div class="transaction-amount" :class="amountClass(item.type)">
+                {{ signedMoney(item) }}
+              </div>
+              <div class="row-actions">
+                <RouterLink
+                  v-if="!item.deletedAt"
+                  class="text-button"
+                  :to="withTransactionsSource(`/transactions/${item.id}/edit`)"
+                >
+                  编辑
+                </RouterLink>
+                <button
+                  v-if="!item.deletedAt"
+                  class="text-button danger"
+                  type="button"
+                  @click="remove(item.id)"
+                >
+                  删除
+                </button>
+                <button
+                  v-else
+                  class="text-button"
+                  type="button"
+                  @click="restore(item.id)"
+                >
+                  恢复
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </template>
+    </SectionCard>
+  </SecondaryPageShell>
 </template>
 
 <script lang="ts">

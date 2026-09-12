@@ -4,7 +4,9 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 
 import { ApiClientError } from "../api/client";
 import DateTimeField from "../components/DateTimeField.vue";
-import PageHeader from "../components/PageHeader.vue";
+import FormActions from "../components/FormActions.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import SectionCard from "../components/SectionCard.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
@@ -152,136 +154,176 @@ function messageOf(error: unknown): string {
 </script>
 
 <template>
-  <section class="finance-page form-page" aria-labelledby="form-title">
-    <PageHeader
-      :title="editingId ? '编辑账单' : '记一笔'"
-      title-id="form-title"
-      subtitle="记账"
-    />
-
-    <p v-if="finance.errorMessage" class="form-error" role="alert">
-      {{ finance.errorMessage }}
-    </p>
-    <p v-if="errorMessage" class="form-error" role="alert">
-      {{ errorMessage }}
-    </p>
-    <p v-if="successMessage" class="form-success" role="status">
+  <SecondaryPageShell
+    :title="editingId ? '编辑账单' : '记一笔'"
+    class="finance-page transaction-form-page"
+    subtitle="记账"
+    title-id="form-title"
+  >
+    <div
+      v-if="finance.errorMessage || errorMessage"
+      class="transaction-form-feedback"
+      role="alert"
+    >
+      {{ errorMessage || finance.errorMessage }}
+    </div>
+    <p
+      v-if="successMessage"
+      class="form-success transaction-form-feedback"
+      role="status"
+    >
       {{ successMessage }}
     </p>
-    <div v-if="duplicateWarning" class="warning-banner" role="status">
+    <div
+      v-if="duplicateWarning"
+      class="warning-banner transaction-form-feedback"
+      role="status"
+    >
       {{ duplicateWarning }}
     </div>
 
-    <form class="auth-form" @submit.prevent="submit">
-      <label>
-        类型
-        <select v-model="type">
-          <option value="EXPENSE">支出</option>
-          <option value="INCOME">收入</option>
-          <option value="REFUND">退款</option>
-        </select>
-      </label>
-      <label>
-        金额（元）
-        <input
-          v-model="amount"
-          inputmode="decimal"
-          placeholder="0.00"
-          required
-          step="0.01"
-          type="text"
-        />
-      </label>
-      <label>
-        时间
-        <DateTimeField v-model="occurredAt" required />
-      </label>
-      <label>
-        分类
-        <select v-model="categoryId">
-          <option value="">不分类</option>
-          <option
-            v-for="item in categoriesForType"
-            :key="item.id"
-            :value="item.id"
-          >
-            {{ item.name }}
-          </option>
-        </select>
-      </label>
-      <label>
-        账户
-        <select v-model="accountId">
-          <option value="">不指定</option>
-          <option
-            v-for="item in activeAccounts"
-            :key="item.id"
-            :value="item.id"
-          >
-            {{ item.name }}
-          </option>
-        </select>
-      </label>
-      <label>
-        行程（可选）
-        <select v-model="tripId">
-          <option value="">不关联</option>
-          <option
-            v-for="item in trips.trips.filter(
-              (trip) => trip.deletedAt === null,
-            )"
-            :key="item.id"
-            :value="item.id"
-          >
-            {{ item.title }}（{{ item.startDate }}）
-          </option>
-        </select>
-      </label>
-      <label>
-        商户/说明
-        <input
-          v-model="merchant"
-          maxlength="100"
-          placeholder="例如：便利店"
-          type="text"
-        />
-      </label>
-      <label>
-        备注
-        <textarea v-model="note" maxlength="500" rows="3"></textarea>
-      </label>
+    <form class="transaction-form" @submit.prevent="submit">
+      <SectionCard
+        title="基本信息"
+        description="填写账单类型、金额和实际发生时间。"
+      >
+        <div class="transaction-form-grid">
+          <label class="transaction-form-field">
+            <span>类型</span>
+            <select v-model="type">
+              <option value="EXPENSE">支出</option>
+              <option value="INCOME">收入</option>
+              <option value="REFUND">退款</option>
+            </select>
+          </label>
+          <label class="transaction-form-field transaction-amount-field">
+            <span>金额（元）</span>
+            <input
+              v-model="amount"
+              inputmode="decimal"
+              placeholder="0.00"
+              required
+              step="0.01"
+              type="text"
+            />
+          </label>
+          <label class="transaction-form-field transaction-time-field">
+            <span>时间</span>
+            <DateTimeField v-model="occurredAt" required />
+          </label>
+        </div>
+      </SectionCard>
 
-      <fieldset v-if="type === 'REFUND'" class="refund-fields">
-        <legend>退款关联</legend>
-        <label class="check-label">
-          <input v-model="isUnlinkedRefund" type="checkbox" />
-          无原单退款（不引用原账单）
-        </label>
-        <label v-if="!isUnlinkedRefund">
-          原账单
-          <select v-model="originalTransactionId">
-            <option value="">选择一笔支出</option>
-            <option
-              v-for="item in expenseTransactions"
-              :key="item.id"
-              :value="item.id"
-            >
-              {{ item.merchant || "支出" }} · {{ item.amount }}
-            </option>
-          </select>
-        </label>
-      </fieldset>
+      <SectionCard
+        title="分类与关联"
+        description="分类和账户可留空，也可以关联到已有行程。"
+      >
+        <div class="transaction-form-grid">
+          <label class="transaction-form-field">
+            <span>分类</span>
+            <select v-model="categoryId">
+              <option value="">不分类</option>
+              <option
+                v-for="item in categoriesForType"
+                :key="item.id"
+                :value="item.id"
+              >
+                {{ item.name }}
+              </option>
+            </select>
+          </label>
+          <label class="transaction-form-field">
+            <span>账户</span>
+            <select v-model="accountId">
+              <option value="">不指定</option>
+              <option
+                v-for="item in activeAccounts"
+                :key="item.id"
+                :value="item.id"
+              >
+                {{ item.name }}
+              </option>
+            </select>
+          </label>
+          <label class="transaction-form-field transaction-wide-field">
+            <span>行程（可选）</span>
+            <select v-model="tripId">
+              <option value="">不关联</option>
+              <option
+                v-for="item in trips.trips.filter(
+                  (trip) => trip.deletedAt === null,
+                )"
+                :key="item.id"
+                :value="item.id"
+              >
+                {{ item.title }}（{{ item.startDate }}）
+              </option>
+            </select>
+          </label>
+        </div>
+      </SectionCard>
 
-      <div class="form-actions">
+      <SectionCard
+        v-if="type === 'REFUND'"
+        title="退款关联"
+        description="退款可关联原支出；无法确认原单时可标记为无原单退款。"
+        tone="muted"
+      >
+        <fieldset class="refund-fields transaction-refund-fields">
+          <legend class="sr-only">退款关联方式</legend>
+          <label class="check-label transaction-refund-toggle">
+            <input v-model="isUnlinkedRefund" type="checkbox" />
+            <span>无原单退款（不引用原账单）</span>
+          </label>
+          <label v-if="!isUnlinkedRefund" class="transaction-form-field">
+            <span>原账单</span>
+            <select v-model="originalTransactionId">
+              <option value="">选择一笔支出</option>
+              <option
+                v-for="item in expenseTransactions"
+                :key="item.id"
+                :value="item.id"
+              >
+                {{ item.merchant || "支出" }} · {{ item.amount }}
+              </option>
+            </select>
+          </label>
+        </fieldset>
+      </SectionCard>
+
+      <SectionCard title="补充说明" tone="muted">
+        <div class="transaction-form-grid">
+          <label class="transaction-form-field transaction-wide-field">
+            <span>商户/说明</span>
+            <input
+              v-model="merchant"
+              maxlength="100"
+              placeholder="例如：便利店"
+              type="text"
+            />
+          </label>
+          <label class="transaction-form-field transaction-wide-field">
+            <span>备注（可选）</span>
+            <textarea
+              v-model="note"
+              maxlength="500"
+              placeholder="补充票据、用途或其他说明"
+              rows="3"
+            ></textarea>
+          </label>
+        </div>
+      </SectionCard>
+
+      <FormActions class="transaction-form-actions">
+        <RouterLink replace class="secondary-button" :to="returnTarget">
+          取消
+        </RouterLink>
         <button class="primary-button" :disabled="submitting" type="submit">
           {{ submitting ? "保存中…" : "保存" }}
         </button>
-        <RouterLink replace class="secondary-button" :to="returnTarget"
-          >取消</RouterLink
-        >
-      </div>
+      </FormActions>
     </form>
-  </section>
+  </SecondaryPageShell>
 </template>
 
 <script lang="ts">

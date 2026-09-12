@@ -5,14 +5,14 @@
 ## 当前执行记录（2026-09-12）
 
 MOBILE-C3 已通过 PR #33 合入 Integration `5a0dc52`，合并 CI 最终全绿；私有预览与 iPhone/Android 验收保持通过。下一步是冻结 MOBILE-C4 独立任务契约。Web Push 候选保持关闭，真实送达门禁独立保留。
-MOBILE-C4 独立契约已在本地冻结，按 C4.1 记账表单、C4.2 日程/待办/提醒、C4.3 计划/行程详情、C4.4 AI 草稿/提案顺序实施；当前业务实现尚未开始。
+MOBILE-C4 C4.1 记账列表与表单已完成本地 UI 改版和完整 quality，尚未提交；C4.2 日程/待办/提醒尚未开始，之后仍按 C4.3 计划/行程详情、C4.4 AI 草稿/提案顺序实施。
 
 | ID | 任务 | 状态 | 工作包 |
 | --- | --- | --- | --- |
 | DA-1201 | PWA 导航策略、根 Tab 历史与深链接返回 | DONE | MOBILE-A（PR #29 已合并） |
 | DA-1202 | PWA Manifest、安装、主屏启动与安全更新 | DONE | MOBILE-B（PR #30 / DONE_INTEGRATION / ACCEPTED_WITH_DEFERRED_LIMITATIONS） |
 | DA-1203 | 应用内日期、月份和日期时间选择器 | DONE | MOBILE-C3（PR #33 / DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS） |
-| DA-1204 | 复杂二级页面统一 | READY | MOBILE-C4（CONTRACT_FROZEN_LOCAL / IMPLEMENTATION_NOT_STARTED；下一步 C4.1） |
+| DA-1204 | 复杂二级页面统一 | IN_PROGRESS | MOBILE-C4（C4_1_DONE_LOCAL / UNCOMMITTED；下一步 C4.2） |
 | DA-1101 | Web Push 订阅、送达、Service Worker 与权限 UI | DONE | R1.1 PR3/PR16/PR17（真实送达为独立门禁） |
 | DA-0001 | 完成产品与功能范围 | DONE | WP0 |
 | DA-0002 | 完成页面、流程和业务规则 | DONE | WP0 |

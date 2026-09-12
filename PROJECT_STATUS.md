@@ -10,8 +10,8 @@ activeHead: 45d52c6
 activeTask: MOBILE-C4 Complex Secondary Pages
 executionStatus: READY
 deliveryStatus: CONTRACT_FROZEN_LOCAL / IMPLEMENTATION_NOT_STARTED
-nextCanonicalTask: Execute MOBILE-C4 C4.1 TransactionFormView from Integration 45d52c6
-nextCanonicalTaskAfterCompletion: Continue MOBILE-C4 sequential slices C4.2 through C4.4
+nextCanonicalTask: Review and commit MOBILE-C4 C4.1, then execute C4.2 Calendar/Tasks/Reminders
+nextCanonicalTaskAfterCompletion: Continue MOBILE-C4 sequential slices C4.3 through C4.4
 localRevision: 45d52c6
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
@@ -30,7 +30,7 @@ privatePreviewRelease: b18b91d / b18b91d0-20260912T0735Z
 
 ## Current
 
-`MOBILE-C3` is complete in Integration. `MOBILE-C4` contract is frozen locally with four sequential slices; implementation has not started, and C4.1 TransactionFormView is first.
+`MOBILE-C3` is complete in Integration. `MOBILE-C4` C4.1 transaction list/form redesign is `DONE_LOCAL / UNCOMMITTED`; C4.2 Calendar/Tasks/Reminders has not started.
 
 ## Remaining
 

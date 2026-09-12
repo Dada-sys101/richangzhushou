@@ -1,5 +1,11 @@
 # Session End
 
+## 2026-09-12 — MOBILE-C4 C4.1
+
+- `codex/mobile-c4-complex-secondary-pages` 已完成账单列表与表单 UI 改版，状态为 `DONE_LOCAL / UNCOMMITTED`。
+- 375/390/430/768/1440 CSS px 页面检查及完整 `npm run quality`、`git diff --check` 通过；真实数据库 browser-qa、CI、部署和实机验收未运行。
+- 下一步先审查并提交 C4.1，再单独执行 C4.2 CalendarView/TasksView/RemindersView。
+
 ## 2026-09-12 — MOBILE-C3 实机验收通过
 
 - 用户确认 iPhone/Android 日期、月份和日期时间控件实机验收通过。

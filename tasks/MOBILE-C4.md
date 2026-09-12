@@ -3,7 +3,7 @@
 ## Metadata
 
 - Contract: `MOBILE_C4_COMPLEX_SECONDARY_PAGES_V1`
-- Status: `FROZEN / READY / NOT_STARTED`
+- Status: `IN_PROGRESS / C4_1_DONE_LOCAL / C4_2_NOT_STARTED`
 - Base: Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
 - Predecessor: MOBILE-C3 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
 - Delivery model: 一个 canonical task，四个严格顺序切片；每个切片独立实现、验证和提交，不跨组顺手改造。
@@ -21,12 +21,19 @@
 
 ## Implementation slices
 
-### C4.1 — Transaction form
+### C4.1 — Transaction pages
 
-- 页面：`apps/web/src/views/TransactionFormView.vue`。
-- 目标：统一新建/编辑记账页面的页头、字段分组、错误位置和底部操作；窄屏按钮不得重叠，键盘出现后主要操作仍可访问。
+- 页面：`apps/web/src/views/TransactionsView.vue`、`apps/web/src/views/TransactionFormView.vue`。根 Tab `RecordsView.vue` 已采用当前 V2 视觉基线，只做回归检查，不在本切片改写。
+- 目标：统一账单筛选、明细列表、新建/编辑页面的页头、内容层级、字段分组、错误位置和操作区；窄屏筛选、金额、按钮不得重叠，键盘出现后主要操作仍可访问。
 - 配套测试：现有账单页面测试及新增的布局/交互专项测试。
 - 退出条件：本切片验证通过并形成独立提交后，才能进入 C4.2。
+
+#### C4.1 implementation evidence
+
+- `TransactionsView.vue` 与 `TransactionFormView.vue` 已迁移到 `SecondaryPageShell`、`SectionCard` 和 `FormActions`，保留既有筛选、导出、创建、编辑、退款、删除恢复及返回行为。
+- 375、390、430、768、1440 CSS px 已完成页面运行检查；筛选区、退款字段和操作按钮无重叠、遮挡或横向溢出。
+- Web lint、typecheck、31 files / 137 tests、build 通过；完整 `npm run quality`、`git diff --check` 通过。
+- 当前为 `DONE_LOCAL / UNCOMMITTED`；数据库支持的完整 browser-qa、CI、私有预览与 iPhone/Android 实机验收尚未执行，不视为交付完成。
 
 ### C4.2 — Planner lists
 
@@ -114,4 +121,4 @@
 
 ## Codex execution prompt
 
-> 执行 `MOBILE-C4`，以 `tasks/MOBILE-C4.md` 为唯一任务契约，从 Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99` 建立独立 `codex/mobile-c4-complex-secondary-pages` 分支。一次只执行当前顺序切片：C4.1 TransactionFormView → C4.2 Calendar/Tasks/Reminders → C4.3 PlannerDetail/TripDetail → C4.4 Drafts/ProposalReview/AiView。修改前核对页面现有行为和测试；只调整布局、信息层级、响应式样式、可访问性及应用内反馈，复用 C1-C3 组件。不得修改路由、Navigation Policy、store、API、数据库、同步、认证、SW、Push 或业务语义。每个切片独立验证并提交，运行对应专项测试、五档视口检查、返回/深链接/未保存/离线场景、`npm run quality` 和 `git diff --check`。未经对应授权不得推送、创建 PR、部署或合并。
+> 执行 `MOBILE-C4`，以 `tasks/MOBILE-C4.md` 为唯一任务契约，从 Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99` 建立独立 `codex/mobile-c4-complex-secondary-pages` 分支。一次只执行当前顺序切片：C4.1 TransactionsView/TransactionFormView → C4.2 Calendar/Tasks/Reminders → C4.3 PlannerDetail/TripDetail → C4.4 Drafts/ProposalReview/AiView。修改前核对页面现有行为和测试；只调整布局、信息层级、响应式样式、可访问性及应用内反馈，复用 C1-C3 组件。不得修改路由、Navigation Policy、store、API、数据库、同步、认证、SW、Push 或业务语义。每个切片独立验证并提交，运行对应专项测试、五档视口检查、返回/深链接/未保存/离线场景、`npm run quality` 和 `git diff --check`。未经对应授权不得推送、创建 PR、部署或合并。

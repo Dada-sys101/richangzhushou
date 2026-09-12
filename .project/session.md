@@ -2,25 +2,25 @@
 
 ## Session Status
 
-READY / MOBILE_C4 / CONTRACT_FROZEN_LOCAL / IMPLEMENTATION_NOT_STARTED
+IN_PROGRESS / MOBILE_C4 / C4_1_DONE_LOCAL / UNCOMMITTED
 
 ## Task
 
 - ID: `MOBILE-C4 Complex Secondary Pages`
-- Execution: `READY`
-- Delivery: `CONTRACT_FROZEN_LOCAL / IMPLEMENTATION_NOT_STARTED`
-- Worktree: `D:\daily-assistant-worktrees\quality-r1-governance-draft-write`
-- Branch: `codex/v15-integration-foundation`
-- Base HEAD: Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
+- Execution: `IN_PROGRESS`
+- Delivery: `C4_1_DONE_LOCAL / UNCOMMITTED / C4_2_NOT_STARTED`
+- Worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
+- Branch: `codex/mobile-c4-complex-secondary-pages`
+- Base HEAD: Integration `cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d`
 - Contract: `tasks/MOBILE-C4.md` (`MOBILE_C4_COMPLEX_SECONDARY_PAGES_V1`).
-- Scope: 四个顺序切片迁移复杂二级页面；下一步只执行 C4.1 `TransactionFormView`。
+- Scope: 四个顺序切片迁移复杂二级页面；C4.1 `TransactionsView` / `TransactionFormView` 已本地完成，下一步为 C4.2 日程/待办/提醒。
 - Excluded: 路由、Navigation Policy、store、API、数据库、同步、认证、SW、Push 和业务语义。
 
 ## Current Progress
 
-- MOBILE-C4 独立任务契约已在本地冻结，明确 C4.1 至 C4.4 顺序、允许文件、禁止范围、兼容性门禁、五档视口和设备验收矩阵；业务实现尚未开始。
+- MOBILE-C4 C4.1 已完成账单列表与表单的共享页面壳、内容分区、响应式操作区和中文反馈改版；五档视口与完整 quality 通过，当前未提交。
 - PR #33 已合并为 Integration `5a0dc52`。合并 CI run `34683019629` 的 quality、db-validation 通过；browser-qa 首次因详情重载时序断言失败，未改代码重跑后 job `103525654367` 通过，最终矩阵全绿。
-- MOBILE-C3 状态为 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`；当前没有活动实施任务。
+- MOBILE-C3 状态为 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`；当前活动实施任务为 MOBILE-C4 C4.1 本地收口。
 
 - 已建立 `TemporalPickerField`、`DateField`、`DateTimeField`、`MonthField`，使用现有 AppDialog 提供中文日期网格、月份网格、24 小时时间、今天、清除、取消和确认。
 - 已迁移账单筛选、记账表单、预算、行程列表、日程、待办和提醒页面；共享控件及 Planner 列表专项 5 tests、Web lint/typecheck 通过。

@@ -1,20 +1,20 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T16:55:00+08:00
+updatedAt: 2026-09-12T18:30:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: 45d52c664fd9232c2fb0dbf5b14f27d277aa1e99
+integrationHead: cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-C4 Complex Secondary Pages
-executionStatus: READY
-deliveryStatus: CONTRACT_FROZEN_LOCAL / IMPLEMENTATION_NOT_STARTED
-currentWork: MOBILE-C4 contract freezes four sequential page-migration slices; implementation branch has not been created
+executionStatus: IN_PROGRESS
+deliveryStatus: C4_1_DONE_LOCAL / UNCOMMITTED / C4_2_NOT_STARTED
+currentWork: C4.1 transaction list and form UI redesign is complete locally on codex/mobile-c4-complex-secondary-pages; later slices have not started
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Execute MOBILE-C4 C4.1 TransactionFormView from Integration 45d52c6
-nextCanonicalTaskAfterCompletion: Continue MOBILE-C4 sequential slices C4.2 through C4.4
+nextCanonicalTask: Review and commit MOBILE-C4 C4.1, then execute C4.2 Calendar/Tasks/Reminders
+nextCanonicalTaskAfterCompletion: Continue MOBILE-C4 sequential slices C4.3 through C4.4
 openPullRequests: []
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY

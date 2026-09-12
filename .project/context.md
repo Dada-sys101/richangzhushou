@@ -2,16 +2,16 @@
 
 ## Last Updated
 
-2026-09-12 16:55 +08:00 — MOBILE-C4 complex secondary-page contract frozen locally from Integration `45d52c6`; implementation has not started.
+2026-09-12 18:30 +08:00 — MOBILE-C4 C4.1 transaction pages redesigned and fully verified locally; changes remain uncommitted and C4.2 has not started.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
-- Active worktree: `D:\daily-assistant-worktrees\quality-r1-governance-draft-write`
-- Active branch: `codex/v15-integration-foundation`
+- Verified Integration HEAD: `cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d`
+- Active worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
+- Active branch: `codex/mobile-c4-complex-secondary-pages`
 - Active delivery: MOBILE-C3 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
@@ -30,7 +30,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `MOBILE-C4 Complex Secondary Pages / READY`.
+- Current canonical task: `MOBILE-C4 Complex Secondary Pages / IN_PROGRESS / C4_1_DONE_LOCAL`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -50,13 +50,13 @@
 
 - ID: `MOBILE-C4 Complex Secondary Pages`.
 - Goal: migrate complex secondary pages to the shared C1-C3 UI foundation without changing business behavior.
-- Scope: four strict sequential slices defined by `tasks/MOBILE-C4.md`; C4.1 TransactionFormView is first.
-- Current state: `FROZEN / READY / IMPLEMENTATION_NOT_STARTED`.
+- Scope: four strict sequential slices defined by `tasks/MOBILE-C4.md`; C4.1 covers TransactionsView and TransactionFormView.
+- Current state: `IN_PROGRESS / C4_1_DONE_LOCAL / UNCOMMITTED / C4_2_NOT_STARTED`.
 - Excluded: routes, navigation policy, stores, API/database, sync, auth, SW, Push and business semantics.
 
 ## Next Recommended Task
 
-Execute only MOBILE-C4 C4.1 TransactionFormView from Integration `45d52c6`, then verify and close that slice before C4.2.
+Review and commit MOBILE-C4 C4.1, then execute C4.2 CalendarView/TasksView/RemindersView without crossing into C4.3.
 
 MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of the frozen MOBILE-C sequence.
 

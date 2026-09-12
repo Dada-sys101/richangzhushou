@@ -1066,6 +1066,121 @@ html.app-dialog-open body {
   border-radius: 12px;
 }
 
+.transaction-form {
+  display: grid;
+  gap: var(--space-section);
+}
+
+.transaction-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.transaction-form-field {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.transaction-form-field input,
+.transaction-form-field select,
+.transaction-form-field textarea,
+.transaction-form-field .temporal-field {
+  width: 100%;
+  min-width: 0;
+}
+
+.transaction-time-field,
+.transaction-wide-field {
+  grid-column: 1 / -1;
+}
+
+.transaction-amount-field input {
+  font-size: 1.15rem;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+}
+
+.transaction-refund-fields {
+  padding: 0;
+  border: 0;
+}
+
+.transaction-form-feedback {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-sm);
+  color: var(--color-danger);
+  background: #fff7f7;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.transaction-form-feedback.form-success {
+  border-color: #bbf7ca;
+  color: var(--color-success);
+  background: #f0fdf4;
+}
+
+.transaction-form-feedback.warning-banner {
+  border-color: #f59e0b;
+  color: var(--color-warning-text);
+  background: var(--color-warning-bg);
+}
+
+.transaction-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.transaction-deleted-filter {
+  align-self: end;
+  min-height: 44px;
+}
+
+.transaction-deleted-filter input {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+}
+
+.transaction-list-toolbar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.transaction-list-toolbar > * {
+  width: 100%;
+  min-width: 0;
+}
+
+.transaction-form-actions {
+  margin: 2px 0 0;
+  padding: 4px 0 calc(4px + env(safe-area-inset-bottom));
+}
+
+.transaction-form-actions > * {
+  min-width: 132px;
+}
+
+.transaction-refund-toggle {
+  min-height: 44px;
+}
+
+.transaction-refund-toggle input {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+}
+
 .check-label {
   display: flex;
   align-items: center;
@@ -2754,6 +2869,30 @@ html.app-dialog-open body {
   }
   .finance-page .toolbar > * {
     width: 100%;
+    min-width: 0;
+  }
+  .transaction-form-grid,
+  .transaction-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .transaction-time-field,
+  .transaction-wide-field {
+    grid-column: 1;
+  }
+  .transaction-form-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .transaction-form-actions > * {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+  }
+  .transaction-row {
+    align-items: start;
+  }
+  .transaction-main {
     min-width: 0;
   }
   .bottom-nav {

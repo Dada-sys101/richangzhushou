@@ -1,5 +1,11 @@
 # 项目进度（派生摘要）
 
+## 2026-09-12 — MOBILE-C4 C4.1 记账页面改版（DONE_LOCAL）
+
+- 完成 `TransactionsView.vue` 与 `TransactionFormView.vue` 的信息层级、响应式布局、中文反馈和操作区统一，业务逻辑与路由行为保持不变。
+- 五档 CSS 视口运行检查通过；Web 专项验证和完整 `npm run quality`、`git diff --check` 通过。
+- 改动仍为 `UNCOMMITTED`；数据库支持的 browser-qa、CI、私有预览及手机实机验收留待交付门禁，下一切片为 C4.2 日程/待办/提醒。
+
 ## 2026-09-12 — MOBILE-C1 二级页面壳（FOURTH_FEEDBACK_FIX_DEPLOYED / DEVICE_RECHECK_PENDING）
 
 - MOBILE-B PR #30 已合并为 Integration `5d6c5c5`，合并后 CI run `34667321147` 的三个任务全部通过。
