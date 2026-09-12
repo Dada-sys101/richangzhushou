@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_C1 / DONE_LOCAL / AUTOMATED_VALIDATION_PASS / BROWSER_MATRIX_PENDING
+VERIFYING / MOBILE_C1 / DONE_PUSHED / PR_31_OPEN / CI_PASS / PREVIEW_DEPLOYMENT_PENDING
 
 ## Task
 
 - ID: `MOBILE-C1 Secondary Shell and Tokens`
 - Execution: `VERIFYING`
-- Delivery: `DONE_LOCAL / AUTOMATED_VALIDATION_PASS / BROWSER_MATRIX_PENDING`
+- Delivery: `DONE_PUSHED / PR_31_OPEN / CI_PASS / PREVIEW_DEPLOYMENT_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-c1-secondary-shell`
 - Base HEAD: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
@@ -21,6 +21,7 @@ VERIFYING / MOBILE_C1 / DONE_LOCAL / AUTOMATED_VALIDATION_PASS / BROWSER_MATRIX_
 - 已建立 `SecondaryPageShell`、`SectionCard`、`FormActions` 和组件测试。
 - `AccountsView`、`CategoriesView`、`BudgetsView`、`SyncConflictsView`、`ChangePasswordView` 已迁移到统一页面壳和内容分区。
 - 完整 `npm run quality` 与 `git diff --check` 通过：Web 28 files/132 tests、API 34 files/281 tests；五档浏览器矩阵待远端候选 CI 验证。
+- 提交 `91c4fed` 已推送并创建 PR #31；CI runs `34667896982`、`34667898608` 的 quality、db-validation、browser-qa 全部通过。
 
 - MOBILE-A PR #29 已合入 Integration `6e1313f`，合并后 CI run `34578075462` 的 quality、db-validation、browser-qa 全部通过。
 - 已从该 Integration 基线创建独立分支 `codex/mobile-b-pwa-lifecycle`。
@@ -42,9 +43,9 @@ VERIFYING / MOBILE_C1 / DONE_LOCAL / AUTOMATED_VALIDATION_PASS / BROWSER_MATRIX_
 
 ## Remaining Work
 
-1. 获得授权后形成独立提交、推送并创建 PR。
-2. 由候选 CI 完成浏览器矩阵，复核导航、错误和空状态。
-3. CI 通过后再决定私有预览部署；不自动进入 MOBILE-C2。
+1. 获得独立授权后部署到私有预览并完成实机视觉验收。
+2. 验收通过后单独决定 PR #31 合并。
+3. 不自动进入 MOBILE-C2。
 
 ## Previous Task Record
 
@@ -64,4 +65,4 @@ VERIFYING / MOBILE_C1 / DONE_LOCAL / AUTOMATED_VALIDATION_PASS / BROWSER_MATRIX_
 
 ## Last Updated
 
-2026-09-12 10:32 +08:00 — MOBILE-C1 首批共享壳与五页面迁移完成本地实现，完整质量通过；等待提交/推送/PR 授权及候选浏览器矩阵。
+2026-09-12 10:40 +08:00 — MOBILE-C1 提交 `91c4fed` 已推送至 PR #31，两组 CI 全绿；等待私有预览部署授权和实机视觉验收。

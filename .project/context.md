@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-12 10:32 +08:00 — MOBILE-C1 first-page shell implementation passes full local quality; delivery authorization and candidate browser matrix remain.
+2026-09-12 10:40 +08:00 — MOBILE-C1 commit `91c4fed` is pushed in PR #31 and both CI matrices pass; preview deployment and physical visual acceptance remain.
 
 ## Repository State
 
@@ -12,7 +12,7 @@
 - Verified Integration HEAD: `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
 - Active worktree: `D:\daily-assistant`
 - Active branch: `codex/mobile-c1-secondary-shell`
-- Active delivery: MOBILE-C1 `DONE_LOCAL / AUTOMATED_VALIDATION_PASS / BROWSER_MATRIX_PENDING`
+- Active delivery: MOBILE-C1 `DONE_PUSHED / PR_31_OPEN / CI_PASS / PREVIEW_DEPLOYMENT_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.
@@ -55,7 +55,7 @@
 
 ## Next Recommended Task
 
-Complete MOBILE-C1 full quality and five-width browser verification, then prepare its independent delivery decision.
+Deploy MOBILE-C1 to the private preview after independent authorization, complete physical visual acceptance, then prepare its merge decision.
 
 After MOBILE-B acceptance and merge, execute the staged MOBILE-C contract: secondary-page shell, custom dialogs, custom date/time fields, then complex page migration.
 
