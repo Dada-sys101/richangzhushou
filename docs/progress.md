@@ -208,8 +208,10 @@ ADR-029 的无金额上限策略不等于生产预算 enforcement。后续新功
 - 修正提交 `b620850` 两组 CI 全绿；备份后已部署 `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`，公开入口、新 CSS、API、PWA 资源与日志复核通过，等待设备复验。
 - PR #32 已合并为 Integration `e4b6567`，合并后 CI run `34678903476` 三项全绿；后继 MOBILE-C3 已从该精确基线建立独立分支与任务契约。
 
-## 2026-09-12 — MOBILE-C3 自定义日期时间控件（VERIFYING / PR #33 / CI PASS）
+## 2026-09-12 — MOBILE-C3 自定义日期时间控件（VERIFYING / PRIVATE_PREVIEW_DEPLOYED）
 
 - 已建立共享日期、月份和日期时间选择器，并迁移账单、预算、行程列表、日程、待办和提醒页面。
 - 组件和 Planner 列表专项测试、Web lint/typecheck 通过；随后完成复杂详情与 AI 卡片迁移。
-- 计划详情、行程详情和 AI 草稿/操作卡片已迁移；用户端不再残留原生日期类型。完整 quality 通过：Web 31 files/137 tests、API 34 files/283 tests、contracts 5 files/151 tests、config 1 file/8 tests。`r`n- PR #33 HEAD `7ec404d` 已推送；E2E 已改为真实操作自定义时间选择器。CI runs `34680683732`、`34680685271` 的 quality、db-validation、browser-qa 全绿，等待私有预览部署授权。
+- 计划详情、行程详情和 AI 草稿/操作卡片已迁移；用户端不再残留原生日期类型。完整 quality 通过：Web 31 files/137 tests、API 34 files/283 tests、contracts 5 files/151 tests、config 1 file/8 tests。
+- PR #33 HEAD `7ec404d` 已推送；E2E 已改为真实操作自定义时间选择器。CI runs `34680683732`、`34680685271` 的 quality、db-validation、browser-qa 全绿。
+- PR #33 当前 HEAD `b18b91d` 已在备份 `daily_assistant_preview_20260912T074830Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`。既有 Web Push migration 补齐成功；用户端、深链接、API、管理端、Manifest、Service Worker、新日期控件资源和启动日志检查通过，等待 iPhone/Android 实机验收。

@@ -2,6 +2,8 @@
 
 评估更新：2026-09-11（`Asia/Shanghai`）
 
+> 2026-09-12 MOBILE-C3 自定义日期时间控件发布：PR #33 当前 HEAD `b18b91d` 的两组 CI 全绿。发布前备份为 `daily_assistant_preview_20260912T074830Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`，旧 release `b6208500-20260912T0627Z` 保留为回滚点。既有 Web Push migration 已补齐；用户端、日期控件资源、深链接、API、管理端、Manifest、Service Worker 和启动日志检查通过，等待物理设备验收。
+
 > 2026-09-12 MOBILE-C2 应用内弹窗发布：PR #32 HEAD `3a07d28` 已通过两组 CI，并在受保护备份 `daily_assistant_preview_20260912T060714Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/3a07d280-20260912T0608Z`。用户端、账单深链接、API 健康、Manifest、Service Worker、管理端、新构建资源和启动后 warning/error 日志复核通过；旧 release `9a991200-20260912T0415Z` 保留回滚，物理设备弹窗验收待完成。
 
 > 2026-09-12 MOBILE-C2 弹窗可见性修正：提交 `b620850` 将移动端确认框调整为居中、不透明面板并提高遮罩和文字对比度，两组 CI 全绿。发布前备份为 `daily_assistant_preview_20260912T062753Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`，旧 release `3a07d280-20260912T0608Z` 保留回滚；入口、API、PWA 资源和日志复核通过。
@@ -20,7 +22,7 @@
 - H1/H2：`WAIVED_FOR_R1 / UNVERIFIED`，不能记为物理 iPhone 通过。
 - REL-02 独立 Staging：`CANCELLED / SEPARATE_STAGING_WAIVED`。
 - 验证环境：现有 Alibaba 私有预览。
-- 当前任务：`MOBILE-B PWA Lifecycle and Installation Experience / VERIFYING`；PR #30 已部署，实机验收待完成。
+- 当前任务：`MOBILE-C3 Date and Time Controls / VERIFYING`；PR #33 已部署，实机验收待完成。
 - 公网 DNS/HTTPS/CORS、Provider 扩展、REL-04 和生产发布仍是独立门禁。
 
 ## 当前发布版本
@@ -28,9 +30,9 @@
 - Integration commit：`6515b8fd0f13969a0e434d3d8223f60a82cb0310`。
 - 来源：PR #25，状态 `MERGED`。
 - 合并后 CI：run `34181985716`，`quality`、`db-validation`、`browser-qa` 全部通过。
-- 服务器 release：`/opt/daily-assistant-preview/releases/aebc2570-20260911T0946Z`（MOBILE-B PR #30 commit `aebc257`；PR 尚未合并）。
+- 服务器 release：`/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`（MOBILE-C3 PR #33 HEAD `b18b91d`；PR 尚未合并）。
 - API、用户端和管理端入口均返回 HTTP 200；切换后的 warning/error 日志为空。
-- 本次没有执行 migration、修改 MySQL/Nginx、扩展域名或改变 Provider 开关。
+- 本次 `prisma migrate deploy` 补齐仓库既有 `20260908150000_web_push_subscriptions` migration；未修改 MySQL/Nginx、扩展域名或改变 Provider 开关。
 
 ## 供应链与构建证据
 

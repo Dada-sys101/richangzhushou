@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T15:30:00+08:00
+updatedAt: 2026-09-12T16:05:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -10,10 +10,10 @@ pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-C3 Date and Time Controls
 executionStatus: VERIFYING
-deliveryStatus: DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYMENT_AUTHORIZATION_PENDING
-currentWork: custom temporal controls replace all user-web native temporal fields; PR #33 HEAD 7ec404d and both CI runs pass quality, db-validation and browser-qa
+deliveryStatus: DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
+currentWork: custom temporal controls replace all user-web native temporal fields; PR #33 candidate is deployed at b18b91d0-20260912T0735Z with post-deployment checks passing, pending device acceptance
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Obtain authorization to deploy PR #33 HEAD 7ec404d to the private-preview environment
+nextCanonicalTask: Complete MOBILE-C3 physical-device date and time control acceptance
 nextCanonicalTaskAfterCompletion: MOBILE-C4 complex secondary pages
 openPullRequests: [#33]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
@@ -22,7 +22,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-C2 feedback fix `b620850`, deployed at `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`; previous `3a07d280-20260912T0608Z` remains the rollback release.
+- Active release: MOBILE-C3 PR #33 HEAD `b18b91d`, deployed at `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`; previous `b6208500-20260912T0627Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.

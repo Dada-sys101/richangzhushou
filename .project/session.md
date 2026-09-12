@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_C3 / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYMENT_AUTHORIZATION_PENDING
+VERIFYING / MOBILE_C3 / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING
 
 ## Task
 
 - ID: `MOBILE-C3 Date and Time Controls`
 - Execution: `VERIFYING`
-- Delivery: `DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYMENT_AUTHORIZATION_PENDING`
+- Delivery: `DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-c3-date-time-controls`
 - Base HEAD: Integration `e4b6567e1613f37e689429bd541b0644ab4d9657`
@@ -89,3 +89,5 @@ VERIFYING / MOBILE_C3 / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEP
 ## Last Updated
 
 2026-09-12 14:16 +08:00 — MOBILE-C2 PR #32 HEAD `3a07d28` 已部署私有预览并通过发布后检查；等待实机验收。
+
+- PR #33 current HEAD `b18b91d` deployed to `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z` after protected backup `daily_assistant_preview_20260912T074830Z.sql.gz`. Existing Web Push migration was applied; entry points, API health, deep links, Manifest, Service Worker, new temporal-picker assets and startup logs passed. Physical-device acceptance remains.

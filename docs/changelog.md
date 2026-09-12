@@ -760,3 +760,5 @@
 - 完成计划详情、行程详情和 AI 卡片日期字段迁移，用户端源码不再直接使用 `date`、`month` 或 `datetime-local`。
 
 - MOBILE-C3 PR #33 HEAD `7ec404d` 已推送；修正 Playwright 对自定义日期时间弹窗的操作方式，两组 CI runs `34680683732`、`34680685271` 的 quality、db-validation、browser-qa 全部通过。
+
+- PR #33 状态证据提交后 HEAD 为 `b18b91d`，两组后续 CI runs `34680908365`、`34680910314` 仍全绿。候选已在受保护备份后部署至 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`，并通过入口、深链接、API、PWA 资源与日志检查。
