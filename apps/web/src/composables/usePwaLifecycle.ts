@@ -12,6 +12,8 @@ const deferredInstallPrompt = ref<InstallPromptEvent | null>(null);
 const installGuideOpen = ref(false);
 const needRefresh = ref(false);
 const updateBlocked = ref(false);
+const updateApplying = ref(false);
+const updateError = ref("");
 let registration: ServiceWorkerRegistration | null = null;
 let initialized = false;
 
@@ -125,21 +127,43 @@ function createPwaLifecycle() {
       updateBlocked.value = true;
       return false;
     }
-    if (!registration?.waiting) return false;
     updateBlocked.value = false;
-    let reloading = false;
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (reloading) return;
-      reloading = true;
-      window.location.reload();
-    });
-    registration.waiting.postMessage({ type: "SKIP_WAITING" });
-    return true;
+    updateApplying.value = true;
+    updateError.value = "";
+    try {
+      registration ??=
+        (await navigator.serviceWorker.getRegistration()) ?? null;
+      if (!registration) throw new Error("SERVICE_WORKER_NOT_REGISTERED");
+      if (!registration.waiting) await registration.update();
+      const waitingWorker = registration.waiting;
+      if (!waitingWorker) {
+        needRefresh.value = false;
+        window.location.reload();
+        return true;
+      }
+      let reloading = false;
+      const reload = () => {
+        if (reloading) return;
+        reloading = true;
+        window.location.reload();
+      };
+      navigator.serviceWorker.addEventListener("controllerchange", reload, {
+        once: true,
+      });
+      waitingWorker.postMessage({ type: "SKIP_WAITING" });
+      window.setTimeout(reload, 2500);
+      return true;
+    } catch {
+      updateApplying.value = false;
+      updateError.value = "更新暂时未能完成，请稍后重试。";
+      return false;
+    }
   }
 
   function deferUpdate() {
     needRefresh.value = false;
     updateBlocked.value = false;
+    updateError.value = "";
   }
 
   return {
@@ -153,6 +177,8 @@ function createPwaLifecycle() {
     needRefresh: readonly(needRefresh),
     standalone,
     updateBlocked: readonly(updateBlocked),
+    updateApplying: readonly(updateApplying),
+    updateError: readonly(updateError),
   };
 }
 

@@ -13,18 +13,28 @@ const pwa = usePwaLifecycle();
       <p v-if="pwa.updateBlocked.value">
         当前有未保存内容或正在同步，请完成后再更新。
       </p>
+      <p v-else-if="pwa.updateError.value" role="alert">
+        {{ pwa.updateError.value }}
+      </p>
+      <p v-else-if="pwa.updateApplying.value">正在更新，请稍候…</p>
       <p v-else>更新后将自动重新打开日常助手。</p>
     </div>
     <div class="pwa-update-actions">
-      <button class="secondary-button" type="button" @click="pwa.deferUpdate">
+      <button
+        class="secondary-button"
+        :disabled="pwa.updateApplying.value"
+        type="button"
+        @click="pwa.deferUpdate"
+      >
         稍后
       </button>
       <button
         class="primary-button"
+        :disabled="pwa.updateApplying.value"
         type="button"
         @click="pwa.applyUpdate(sync.syncing)"
       >
-        更新
+        {{ pwa.updateApplying.value ? "更新中…" : "更新" }}
       </button>
     </div>
   </aside>

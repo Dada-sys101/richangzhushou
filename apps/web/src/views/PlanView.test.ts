@@ -24,6 +24,9 @@ describe("PlanView", () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain("今天的时间轴");
+    expect(wrapper.get(".plan-date-rail button.active").classes()).toContain(
+      "active",
+    );
     await wrapper
       .get(".segmented-control button:nth-child(2)")
       .trigger("click");
