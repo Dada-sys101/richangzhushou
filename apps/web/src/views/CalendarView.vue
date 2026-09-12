@@ -5,6 +5,7 @@ import { RouterLink, useRoute } from "vue-router";
 import type { CalendarEventSummary } from "../api/client";
 import PageHeader from "../components/PageHeader.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
+import { requestAppConfirm } from "../composables/useAppConfirm";
 import { useAuthStore } from "../stores/auth";
 import { usePlannerStore } from "../stores/planner";
 import { appendReturnTo } from "../utils/navigation";
@@ -166,9 +167,12 @@ async function saveEdit(item: CalendarEventSummary) {
 
 async function remove(item: CalendarEventSummary) {
   if (
-    !window.confirm(
-      `确定删除日程“${item.title}”吗？删除后仍可在“显示已删除”中恢复。`,
-    )
+    !(await requestAppConfirm({
+      confirmLabel: "删除",
+      description: `确定删除日程“${item.title}”吗？删除后仍可在“显示已删除”中恢复。`,
+      destructive: true,
+      title: "删除日程？",
+    }))
   ) {
     return;
   }

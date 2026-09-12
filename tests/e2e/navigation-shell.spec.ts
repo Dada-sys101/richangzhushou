@@ -107,12 +107,15 @@ test("统一页面壳保留来源、拦截未保存离开并支持刷新", async
   await page.goto("/transactions/new?returnTo=%2Frecords%3Ftab%3Dpending");
   await expect(page.getByRole("button", { name: "返回记录" })).toBeVisible();
   await page.getByLabel("金额（元）").fill("1.00");
-  page.once("dialog", (dialog) => dialog.dismiss());
   await page.getByRole("button", { name: "返回记录" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "放弃未保存的内容？" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "取消", exact: true }).click();
   await expect(page).toHaveURL(/\/transactions\/new\?returnTo=/);
 
-  page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "返回记录" }).click();
+  await page.getByRole("button", { name: "离开", exact: true }).click();
   await expect(page).toHaveURL(/\/records\?tab=pending/);
 
   await page.goto(
@@ -145,8 +148,8 @@ test("统一页面壳保留来源、拦截未保存离开并支持刷新", async
   await expect(page.getByText(`${taskTitle}_edited`)).toBeVisible();
   await page.getByRole("button", { name: "完成", exact: true }).click();
   await expect(page.getByText("已完成", { exact: true })).toBeVisible();
-  page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "删除", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "删除" }).click();
   await expect(page.getByText("已删除，可恢复")).toBeVisible();
   await page.getByRole("button", { name: "恢复", exact: true }).click();
   await expect(page.getByText("已完成", { exact: true })).toBeVisible();
@@ -180,8 +183,8 @@ test("统一页面壳保留来源、拦截未保存离开并支持刷新", async
   await expect(page.getByText(`${eventTitle}_edited`)).toBeVisible();
   await page.getByRole("button", { name: "取消日程" }).click();
   await expect(page.getByText("已取消", { exact: true })).toBeVisible();
-  page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "删除", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "删除" }).click();
   await expect(page.getByText("已删除，可恢复")).toBeVisible();
   await page.getByRole("button", { name: "恢复", exact: true }).click();
   await page.getByRole("button", { name: "返回计划" }).click();
@@ -214,8 +217,8 @@ test("统一页面壳保留来源、拦截未保存离开并支持刷新", async
   await expect(page.getByText("已取消", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "重新安排" }).click();
   await expect(page.getByText("待发送")).toBeVisible();
-  page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "删除", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "删除" }).click();
   await expect(page.getByText("已删除，可恢复")).toBeVisible();
   await page.getByRole("button", { name: "恢复", exact: true }).click();
   await page.getByRole("button", { name: "返回计划" }).click();

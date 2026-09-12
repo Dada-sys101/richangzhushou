@@ -1,28 +1,28 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T11:50:00+08:00
+updatedAt: 2026-09-12T14:31:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: 5d6c5c51a452ce1c5e425dba32053e017ded77e2
+integrationHead: 7ce7805f04ac6366b5047dc0fde365f433e4be3c
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: MOBILE-C1 Secondary Shell and Tokens
+currentTask: MOBILE-C2 App Dialogs and Feedback
 executionStatus: VERIFYING
-deliveryStatus: THIRD_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING
-currentWork: MOBILE-C1 fourth feedback fix 9a99120 passes both CI matrices and is deployed to private preview; physical device recheck remains
+deliveryStatus: DONE_PUSHED / PR_32_OPEN / CI_PASS / FEEDBACK_FIX_PRIVATE_PREVIEW_DEPLOYED / DEVICE_RECHECK_PENDING
+currentWork: MOBILE-C2 dialog visibility correction b620850 passed CI runs 34678001648 and 34678004033 and is deployed at /opt/daily-assistant-preview/releases/b6208500-20260912T0627Z after protected backup
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Complete MOBILE-C1 physical visual acceptance
-nextCanonicalTaskAfterCompletion: MOBILE-C2 app dialogs and feedback
-openPullRequests: [PR #31]
+nextCanonicalTask: Repeat physical-device acceptance for the centered high-contrast MOBILE-C2 dialog, then obtain merge authorization for PR #32
+nextCanonicalTaskAfterCompletion: MOBILE-C3 date and time controls
+openPullRequests: [PR #32]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-B update-takeover commit `727cb60`, deployed at `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z`; previous `927dea30-20260912T0129Z` remains the rollback release.
+- Active release: MOBILE-C2 feedback fix `b620850`, deployed at `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`; previous `3a07d280-20260912T0608Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.

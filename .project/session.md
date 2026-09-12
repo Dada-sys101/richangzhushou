@@ -2,20 +2,30 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_C1 / FOURTH_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING
+VERIFYING / MOBILE_C2 / FEEDBACK_FIX_PRIVATE_PREVIEW_DEPLOYED / CI_PASS / DEVICE_RECHECK_PENDING
 
 ## Task
 
-- ID: `MOBILE-C1 Secondary Shell and Tokens`
+- ID: `MOBILE-C2 App Dialogs and Feedback`
 - Execution: `VERIFYING`
-- Delivery: `FOURTH_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING`
+- Delivery: `FEEDBACK_FIX_PRIVATE_PREVIEW_DEPLOYED / CI_PASS / DEVICE_RECHECK_PENDING`
 - Worktree: `D:\daily-assistant`
-- Branch: `codex/mobile-c1-secondary-shell`
-- Base HEAD: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
-- Scope: 二级页面共享壳、分区卡片、表单操作区、样式变量，以及首批五个页面迁移。
-- Excluded: 路由/返回策略、业务 store、API、数据库、SW、Push、弹窗和日期时间控件。
+- Branch: `codex/mobile-c2-app-dialogs`
+- Base HEAD: Integration `7ce7805f04ac6366b5047dc0fde365f433e4be3c`
+- Scope: 应用内弹窗、确认服务、操作表、Toast 基础组件，以及现有业务原生确认框替换。
+- Excluded: 路由/返回策略、业务 store、API、数据库、SW、Push 和日期时间控件。
 
 ## Current Progress
+
+- MOBILE-C1 PR #31 已合并为 Integration `7ce7805`，合并后 CI run `34675913987` 的 quality、db-validation、browser-qa 全部通过。
+- 已从该 Integration 基线创建 `codex/mobile-c2-app-dialogs`，任务契约见 `tasks/MOBILE-C2.md`。
+- 已实现全局 Promise 确认服务、`AppDialog`、`ConfirmDialog`、`ActionSheet`、`ToastMessage` 和宿主；日程、待办、提醒、计划详情、Proposal 拒绝及未保存离开已切换为应用内中文确认。
+- 弹窗支持焦点进入/恢复、Tab 约束、Escape、背景滚动锁定和移动端安全区；专项测试与完整门禁待完成。
+- 专项组件/确认服务 2 files/3 tests、受影响页面 3 files/59 tests 通过；完整 `npm run quality` 与 `git diff --check` 通过，Web 总计 30 files/135 tests。当前等待独立提交、推送和 PR 授权。
+- 功能提交 `4b873f5` 及 E2E 修正提交 `999426f` 已推送到 PR #32；push run `34676910173` 与 PR run `34676911672` 的 quality、db-validation、browser-qa 全部通过。下一步需单独授权部署到私有预览环境。
+- PR #32 当前 HEAD `3a07d28` 已在备份 `daily_assistant_preview_20260912T060714Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/3a07d280-20260912T0608Z`；公开入口、API 健康、账单深链接、Manifest、Service Worker、管理端、新构建资源和 warning/error 日志检查通过，等待实机弹窗验收。
+- 实机截图显示弹窗面板因旧 CSS 变量近似透明且移动端贴底。现已改为全宽度居中、不透明白底、加深遮罩及高对比度标题/正文，专项测试和完整 `npm run quality` 通过；原生日期时间输入的替换归入 MOBILE-C3。
+- 修正提交 `b620850` 的 push/PR CI runs `34678001648`、`34678004033` 全绿；备份 `daily_assistant_preview_20260912T062753Z.sql.gz` 后已部署 `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`。入口、API、深链接、Manifest、SW、管理端、新 CSS 和日志检查通过，等待设备复验。
 
 - MOBILE-B PR #30 已合并为 Integration `5d6c5c5`，合并后 CI run `34667321147` 全绿。
 - 已建立 `SecondaryPageShell`、`SectionCard`、`FormActions` 和组件测试。
@@ -74,4 +84,4 @@ VERIFYING / MOBILE_C1 / FOURTH_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DE
 
 ## Last Updated
 
-2026-09-12 12:19 +08:00 — MOBILE-C1 第四轮反馈修复已通过两组 CI 并部署私有预览；等待设备复验，PR #31 尚未合并。
+2026-09-12 14:16 +08:00 — MOBILE-C2 PR #32 HEAD `3a07d28` 已部署私有预览并通过发布后检查；等待实机验收。

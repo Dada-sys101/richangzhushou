@@ -7,6 +7,7 @@ import {
   type MaybeRefOrGetter,
 } from "vue";
 import * as VueRouter from "vue-router";
+import { requestAppConfirm } from "./useAppConfirm";
 
 const DEFAULT_MESSAGE = "当前页面有未保存的内容，确定要离开吗？";
 export const hasUnsavedChanges = ref(false);
@@ -35,7 +36,12 @@ export function useUnsavedChanges(
       if (allowNavigation.value || !toValue(isDirty)) {
         return true;
       }
-      return window.confirm(message);
+      return requestAppConfirm({
+        confirmLabel: "离开",
+        description: message,
+        destructive: true,
+        title: "放弃未保存的内容？",
+      });
     });
   } catch (error) {
     if (

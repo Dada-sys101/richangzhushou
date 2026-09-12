@@ -2,17 +2,17 @@
 
 ## Last Updated
 
-2026-09-12 12:19 +08:00 — MOBILE-C1 fourth feedback fix `9a99120` passes both CI matrices and is deployed to private preview; device recheck remains.
+2026-09-12 14:31 +08:00 — MOBILE-C2 centered opaque high-contrast dialog correction `b620850` passed both CI matrices and is deployed to private preview; device recheck remains.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
+- Verified Integration HEAD: `7ce7805f04ac6366b5047dc0fde365f433e4be3c`
 - Active worktree: `D:\daily-assistant`
-- Active branch: `codex/mobile-c1-secondary-shell`
-- Active delivery: MOBILE-C1 `FOURTH_FEEDBACK_FIX_DEPLOYED / PR_31_OPEN / CI_PASS / DEVICE_RECHECK_PENDING`
+- Active branch: `codex/mobile-c2-app-dialogs`
+- Active delivery: MOBILE-C2 `VERIFYING / FEEDBACK_FIX_PRIVATE_PREVIEW_DEPLOYED / CI_PASS / DEVICE_RECHECK_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.
@@ -30,7 +30,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `MOBILE-C1 Secondary Shell and Tokens / VERIFYING`.
+- Current canonical task: `MOBILE-C2 App Dialogs and Feedback / VERIFYING`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -55,7 +55,7 @@
 
 ## Next Recommended Task
 
-Complete MOBILE-C1 physical device recheck on the updated private preview, then prepare its merge decision.
+Push the browser E2E compatibility fix, pass both PR CI matrices, then request private-preview deployment authorization.
 
 After MOBILE-B acceptance and merge, execute the staged MOBILE-C contract: secondary-page shell, custom dialogs, custom date/time fields, then complex page migration.
 
