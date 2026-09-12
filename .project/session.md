@@ -2,20 +2,23 @@
 
 ## Session Status
 
-ACCEPTED / MOBILE_C3 / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / MERGE_AUTHORIZATION_PENDING
+IDLE / NO_ACTIVE_TASK / MOBILE_C3_DONE_INTEGRATION / MERGED_CI_PASS
 
 ## Task
 
-- ID: `MOBILE-C3 Date and Time Controls`
-- Execution: `ACCEPTED`
-- Delivery: `DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / MERGE_AUTHORIZATION_PENDING`
-- Worktree: `D:\daily-assistant`
-- Branch: `codex/mobile-c3-date-time-controls`
-- Base HEAD: Integration `e4b6567e1613f37e689429bd541b0644ab4d9657`
-- Scope: 自定义日期、月份、日期时间组件及原生字段的分批迁移。
-- Excluded: API、数据库、业务 store、路由、同步、SW、Push 和复杂页面视觉重构。
+- ID: `NONE`
+- Execution: `READY`
+- Delivery: `MOBILE-C3 DONE_INTEGRATION / MERGED_CI_PASS`
+- Worktree: `D:\daily-assistant-worktrees\quality-r1-governance-draft-write`
+- Branch: `codex/v15-integration-foundation`
+- Base HEAD: Integration `5a0dc529fd9d34a9a2c70788a6d0e87a7745ce2b`
+- Scope: 当前无实施任务；下一步冻结 MOBILE-C4 独立任务契约。
+- Excluded: 未建立契约前不启动 MOBILE-C4 实现，不重复部署 MOBILE-C3。
 
 ## Current Progress
+
+- PR #33 已合并为 Integration `5a0dc52`。合并 CI run `34683019629` 的 quality、db-validation 通过；browser-qa 首次因详情重载时序断言失败，未改代码重跑后 job `103525654367` 通过，最终矩阵全绿。
+- MOBILE-C3 状态为 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`；当前没有活动实施任务。
 
 - 已建立 `TemporalPickerField`、`DateField`、`DateTimeField`、`MonthField`，使用现有 AppDialog 提供中文日期网格、月份网格、24 小时时间、今天、清除、取消和确认。
 - 已迁移账单筛选、记账表单、预算、行程列表、日程、待办和提醒页面；共享控件及 Planner 列表专项 5 tests、Web lint/typecheck 通过。

@@ -99,3 +99,9 @@
 - R1 已通过，不表示生产发布、公开注册或公网 Provider 扩展获批。
 - live AI 仅按用户既有决定在当前私有预览保留；扩大适用范围需要独立决定。
 - 后续新功能应另开分支/PR，不回写已经合并的 PR #25。
+
+# 2026-09-12 MOBILE-C3 Integration closure
+
+- PR #33 merged as Integration `5a0dc529fd9d34a9a2c70788a6d0e87a7745ce2b`.
+- Merge CI run `34683019629` passed quality and db-validation. Browser QA initially failed one timing-sensitive detail-reload assertion and passed unchanged rerun job `103525654367`; the final matrix is green.
+- The accepted private-preview release remains `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`; this state closure did not trigger another deployment.

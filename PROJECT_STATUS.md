@@ -1,18 +1,18 @@
 # Project Status
 
-updatedAt: 2026-09-12T16:20:00+08:00
+updatedAt: 2026-09-12T16:35:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
-integrationHead: e4b6567e1613f37e689429bd541b0644ab4d9657
-activeBranch: codex/mobile-c3-date-time-controls
-activeHead: b18b91d
-activeTask: MOBILE-C3 Date and Time Controls
-executionStatus: ACCEPTED
-deliveryStatus: DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / MERGE_AUTHORIZATION_PENDING
-nextCanonicalTask: Obtain authorization to merge accepted MOBILE-C3 PR #33 into Integration
-nextCanonicalTaskAfterCompletion: MOBILE-C4 complex secondary pages
-localRevision: b18b91d
+integrationHead: 5a0dc529fd9d34a9a2c70788a6d0e87a7745ce2b
+activeBranch: codex/v15-integration-foundation
+activeHead: 5a0dc52
+activeTask: NONE
+executionStatus: READY
+deliveryStatus: MOBILE_C3_DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS
+nextCanonicalTask: Freeze the MOBILE-C4 complex secondary pages task contract from Integration 5a0dc52
+nextCanonicalTaskAfterCompletion: Execute MOBILE-C4 within its frozen scope
+localRevision: 5a0dc52
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
@@ -30,7 +30,7 @@ privatePreviewRelease: b18b91d / b18b91d0-20260912T0735Z
 
 ## Current
 
-`MOBILE-C2` is merged at Integration `e4b6567`. `MOBILE-C3` PR #33 HEAD `b18b91d` passed both CI matrices and is running in private preview. Date/month/date-time control acceptance on iPhone and Android remains.
+`MOBILE-C3` PR #33 is merged at Integration `5a0dc52`. Merge CI run `34683019629` is green after the unchanged browser-qa retry, and the accepted private-preview release remains `b18b91d0-20260912T0735Z`. No implementation task is active.
 
 ## Remaining
 

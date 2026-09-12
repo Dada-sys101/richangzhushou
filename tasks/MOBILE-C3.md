@@ -3,7 +3,7 @@
 ## Metadata
 
 - Contract: `MOBILE_C3_DATE_TIME_CONTROLS_V1`
-- Status: `ACCEPTED / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / MERGE_AUTHORIZATION_PENDING`
+- Status: `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
 - Branch: `codex/mobile-c3-date-time-controls`
 - Base: Integration `e4b6567e1613f37e689429bd541b0644ab4d9657`
 - Predecessor: MOBILE-C2 `DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED`
@@ -44,7 +44,7 @@
 
 ## Delivery evidence
 
-- PR: #33, HEAD `7ec404d`.
-- CI: runs `34680683732` and `34680685271`; quality, db-validation and browser-qa all passed.
+- PR: #33, final source HEAD `a237950f7fddff6767c80e24efeaf27b6ff298e1`; merged as Integration `5a0dc529fd9d34a9a2c70788a6d0e87a7745ce2b`.
+- CI: source runs `34680683732` and `34680685271` passed. Merge run `34683019629` passed quality and db-validation; browser-qa passed on unchanged rerun job `103525654367` after one timing-sensitive detail-reload assertion failed initially.
 - Private preview deployed at `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`; backup `daily_assistant_preview_20260912T074830Z.sql.gz`; public entry, deep links, API, PWA assets and logs passed.
-- Merge remains separately unauthorized; physical-device acceptance passed; merge authorization remains pending.
+- Physical-device acceptance passed; PR #33 is merged and the final merged CI matrix passed.

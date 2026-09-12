@@ -764,3 +764,4 @@
 - PR #33 状态证据提交后 HEAD 为 `b18b91d`，两组后续 CI runs `34680908365`、`34680910314` 仍全绿。候选已在受保护备份后部署至 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`，并通过入口、深链接、API、PWA 资源与日志检查。
 
 - 2026-09-12 用户确认 iPhone/Android 实机日期、月份和日期时间控件验收通过；MOBILE-C3 更新为 `ACCEPTED / READY_TO_MERGE`，PR #33 合并仍需独立授权。
+- PR #33 已合并为 Integration `5a0dc52`；合并 CI run `34683019629` 最终全绿。browser-qa 首次详情重载时序断言失败后在未修改代码的重跑 job `103525654367` 中通过。

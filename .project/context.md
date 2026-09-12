@@ -2,20 +2,20 @@
 
 ## Last Updated
 
-2026-09-12 16:20 +08:00 — User confirmed MOBILE-C3 iPhone/Android date and time control acceptance; PR #33 is ready for an independent merge decision.
+2026-09-12 16:35 +08:00 — MOBILE-C3 PR #33 merged into Integration `5a0dc52`; merged CI is green after an unchanged browser-qa rerun.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `e4b6567e1613f37e689429bd541b0644ab4d9657`
-- Active worktree: `D:\daily-assistant`
-- Active branch: `codex/mobile-c3-date-time-controls`
-- Active delivery: MOBILE-C3 `ACCEPTED / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / MERGE_AUTHORIZATION_PENDING`
+- Verified Integration HEAD: `5a0dc529fd9d34a9a2c70788a6d0e87a7745ce2b`
+- Active worktree: `D:\daily-assistant-worktrees\quality-r1-governance-draft-write`
+- Active branch: `codex/v15-integration-foundation`
+- Active delivery: MOBILE-C3 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
-- MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.
+- MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 and MOBILE-C1/C2/C3 PRs #31/#32/#33 are merged. Active release is `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`.
 
 ## Project Summary
 
@@ -30,14 +30,15 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `MOBILE-C3 Date and Time Controls / VERIFYING`.
+- Current canonical task: `NONE`; MOBILE-C4 contract is the next recommended task.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
 
-`R1 Quality Gate` completed after:
+`MOBILE-C3 Date and Time Controls` completed after:
 
-- Prisma 7.9.1 exact overrides for `deepmerge-ts@8.0.2`, `mariadb@3.4.7` and `mysql2@3.24.3`, with npm 11.18.0, passed clean install, dependency tree, audit 0, lock/tree SBOM and governance checks.
+- Custom date, month and date-time controls replaced user-web native temporal fields and passed physical-device acceptance.
+- PR #33 merged as Integration `5a0dc52`; merge CI run `34683019629` ended green after an unchanged browser-qa rerun.
 - Local MySQL 8.4.11 integration passed 18 files / 160 tests and database-backed Chromium smoke passed 44/44.
 - PR #25 merged at Integration `6515b8f`; merged CI passed all three jobs.
 - The candidate passed target-host Linux build, audit 0, 1043-component SBOM validation and dependency-version checks.
@@ -47,24 +48,24 @@
 
 ## Current Task
 
-- ID: `MOBILE-B PWA Lifecycle and Installation Experience`.
-- Goal: make installation, main-screen launch and updates predictable on iPhone and Android.
-- Scope: Manifest/icons, Android native install, iPhone add-to-home guidance, standalone detection and safe update confirmation.
-- Current state: `ACCEPTED_WITH_DEFERRED_LIMITATIONS / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING`.
-- Excluded: navigation, business logic, API/database, Push enablement, native wrappers and visual redesign.
+- ID: `NONE`.
+- Goal: no implementation is active; preserve the merged MOBILE-C3 baseline.
+- Scope: next task selection and an independent MOBILE-C4 contract only.
+- Current state: `READY / NO_ACTIVE_TASK`.
+- Excluded: starting MOBILE-C4 implementation before its contract is frozen.
 
 ## Next Recommended Task
 
-Obtain authorization to merge accepted MOBILE-C3 PR #33 into Integration, then verify merged CI before starting MOBILE-C4.
+Freeze an independent MOBILE-C4 complex secondary pages task contract from Integration `5a0dc52`; do not start implementation until that scope is established.
 
-After MOBILE-B acceptance and merge, execute the staged MOBILE-C contract: secondary-page shell, custom dialogs, custom date/time fields, then complex page migration.
+MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of the frozen MOBILE-C sequence.
 
 ## Completed Work
 
 - V1 and the V1.5 R1 foundation, AI proposal/router/provider adapter integration, offline synchronization, Web UX closure and release candidate integration are complete.
 - H7 is closed based on the recorded synthetic-data Provider evaluation; this does not authorize broader/public Provider use.
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
-- The active release is `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`; rollback release is `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`. MOBILE-C3 custom temporal controls are live in private preview accepted on physical devices; merge authorization is pending.
+- The active release is `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`; rollback release is `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`. MOBILE-C3 custom temporal controls are live in private preview, accepted on physical devices and merged into Integration.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
 - MOBILE-B update takeover fixes `e756c0b`/`727cb60` and MOBILE-C planning commit `d7860cd` pass required validation; private preview runs `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z` with `927dea30-20260912T0129Z` retained for rollback.
 

@@ -217,3 +217,4 @@ ADR-029 的无金额上限策略不等于生产预算 enforcement。后续新功
 - PR #33 当前 HEAD `b18b91d` 已在备份 `daily_assistant_preview_20260912T074830Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`。既有 Web Push migration 补齐成功；用户端、深链接、API、管理端、Manifest、Service Worker、新日期控件资源和启动日志检查通过；用户随后确认 iPhone/Android 实机验收通过，PR #33 等待独立合并授权。
 
 - 2026-09-12 用户确认 iPhone/Android 实机日期、月份和日期时间控件验收通过；MOBILE-C3 更新为 `ACCEPTED / READY_TO_MERGE`，PR #33 合并仍需独立授权。
+- 用户随后授权合并；PR #33 已合并为 Integration `5a0dc52`。合并 CI run `34683019629` 的 quality、db-validation 通过，browser-qa 首次出现一个详情重载时序断言失败，未改代码重跑后 job `103525654367` 通过，最终矩阵全绿。MOBILE-C3 状态更新为 `DONE_INTEGRATION / MERGED_CI_PASS`。
