@@ -1,21 +1,21 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T10:15:00+08:00
+updatedAt: 2026-09-12T10:32:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: 6e1313fd58da8d4fc34fc7912b579571a21a9ebe
+integrationHead: 5d6c5c51a452ce1c5e425dba32053e017ded77e2
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: MOBILE-B PWA Lifecycle and Installation Experience
-executionStatus: ACCEPTED_WITH_DEFERRED_LIMITATIONS
-deliveryStatus: DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING
-currentWork: MOBILE-B is accepted with two non-blocking deferred limitations; PR #30 merge authorization is required before MOBILE-C1 starts from Integration
+currentTask: MOBILE-C1 Secondary Shell and Tokens
+executionStatus: VERIFYING
+deliveryStatus: DONE_LOCAL / AUTOMATED_VALIDATION_PASS / BROWSER_MATRIX_PENDING
+currentWork: shared secondary shell components and the first five page migrations pass full local quality; commit/push/PR authorization and candidate browser matrix remain
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Merge accepted MOBILE-B PR #30 after independent authorization
-nextCanonicalTaskAfterCompletion: MOBILE-C visual and interaction refinement
-openPullRequests: [PR #30]
+nextCanonicalTask: Complete MOBILE-C1 quality and browser verification
+nextCanonicalTaskAfterCompletion: MOBILE-C2 app dialogs and feedback
+openPullRequests: []
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED

@@ -3,7 +3,9 @@ import { computed, ref } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 
 import { ApiClientError } from "../api/client";
-import PageHeader from "../components/PageHeader.vue";
+import FormActions from "../components/FormActions.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import SectionCard from "../components/SectionCard.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { safeReturnTo } from "../utils/navigation";
@@ -55,65 +57,71 @@ async function submit() {
 </script>
 
 <template>
-  <section class="auth-card" aria-labelledby="change-password-title">
-    <PageHeader
-      title="修改密码"
-      title-id="change-password-title"
-      subtitle="账号安全"
-    />
-    <p v-if="auth.mustChangePassword" class="panel-copy">
-      首次登录或管理员重置密码后，必须先设置新密码才能继续使用。
-    </p>
-    <form class="auth-form" @submit.prevent="submit">
-      <input
-        :value="auth.user?.username ?? ''"
-        autocomplete="username"
-        hidden
-        name="username"
-        type="text"
-      />
-      <label>
-        当前密码
-        <input
-          v-model="currentPassword"
-          autocomplete="current-password"
-          minlength="12"
-          required
-          type="password"
-        />
-      </label>
-      <label>
-        新密码
-        <input
-          v-model="newPassword"
-          autocomplete="new-password"
-          minlength="12"
-          required
-          type="password"
-        />
-      </label>
-      <label>
-        确认新密码
-        <input
-          v-model="confirmPassword"
-          autocomplete="new-password"
-          minlength="12"
-          required
-          type="password"
-        />
-      </label>
-      <p v-if="errorMessage" class="form-error" role="alert">
-        {{ errorMessage }}
+  <SecondaryPageShell
+    title="修改密码"
+    title-id="change-password-title"
+    subtitle="账号安全"
+  >
+    <SectionCard
+      title="设置新密码"
+      description="新密码至少 12 位，请勿与其他网站使用相同密码。"
+    >
+      <p v-if="auth.mustChangePassword" class="panel-copy">
+        首次登录或管理员重置密码后，必须先设置新密码才能继续使用。
       </p>
-      <p v-if="successMessage" class="form-success" role="status">
-        {{ successMessage }}
-      </p>
-      <button class="primary-button" :disabled="submitting" type="submit">
-        {{ submitting ? "提交中…" : "确认修改" }}
-      </button>
-    </form>
-    <p class="auth-links">
-      <RouterLink replace :to="returnTarget">返回账号</RouterLink>
-    </p>
-  </section>
+      <form class="auth-form" @submit.prevent="submit">
+        <input
+          :value="auth.user?.username ?? ''"
+          autocomplete="username"
+          hidden
+          name="username"
+          type="text"
+        />
+        <label>
+          当前密码
+          <input
+            v-model="currentPassword"
+            autocomplete="current-password"
+            minlength="12"
+            required
+            type="password"
+          />
+        </label>
+        <label>
+          新密码
+          <input
+            v-model="newPassword"
+            autocomplete="new-password"
+            minlength="12"
+            required
+            type="password"
+          />
+        </label>
+        <label>
+          确认新密码
+          <input
+            v-model="confirmPassword"
+            autocomplete="new-password"
+            minlength="12"
+            required
+            type="password"
+          />
+        </label>
+        <p v-if="errorMessage" class="form-error" role="alert">
+          {{ errorMessage }}
+        </p>
+        <p v-if="successMessage" class="form-success" role="status">
+          {{ successMessage }}
+        </p>
+        <FormActions>
+          <RouterLink class="secondary-button" replace :to="returnTarget"
+            >取消</RouterLink
+          >
+          <button class="primary-button" :disabled="submitting" type="submit">
+            {{ submitting ? "提交中…" : "确认修改" }}
+          </button>
+        </FormActions>
+      </form>
+    </SectionCard>
+  </SecondaryPageShell>
 </template>

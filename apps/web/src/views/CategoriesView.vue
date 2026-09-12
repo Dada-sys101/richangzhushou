@@ -2,7 +2,8 @@
 import { computed, onMounted, ref } from "vue";
 
 import { ApiClientError } from "../api/client";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import SectionCard from "../components/SectionCard.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
@@ -95,23 +96,27 @@ function messageOf(error: unknown): string {
 </script>
 
 <template>
-  <section class="finance-page" aria-labelledby="categories-title">
-    <PageHeader title="分类" title-id="categories-title" subtitle="设置" />
-
-    <form class="inline-create" @submit.prevent="createCategory">
-      <select v-model="newKind">
-        <option value="EXPENSE">支出</option>
-        <option value="INCOME">收入</option>
-      </select>
-      <input
-        v-model="newName"
-        maxlength="40"
-        placeholder="新分类名称"
-        required
-        type="text"
-      />
-      <button class="primary-button" type="submit">新增</button>
-    </form>
+  <SecondaryPageShell
+    title="分类管理"
+    title-id="categories-title"
+    subtitle="设置"
+  >
+    <SectionCard title="新增分类" description="分类用于整理收入和支出记录。">
+      <form class="inline-create" @submit.prevent="createCategory">
+        <select v-model="newKind">
+          <option value="EXPENSE">支出</option>
+          <option value="INCOME">收入</option>
+        </select>
+        <input
+          v-model="newName"
+          maxlength="40"
+          placeholder="新分类名称"
+          required
+          type="text"
+        />
+        <button class="primary-button" type="submit">新增</button>
+      </form>
+    </SectionCard>
 
     <p v-if="finance.errorMessage" class="form-error" role="alert">
       {{ finance.errorMessage }}
@@ -120,31 +125,53 @@ function messageOf(error: unknown): string {
       {{ errorMessage }}
     </p>
 
-    <h2>支出分类</h2>
-    <ul class="resource-list">
-      <li
-        v-for="item in visibleCategories().filter((c) => c.kind === 'EXPENSE')"
-        :key="item.id"
-      >
-        <span class="color-dot" :style="{ background: item.color }"></span>
-        <template v-if="editing?.id === item.id">
-          <input v-model="editName" maxlength="40" type="text" />
-          <button class="text-button" type="button" @click="saveEdit">
-            保存
-          </button>
-          <button class="text-button" type="button" @click="cancelEdit">
-            取消
-          </button>
-        </template>
-        <template v-else>
+    <SectionCard title="支出分类">
+      <ul class="resource-list">
+        <li
+          v-for="item in visibleCategories().filter(
+            (c) => c.kind === 'EXPENSE',
+          )"
+          :key="item.id"
+        >
+          <span class="color-dot" :style="{ background: item.color }"></span>
+          <template v-if="editing?.id === item.id">
+            <input v-model="editName" maxlength="40" type="text" />
+            <button class="text-button" type="button" @click="saveEdit">
+              保存
+            </button>
+            <button class="text-button" type="button" @click="cancelEdit">
+              取消
+            </button>
+          </template>
+          <template v-else>
+            <span>{{ item.name }}</span>
+            <button
+              class="text-button"
+              type="button"
+              @click="startEdit(item.id, item.name, item.version)"
+            >
+              编辑
+            </button>
+            <button
+              class="text-button danger"
+              type="button"
+              @click="toggleArchive(item.id, item.isArchived, item.version)"
+            >
+              归档
+            </button>
+          </template>
+        </li>
+      </ul>
+    </SectionCard>
+
+    <SectionCard title="收入分类">
+      <ul class="resource-list">
+        <li
+          v-for="item in visibleCategories().filter((c) => c.kind === 'INCOME')"
+          :key="item.id"
+        >
+          <span class="color-dot" :style="{ background: item.color }"></span>
           <span>{{ item.name }}</span>
-          <button
-            class="text-button"
-            type="button"
-            @click="startEdit(item.id, item.name, item.version)"
-          >
-            编辑
-          </button>
           <button
             class="text-button danger"
             type="button"
@@ -152,44 +179,27 @@ function messageOf(error: unknown): string {
           >
             归档
           </button>
-        </template>
-      </li>
-    </ul>
+        </li>
+      </ul>
+    </SectionCard>
 
-    <h2>收入分类</h2>
-    <ul class="resource-list">
-      <li
-        v-for="item in visibleCategories().filter((c) => c.kind === 'INCOME')"
-        :key="item.id"
-      >
-        <span class="color-dot" :style="{ background: item.color }"></span>
-        <span>{{ item.name }}</span>
-        <button
-          class="text-button danger"
-          type="button"
-          @click="toggleArchive(item.id, item.isArchived, item.version)"
+    <SectionCard title="已归档" tone="muted">
+      <ul class="resource-list">
+        <li
+          v-for="item in finance.categories.filter((c) => c.isArchived)"
+          :key="item.id"
         >
-          归档
-        </button>
-      </li>
-    </ul>
-
-    <h2>已归档</h2>
-    <ul class="resource-list">
-      <li
-        v-for="item in finance.categories.filter((c) => c.isArchived)"
-        :key="item.id"
-      >
-        <span class="color-dot" :style="{ background: item.color }"></span>
-        <span>{{ item.name }}</span>
-        <button
-          class="text-button"
-          type="button"
-          @click="toggleArchive(item.id, item.isArchived, item.version)"
-        >
-          恢复
-        </button>
-      </li>
-    </ul>
-  </section>
+          <span class="color-dot" :style="{ background: item.color }"></span>
+          <span>{{ item.name }}</span>
+          <button
+            class="text-button"
+            type="button"
+            @click="toggleArchive(item.id, item.isArchived, item.version)"
+          >
+            恢复
+          </button>
+        </li>
+      </ul>
+    </SectionCard>
+  </SecondaryPageShell>
 </template>

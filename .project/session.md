@@ -2,20 +2,25 @@
 
 ## Session Status
 
-ACCEPTED_WITH_DEFERRED_LIMITATIONS / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING
+VERIFYING / MOBILE_C1 / DONE_LOCAL / AUTOMATED_VALIDATION_PASS / BROWSER_MATRIX_PENDING
 
 ## Task
 
-- ID: `MOBILE-B PWA Lifecycle and Installation Experience`
-- Execution: `ACCEPTED_WITH_DEFERRED_LIMITATIONS`
-- Delivery: `DONE_PUSHED / PR_30_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / MERGE_AUTHORIZATION_PENDING`
+- ID: `MOBILE-C1 Secondary Shell and Tokens`
+- Execution: `VERIFYING`
+- Delivery: `DONE_LOCAL / AUTOMATED_VALIDATION_PASS / BROWSER_MATRIX_PENDING`
 - Worktree: `D:\daily-assistant`
-- Branch: `codex/mobile-b-pwa-lifecycle`
-- Base HEAD: Integration `6e1313fd58da8d4fc34fc7912b579571a21a9ebe`
-- Scope: PWA 图标与 Manifest、克制的安装引导、安装模式识别、安全更新提示及主屏启动体验。
-- Excluded: 导航重构、AI、同步算法、API、数据库、Push、视觉重做和原生封装。
+- Branch: `codex/mobile-c1-secondary-shell`
+- Base HEAD: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
+- Scope: 二级页面共享壳、分区卡片、表单操作区、样式变量，以及首批五个页面迁移。
+- Excluded: 路由/返回策略、业务 store、API、数据库、SW、Push、弹窗和日期时间控件。
 
 ## Current Progress
+
+- MOBILE-B PR #30 已合并为 Integration `5d6c5c5`，合并后 CI run `34667321147` 全绿。
+- 已建立 `SecondaryPageShell`、`SectionCard`、`FormActions` 和组件测试。
+- `AccountsView`、`CategoriesView`、`BudgetsView`、`SyncConflictsView`、`ChangePasswordView` 已迁移到统一页面壳和内容分区。
+- 完整 `npm run quality` 与 `git diff --check` 通过：Web 28 files/132 tests、API 34 files/281 tests；五档浏览器矩阵待远端候选 CI 验证。
 
 - MOBILE-A PR #29 已合入 Integration `6e1313f`，合并后 CI run `34578075462` 的 quality、db-validation、browser-qa 全部通过。
 - 已从该 Integration 基线创建独立分支 `codex/mobile-b-pwa-lifecycle`。
@@ -37,9 +42,9 @@ ACCEPTED_WITH_DEFERRED_LIMITATIONS / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PA
 
 ## Remaining Work
 
-1. 获得独立授权后合并 PR #30，并核验合并后 Integration CI。
-2. 从合并后的 Integration 创建 MOBILE-C1 独立分支并冻结实施契约。
-3. 延后处理两个不阻塞使用的限制：旧安装实例更新按钮仍可能失效；iOS 系统边缘手势不能由 PWA 完全关闭。
+1. 获得授权后形成独立提交、推送并创建 PR。
+2. 由候选 CI 完成浏览器矩阵，复核导航、错误和空状态。
+3. CI 通过后再决定私有预览部署；不自动进入 MOBILE-C2。
 
 ## Previous Task Record
 
@@ -59,4 +64,4 @@ ACCEPTED_WITH_DEFERRED_LIMITATIONS / MOBILE_B / DONE_PUSHED / PR_30_OPEN / CI_PA
 
 ## Last Updated
 
-2026-09-12 10:15 +08:00 — 用户接受将更新按钮和 iOS 根页面边缘手势作为非阻塞已知限制暂时搁置；MOBILE-B 等待 PR #30 独立合并授权，MOBILE-C1 等待合并基线。
+2026-09-12 10:32 +08:00 — MOBILE-C1 首批共享壳与五页面迁移完成本地实现，完整质量通过；等待提交/推送/PR 授权及候选浏览器矩阵。

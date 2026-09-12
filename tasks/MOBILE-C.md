@@ -2,9 +2,11 @@
 
 ## Metadata
 
-- Contract: `MOBILE_C_SECONDARY_UI_V1_DRAFT`
-- Status: `DRAFT / BLOCKED_BY_PR_30_MERGE`
-- Predecessor: MOBILE-B `ACCEPTED_WITH_DEFERRED_LIMITATIONS / PR_30_OPEN`
+- Contract: `MOBILE_C_SECONDARY_UI_V1`
+- Status: `MOBILE_C1_DONE_LOCAL / AUTOMATED_VALIDATION_PASS / BROWSER_MATRIX_PENDING`
+- Branch: `codex/mobile-c1-secondary-shell`
+- Base: Integration `5d6c5c51a452ce1c5e425dba32053e017ded77e2`
+- Predecessor: MOBILE-B `DONE_INTEGRATION / ACCEPTED_WITH_DEFERRED_LIMITATIONS`
 - Delivery model: 每个阶段独立提交、独立 PR 验证；不得形成一次性全站重写。
 
 ## Objective
@@ -27,6 +29,8 @@
 - 建立 `SecondaryPageShell`、`SectionCard`、`FormActions` 等共享壳组件。
 - 收敛间距、圆角、字号、阴影、分隔线、安全区和触控尺寸变量。
 - 先迁移 `AccountsView`、`CategoriesView`、`BudgetsView`、`SyncConflictsView`、`ChangePasswordView` 验证基础模式。
+- Allowed files: the three shared shell components and their tests, the five named views, `apps/web/src/styles.css`, and required task/state documentation.
+- Excluded: other views, router/navigation policy, stores, API, database, Service Worker, dialogs and date/time control replacement.
 
 ### MOBILE-C2 — App dialogs and feedback
 

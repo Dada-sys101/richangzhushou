@@ -1,5 +1,12 @@
 # 项目进度（派生摘要）
 
+## 2026-09-12 — MOBILE-C1 二级页面壳（DONE_LOCAL / VERIFICATION_PENDING）
+
+- MOBILE-B PR #30 已合并为 Integration `5d6c5c5`，合并后 CI run `34667321147` 的三个任务全部通过。
+- 新增 `SecondaryPageShell`、`SectionCard`、`FormActions`，统一二级页面宽度、分区、间距、安全区和移动端操作尺寸。
+- 首批迁移资金账户、分类管理、月度预算、同步冲突、修改密码；保留原路由、返回策略和业务逻辑。
+- 完整 quality 与差异检查通过：Web 28 files/132 tests、API 34 files/281 tests；等待提交/推送/PR 授权和候选 CI 五档浏览器验收。
+
 ## 2026-09-11 — MOBILE-B PWA 生命周期（PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING）
 
 - 增加 180/192/512/maskable 图标和完整中文 standalone Manifest。
