@@ -129,7 +129,7 @@ export async function selectDateTimeViaUi(
   const [targetYear, targetMonth, targetDay] = date.split("-").map(Number);
   const [hour, minute] = time.split(":");
 
-  await page.getByLabel(label, { exact: true }).click();
+  await page.getByLabel(label).click();
   const dialog = page.getByRole("dialog", { name: "选择日期和时间" });
   await expect(dialog).toBeVisible();
 
