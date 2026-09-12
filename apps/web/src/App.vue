@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch } from "vue";
+import { computed, onMounted, onUnmounted, watch } from "vue";
 import { RouterView } from "vue-router";
 
 import BottomNav from "./components/BottomNav.vue";
 import PwaLifecyclePrompt from "./components/PwaLifecyclePrompt.vue";
 import SiteHeader from "./components/SiteHeader.vue";
+import { classifyRoute } from "./navigation-policy";
 import { router } from "./router";
 import { useAuthStore } from "./stores/auth";
 import { useSyncStore } from "./stores/sync";
 
 const auth = useAuthStore();
 const sync = useSyncStore();
+const isRootNavigationSurface = computed(
+  () => classifyRoute(router.currentRoute.value) === "ROOT_TAB",
+);
 const removeRouteHook = router.afterEach(() => {
   void sync.requestSync("route");
 });
@@ -92,7 +96,10 @@ function handleSyncChanged(event: Event) {
 </script>
 
 <template>
-  <div class="app-shell">
+  <div
+    class="app-shell"
+    :class="{ 'root-navigation-surface': isRootNavigationSurface }"
+  >
     <SiteHeader />
     <p
       v-if="sync.offline && auth.isAuthenticated"

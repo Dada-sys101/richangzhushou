@@ -70,6 +70,11 @@ function initializeLifecycle() {
     };
     window.addEventListener("pageshow", checkForUpdate);
     document.addEventListener("visibilitychange", checkForUpdate);
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!updateApplying.value) {
+        needRefresh.value = true;
+      }
+    });
 
     const registerServiceWorker = () => {
       void navigator.serviceWorker
@@ -136,22 +141,18 @@ function createPwaLifecycle() {
       if (!registration) throw new Error("SERVICE_WORKER_NOT_REGISTERED");
       if (!registration.waiting) await registration.update();
       const waitingWorker = registration.waiting;
-      if (!waitingWorker) {
-        needRefresh.value = false;
-        window.location.reload();
-        return true;
-      }
       let reloading = false;
       const reload = () => {
         if (reloading) return;
         reloading = true;
+        needRefresh.value = false;
         window.location.reload();
       };
       navigator.serviceWorker.addEventListener("controllerchange", reload, {
         once: true,
       });
-      waitingWorker.postMessage({ type: "SKIP_WAITING" });
-      window.setTimeout(reload, 2500);
+      waitingWorker?.postMessage({ type: "SKIP_WAITING" });
+      window.setTimeout(reload, waitingWorker ? 2500 : 100);
       return true;
     } catch {
       updateApplying.value = false;

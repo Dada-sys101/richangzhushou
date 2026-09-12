@@ -52,6 +52,10 @@ body {
   margin: 0 auto;
 }
 
+.root-navigation-surface {
+  overscroll-behavior-x: none;
+}
+
 .site-capture-link {
   color: var(--color-primary-dark) !important;
   background: var(--color-primary-soft);
