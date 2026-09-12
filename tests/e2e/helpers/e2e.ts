@@ -120,6 +120,44 @@ export function shanghaiLocalInput(date: Date): string {
   return `${byType.year}-${byType.month}-${byType.day}T${byType.hour}:${byType.minute}`;
 }
 
+export async function selectDateTimeViaUi(
+  page: Page,
+  label: string,
+  value: string,
+): Promise<void> {
+  const [date, time = "00:00"] = value.split("T");
+  const [targetYear, targetMonth, targetDay] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":");
+
+  await page.getByLabel(label).click();
+  const dialog = page.getByRole("dialog", { name: "选择日期和时间" });
+  await expect(dialog).toBeVisible();
+
+  for (let attempts = 0; attempts < 24; attempts += 1) {
+    const heading =
+      (await dialog.locator(".temporal-picker-heading strong").textContent()) ??
+      "";
+    const match = heading.match(/(\d+)年(\d+)月/);
+    if (!match) throw new Error(`无法读取日期选择器月份：${heading}`);
+    const visibleIndex = Number(match[1]) * 12 + Number(match[2]);
+    const targetIndex = targetYear * 12 + targetMonth;
+    if (visibleIndex === targetIndex) break;
+    await dialog
+      .getByRole("button", {
+        name: visibleIndex < targetIndex ? "下个月" : "上个月",
+      })
+      .click();
+  }
+
+  await dialog
+    .locator(".calendar-grid:not(.calendar-weekdays) button")
+    .filter({ hasText: new RegExp(`^${targetDay}$`) })
+    .click();
+  await dialog.getByLabel("小时").fill(hour);
+  await dialog.getByLabel("分钟").fill(minute);
+  await dialog.getByRole("button", { name: "确定", exact: true }).click();
+}
+
 export async function expectNoBlockingErrors(page: Page): Promise<void> {
   const blocking: string[] = [];
   page.on("console", (message) => {

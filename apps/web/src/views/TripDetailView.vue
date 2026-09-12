@@ -9,6 +9,8 @@ import {
   type TripItemSummary,
   type TripItemType,
 } from "../api/client";
+import DateField from "../components/DateField.vue";
+import DateTimeField from "../components/DateTimeField.vue";
 import PageHeader from "../components/PageHeader.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
@@ -498,11 +500,19 @@ function percent(value: string | null): string {
         </label>
         <label class="trip-field">
           开始日期
-          <input v-model="tripForm.startDate" required type="date" />
+          <DateField
+            v-model="tripForm.startDate"
+            :max="tripForm.endDate || undefined"
+            required
+          />
         </label>
         <label class="trip-field">
           结束日期
-          <input v-model="tripForm.endDate" required type="date" />
+          <DateField
+            v-model="tripForm.endDate"
+            :min="tripForm.startDate || undefined"
+            required
+          />
         </label>
         <label class="trip-field">
           预算（元，可选）
@@ -588,11 +598,15 @@ function percent(value: string | null): string {
           </label>
           <label class="trip-field">
             开始
-            <input v-model="itemForm.startsAt" required type="datetime-local" />
+            <DateTimeField v-model="itemForm.startsAt" required />
           </label>
           <label class="trip-field">
             结束
-            <input v-model="itemForm.endsAt" required type="datetime-local" />
+            <DateTimeField
+              v-model="itemForm.endsAt"
+              :min="itemForm.startsAt"
+              required
+            />
           </label>
           <label class="trip-field">
             地点（可选）
@@ -624,18 +638,14 @@ function percent(value: string | null): string {
                 </label>
                 <label class="trip-field">
                   开始
-                  <input
-                    v-model="itemEditForm.startsAt"
-                    required
-                    type="datetime-local"
-                  />
+                  <DateTimeField v-model="itemEditForm.startsAt" required />
                 </label>
                 <label class="trip-field">
                   结束
-                  <input
+                  <DateTimeField
                     v-model="itemEditForm.endsAt"
+                    :min="itemEditForm.startsAt"
                     required
-                    type="datetime-local"
                   />
                 </label>
                 <label class="trip-field">

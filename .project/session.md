@@ -2,20 +2,24 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_C2 / FEEDBACK_FIX_PRIVATE_PREVIEW_DEPLOYED / CI_PASS / DEVICE_RECHECK_PENDING
+ACCEPTED / MOBILE_C3 / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / MERGE_AUTHORIZATION_PENDING
 
 ## Task
 
-- ID: `MOBILE-C2 App Dialogs and Feedback`
-- Execution: `VERIFYING`
-- Delivery: `FEEDBACK_FIX_PRIVATE_PREVIEW_DEPLOYED / CI_PASS / DEVICE_RECHECK_PENDING`
+- ID: `MOBILE-C3 Date and Time Controls`
+- Execution: `ACCEPTED`
+- Delivery: `DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / MERGE_AUTHORIZATION_PENDING`
 - Worktree: `D:\daily-assistant`
-- Branch: `codex/mobile-c2-app-dialogs`
-- Base HEAD: Integration `7ce7805f04ac6366b5047dc0fde365f433e4be3c`
-- Scope: 应用内弹窗、确认服务、操作表、Toast 基础组件，以及现有业务原生确认框替换。
-- Excluded: 路由/返回策略、业务 store、API、数据库、SW、Push 和日期时间控件。
+- Branch: `codex/mobile-c3-date-time-controls`
+- Base HEAD: Integration `e4b6567e1613f37e689429bd541b0644ab4d9657`
+- Scope: 自定义日期、月份、日期时间组件及原生字段的分批迁移。
+- Excluded: API、数据库、业务 store、路由、同步、SW、Push 和复杂页面视觉重构。
 
 ## Current Progress
+
+- 已建立 `TemporalPickerField`、`DateField`、`DateTimeField`、`MonthField`，使用现有 AppDialog 提供中文日期网格、月份网格、24 小时时间、今天、清除、取消和确认。
+- 已迁移账单筛选、记账表单、预算、行程列表、日程、待办和提醒页面；共享控件及 Planner 列表专项 5 tests、Web lint/typecheck 通过。
+- `PlannerDetailView`、`TripDetailView`、`AiOperationCard`、`DraftReviewCard` 已迁移；用户端源码已无 `date`、`month`、`datetime-local` 原生字段。完整 quality 通过：Web 31 files/137 tests、API 34 files/283 tests、contracts 5 files/151 tests、config 1 file/8 tests。功能与 E2E 兼容修正已推送至 PR #33，HEAD `7ec404d`；CI runs `34680683732`、`34680685271` 的 quality、db-validation、browser-qa 全部通过。
 
 - MOBILE-C1 PR #31 已合并为 Integration `7ce7805`，合并后 CI run `34675913987` 的 quality、db-validation、browser-qa 全部通过。
 - 已从该 Integration 基线创建 `codex/mobile-c2-app-dialogs`，任务契约见 `tasks/MOBILE-C2.md`。
@@ -85,3 +89,5 @@ VERIFYING / MOBILE_C2 / FEEDBACK_FIX_PRIVATE_PREVIEW_DEPLOYED / CI_PASS / DEVICE
 ## Last Updated
 
 2026-09-12 14:16 +08:00 — MOBILE-C2 PR #32 HEAD `3a07d28` 已部署私有预览并通过发布后检查；等待实机验收。
+
+- PR #33 current HEAD `b18b91d` deployed to `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z` after protected backup `daily_assistant_preview_20260912T074830Z.sql.gz`. Existing Web Push migration was applied; entry points, API health, deep links, Manifest, Service Worker, new temporal-picker assets and startup logs passed. Physical-device acceptance passed by user confirmation on 2026-09-12; merge authorization remains pending.

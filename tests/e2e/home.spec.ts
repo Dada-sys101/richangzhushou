@@ -5,6 +5,7 @@ import {
   E2E_ACTIVE_PASSWORD,
   loginViaUi,
   navLink,
+  selectDateTimeViaUi,
   shanghaiLocalInput,
   uniqueName,
 } from "./helpers/e2e";
@@ -44,8 +45,8 @@ test("首页与核心业务创建、刷新持久化且无阻塞错误", async ({
   await page.getByLabel("标题").fill(eventTitle);
   const start = shanghaiLocalInput(new Date(Date.now() + 3_600_000));
   const end = shanghaiLocalInput(new Date(Date.now() + 7_200_000));
-  await page.getByLabel("开始").fill(start);
-  await page.getByLabel("结束").fill(end);
+  await selectDateTimeViaUi(page, "开始", start);
+  await selectDateTimeViaUi(page, "结束", end);
   await page.getByRole("button", { name: "新建日程" }).click();
   await expect(page.getByText("日程已创建")).toBeVisible();
   await expect(page.getByText(eventTitle)).toBeVisible();
@@ -53,7 +54,7 @@ test("首页与核心业务创建、刷新持久化且无阻塞错误", async ({
   await navLink(page, "首页").click();
   await page.goto("/transactions/new");
   await page.getByLabel("金额（元）").fill("12.34");
-  await page.getByLabel("时间").fill(start);
+  await selectDateTimeViaUi(page, "时间", start);
   await page.getByLabel("商户/说明").fill(merchant);
   await page.getByRole("button", { name: "保存" }).click();
   await page.waitForURL("**/records");

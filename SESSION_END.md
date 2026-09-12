@@ -1,5 +1,16 @@
 # Session End
 
+## 2026-09-12 — MOBILE-C3 实机验收通过
+
+- 用户确认 iPhone/Android 日期、月份和日期时间控件实机验收通过。
+- MOBILE-C3 状态更新为 `ACCEPTED / READY_TO_MERGE`；PR #33 尚未合并。
+
+## 2026-09-12 — MOBILE-C3 日期时间控件（PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING）
+
+- 应用内日期、月份和日期时间组件已替换用户端原生时间字段；PR #33 当前 HEAD `b18b91d`，两组 CI 的 quality、db-validation、browser-qa 全绿。
+- 备份 `daily_assistant_preview_20260912T074830Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`；既有 Web Push migration 补齐成功。
+- 用户端、深链接、API、管理端、Manifest、Service Worker、新构建资源和启动日志检查通过；用户随后确认 iPhone/Android 实机验收通过，PR 尚未合并。
+
 ## 2026-09-11 — MOBILE-B PWA 生命周期（PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING）
 
 - 完成 Manifest、四套应用图标、Android 原生安装入口、iPhone 中文添加到主屏幕说明和 standalone 识别。

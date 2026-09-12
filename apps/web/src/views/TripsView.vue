@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 
 import { ApiClientError, type TripSummary } from "../api/client";
+import DateField from "../components/DateField.vue";
 import PageHeader from "../components/PageHeader.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
@@ -131,11 +132,19 @@ function messageOf(error: unknown): string {
       </label>
       <label class="trip-field">
         开始日期
-        <input v-model="form.startDate" required type="date" />
+        <DateField
+          v-model="form.startDate"
+          :max="form.endDate || undefined"
+          required
+        />
       </label>
       <label class="trip-field">
         结束日期
-        <input v-model="form.endDate" required type="date" />
+        <DateField
+          v-model="form.endDate"
+          :min="form.startDate || undefined"
+          required
+        />
       </label>
       <label class="trip-field">
         预算（元，可选）

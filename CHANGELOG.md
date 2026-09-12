@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-09-12 — MOBILE-C3 实机验收通过
+
+- 用户确认 iPhone/Android 日期、月份和日期时间控件实机验收通过。
+- MOBILE-C3 状态更新为 `ACCEPTED / READY_TO_MERGE`；PR #33 尚未合并。
+
+## 2026-09-12 — MOBILE-C3 自定义日期时间控件
+
+- 新增统一应用内日期、月份和日期时间选择器，并替换用户端原生时间字段。
+- PR #33 HEAD `b18b91d` 的两组 CI 全绿；已在受保护备份后部署至 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`。
+- 入口、深链接、API、管理端、Manifest、Service Worker、日期控件资源和启动日志检查通过，等待物理设备验收。
+
 ## 2026-09-11 — MOBILE-B PWA 生命周期候选
 
 - 完善 Apple touch、192、512 和 maskable 图标，以及 id/scope/start URL、standalone、zh-CN 等 Manifest 字段。

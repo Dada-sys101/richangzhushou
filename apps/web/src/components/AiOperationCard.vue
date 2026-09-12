@@ -2,6 +2,8 @@
 import { computed, reactive, ref, watch } from "vue";
 
 import type { AiOperation, AiOperationType } from "../api/client";
+import DateField from "./DateField.vue";
+import DateTimeField from "./DateTimeField.vue";
 
 const props = defineProps<{
   operation: AiOperation;
@@ -771,19 +773,19 @@ function inputModeFor(key: string): "decimal" | "text" {
           type="checkbox"
           @change="updateBooleanField(key, $event)"
         />
-        <input
+        <DateTimeField
           v-else-if="isDateTimeField(operation.operationType, key)"
-          v-model="editState[key]"
           :disabled="mutationLocked || saving"
-          type="datetime-local"
+          :model-value="editState[key] ?? ''"
           @change="markDirty"
+          @update:model-value="editState[key] = $event"
         />
-        <input
+        <DateField
           v-else-if="isDateOnlyField(operation.operationType, key)"
-          v-model="editState[key]"
           :disabled="mutationLocked || saving"
-          type="date"
+          :model-value="editState[key] ?? ''"
           @change="markDirty"
+          @update:model-value="editState[key] = $event"
         />
         <textarea
           v-else-if="key === 'note'"

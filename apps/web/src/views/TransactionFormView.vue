@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 
 import { ApiClientError } from "../api/client";
+import DateTimeField from "../components/DateTimeField.vue";
 import PageHeader from "../components/PageHeader.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
@@ -193,7 +194,7 @@ function messageOf(error: unknown): string {
       </label>
       <label>
         时间
-        <input v-model="occurredAt" required type="datetime-local" />
+        <DateTimeField v-model="occurredAt" required />
       </label>
       <label>
         分类

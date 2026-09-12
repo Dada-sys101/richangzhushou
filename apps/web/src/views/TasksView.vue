@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 
 import type { TaskSummary } from "../api/client";
+import DateTimeField from "../components/DateTimeField.vue";
 import PageHeader from "../components/PageHeader.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { requestAppConfirm } from "../composables/useAppConfirm";
@@ -231,7 +232,7 @@ function messageOf(error: unknown): string {
       </label>
       <label class="planner-field">
         截止时间（可选）
-        <input v-model="form.dueAt" type="datetime-local" />
+        <DateTimeField v-model="form.dueAt" />
       </label>
       <button class="primary-button" type="submit">新建待办</button>
     </form>
@@ -259,7 +260,7 @@ function messageOf(error: unknown): string {
             </label>
             <label class="planner-field">
               截止时间（可选）
-              <input v-model="editForm.dueAt" type="datetime-local" />
+              <DateTimeField v-model="editForm.dueAt" />
             </label>
             <div class="planner-actions">
               <button class="primary-button" :disabled="saving" type="submit">
