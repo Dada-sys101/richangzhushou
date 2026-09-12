@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 
 import { ApiClientError } from "../api/client";
+import MonthField from "../components/MonthField.vue";
 import SecondaryPageShell from "../components/SecondaryPageShell.vue";
 import SectionCard from "../components/SectionCard.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
@@ -108,7 +109,7 @@ function messageOf(error: unknown): string {
     <template #actions>
       <label class="secondary-page-filter">
         月份
-        <input v-model="month" type="month" />
+        <MonthField v-model="month" required />
       </label>
     </template>
 

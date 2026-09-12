@@ -686,6 +686,109 @@ html.app-dialog-open body {
   font-weight: 700;
 }
 
+.temporal-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  color: var(--color-text, #25223a);
+  background: #fff;
+  font: inherit;
+  text-align: left;
+}
+
+.temporal-field.is-empty {
+  color: #77738a;
+}
+.temporal-picker {
+  display: grid;
+  gap: 16px;
+}
+.temporal-picker-heading {
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  text-align: center;
+}
+.temporal-picker-heading button {
+  min-height: 44px;
+  font-size: 1.6rem;
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+.calendar-grid span {
+  min-width: 0;
+}
+.calendar-grid button {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 4px;
+  border-radius: 10px;
+  background: transparent;
+}
+.calendar-weekdays {
+  color: #68637d;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.calendar-grid button.today {
+  outline: 1px solid var(--primary, #7657e8);
+}
+.calendar-grid button.selected,
+.month-grid button.selected {
+  color: #fff;
+  background: var(--primary, #7657e8);
+}
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.month-grid button {
+  min-height: 46px;
+}
+.time-entry {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 10px;
+}
+.time-entry label {
+  display: grid;
+  gap: 5px;
+  width: 88px;
+  color: #68637d;
+  font-size: 0.82rem;
+}
+.time-entry input {
+  min-height: 48px;
+  text-align: center;
+  color: #25223a;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.time-entry > span {
+  padding-bottom: 12px;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+.temporal-picker-shortcuts {
+  display: flex;
+  gap: 10px;
+}
+.temporal-picker-shortcuts button {
+  min-height: 44px;
+}
+
 .app-action-sheet {
   display: grid;
   gap: 10px;

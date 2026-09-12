@@ -7,6 +7,7 @@ import type {
   FinancialAccountSummary,
   TransactionDraftPayload,
 } from "../api/client";
+import DateTimeField from "./DateTimeField.vue";
 
 const props = defineProps<{
   accounts: FinancialAccountSummary[];
@@ -173,7 +174,7 @@ function percent(value: number): string {
       </label>
       <label class="draft-field">
         时间
-        <input v-model="occurredAt" type="datetime-local" @change="markDirty" />
+        <DateTimeField v-model="occurredAt" @change="markDirty" />
       </label>
       <label class="draft-field">
         分类

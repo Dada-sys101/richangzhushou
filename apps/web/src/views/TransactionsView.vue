@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 
 import { ApiClientError } from "../api/client";
+import DateField from "../components/DateField.vue";
 import PageHeader from "../components/PageHeader.vue";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
@@ -95,19 +96,11 @@ function withTransactionsSource(path: string) {
         <div class="filters">
           <label>
             开始日期
-            <input
-              v-model="startDate"
-              :max="endDate || undefined"
-              type="date"
-            />
+            <DateField v-model="startDate" :max="endDate || undefined" />
           </label>
           <label>
             结束日期
-            <input
-              v-model="endDate"
-              :min="startDate || undefined"
-              type="date"
-            />
+            <DateField v-model="endDate" :min="startDate || undefined" />
           </label>
           <label>
             类型

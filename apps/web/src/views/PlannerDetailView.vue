@@ -10,6 +10,8 @@ import {
   type ReminderSummary,
   type TaskSummary,
 } from "../api/client";
+import DateField from "../components/DateField.vue";
+import DateTimeField from "../components/DateTimeField.vue";
 import PageHeader from "../components/PageHeader.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { requestAppConfirm } from "../composables/useAppConfirm";
@@ -695,7 +697,7 @@ function messageOf(error: unknown): string {
             </label>
             <label class="planner-field">
               截止时间（可选）
-              <input v-model="taskEditForm.dueAt" type="datetime-local" />
+              <DateTimeField v-model="taskEditForm.dueAt" />
             </label>
           </template>
 
@@ -714,23 +716,19 @@ function messageOf(error: unknown): string {
             </label>
             <label v-if="calendarEditForm.allDay" class="planner-field">
               日期
-              <input v-model="calendarEditDay" required type="date" />
+              <DateField v-model="calendarEditDay" required />
             </label>
             <template v-else>
               <label class="planner-field">
                 开始
-                <input
-                  v-model="calendarEditForm.startsAt"
-                  required
-                  type="datetime-local"
-                />
+                <DateTimeField v-model="calendarEditForm.startsAt" required />
               </label>
               <label class="planner-field">
                 结束
-                <input
+                <DateTimeField
                   v-model="calendarEditForm.endsAt"
+                  :min="calendarEditForm.startsAt"
                   required
-                  type="datetime-local"
                 />
               </label>
             </template>
@@ -760,11 +758,7 @@ function messageOf(error: unknown): string {
             </label>
             <label class="planner-field">
               首次时间
-              <input
-                v-model="reminderEditForm.startsAt"
-                required
-                type="datetime-local"
-              />
+              <DateTimeField v-model="reminderEditForm.startsAt" required />
             </label>
             <template v-if="reminderEditForm.scheduleType !== 'ONCE'">
               <label class="planner-field">
@@ -808,7 +802,10 @@ function messageOf(error: unknown): string {
               </label>
               <label class="planner-field">
                 截止时间（可选）
-                <input v-model="reminderEditForm.until" type="datetime-local" />
+                <DateTimeField
+                  v-model="reminderEditForm.until"
+                  :min="reminderEditForm.startsAt"
+                />
               </label>
             </template>
           </template>

@@ -8,6 +8,7 @@ import type {
   ReminderSummary,
 } from "../api/client";
 import { api } from "../api/client";
+import DateTimeField from "../components/DateTimeField.vue";
 import PageHeader from "../components/PageHeader.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { requestAppConfirm } from "../composables/useAppConfirm";
@@ -451,7 +452,7 @@ function messageOf(error: unknown): string {
       </label>
       <label class="planner-field">
         首次时间
-        <input v-model="form.startsAt" required type="datetime-local" />
+        <DateTimeField v-model="form.startsAt" required />
       </label>
       <template v-if="form.scheduleType !== 'ONCE'">
         <label class="planner-field">
@@ -475,7 +476,7 @@ function messageOf(error: unknown): string {
         </label>
         <label class="planner-field">
           截止时间（可选）
-          <input v-model="form.until" type="datetime-local" />
+          <DateTimeField v-model="form.until" :min="form.startsAt" />
         </label>
       </template>
       <button class="primary-button" type="submit">新建提醒</button>
@@ -509,11 +510,7 @@ function messageOf(error: unknown): string {
             </label>
             <label class="planner-field">
               首次时间
-              <input
-                v-model="editForm.startsAt"
-                required
-                type="datetime-local"
-              />
+              <DateTimeField v-model="editForm.startsAt" required />
             </label>
             <template v-if="editForm.scheduleType !== 'ONCE'">
               <label class="planner-field">
@@ -553,7 +550,10 @@ function messageOf(error: unknown): string {
               </label>
               <label class="planner-field">
                 截止时间（可选）
-                <input v-model="editForm.until" type="datetime-local" />
+                <DateTimeField
+                  v-model="editForm.until"
+                  :min="editForm.startsAt"
+                />
               </label>
             </template>
             <div class="planner-actions">

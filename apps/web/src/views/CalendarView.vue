@@ -3,6 +3,8 @@ import { computed, onMounted, ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 
 import type { CalendarEventSummary } from "../api/client";
+import DateField from "../components/DateField.vue";
+import DateTimeField from "../components/DateTimeField.vue";
 import PageHeader from "../components/PageHeader.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { requestAppConfirm } from "../composables/useAppConfirm";
@@ -227,7 +229,7 @@ function messageOf(error: unknown): string {
         <div class="filters">
           <label>
             日期
-            <input v-model="date" type="date" />
+            <DateField v-model="date" required />
           </label>
           <label class="check-label">
             <input v-model="includeDeleted" type="checkbox" />
@@ -255,16 +257,16 @@ function messageOf(error: unknown): string {
       </label>
       <label v-if="form.allDay" class="planner-field">
         日期
-        <input v-model="allDayStart" type="date" required />
+        <DateField v-model="allDayStart" required />
       </label>
       <template v-else>
         <label class="planner-field">
           开始
-          <input v-model="form.startsAt" required type="datetime-local" />
+          <DateTimeField v-model="form.startsAt" required />
         </label>
         <label class="planner-field">
           结束
-          <input v-model="form.endsAt" required type="datetime-local" />
+          <DateTimeField v-model="form.endsAt" :min="form.startsAt" required />
         </label>
       </template>
       <button class="primary-button" type="submit">新建日程</button>
@@ -291,23 +293,19 @@ function messageOf(error: unknown): string {
             </label>
             <label v-if="editForm.allDay" class="planner-field">
               日期
-              <input v-model="editAllDayStart" type="date" required />
+              <DateField v-model="editAllDayStart" required />
             </label>
             <template v-else>
               <label class="planner-field">
                 开始
-                <input
-                  v-model="editForm.startsAt"
-                  required
-                  type="datetime-local"
-                />
+                <DateTimeField v-model="editForm.startsAt" required />
               </label>
               <label class="planner-field">
                 结束
-                <input
+                <DateTimeField
                   v-model="editForm.endsAt"
+                  :min="editForm.startsAt"
                   required
-                  type="datetime-local"
                 />
               </label>
             </template>

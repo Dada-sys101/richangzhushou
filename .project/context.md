@@ -2,17 +2,17 @@
 
 ## Last Updated
 
-2026-09-12 14:31 +08:00 — MOBILE-C2 centered opaque high-contrast dialog correction `b620850` passed both CI matrices and is deployed to private preview; device recheck remains.
+2026-09-12 14:48 +08:00 — MOBILE-C2 PR #32 merged as Integration `e4b6567` with merged CI passing; MOBILE-C3 branch and date-time control contract created from that exact base.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `7ce7805f04ac6366b5047dc0fde365f433e4be3c`
+- Verified Integration HEAD: `e4b6567e1613f37e689429bd541b0644ab4d9657`
 - Active worktree: `D:\daily-assistant`
-- Active branch: `codex/mobile-c2-app-dialogs`
-- Active delivery: MOBILE-C2 `VERIFYING / FEEDBACK_FIX_PRIVATE_PREVIEW_DEPLOYED / CI_PASS / DEVICE_RECHECK_PENDING`
+- Active branch: `codex/mobile-c3-date-time-controls`
+- Active delivery: MOBILE-C3 `IN_PROGRESS / CONTRACT_FROZEN`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 is open at `4d86f90`, with CI runs `34580364107` and `34580381945` fully green. Active release is `/opt/daily-assistant-preview/releases/4d86f900-20260911T0846Z`.
