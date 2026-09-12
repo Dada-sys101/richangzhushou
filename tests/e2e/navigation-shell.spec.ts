@@ -4,6 +4,7 @@ import {
   createActiveUserViaApi,
   E2E_ACTIVE_PASSWORD,
   loginViaUi,
+  selectDateTimeViaUi,
   shanghaiLocalInput,
   uniqueName,
 } from "./helpers/e2e";
@@ -86,7 +87,7 @@ test("统一页面壳保留来源、拦截未保存离开并支持刷新", async
   const transactionTime = shanghaiLocalInput(new Date());
   await page.goto("/transactions/new?returnTo=%2Frecords");
   await page.getByLabel("金额（元）").fill("3.00");
-  await page.getByLabel("时间").fill(transactionTime);
+  await selectDateTimeViaUi(page, "时间", transactionTime);
   await page.getByLabel("商户/说明").fill(merchant);
   await page.getByRole("button", { name: "保存" }).click();
   await page.waitForURL("**/records");
@@ -161,8 +162,8 @@ test("统一页面壳保留来源、拦截未保存离开并支持刷新", async
   const eventEnd = shanghaiLocalInput(new Date(Date.now() + 7_200_000));
   await page.goto("/calendar");
   await page.getByLabel("标题").fill(eventTitle);
-  await page.getByLabel("开始").fill(eventStart);
-  await page.getByLabel("结束").fill(eventEnd);
+  await selectDateTimeViaUi(page, "开始", eventStart);
+  await selectDateTimeViaUi(page, "结束", eventEnd);
   await page.getByRole("button", { name: "新建日程" }).click();
   await expect(page.getByText(eventTitle)).toBeVisible();
   await page.getByRole("link", { name: "查看", exact: true }).click();
@@ -194,7 +195,7 @@ test("统一页面壳保留来源、拦截未保存离开并支持刷新", async
   const reminderTime = shanghaiLocalInput(new Date(Date.now() + 10_800_000));
   await page.goto("/reminders");
   await page.getByLabel("标题").fill(reminderTitle);
-  await page.getByLabel("首次时间").fill(reminderTime);
+  await selectDateTimeViaUi(page, "首次时间", reminderTime);
   await page.getByRole("button", { name: "新建提醒" }).click();
   await expect(page.getByText(reminderTitle)).toBeVisible();
   await page.getByRole("link", { name: "查看", exact: true }).click();
