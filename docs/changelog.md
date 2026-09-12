@@ -754,3 +754,4 @@
 - 提交 `4b873f5` 与 E2E 修正提交 `999426f` 已进入 PR #32；push run `34676910173`、PR run `34676911672` 的 quality、db-validation、browser-qa 全部通过。
 - PR #32 HEAD `3a07d28` 已部署至私有预览 release `/opt/daily-assistant-preview/releases/3a07d280-20260912T0608Z`；发布前备份、公开入口、API、深链接、静态资源与日志复核通过。
 - 根据实机截图，将应用弹窗从移动端贴底调整为全宽度居中，并修正面板背景变量、遮罩、文字对比度与按钮强调；本地完整 quality 通过，尚未提交或重新部署。
+- 弹窗修正提交 `b620850` 的 CI runs `34678001648`、`34678004033` 全绿，并在备份后部署至 `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`；发布后检查通过。

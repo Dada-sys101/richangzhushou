@@ -205,3 +205,4 @@ ADR-029 的无金额上限策略不等于生产预算 enforcement。后续新功
 - 提交 `4b873f5` 与 E2E 修正提交 `999426f` 已推送到 PR #32；push run `34676910173`、PR run `34676911672` 的 quality、db-validation、browser-qa 全部通过，等待私有预览部署授权。
 - PR #32 HEAD `3a07d28` 已在受保护备份后部署至 `/opt/daily-assistant-preview/releases/3a07d280-20260912T0608Z`；入口、健康、PWA 资源与服务日志检查通过，旧 release `9a991200-20260912T0415Z` 保留回滚，等待实机验收。
 - 实机反馈确认移动端弹窗仍贴底且背景透明度不足；本地已修正为居中、不透明面板和高对比度内容，完整 quality 通过，等待提交、推送及重新部署授权。日期时间控件的非原生实现保留给 MOBILE-C3。
+- 修正提交 `b620850` 两组 CI 全绿；备份后已部署 `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`，公开入口、新 CSS、API、PWA 资源与日志复核通过，等待设备复验。

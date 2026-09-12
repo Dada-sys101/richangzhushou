@@ -2,13 +2,13 @@
 
 ## Session Status
 
-VERIFYING / MOBILE_C2 / FEEDBACK_FIX_DONE_LOCAL / QUALITY_PASS / GIT_AND_REDEPLOY_AUTHORIZATION_PENDING
+VERIFYING / MOBILE_C2 / FEEDBACK_FIX_PRIVATE_PREVIEW_DEPLOYED / CI_PASS / DEVICE_RECHECK_PENDING
 
 ## Task
 
 - ID: `MOBILE-C2 App Dialogs and Feedback`
 - Execution: `VERIFYING`
-- Delivery: `FEEDBACK_FIX_DONE_LOCAL / QUALITY_PASS / GIT_AND_REDEPLOY_AUTHORIZATION_PENDING`
+- Delivery: `FEEDBACK_FIX_PRIVATE_PREVIEW_DEPLOYED / CI_PASS / DEVICE_RECHECK_PENDING`
 - Worktree: `D:\daily-assistant`
 - Branch: `codex/mobile-c2-app-dialogs`
 - Base HEAD: Integration `7ce7805f04ac6366b5047dc0fde365f433e4be3c`
@@ -25,6 +25,7 @@ VERIFYING / MOBILE_C2 / FEEDBACK_FIX_DONE_LOCAL / QUALITY_PASS / GIT_AND_REDEPLO
 - 功能提交 `4b873f5` 及 E2E 修正提交 `999426f` 已推送到 PR #32；push run `34676910173` 与 PR run `34676911672` 的 quality、db-validation、browser-qa 全部通过。下一步需单独授权部署到私有预览环境。
 - PR #32 当前 HEAD `3a07d28` 已在备份 `daily_assistant_preview_20260912T060714Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/3a07d280-20260912T0608Z`；公开入口、API 健康、账单深链接、Manifest、Service Worker、管理端、新构建资源和 warning/error 日志检查通过，等待实机弹窗验收。
 - 实机截图显示弹窗面板因旧 CSS 变量近似透明且移动端贴底。现已改为全宽度居中、不透明白底、加深遮罩及高对比度标题/正文，专项测试和完整 `npm run quality` 通过；原生日期时间输入的替换归入 MOBILE-C3。
+- 修正提交 `b620850` 的 push/PR CI runs `34678001648`、`34678004033` 全绿；备份 `daily_assistant_preview_20260912T062753Z.sql.gz` 后已部署 `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`。入口、API、深链接、Manifest、SW、管理端、新 CSS 和日志检查通过，等待设备复验。
 
 - MOBILE-B PR #30 已合并为 Integration `5d6c5c5`，合并后 CI run `34667321147` 全绿。
 - 已建立 `SecondaryPageShell`、`SectionCard`、`FormActions` 和组件测试。
