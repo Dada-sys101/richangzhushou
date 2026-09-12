@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T15:03:00+08:00
+updatedAt: 2026-09-12T15:30:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -10,12 +10,12 @@ pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-C3 Date and Time Controls
 executionStatus: VERIFYING
-deliveryStatus: DONE_LOCAL / QUALITY_PASS / GIT_AUTHORIZATION_PENDING
-currentWork: shared custom temporal controls are implemented across all user-web native temporal fields; full quality passes with 31 web files and 137 tests
+deliveryStatus: DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYMENT_AUTHORIZATION_PENDING
+currentWork: custom temporal controls replace all user-web native temporal fields; PR #33 HEAD 7ec404d and both CI runs pass quality, db-validation and browser-qa
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Obtain authorization to commit and push the verified MOBILE-C3 candidate and create its PR
+nextCanonicalTask: Obtain authorization to deploy PR #33 HEAD 7ec404d to the private-preview environment
 nextCanonicalTaskAfterCompletion: MOBILE-C4 complex secondary pages
-openPullRequests: []
+openPullRequests: [#33]
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED

@@ -3,7 +3,7 @@
 ## Metadata
 
 - Contract: `MOBILE_C3_DATE_TIME_CONTROLS_V1`
-- Status: `VERIFYING / DONE_LOCAL / QUALITY_PASS / GIT_AUTHORIZATION_PENDING`
+- Status: `VERIFYING / DONE_PUSHED / PR_33_OPEN / CI_PASS / PRIVATE_PREVIEW_DEPLOYMENT_AUTHORIZATION_PENDING`
 - Branch: `codex/mobile-c3-date-time-controls`
 - Base: Integration `e4b6567e1613f37e689429bd541b0644ab4d9657`
 - Predecessor: MOBILE-C2 `DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED`
@@ -41,3 +41,9 @@
 - 在 375、390、430、768、1440 CSS px 检查弹层、软键盘、滚动和长标签。
 - Browser Back、应用内返回、未保存保护及现有业务序列化保持通过。
 - 完整 `npm run quality`、`git diff --check` 与受影响浏览器验收通过。
+
+## Delivery evidence
+
+- PR: #33, HEAD `7ec404d`.
+- CI: runs `34680683732` and `34680685271`; quality, db-validation and browser-qa all passed.
+- Deployment and merge remain separately unauthorized.

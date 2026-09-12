@@ -758,3 +758,5 @@
 - PR #32 合并为 Integration `e4b6567`，合并后 CI run `34678903476` 全绿；新增 `tasks/MOBILE-C3.md`，冻结自定义日期时间控件的范围与门禁。
 - MOBILE-C3 新增应用内日期、月份和日期时间选择器；首批替换账单、预算、行程列表、日程、待办和提醒页面的浏览器原生日期控件。
 - 完成计划详情、行程详情和 AI 卡片日期字段迁移，用户端源码不再直接使用 `date`、`month` 或 `datetime-local`。
+
+- MOBILE-C3 PR #33 HEAD `7ec404d` 已推送；修正 Playwright 对自定义日期时间弹窗的操作方式，两组 CI runs `34680683732`、`34680685271` 的 quality、db-validation、browser-qa 全部通过。
