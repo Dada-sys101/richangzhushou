@@ -3,7 +3,7 @@
 ## 2026-09-14 — MOBILE-C4 C4.4 AI 页面改版（DONE_LOCAL）
 
 - 草稿、提案核对和 AI 生成页面已统一共享页面壳、确认层级、中文状态与窄屏操作区；未修改 AI 写入规则、接口或数据语义。
-- 专项 48 tests 和完整 quality 通过；本机浏览器矩阵因缺少专用测试数据库未运行，等待推送后的 CI browser-qa。
+- 专项 48 tests 和完整 quality 通过；最终 CI `34797420362` 的 quality、db-validation、桌面/移动 browser-qa 全绿，设备验收待执行。
 
 ## 2026-09-14 — MOBILE-C4 C4.3 详情页面改版（DONE_LOCAL）
 

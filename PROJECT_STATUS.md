@@ -10,7 +10,7 @@ activeHead: 45d52c6
 activeTask: MOBILE-C4 Complex Secondary Pages
 executionStatus: READY
 deliveryStatus: CONTRACT_FROZEN_LOCAL / IMPLEMENTATION_NOT_STARTED
-nextCanonicalTask: Review, commit and push MOBILE-C4 C4.4, then verify CI and devices
+nextCanonicalTask: Deploy MOBILE-C4 to private preview after separate authorization, then verify devices
 nextCanonicalTaskAfterCompletion: Complete MOBILE-C4 delivery decision
 localRevision: 45d52c6
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
@@ -30,7 +30,7 @@ privatePreviewRelease: b18b91d / b18b91d0-20260912T0735Z
 
 ## Current
 
-`MOBILE-C3` is complete in Integration. `MOBILE-C4` C4.1-C4.3 are pushed through `698b2c4` with green CI; C4.4 AI pages are `DONE_LOCAL / UNCOMMITTED / BROWSER_CI_PENDING`.
+`MOBILE-C3` is complete in Integration. All MOBILE-C4 slices are pushed through `b44c1a6`; CI `34797420362` is green and device acceptance remains pending.
 
 ## Remaining
 

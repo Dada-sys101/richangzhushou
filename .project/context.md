@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-14 09:30 +08:00 — MOBILE-C4 C4.1-C4.3 pushed through `698b2c4`; C4.3 CI `34795552676` is green, and C4.4 AI pages are complete locally with browser CI pending.
+2026-09-14 09:57 +08:00 — MOBILE-C4 C4.1-C4.4 pushed through `b44c1a6`; CI `34797420362` is green, with private-preview device acceptance pending.
 
 ## Repository State
 
@@ -30,7 +30,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `MOBILE-C4 Complex Secondary Pages / IN_PROGRESS / C4_1_C4_3_DONE_PUSHED / C4_4_DONE_LOCAL`.
+- Current canonical task: `MOBILE-C4 Complex Secondary Pages / IN_PROGRESS / ALL_SLICES_DONE_PUSHED / CI_PASS / DEVICE_ACCEPTANCE_PENDING`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -51,12 +51,12 @@
 - ID: `MOBILE-C4 Complex Secondary Pages`.
 - Goal: migrate complex secondary pages to the shared C1-C3 UI foundation without changing business behavior.
 - Scope: four strict sequential slices defined by `tasks/MOBILE-C4.md`; C4.1 covers TransactionsView and TransactionFormView.
-- Current state: `IN_PROGRESS / C4_1_C4_3_DONE_PUSHED / C4_4_DONE_LOCAL / UNCOMMITTED / BROWSER_CI_PENDING`.
+- Current state: `IN_PROGRESS / ALL_SLICES_DONE_PUSHED / CI_PASS / DEVICE_ACCEPTANCE_PENDING`.
 - Excluded: routes, navigation policy, stores, API/database, sync, auth, SW, Push and business semantics.
 
 ## Next Recommended Task
 
-Review, commit and push MOBILE-C4 C4.4, then require green CI and device acceptance before delivery decision.
+Deploy the MOBILE-C4 candidate to private preview after separate authorization, then complete iPhone/Android device acceptance.
 
 MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of the frozen MOBILE-C sequence.
 
