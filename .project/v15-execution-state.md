@@ -1,18 +1,18 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-14T15:30:00+08:00
+updatedAt: 2026-09-14T16:00:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: 6e3ba34bfd070c0276dea4183ec51423d8f4724c
+integrationHead: 9ddc354676b831afda7de2afb4948a90fadfef38
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: PRIVATE_PREVIEW_OPERATION
 lastCompletedTask: REL-03 Private Preview Readiness
 executionStatus: ACTIVE
 deliveryStatus: ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
-currentWork: User-selected R1.1 private-preview Web Push is active after user-confirmed device acceptance; the iPhone today-date confirmation fix is verified locally and awaits delivery authorization
+currentWork: The iPhone today-date confirmation fix is merged, CI-verified and deployed to the existing private preview; R1.1 Web Push remains active after user-confirmed device acceptance
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
 nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
 nextCanonicalTaskAfterCompletion: USER_DIRECTED_SCOPE_SELECTION
@@ -23,9 +23,9 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-C4 HEAD `8e9f53e`, deployed at `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`; previous `b18b91d0-20260912T0735Z` remains the rollback release.
+- Active release: Integration `9ddc354`, deployed at `/opt/daily-assistant-preview/releases/9ddc3546-20260914T074811Z`; previous `8e9f53e0-20260914T1007Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / DEVICE_ACCEPTANCE_PASS / PUBLIC_NOT_READY`.
-- Delivery: MOBILE-C4 PR #34 merged as Integration `e407157`; merged CI run `34800440131` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
+- Delivery: date-time confirmation PR #36 merged as Integration `9ddc354`; merged CI run `34819073059` passed quality, db-validation and browser-qa. Isolated target-host build, audit 0, service and private-preview asset checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
 - H1/H2: `WAIVED_FOR_R1 / UNVERIFIED` by explicit user approval on 2026-09-08; never treat this as physical-device pass evidence, and reassess before public support claims.
 - Remaining gate: R1 Quality Gate is `APPROVED / DONE`; REL-02 requires independent resource/fee authorization. Non-sensitive readiness belongs to REL-03 under the approved REL-01 D7 boundary; public DNS/HTTPS/CORS validation belongs to the later public-entry gate. Local daily backup with 7-day cleanup is configured, and live AI is retained by explicit user decision for the private preview.
@@ -37,7 +37,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - Preflight confirmed the active release contains the Push adapter and both Push tables, with zero existing subscriptions and deliveries. A protected database backup `daily_assistant_preview_20260914T063732Z.sql.gz` and root-only environment-file backups were created before configuration.
 - A fresh VAPID pair and AES-256-GCM subscription-encryption key were generated only on the server. VAPID contact, private key and encryption key are not recorded in this repository. Both Push flags are enabled and the API restarted `active` with clean startup logs.
 - A real device subscription was confirmed and `REMINDER_SCHEDULER_ENABLED` was resumed. The user then confirmed subscription, system delivery, notification click-through, unsubscribe and re-enable were normal; H6 is `CLOSED / DEVICE_ACCEPTANCE_PASS` for the existing private preview.
-- One already-due reminder entered `FAILED / NOTIFICATION_UNAVAILABLE` during the brief malformed-key configuration attempt; it created no Push delivery and remains on its existing retry path. A subsequent iPhone report found that choosing today in the application date-time picker disabled confirmation; `TemporalPickerField` now produces an explicit ISO date from `formatToParts()` and has a focused regression test, while full local quality passed.
+- One already-due reminder entered `FAILED / NOTIFICATION_UNAVAILABLE` during the brief malformed-key configuration attempt; it created no Push delivery and remains on its existing retry path. A subsequent iPhone report found that choosing today in the application date-time picker disabled confirmation; `TemporalPickerField` now produces an explicit ISO date from `formatToParts()` and has a focused regression test. PR #36 is merged, merged CI passed, and the fix is deployed to the private preview.
 
 ## Active Task
 
