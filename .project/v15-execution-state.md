@@ -1,18 +1,18 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-14T10:55:00+08:00
+updatedAt: 2026-09-14T15:30:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: e40715714f06034614e25bf0f5e6735a9494bb9a
+integrationHead: 6e3ba34bfd070c0276dea4183ec51423d8f4724c
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: PRIVATE_PREVIEW_OPERATION
 lastCompletedTask: REL-03 Private Preview Readiness
-executionStatus: DONE
-deliveryStatus: ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE
-currentWork: Existing private preview is available for invited users; only feedback-driven fixes are in scope
+executionStatus: ACTIVE
+deliveryStatus: ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
+currentWork: User-selected R1.1 private-preview Web Push is active after user-confirmed device acceptance; the iPhone today-date confirmation fix is verified locally and awaits delivery authorization
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
 nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
 nextCanonicalTaskAfterCompletion: USER_DIRECTED_SCOPE_SELECTION
@@ -31,10 +31,18 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - Remaining gate: R1 Quality Gate is `APPROVED / DONE`; REL-02 requires independent resource/fee authorization. Non-sensitive readiness belongs to REL-03 under the approved REL-01 D7 boundary; public DNS/HTTPS/CORS validation belongs to the later public-entry gate. Local daily backup with 7-day cleanup is configured, and live AI is retained by explicit user decision for the private preview.
 - MOBILE-B feedback-fix backup: `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260911T094516Z.sql.gz`.
 
+## Active R1.1 Private-Preview Web Push Validation
+
+- User explicitly selected real Web Push use for the existing private preview and accepted the `web-push@3.6.7` MPL-2.0 license boundary on 2026-09-14; H8 is `CLOSED` for this scope.
+- Preflight confirmed the active release contains the Push adapter and both Push tables, with zero existing subscriptions and deliveries. A protected database backup `daily_assistant_preview_20260914T063732Z.sql.gz` and root-only environment-file backups were created before configuration.
+- A fresh VAPID pair and AES-256-GCM subscription-encryption key were generated only on the server. VAPID contact, private key and encryption key are not recorded in this repository. Both Push flags are enabled and the API restarted `active` with clean startup logs.
+- A real device subscription was confirmed and `REMINDER_SCHEDULER_ENABLED` was resumed. The user then confirmed subscription, system delivery, notification click-through, unsubscribe and re-enable were normal; H6 is `CLOSED / DEVICE_ACCEPTANCE_PASS` for the existing private preview.
+- One already-due reminder entered `FAILED / NOTIFICATION_UNAVAILABLE` during the brief malformed-key configuration attempt; it created no Push delivery and remains on its existing retry path. A subsequent iPhone report found that choosing today in the application date-time picker disabled confirmation; `TemporalPickerField` now produces an explicit ISO date from `formatToParts()` and has a focused regression test, while full local quality passed.
+
 ## Active Task
 
-- id: MOBILE-B
-- displayName: PWA lifecycle and installation experience
+- id: PRIVATE_PREVIEW_OPERATION
+- displayName: Invited-user private-preview operation and feedback fixes
 - branch: codex/mobile-b-pwa-lifecycle
 - baseHead: Integration 6e1313fd58da8d4fc34fc7912b579571a21a9ebe
 - contract: tasks/MOBILE-B.md (`MOBILE_B_PWA_LIFECYCLE_V1`)
@@ -63,7 +71,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - forbiddenScope: SMS/email, queues, production enablement, deployment and public release without independent authorization
 - validation: final full quality, locked install with npm 11.18.0, lint/typecheck/unit/full tests/build/Prisma/OpenAPI, governance 30/30, audit 0 and SBOM 1055 pass; temporary MySQL 8.4.9 applied 13 migrations and passed 18 files/161 tests; controlled Chromium subscribe/restore/unsubscribe/deny and five-width checks pass; real delivery remains
 - executionStatus: IN_PROGRESS
-- deliveryStatus: DONE_INTEGRATION / CI_PASS / NOT_ENABLED / REAL_DELIVERY_PENDING
+- deliveryStatus: DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
 
 ## Previous Active Task
 
@@ -234,7 +242,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 | PR9 | DONE | DONE_INTEGRATION | R1 | PR5 DONE_INTEGRATION | PR #16 MERGED/CLOSED；source `4017218...`；squash `3caa93b...`；CI #235/#236/#237 SUCCESS |
 | PR10/PR11/PR12 | PENDING | NOT_STARTED | R3 | PLANS dependencies | later |
 | PR14/PR15 | PENDING | NOT_STARTED | R2 | PLANS dependencies | later |
-| PR16/PR17 | IN_PROGRESS | DONE_LOCAL_CANDIDATE / NOT_ENABLED | R1.1 | H6/H8 affect PR17 | API/SW/provider local; browser/device/CI pending |
+| PR16/PR17 | DONE | DONE_INTEGRATION / PRIVATE_PREVIEW_PUSH_ACTIVE / DEVICE_ACCEPTANCE_PASS | R1.1 | H6/H8 CLOSED | API/SW/provider integrated; real-device private-preview acceptance confirmed |
 | PR18 | DONE | DONE_INTEGRATION | R1 | PR2 + PR5 DONE_INTEGRATION | source `9bee2f8...`；PR #17 MERGED/CLOSED；Squash `7caf892...`；CI #263 SUCCESS；Integration CI #264 SUCCESS；governance-close `f90f4ea...` PUSHED；Final Acceptance/Integration ACCEPT |
 | PR19 | DONE | DONE_INTEGRATION | R1 | PR18 + PR6 | GitHub PR #18 merge `c42c19ec...`; historical implementation is integrated; V10 contract scope remains unchanged |
 | QUALITY-R1-GOVERNANCE-RECONCILIATION | DONE | DONE_INTEGRATION / POST_WRITE_REVIEW_PASS | Governance | Gate 2 explicit approval | ADR-028 Accepted; PR20-03A/#22 and PR20-03B/#23 `KEEP_AND_RECONCILE`; commit `6adc111...`; review PASS |
@@ -268,9 +276,9 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 | H3 | OBSERVED_NOT_ARCHIVED | non-blocking | Dada | document limitation |
 | H4 | OPEN | Android claim | Dada | device smoke |
 | H5 | OPEN | non-blocking | Dada | long-term observation |
-| H6 | OPEN | Push | Dada | authorized delivery test |
+| H6 | CLOSED | private-preview Push | Dada | user-confirmed subscription, delivery, click-through, unsubscribe and re-enable on 2026-09-14 |
 | H7 | CLOSED | local controlled Provider evidence, current-stage DeepSeek/terms/results and ADR-029 policy accepted; production enablement and release gates remain separate | Dada | none; closure recorded by explicit owner instruction on 2026-09-01 |
-| H8 | OPEN | Push | Dada | license review |
+| H8 | CLOSED | private-preview Push | Dada | user accepted MPL-2.0 use of `web-push@3.6.7`, retained notices and no third-party source modification on 2026-09-14 |
 | H9 | CLOSED | integration | Dada | none |
 
 ## Evidence

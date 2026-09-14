@@ -2,24 +2,26 @@
 
 ## Session Status
 
-ACTIVE / PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY
+VERIFYING / PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
 
 ## Task
 
 - ID: `PRIVATE_PREVIEW_OPERATION`
-- Execution: `ACTIVE`
-- Delivery: `FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE`
+- Execution: `VERIFYING`
+- Delivery: `FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`
 - Worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
-- Branch: `codex/mobile-c4-complex-secondary-pages`
+- Branch: `codex/private-preview-feedback-operations`
 - Base HEAD: Integration `cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d`
 - Contract: `PLANS.md` simplified private-preview scope.
-- Scope: 现有私有预览继续供受邀用户使用，仅处理实际反馈的必要缺陷修复。
-- Excluded: REL-04～REL-06、真实 Push、R2/R3、公共入口、生产部署、Provider 扩展和新基础设施。
+- Scope: 现有私有预览继续供受邀用户使用，处理实际反馈的必要缺陷修复，并完成用户明确选择的 R1.1 Web Push 真实订阅/送达验收。
+- Excluded: REL-04～REL-06、R2/R3、公共入口、生产部署、Provider 扩展和新基础设施。
 
 ## Current Progress
 
 - REL-03 已完成 readiness、备份和运行手册收口；当前私有预览可直接使用。
-- 用户决定不主动推进后续发布阶段，仅在收到真实使用反馈时处理。
+- 用户决定不主动推进后续发布阶段，仅在收到真实使用反馈时处理；PR #35 已合并为 Integration `6e3ba34`，合并 CI `34810670074` 的 quality、db-validation、browser-qa 全绿。
+- 用户确认 H8 许可门禁后，私有预览已生成仅服务器保存的 VAPID 与订阅加密密钥；Push 双开关已开启，真实设备订阅后调度器已恢复。用户确认应用外提醒送达、点击、关闭和重新开启正常，H6 为 `DEVICE_ACCEPTANCE_PASS`。
+- 用户随后报告 iPhone 上选择当天会禁用日期时间确认；已修复日期格式比较并添加回归测试，完整 `npm run quality` 通过，等待独立交付授权。
 - MOBILE-C4 C4.4 已提交为 `841ea8b`；中文状态导致 E2E 全页定位歧义后，以 `f7299a3`、`b44c1a6` 收紧到操作卡片。状态证据提交 `8e9f53e` 对应 CI run `34797681890` 的 quality、db-validation、browser-qa 全绿。
 - MOBILE-C4 C4.3 已提交并推送为 `698b2c4`，CI run `34795552676` 全绿。C4.4 三个 AI 页面已完成共享页面壳、确认层级、响应式操作区和中文状态改版；专项 48 tests 与完整 quality 通过并已推送。
 - 本机五档 Playwright 因未配置专用一次性 MySQL 测试库而未运行；必须由推送后的 CI browser-qa 和后续 iPhone/Android 私有预览验收补齐。
@@ -77,14 +79,14 @@ ACTIVE / PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY
 
 ## Remaining Work
 
-1. 收集真实使用反馈并修复必要问题。
-2. 不自动启动后续发布、扩容或新功能任务。
+1. 在获得独立交付授权后，将已验证的日期时间确认修复提交、CI 并部署至现有私有预览。
+2. 持续收集真实使用反馈并修复必要问题。
 3. 不自动进入后续 canonical 任务。
 
 ## Previous Task Record
 
 1. MOBILE-A：`DONE_INTEGRATION / DEVICE_ACCEPTANCE_PASS`，merge `6e1313f`。
-2. R1.1 Web Push：`DONE_INTEGRATION / DISABLED / REAL_DELIVERY_PENDING`。
+2. R1.1 Web Push：`DONE_INTEGRATION / PRIVATE_PREVIEW_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`。
 
 ## Verification Status
 
@@ -98,4 +100,4 @@ ACTIVE / PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY
 
 ## Last Updated
 
-2026-09-14 11:20 +08:00 — 路线已收敛为现有私有预览持续使用与反馈修复，不自动推进后续发布阶段。
+2026-09-14 15:30 +08:00 — 用户确认应用外提醒实机验收通过；当天日期时间确认修复完成本地验证，等待独立交付授权。

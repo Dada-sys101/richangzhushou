@@ -1,9 +1,18 @@
 # Changelog
 
+## 2026-09-14 — R1.1 private-preview Web Push acceptance (DONE_LOCAL)
+
+- The user selected real external reminders and accepted the `web-push@3.6.7` MPL-2.0 use boundary. Server-only VAPID and subscription-encryption keys are configured, both Push flags are enabled, and the API restart is healthy.
+- The user confirmed real-device subscription, delivery, notification click-through, unsubscribe and re-enable. H6 is closed for this private-preview scope and the reminder scheduler is active.
+
+## 2026-09-14 — iPhone date-time confirmation fix (DONE_LOCAL)
+
+- Selecting today in a reminder date-time picker could leave confirmation disabled because locale-formatted dates were compared as text. The picker now assembles a stable ISO date from `formatToParts()`; a focused regression test and full `npm run quality` pass.
+
 ## 2026-09-14 — REL-03 private-preview readiness closure (DONE_LOCAL)
 
 - Verified the active private-preview release, service health, protected backup and application rollback target, and added the release/rollback runbook.
-- No infrastructure, server configuration, public entry or production change was made; the current scope is feedback-driven private-preview fixes only.
+- No infrastructure, server configuration, public entry or production change was made; PR #35 merged as Integration `6e3ba34`, and merged CI `34810670074` passed before feedback-driven private-preview operation began.
 
 ## 2026-09-14 — MOBILE-C4 合入 Integration（DONE_INTEGRATION）
 

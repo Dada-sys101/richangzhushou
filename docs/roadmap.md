@@ -1,11 +1,11 @@
 # 路线图（派生摘要）
 
-updatedAt: 2026-09-11
+updatedAt: 2026-09-14
 
 > 完整 canonical 依赖、当前有效规则和 Task Selection Policy 仍以 `PLANS.md` v2.1.1 为准。
 > ADR-028 已 Accepted；本页同步其有限 PR20 历史边界，不替代 canonical 规范。
 
-当前移动端顺序：`R1.1 Web Push Candidate（DONE_INTEGRATION）→ MOBILE-A（DONE_INTEGRATION）→ MOBILE-B（DONE_LOCAL / DEVICE_ACCEPTANCE_PENDING）→ MOBILE-C`。MOBILE-B 已完成 Manifest、图标、安装引导和安全更新策略，本地质量通过，等待 iPhone/Android 安装版生命周期验收。
+当前移动端顺序：`R1.1 Web Push Candidate（DONE_INTEGRATION / PRIVATE_PREVIEW_PUSH_ACTIVE / H6_DEVICE_ACCEPTANCE_PASS）→ MOBILE-A（DONE_INTEGRATION）→ MOBILE-B（DONE_INTEGRATION）→ MOBILE-C1/C2/C3/C4（DONE_INTEGRATION）`。用户已确认现有私有预览的 Web Push 真实设备验收；调度器已恢复。
 
 ```text
 V15-CTRL-001 → PR6a → AI-DECISION-001 → PR2 → PR5 → PR6 → PR9
@@ -29,7 +29,7 @@ V15-CTRL-001 → PR6a → AI-DECISION-001 → PR2 → PR5 → PR6 → PR9
   H7 人工关闭前仍不得启用 Provider 或推进 R1。
 - PR20-03A/#22、PR20-03B/#23 deviation 均 `KEEP_AND_RECONCILE`；canonical R3 PR22/PR23
   仍为 Shrink 任务，未修改。
-- R1.1：PR3→PR16→PR17（H6/H8，只阻塞 Push）；R2：PR4、PR7/8/13、PR14/15、PR21；
+- R1.1：PR3→PR16→PR17（H6/H8 已在私有预览范围关闭，只阻塞 Push）；R2：PR4、PR7/8/13、PR14/15、PR21；
   R3：PR10/11/12、canonical PR22/PR23。
 
 Integration HEAD（2026-08-29 只读重核）：`299b1f71debbd5a3140d1ee19f9781372e67134b`；最新 CI run `33043413216` 的
