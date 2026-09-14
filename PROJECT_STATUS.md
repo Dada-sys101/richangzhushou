@@ -10,8 +10,8 @@ activeHead: 45d52c6
 activeTask: MOBILE-C4 Complex Secondary Pages
 executionStatus: READY
 deliveryStatus: CONTRACT_FROZEN_LOCAL / IMPLEMENTATION_NOT_STARTED
-nextCanonicalTask: Review and commit MOBILE-C4 C4.2, then execute C4.3 PlannerDetail/TripDetail
-nextCanonicalTaskAfterCompletion: Continue MOBILE-C4 C4.4 AI pages
+nextCanonicalTask: Review and commit MOBILE-C4 C4.3, then execute C4.4 AI pages
+nextCanonicalTaskAfterCompletion: Complete MOBILE-C4 delivery gates
 localRevision: 45d52c6
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
@@ -30,7 +30,7 @@ privatePreviewRelease: b18b91d / b18b91d0-20260912T0735Z
 
 ## Current
 
-`MOBILE-C3` is complete in Integration. `MOBILE-C4` C4.1 is pushed at `4efe4a4`; C4.2 Calendar/Tasks/Reminders is `DONE_LOCAL / UNCOMMITTED`, and C4.3 has not started.
+`MOBILE-C3` is complete in Integration. `MOBILE-C4` C4.1/C4.2 are pushed through `16dfde8` with green CI; C4.3 PlannerDetail/TripDetail is `DONE_LOCAL / UNCOMMITTED`.
 
 ## Remaining
 

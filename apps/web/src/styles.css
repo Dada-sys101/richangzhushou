@@ -1465,6 +1465,177 @@ html.app-dialog-open body {
   font-size: 1.1rem;
 }
 
+.planner-detail-workspace .secondary-page-content,
+.trip-detail-workspace .secondary-page-content {
+  gap: var(--space-section);
+}
+
+.planner-detail-workspace .planner-detail-card {
+  padding: 0;
+  overflow: hidden;
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+.planner-detail-workspace .planner-detail-card-head {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+}
+
+.planner-detail-workspace .planner-detail-card-head .eyebrow {
+  margin: 0 0 5px;
+  font-size: 0.78rem;
+}
+
+.planner-detail-workspace .planner-detail-form,
+.planner-detail-workspace .planner-detail-list,
+.planner-detail-workspace .planner-detail-actions,
+.planner-detail-workspace .planner-detail-success {
+  margin: 0;
+  padding: 18px 20px;
+}
+
+.planner-detail-workspace .planner-detail-list > div:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.planner-detail-workspace .planner-detail-actions {
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+}
+
+.planner-detail-feedback,
+.planner-detail-success {
+  border: 1px solid;
+  border-radius: var(--radius-sm);
+  font-weight: 650;
+}
+
+.planner-detail-feedback {
+  padding: 12px 14px;
+  border-color: #fecaca;
+  background: #fff7f7;
+}
+
+.planner-detail-success {
+  border-width: 0 0 1px;
+  border-color: #bbf7ca;
+  border-radius: 0;
+  color: var(--color-success);
+  background: #f0fdf4;
+}
+
+.trip-detail-workspace .page-header-actions,
+.trip-detail-workspace .trip-head-actions {
+  width: 100%;
+}
+
+.trip-detail-workspace .trip-head-actions {
+  justify-content: flex-end;
+}
+
+.trip-detail-workspace .trip-card,
+.trip-detail-workspace .trip-section,
+.trip-detail-workspace > .secondary-page-content > .trip-create {
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.trip-detail-workspace .trip-card {
+  border-color: var(--color-primary-soft);
+  background: var(--color-primary-subtle);
+}
+
+.trip-detail-workspace .trip-card .today-stat {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.trip-detail-workspace .trip-section {
+  margin-top: 0;
+}
+
+.trip-detail-workspace .trip-section > .trip-create {
+  margin-bottom: 16px;
+  padding: 14px;
+  border-color: var(--color-border);
+  background: var(--color-surface-muted);
+}
+
+.trip-detail-workspace .trip-section .resource-list > li {
+  align-items: flex-start;
+  padding: 14px;
+  border-color: var(--color-border);
+  background: var(--color-surface-muted);
+}
+
+.trip-detail-workspace .trip-section .resource-list .trip-create {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+@media (max-width: 768px) {
+  .planner-detail-workspace .planner-detail-card-head {
+    align-items: flex-start;
+  }
+
+  .planner-detail-workspace .planner-detail-form,
+  .trip-detail-workspace .trip-create {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .planner-detail-workspace .planner-actions,
+  .trip-detail-workspace .trip-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .planner-detail-workspace .planner-actions > *,
+  .trip-detail-workspace .trip-actions > * {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+  }
+
+  .planner-detail-workspace .planner-detail-actions > *,
+  .trip-detail-workspace .trip-head-actions > * {
+    min-height: 44px;
+  }
+
+  .trip-detail-workspace .trip-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .trip-detail-workspace .trip-card .today-stat + .today-stat {
+    padding-top: 12px;
+    border-top: 1px solid var(--color-primary-soft);
+  }
+
+  .trip-detail-workspace .trip-section .resource-list > li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trip-detail-workspace .trip-section .row-actions {
+    width: 100%;
+    padding-top: 9px;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
 .packing-done {
   color: #64748b;
   text-decoration: line-through;

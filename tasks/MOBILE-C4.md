@@ -3,7 +3,7 @@
 ## Metadata
 
 - Contract: `MOBILE_C4_COMPLEX_SECONDARY_PAGES_V1`
-- Status: `IN_PROGRESS / C4_1_DONE_PUSHED / C4_2_DONE_LOCAL / C4_3_NOT_STARTED`
+- Status: `IN_PROGRESS / C4_1_C4_2_DONE_PUSHED / C4_3_DONE_LOCAL / C4_4_NOT_STARTED`
 - Base: Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
 - Predecessor: MOBILE-C3 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
 - Delivery model: 一个 canonical task，四个严格顺序切片；每个切片独立实现、验证和提交，不跨组顺手改造。
@@ -56,6 +56,13 @@
 - 目标：按摘要、主要内容、关联信息和危险操作重新分区；减少重复标题和按钮；长列表、空数据及编辑态在窄屏可读可操作。
 - 配套测试：`PlannerDetailView.test.ts`、行程详情专项测试及深链接/返回流程。
 - 退出条件：两个详情页验证通过并形成独立提交后，才能进入 C4.4。
+
+#### C4.3 implementation evidence
+
+- `PlannerDetailView.vue` 与 `TripDetailView.vue` 已统一二级页壳、摘要、属性、编辑区、关联列表和操作区；修复行程金额与节点分隔符的异常显示字符。
+- 375、390、430、768、1440 CSS px 已完成真实页面渲染检查；两个详情页横向溢出为 0，交互控件均保持在视口内。
+- PlannerDetail 专项 12 tests、Web lint/typecheck/build 及完整 `npm run quality`、`git diff --check` 通过。
+- 当前为 `DONE_LOCAL / UNCOMMITTED`；CI、私有预览与 iPhone/Android 实机验收尚未执行。
 
 ### C4.4 — AI drafts and proposals
 

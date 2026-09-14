@@ -1,5 +1,10 @@
 # 项目进度（派生摘要）
 
+## 2026-09-14 — MOBILE-C4 C4.3 详情页面改版（DONE_LOCAL）
+
+- 完成计划详情与行程详情的信息分区、编辑态、操作区和窄屏布局统一，并修复行程金额/节点分隔符异常字符。
+- 五档 CSS 视口、PlannerDetail 12 项专项测试和完整 quality 通过；当前为 `UNCOMMITTED`。
+
 ## 2026-09-12 — MOBILE-C4 C4.2 日程、待办、提醒页面改版（DONE_LOCAL）
 
 - `CalendarView.vue`、`TasksView.vue`、`RemindersView.vue` 已完成统一页面结构、响应式表单、状态列表和操作区改版。

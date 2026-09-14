@@ -1,5 +1,10 @@
 # Session End
 
+## 2026-09-14 — MOBILE-C4 C4.3
+
+- C4.2 已提交并推送为 `16dfde8` 且 CI 全绿；C4.3 计划/行程详情改版为 `DONE_LOCAL / UNCOMMITTED`。
+- 五档视口、PlannerDetail 专项测试、完整 `npm run quality` 和 `git diff --check` 通过；下一步为 C4.4 AI 页面。
+
 ## 2026-09-12 — MOBILE-C4 C4.2
 
 - C4.1 已提交并推送为 `4efe4a4`；C4.2 日程、待办、提醒页面改版为 `DONE_LOCAL / UNCOMMITTED`。

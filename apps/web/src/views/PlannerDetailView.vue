@@ -12,7 +12,7 @@ import {
 } from "../api/client";
 import DateField from "../components/DateField.vue";
 import DateTimeField from "../components/DateTimeField.vue";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { requestAppConfirm } from "../composables/useAppConfirm";
 import { usePlannerStore } from "../stores/planner";
@@ -642,16 +642,19 @@ function messageOf(error: unknown): string {
 </script>
 
 <template>
-  <section class="planner-detail-page" aria-labelledby="planner-detail-title">
-    <PageHeader
-      :title="pageTitle"
-      title-id="planner-detail-title"
-      subtitle="查看并管理当前事项"
-    />
-
+  <SecondaryPageShell
+    class="planner-detail-page planner-detail-workspace"
+    :title="pageTitle"
+    title-id="planner-detail-title"
+    subtitle="查看并管理当前事项"
+  >
     <p v-if="loading" class="loading-copy" role="status">加载中…</p>
     <template v-else>
-      <div v-if="errorMessage" class="planner-detail-error" role="alert">
+      <div
+        v-if="errorMessage"
+        class="planner-detail-error planner-detail-feedback"
+        role="alert"
+      >
         <span>{{ errorMessage }}</span>
         <button
           v-if="retryAction"
@@ -673,7 +676,7 @@ function messageOf(error: unknown): string {
           </span>
         </div>
 
-        <p v-if="successMessage" class="form-success" role="status">
+        <p v-if="successMessage" class="planner-detail-success" role="status">
           {{ successMessage }}
         </p>
 
@@ -902,5 +905,5 @@ function messageOf(error: unknown): string {
         </div>
       </article>
     </template>
-  </section>
+  </SecondaryPageShell>
 </template>
