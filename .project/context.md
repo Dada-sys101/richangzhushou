@@ -2,17 +2,17 @@
 
 ## Last Updated
 
-2026-09-14 11:20 +08:00 — User simplified the roadmap: the existing private preview remains available for invited users, with feedback-driven fixes only.
+2026-09-14 15:30 +08:00 — Web Push device acceptance passed; today-date confirmation fix is verified locally.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `e40715714f06034614e25bf0f5e6735a9494bb9a`
+- Verified Integration HEAD: `6e3ba34bfd070c0276dea4183ec51423d8f4724c`
 - Active worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
-- Active branch: `codex/mobile-c4-complex-secondary-pages`
-- Last delivery: MOBILE-C4 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
+- Active branch: `codex/private-preview-feedback-operations`
+- Current delivery: private-preview simplified operations `PR #35 MERGED / MERGED_CI_PASS`.
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 and MOBILE-C1/C2/C3 PRs #31/#32/#33 are merged. Active release is `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`.
@@ -30,7 +30,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current operating mode: `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY`.
+- Current operating mode: `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -44,9 +44,9 @@
 ## Current Task
 
 - ID: `PRIVATE_PREVIEW_OPERATION`.
-- Goal: let invited users use the existing private preview and address real feedback when it arises.
-- Current state: `ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE`.
-- Deferred: REL-04～REL-06, real Push delivery, R2/R3, public entry and new infrastructure.
+- Goal: let invited users use the existing private preview, address real feedback, and complete the explicitly selected R1.1 Web Push device validation.
+- Current state: `ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_PUSH_ACTIVE / H6_DEVICE_ACCEPTANCE_PASS`; the iPhone today-date confirmation fix is `DONE_LOCAL / VERIFIED`.
+- Deferred: REL-04～REL-06, R2/R3, public entry and new infrastructure.
 
 ## Next Recommended Task
 
@@ -65,9 +65,9 @@ MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of 
 
 ## Remaining Work
 
-- R1.1 Web Push commit/CI and real Push/system-notification/physical-device delivery validation.
-- Reduced REL-04 reassessment using the existing validation environment.
-- Optional closed pilot observation before broader use.
+- Deliver the verified local fix for iPhone date-time confirmation when the user authorizes its commit, CI and private-preview deployment.
+- Address necessary defects reported by invited users in the existing private preview.
+- Keep all scope expansion, public release and new infrastructure deferred until the user explicitly selects one.
 - Public DNS, HTTPS, exact CORS and public-entry smoke only when public access is requested.
 - R1.1 Push, R2 RRULE/Import/observability and R3 encrypted local migration/shrink remain future feature tracks.
 

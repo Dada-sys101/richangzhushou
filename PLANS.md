@@ -5,7 +5,7 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前 canonical 任务：`PRIVATE_PREVIEW_OPERATION`（`ACTIVE / FEEDBACK_FIXES_ONLY`；现有私有预览继续供受邀用户使用）
+当前 canonical 任务：`PRIVATE_PREVIEW_OPERATION`（`ACTIVE / FEEDBACK_FIXES_ONLY / R1.1_PRIVATE_PREVIEW_PUSH_VALIDATION`；现有私有预览继续供受邀用户使用）
 PR18 Integration：`7caf892022c9bb6833c7316893bfddeb169b7243`（PR #17，历史事实）
 PR19 Integration：`c42c19ecb606893b1384fab4a13af2afb6b9981c`（PR #18，`DONE_INTEGRATION`）
 PR20 Adapter Integration：历史证据为 `d53f84a4ff99208f69d209e98a1d3f07c588d760`（PR #20/#21/#22/#23，`DONE_INTEGRATION`）
@@ -20,7 +20,7 @@ Persisted Successor Gate：`REL-03 PRIVATE PREVIEW READINESS READY；REL-02 SEPA
 
 移动端优化执行顺序（2026-09-11 批准）：`R1.1 Web Push Candidate（DONE_INTEGRATION）→ MOBILE-A（DONE_INTEGRATION）→ MOBILE-B（DONE_INTEGRATION）→ MOBILE-C1/C2/C3（DONE_INTEGRATION）→ MOBILE-C4（DONE_INTEGRATION）`。MOBILE-C4 已合入 Integration `e407157`，不改变冻结架构、发布范围或 Push 启用门禁。
 
-当前私有预览简化范围（2026-09-14 用户决定）：现有 Alibaba 私有预览可直接作为约 10 名受邀用户的使用环境。当前只处理真实使用反馈和必要缺陷修复；不主动推进 REL-04～REL-06、真实 Push 送达、R2/R3 功能线、独立 Staging、公网 DNS/HTTPS/CORS 或生产发布。上述事项不删除，待用户明确提出公开发布、扩容或新功能目标时再重新评估。
+当前私有预览简化范围（2026-09-14 用户决定，后由用户明确选择 R1.1 私有预览 Push 验证）：现有 Alibaba 私有预览可直接作为约 10 名受邀用户的使用环境。当前处理真实使用反馈、必要缺陷修复，以及已明确选择的 Web Push 真实订阅/送达验收；不主动推进 REL-04～REL-06、R2/R3 功能线、独立 Staging、公网 DNS/HTTPS/CORS 或生产发布。上述事项不删除，待用户明确提出公开发布、扩容或新功能目标时再重新评估。
 
 ## 1. 版本目标与边界
 
@@ -157,12 +157,12 @@ deliveryStatus: NOT_STARTED | DONE_LOCAL | DONE_COMMITTED | DONE_PUSHED | PR_OPE
 | H3 | Safari 无痕模式归档 | OBSERVED_NOT_ARCHIVED | 非阻塞限制 |
 | H4 | Android Chrome Smoke | OPEN | Android 正式支持声明 |
 | H5 | iOS 长期存储观察 | OPEN | 非阻塞观察/后续迁移策略 |
-| H6 | 真实 Push 送达 | OPEN | Push merge/enable |
+| H6 | 真实 Push 送达 | CLOSED | 用户于 2026-09-14 确认私有预览订阅、送达、通知跳转、关闭和重新开启正常 |
 | H7 | 真实 AI Provider 受控验证 | CLOSED | 本机受控合成证据、当前阶段 Provider/条款/结果及 ADR-029 已由 Dada 接受；Provider enablement、REL-04、R1 advancement 仍为后续门禁 |
-| H8 | MPL-2.0 人工评审 | OPEN | Push merge/enable |
+| H8 | MPL-2.0 人工评审 | CLOSED | 用户于 2026-09-14 确认私有预览使用 `web-push@3.6.7`，保留许可证和版权声明且不修改第三方源码 |
 | H9 | PoC 集成评审 | CLOSED | 已满足 |
 
-H1/H2 原阻塞 R1，2026-09-08 经用户明确批准对本次 R1 advancement 豁免，但仍为未验证且不能写成真机通过；H7 已关闭但不自动授权 Provider enablement；H6/H8 只阻塞 Push；H4 只阻塞 Android 支持声明；H3/H5 必须记录，
+H1/H2 原阻塞 R1，2026-09-08 经用户明确批准对本次 R1 advancement 豁免，但仍为未验证且不能写成真机通过；H7 已关闭但不自动授权 Provider enablement；H6/H8 已在私有预览 Push 范围关闭；H4 只阻塞 Android 支持声明；H3/H5 必须记录，
 但不自动阻塞 R1。任何门禁都不得由代码任务自行关闭。
 
 ### 6.2 R1 Quality Gate 与 PR20 两阶段语义
@@ -490,7 +490,7 @@ nextCanonicalTaskAfterCompletion: USER_DIRECTED_SCOPE_SELECTION
 的 `quality`、`db-validation`、`browser-qa` 均 SUCCESS；`browser-qa` 报告上传步骤被
 跳过，不能宣称存在完整浏览器报告。
 
-REL-03 已完成本地 evidence 收口；当前转为 `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY`。R1 Quality Gate 已获批准，独立 Staging 资源建设已由用户明确豁免，现有 Alibaba 私有预览作为受邀用户使用环境。
+REL-03 已完成本地 evidence 收口；当前转为 `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY`。用户已在此范围内明确选择 R1.1 私有预览 Web Push 真实订阅/送达验收：H8 与 H6 均已由用户确认的私有预览实机验收关闭。R1 Quality Gate 已获批准，独立 Staging 资源建设已由用户明确豁免，现有 Alibaba 私有预览作为受邀用户使用环境。
 `QUALITY-R1-GOVERNANCE-RECONCILIATION` 已在 commit
 `6adc111492dcbeb35e79475a3d69f6a63007e5bb` 中完成，并经 post-write review；
 ADR-028 为 `Accepted`；

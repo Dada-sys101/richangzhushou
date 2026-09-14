@@ -1,10 +1,20 @@
 # 项目进度（派生摘要）
 
+## 2026-09-14 — R1.1 私有预览 Web Push 实机验收（DONE_LOCAL）
+
+- 用户明确选择在现有私有预览使用应用外提醒，并确认 `web-push@3.6.7` 的 MPL-2.0 使用边界；H8 已关闭。
+- 已在服务器生成并仅以 root `600` 权限保存 VAPID 与订阅加密密钥；Push 双开关已开启，API 重启后 active 且启动日志无异常。数据库预检确认 Push 表完整、无旧订阅/送达记录，受保护备份为 `daily_assistant_preview_20260914T063732Z.sql.gz`。
+- 用户确认真实设备订阅、系统送达、通知点击、退订和重新开启均正常；H6 在本私有预览范围关闭，提醒调度器已恢复。密钥重写过程曾使一条既有到期提醒进入 `NOTIFICATION_UNAVAILABLE`，未创建 Push 送达记录，仍沿既有重试路径处理。
+
+## 2026-09-14 — iPhone 当天日期时间确认修复（DONE_LOCAL）
+
+- 提醒选择当天时，部分 iPhone 会把本地化日期字符串与 ISO 最小时间进行文本比较，导致“确定”不可用。组件现用 `formatToParts()` 组装 ISO 日期；专项回归测试和完整 `npm run quality` 均通过，等待独立交付授权。
+
 ## 2026-09-14 — REL-03 私有预览 readiness 收口（DONE_LOCAL）
 
 - 只读复核确认 active release、API/Nginx/MySQL、健康检查、最新受保护备份和应用回滚目标均可用。
 - 新增 `docs/50-rel-03-private-preview-runbook.md`，固化私有预览的预检查、受控发布、发布后验证、应用回滚与数据库恢复边界。
-- 未创建资源、未更改服务器配置、未开放公网或生产环境；当前转为私有预览持续使用与反馈修复。
+- 未创建资源、未更改服务器配置、未开放公网或生产环境；简化运营记录 PR #35 已合并为 Integration `6e3ba34`，合并 CI `34810670074` 的 quality、db-validation、browser-qa 全绿，私有预览进入持续使用与反馈修复。
 
 ## 2026-09-14 — MOBILE-C4 合入 Integration（DONE_INTEGRATION）
 

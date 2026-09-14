@@ -1,18 +1,18 @@
 # Project Status
 
-updatedAt: 2026-09-14T10:55:00+08:00
+updatedAt: 2026-09-14T15:30:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
-integrationHead: e40715714f06034614e25bf0f5e6735a9494bb9a
+integrationHead: 6e3ba34bfd070c0276dea4183ec51423d8f4724c
 activeBranch: codex/v15-integration-foundation
-activeHead: e407157
+activeHead: 6e3ba34
 activeTask: PRIVATE_PREVIEW_OPERATION
 executionStatus: ACTIVE
-deliveryStatus: FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE
+deliveryStatus: FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
 nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
 nextCanonicalTaskAfterCompletion: NONE
-localRevision: e407157
+localRevision: 6e3ba34
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
@@ -30,16 +30,12 @@ privatePreviewRelease: 8e9f53e / 8e9f53e0-20260914T1007Z
 
 ## Current
 
-`MOBILE-C3` is complete in Integration. MOBILE-C4 HEAD `8e9f53e` is deployed to private preview with green CI and post-deploy checks; device acceptance remains pending.
+`MOBILE-C4` is integrated and passed private-preview iPhone/Android acceptance. R1.1 Web Push is active only in the existing private preview; real-device subscription, delivery, click-through, unsubscribe and re-enable are user-confirmed, and the scheduler is active.
 
 ## Remaining
 
-- Implement and test readiness success and dependency-failure behavior.
-- Verify readiness on the existing private-preview server under the applicable deployment authorization.
-- Reassess the reduced REL-04 scope after REL-03.
+- Deliver the verified local iPhone today-date confirmation fix after independent commit, CI and deployment authorization.
 - Handle DNS, HTTPS, exact CORS and public smoke only when public entry is requested.
-- Keep production release and broader Provider use behind independent decisions.
-- Reassess separate Staging for public launch, larger scale or important real data.
 
 ## Verification
 
@@ -52,6 +48,8 @@ privatePreviewRelease: 8e9f53e / 8e9f53e0-20260914T1007Z
 - Private-preview entry, business smoke and cleanup: `PASS`.
 - Backup/retention/restore: `PASS`.
 - REL-03 readiness: `NOT_STARTED`.
+- H8 MPL-2.0 private-preview Push review: `CLOSED` by user confirmation.
+- H6 real device delivery: `PASS` (user-confirmed private-preview acceptance on 2026-09-14).
 - Public entry and physical iPhone: `NOT_VERIFIED`.
 
 ## Git State

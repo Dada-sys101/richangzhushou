@@ -32,13 +32,15 @@ const title = computed(
 );
 
 const today = () => {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
+  const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Shanghai",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  });
-  return formatter.format(new Date());
+  }).formatToParts(new Date());
+  const value = (type: "day" | "month" | "year") =>
+    parts.find((part) => part.type === type)?.value;
+  return `${value("year")}-${value("month")}-${value("day")}`;
 };
 const currentMonth = computed(() => visibleMonth.value || today().slice(0, 7));
 const year = computed(() => Number(currentMonth.value.slice(0, 4)));

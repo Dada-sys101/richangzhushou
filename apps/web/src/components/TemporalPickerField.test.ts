@@ -12,6 +12,36 @@ afterEach(() => {
 });
 
 describe("TemporalPickerField", () => {
+  it("allows confirming today's date when it equals the minimum datetime", async () => {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(new Date());
+    const value = (type: "day" | "month" | "year") =>
+      parts.find((part) => part.type === type)?.value;
+    const today = `${value("year")}-${value("month")}-${value("day")}`;
+    const wrapper = mount(TemporalPickerField, {
+      attachTo: document.body,
+      props: { min: `${today}T00:00`, mode: "datetime", modelValue: "" },
+    });
+
+    await wrapper.get(".temporal-field").trigger("click");
+    await nextTick();
+    const todayButton = document.body.querySelector<HTMLButtonElement>(
+      ".calendar-grid button.today",
+    );
+    expect(todayButton).not.toBeNull();
+    expect(todayButton?.disabled).toBe(false);
+    todayButton?.click();
+    await nextTick();
+    const confirm = Array.from(document.body.querySelectorAll("button")).find(
+      (button) => button.textContent?.trim() === "确定",
+    )!;
+    expect(confirm.disabled).toBe(false);
+  });
+
   it("shows and preserves a leap-day value when cancelled", async () => {
     const wrapper = mount(TemporalPickerField, {
       attachTo: document.body,
