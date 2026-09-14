@@ -452,7 +452,9 @@ test("H05-FINAL-EDIT: incomplete field is blocked before authoritative Save, Acc
     finalConfirmed,
     page.getByRole("button", { name: "最终确认并写入" }).click(),
   ]);
-  await expect(page.getByText("已写入")).toBeVisible();
+  await expect(
+    page.locator("article.operation-card").getByText("已写入"),
+  ).toBeVisible();
   const applied = await getProposal(request, username, proposalId);
   expect(applied.operations[0]?.status).toBe("APPLIED");
   expect(applied.operations[0]?.resultEntityId).toBeTruthy();
@@ -498,7 +500,9 @@ test("H05-FINAL-ACCEPTED-REJECT: accepted Operation can be rejected without a fo
   expect(await countTasks(request, username)).toBe(0);
 
   await page.reload();
-  await expect(page.getByText("已拒绝")).toBeVisible();
+  await expect(
+    page.locator("article.operation-card").getByText("已拒绝"),
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "最终确认并写入" }),
   ).not.toBeVisible();
