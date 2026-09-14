@@ -5,7 +5,8 @@ import { RouterLink, useRoute } from "vue-router";
 import type { CalendarEventSummary } from "../api/client";
 import DateField from "../components/DateField.vue";
 import DateTimeField from "../components/DateTimeField.vue";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import SectionCard from "../components/SectionCard.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { requestAppConfirm } from "../composables/useAppConfirm";
 import { useAuthStore } from "../stores/auth";
@@ -223,169 +224,196 @@ function messageOf(error: unknown): string {
 </script>
 
 <template>
-  <section class="planner-page" aria-labelledby="calendar-title">
-    <PageHeader title="日历" title-id="calendar-title" subtitle="日程">
-      <template #actions>
-        <div class="filters">
-          <label>
-            日期
-            <DateField v-model="date" required />
-          </label>
-          <label class="check-label">
-            <input v-model="includeDeleted" type="checkbox" />
-            显示已删除
-          </label>
-        </div>
-      </template>
-    </PageHeader>
+  <SecondaryPageShell
+    class="planner-page planner-workspace"
+    title="日历"
+    title-id="calendar-title"
+    subtitle="日程"
+  >
+    <template #actions>
+      <div class="filters">
+        <label>
+          日期
+          <DateField v-model="date" required />
+        </label>
+        <label class="check-label">
+          <input v-model="includeDeleted" type="checkbox" />
+          显示已删除
+        </label>
+      </div>
+    </template>
 
-    <p v-if="errorMessage" class="form-error" role="alert">
+    <p
+      v-if="errorMessage"
+      class="planner-feedback planner-feedback-error"
+      role="alert"
+    >
       {{ errorMessage }}
     </p>
-    <p v-if="successMessage" class="form-success" role="status">
+    <p
+      v-if="successMessage"
+      class="planner-feedback planner-feedback-success"
+      role="status"
+    >
       {{ successMessage }}
     </p>
 
-    <form class="planner-create" @submit.prevent="submit">
-      <label class="planner-field">
-        标题
-        <input v-model="form.title" maxlength="200" required />
-      </label>
-      <label class="check-label">
-        <input v-model="form.allDay" type="checkbox" />
-        全天
-      </label>
-      <label v-if="form.allDay" class="planner-field">
-        日期
-        <DateField v-model="allDayStart" required />
-      </label>
-      <template v-else>
+    <SectionCard
+      title="新建日程"
+      description="填写标题和时间，可选择全天日程。"
+      class="planner-create-card"
+    >
+      <form class="planner-create" @submit.prevent="submit">
         <label class="planner-field">
-          开始
-          <DateTimeField v-model="form.startsAt" required />
+          标题
+          <input v-model="form.title" maxlength="200" required />
         </label>
-        <label class="planner-field">
-          结束
-          <DateTimeField v-model="form.endsAt" :min="form.startsAt" required />
+        <label class="check-label">
+          <input v-model="form.allDay" type="checkbox" />
+          全天
         </label>
-      </template>
-      <button class="primary-button" type="submit">新建日程</button>
-    </form>
+        <label v-if="form.allDay" class="planner-field">
+          日期
+          <DateField v-model="allDayStart" required />
+        </label>
+        <template v-else>
+          <label class="planner-field">
+            开始
+            <DateTimeField v-model="form.startsAt" required />
+          </label>
+          <label class="planner-field">
+            结束
+            <DateTimeField
+              v-model="form.endsAt"
+              :min="form.startsAt"
+              required
+            />
+          </label>
+        </template>
+        <button class="primary-button" type="submit">新建日程</button>
+      </form>
+    </SectionCard>
 
-    <p v-if="!planner.calendarEvents.length" class="empty-copy">
-      当天没有日程。
-    </p>
-    <ul v-else class="resource-list">
-      <li
-        v-for="item in planner.calendarEvents"
-        :key="item.id"
-        :class="{ 'is-deleted': item.deletedAt !== null }"
-      >
-        <template v-if="editingId === item.id">
-          <form class="planner-edit" @submit.prevent="saveEdit(item)">
-            <label class="planner-field">
-              标题
-              <input v-model="editForm.title" maxlength="200" required />
-            </label>
-            <label class="check-label">
-              <input v-model="editForm.allDay" type="checkbox" />
-              全天
-            </label>
-            <label v-if="editForm.allDay" class="planner-field">
-              日期
-              <DateField v-model="editAllDayStart" required />
-            </label>
-            <template v-else>
+    <SectionCard
+      title="当日日程"
+      description="按时间查看、编辑或管理当天安排。"
+      class="planner-list-card"
+    >
+      <p v-if="!planner.calendarEvents.length" class="empty-copy">
+        当天没有日程。
+      </p>
+      <ul v-else class="resource-list">
+        <li
+          v-for="item in planner.calendarEvents"
+          :key="item.id"
+          :class="{ 'is-deleted': item.deletedAt !== null }"
+        >
+          <template v-if="editingId === item.id">
+            <form class="planner-edit" @submit.prevent="saveEdit(item)">
               <label class="planner-field">
-                开始
-                <DateTimeField v-model="editForm.startsAt" required />
+                标题
+                <input v-model="editForm.title" maxlength="200" required />
               </label>
+              <label class="check-label">
+                <input v-model="editForm.allDay" type="checkbox" />
+                全天
+              </label>
+              <label v-if="editForm.allDay" class="planner-field">
+                日期
+                <DateField v-model="editAllDayStart" required />
+              </label>
+              <template v-else>
+                <label class="planner-field">
+                  开始
+                  <DateTimeField v-model="editForm.startsAt" required />
+                </label>
+                <label class="planner-field">
+                  结束
+                  <DateTimeField
+                    v-model="editForm.endsAt"
+                    :min="editForm.startsAt"
+                    required
+                  />
+                </label>
+              </template>
               <label class="planner-field">
-                结束
-                <DateTimeField
-                  v-model="editForm.endsAt"
-                  :min="editForm.startsAt"
-                  required
-                />
+                状态
+                <select v-model="editForm.status">
+                  <option value="SCHEDULED">已安排</option>
+                  <option value="CANCELLED">已取消</option>
+                </select>
               </label>
-            </template>
-            <label class="planner-field">
-              状态
-              <select v-model="editForm.status">
-                <option value="SCHEDULED">已安排</option>
-                <option value="CANCELLED">已取消</option>
-              </select>
-            </label>
-            <div class="planner-actions">
-              <button class="primary-button" :disabled="saving" type="submit">
-                保存
+              <div class="planner-actions">
+                <button class="primary-button" :disabled="saving" type="submit">
+                  保存
+                </button>
+                <button
+                  class="secondary-button"
+                  type="button"
+                  @click="cancelEdit"
+                >
+                  取消
+                </button>
+              </div>
+            </form>
+          </template>
+          <template v-else>
+            <div class="planner-main">
+              <strong>{{ item.title }}</strong>
+              <small v-if="item.allDay"
+                >全天 · {{ item.startsAt.slice(0, 10) }}</small
+              >
+              <small v-else>
+                {{ formatDateTime(item.startsAt) }} –
+                {{ formatDateTime(item.endsAt) }}
+              </small>
+              <span
+                class="status-badge"
+                :class="
+                  item.status === 'CANCELLED'
+                    ? 'status-discarded'
+                    : 'status-pending'
+                "
+              >
+                {{ item.status === "CANCELLED" ? "已取消" : "已安排" }}
+              </span>
+              <span v-if="item.deletedAt" class="revoked-mark">已删除</span>
+            </div>
+            <div class="row-actions">
+              <button
+                v-if="!item.deletedAt"
+                class="text-button"
+                type="button"
+                @click="startEdit(item)"
+              >
+                编辑
               </button>
               <button
-                class="secondary-button"
+                v-if="!item.deletedAt"
+                class="text-button danger"
                 type="button"
-                @click="cancelEdit"
+                @click="remove(item)"
               >
-                取消
+                删除
+              </button>
+              <RouterLink
+                class="text-button"
+                :to="withCalendarSource(`/calendar/${item.id}`)"
+              >
+                查看
+              </RouterLink>
+              <button
+                v-if="item.deletedAt"
+                class="text-button"
+                type="button"
+                @click="restore(item)"
+              >
+                恢复
               </button>
             </div>
-          </form>
-        </template>
-        <template v-else>
-          <div class="planner-main">
-            <strong>{{ item.title }}</strong>
-            <small v-if="item.allDay"
-              >全天 · {{ item.startsAt.slice(0, 10) }}</small
-            >
-            <small v-else>
-              {{ formatDateTime(item.startsAt) }} –
-              {{ formatDateTime(item.endsAt) }}
-            </small>
-            <span
-              class="status-badge"
-              :class="
-                item.status === 'CANCELLED'
-                  ? 'status-discarded'
-                  : 'status-pending'
-              "
-            >
-              {{ item.status === "CANCELLED" ? "已取消" : "已安排" }}
-            </span>
-            <span v-if="item.deletedAt" class="revoked-mark">已删除</span>
-          </div>
-          <div class="row-actions">
-            <button
-              v-if="!item.deletedAt"
-              class="text-button"
-              type="button"
-              @click="startEdit(item)"
-            >
-              编辑
-            </button>
-            <button
-              v-if="!item.deletedAt"
-              class="text-button danger"
-              type="button"
-              @click="remove(item)"
-            >
-              删除
-            </button>
-            <RouterLink
-              class="text-button"
-              :to="withCalendarSource(`/calendar/${item.id}`)"
-            >
-              查看
-            </RouterLink>
-            <button
-              v-if="item.deletedAt"
-              class="text-button"
-              type="button"
-              @click="restore(item)"
-            >
-              恢复
-            </button>
-          </div>
-        </template>
-      </li>
-    </ul>
-  </section>
+          </template>
+        </li>
+      </ul>
+    </SectionCard>
+  </SecondaryPageShell>
 </template>

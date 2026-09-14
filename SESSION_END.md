@@ -1,5 +1,11 @@
 # Session End
 
+## 2026-09-12 — MOBILE-C4 C4.2
+
+- C4.1 已提交并推送为 `4efe4a4`；C4.2 日程、待办、提醒页面改版为 `DONE_LOCAL / UNCOMMITTED`。
+- 五档 CSS 视口真实渲染、Planner 列表专项测试、完整 `npm run quality` 和 `git diff --check` 通过。
+- 下一步先审查并提交 C4.2，再单独执行 C4.3 PlannerDetailView/TripDetailView。
+
 ## 2026-09-12 — MOBILE-C4 C4.1
 
 - `codex/mobile-c4-complex-secondary-pages` 已完成账单列表与表单 UI 改版，状态为 `DONE_LOCAL / UNCOMMITTED`。

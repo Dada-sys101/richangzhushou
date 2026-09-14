@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-2026-09-12 18:30 +08:00 — MOBILE-C4 C4.1 transaction pages redesigned and fully verified locally; changes remain uncommitted and C4.2 has not started.
+2026-09-12 19:55 +08:00 — MOBILE-C4 C4.1 pushed through `0c9b51d` with CI `34686801343` green; C4.2 calendar/task/reminder pages redesigned and fully verified locally, still uncommitted.
 
 ## Repository State
 
@@ -30,7 +30,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `MOBILE-C4 Complex Secondary Pages / IN_PROGRESS / C4_1_DONE_LOCAL`.
+- Current canonical task: `MOBILE-C4 Complex Secondary Pages / IN_PROGRESS / C4_1_DONE_PUSHED / C4_2_DONE_LOCAL`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -51,12 +51,12 @@
 - ID: `MOBILE-C4 Complex Secondary Pages`.
 - Goal: migrate complex secondary pages to the shared C1-C3 UI foundation without changing business behavior.
 - Scope: four strict sequential slices defined by `tasks/MOBILE-C4.md`; C4.1 covers TransactionsView and TransactionFormView.
-- Current state: `IN_PROGRESS / C4_1_DONE_LOCAL / UNCOMMITTED / C4_2_NOT_STARTED`.
+- Current state: `IN_PROGRESS / C4_1_DONE_PUSHED / C4_2_DONE_LOCAL / UNCOMMITTED / C4_3_NOT_STARTED`.
 - Excluded: routes, navigation policy, stores, API/database, sync, auth, SW, Push and business semantics.
 
 ## Next Recommended Task
 
-Review and commit MOBILE-C4 C4.1, then execute C4.2 CalendarView/TasksView/RemindersView without crossing into C4.3.
+Review and commit MOBILE-C4 C4.2, then execute C4.3 PlannerDetailView/TripDetailView without crossing into C4.4.
 
 MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of the frozen MOBILE-C sequence.
 

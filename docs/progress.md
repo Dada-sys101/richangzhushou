@@ -1,5 +1,11 @@
 # 项目进度（派生摘要）
 
+## 2026-09-12 — MOBILE-C4 C4.2 日程、待办、提醒页面改版（DONE_LOCAL）
+
+- `CalendarView.vue`、`TasksView.vue`、`RemindersView.vue` 已完成统一页面结构、响应式表单、状态列表和操作区改版。
+- 375、390、430、768、1440 CSS px 真实页面渲染无横向溢出或越界控件；专项测试和完整 quality 通过。
+- C4.2 当前为 `UNCOMMITTED`；下一切片为 C4.3 计划与行程详情页。
+
 ## 2026-09-12 — MOBILE-C4 C4.1 记账页面改版（DONE_LOCAL）
 
 - 完成 `TransactionsView.vue` 与 `TransactionFormView.vue` 的信息层级、响应式布局、中文反馈和操作区统一，业务逻辑与路由行为保持不变。

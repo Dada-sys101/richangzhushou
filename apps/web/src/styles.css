@@ -1820,6 +1820,165 @@ html.app-dialog-open body {
   color: #64748b;
 }
 
+.planner-workspace .secondary-page-content {
+  gap: var(--space-section);
+}
+
+.planner-workspace .page-header-actions .filters {
+  display: grid;
+  grid-template-columns: minmax(150px, 210px) auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.planner-workspace .page-header-actions .check-label {
+  min-height: 44px;
+  padding: 0 4px;
+}
+
+.planner-workspace .page-header-actions .check-label input,
+.planner-workspace .planner-create .check-label input {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+}
+
+.planner-create-card .planner-create {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.planner-create-card .planner-create > .primary-button {
+  min-height: 46px;
+}
+
+.planner-list-card .resource-list > li {
+  align-items: flex-start;
+  padding: 16px;
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.planner-list-card .planner-main {
+  gap: 7px;
+}
+
+.planner-list-card .planner-main strong {
+  color: var(--color-text);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.planner-list-card .row-actions {
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.planner-list-card .planner-edit {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.planner-feedback {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid;
+  border-radius: var(--radius-sm);
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.planner-feedback-error {
+  border-color: #fecaca;
+  color: var(--color-danger);
+  background: #fff7f7;
+}
+
+.planner-feedback-success {
+  border-color: #bbf7ca;
+  color: var(--color-success);
+  background: #f0fdf4;
+}
+
+.planner-workspace > .secondary-page-content > .panel-copy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--color-primary-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-subtle);
+  flex-wrap: wrap;
+}
+
+.planner-workspace .scope-fieldset {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  background: var(--color-surface-muted);
+}
+
+.planner-workspace .scope-fieldset legend {
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .planner-workspace .page-header-actions,
+  .planner-workspace .page-header-actions .filters {
+    width: 100%;
+  }
+
+  .planner-workspace .page-header-actions .filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .planner-workspace .planner-create,
+  .planner-workspace .planner-edit {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .planner-workspace .planner-create > *,
+  .planner-workspace .planner-edit > * {
+    min-width: 0;
+  }
+
+  .planner-workspace .planner-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .planner-workspace .planner-actions > *,
+  .planner-workspace .planner-create > .primary-button {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+  }
+
+  .planner-list-card .resource-list > li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .planner-list-card .row-actions {
+    width: 100%;
+    justify-content: flex-start;
+    margin-left: 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .planner-workspace > .secondary-page-content > .panel-copy .secondary-button {
+    width: 100%;
+  }
+}
+
 .overdue-mark {
   color: #b91c1c;
   font-weight: 700;

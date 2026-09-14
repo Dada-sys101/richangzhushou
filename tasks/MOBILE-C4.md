@@ -3,7 +3,7 @@
 ## Metadata
 
 - Contract: `MOBILE_C4_COMPLEX_SECONDARY_PAGES_V1`
-- Status: `IN_PROGRESS / C4_1_DONE_LOCAL / C4_2_NOT_STARTED`
+- Status: `IN_PROGRESS / C4_1_DONE_PUSHED / C4_2_DONE_LOCAL / C4_3_NOT_STARTED`
 - Base: Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
 - Predecessor: MOBILE-C3 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
 - Delivery model: 一个 canonical task，四个严格顺序切片；每个切片独立实现、验证和提交，不跨组顺手改造。
@@ -34,6 +34,7 @@
 - 375、390、430、768、1440 CSS px 已完成页面运行检查；筛选区、退款字段和操作按钮无重叠、遮挡或横向溢出。
 - Web lint、typecheck、31 files / 137 tests、build 通过；完整 `npm run quality`、`git diff --check` 通过。
 - 当前为 `DONE_LOCAL / UNCOMMITTED`；数据库支持的完整 browser-qa、CI、私有预览与 iPhone/Android 实机验收尚未执行，不视为交付完成。
+- C4.1 实现提交 `4efe4a4` 及 E2E 标题兼容修正 `1cd52c6`、`0c9b51d` 已推送；CI run `34686801343` 的 quality、db-validation、browser-qa 全部通过。
 
 ### C4.2 — Planner lists
 
@@ -41,6 +42,13 @@
 - 目标：统一列表工具区、编辑区、空状态、项目卡片及完成/删除操作；保留当前日期、筛选、排序、提醒状态和未保存保护。
 - 配套测试：`PlannerListsView.test.ts` 及受影响的浏览器流程。
 - 退出条件：三个页面共同验证通过并形成独立提交后，才能进入 C4.3。
+
+#### C4.2 implementation evidence
+
+- `CalendarView.vue`、`TasksView.vue`、`RemindersView.vue` 已迁移到共享二级页壳和分区卡片，统一筛选、新建、列表、编辑、状态提示与移动端操作区。
+- 375、390、430、768、1440 CSS px 已完成真实页面渲染检查；全部页面横向溢出为 0，交互控件均保持在视口内。
+- Planner 列表专项 3 tests、Web lint/typecheck/build 及完整 `npm run quality`、`git diff --check` 通过。
+- 当前为 `DONE_LOCAL / UNCOMMITTED`；数据库支持的 browser-qa、CI、私有预览与 iPhone/Android 实机验收尚未执行。
 
 ### C4.3 — Planner and trip details
 
