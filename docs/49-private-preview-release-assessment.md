@@ -2,6 +2,8 @@
 
 评估更新：2026-09-11（`Asia/Shanghai`）
 
+> 2026-09-14 MOBILE-C4 复杂二级页面发布：HEAD `8e9f53e` 的 CI 全绿。发布前备份为 `daily_assistant_preview_20260914T020652Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`，旧 release `b18b91d0-20260912T0735Z` 保留回滚。用户端主要入口与深链接、API、Manifest、Service Worker、新构建资源、服务状态和启动日志检查通过；用户已确认 iPhone/Android 实机验收通过，等待独立 PR 授权。
+
 > 2026-09-12 MOBILE-C3 实机验收：用户确认 iPhone/Android 日期、月份和日期时间控件通过，任务更新为 `ACCEPTED / READY_TO_MERGE`；PR #33 合并仍需独立授权。
 
 > 2026-09-12 MOBILE-C3 自定义日期时间控件发布：PR #33 当前 HEAD `b18b91d` 的两组 CI 全绿。发布前备份为 `daily_assistant_preview_20260912T074830Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`，旧 release `b6208500-20260912T0627Z` 保留为回滚点。既有 Web Push migration 已补齐；用户端、日期控件资源、深链接、API、管理端、Manifest、Service Worker 和启动日志检查通过，等待物理设备验收。
@@ -24,7 +26,7 @@
 - H1/H2：`WAIVED_FOR_R1 / UNVERIFIED`，不能记为物理 iPhone 通过。
 - REL-02 独立 Staging：`CANCELLED / SEPARATE_STAGING_WAIVED`。
 - 验证环境：现有 Alibaba 私有预览。
-- 当前任务：`MOBILE-C3 Date and Time Controls / VERIFYING`；PR #33 已部署，实机验收待完成。
+- 当前任务：`MOBILE-C4 Complex Secondary Pages / ACCEPTED / PR_AUTHORIZATION_PENDING`；候选已部署并完成 iPhone/Android 实机验收。
 - 公网 DNS/HTTPS/CORS、Provider 扩展、REL-04 和生产发布仍是独立门禁。
 
 ## 当前发布版本
@@ -32,7 +34,7 @@
 - Integration commit：`6515b8fd0f13969a0e434d3d8223f60a82cb0310`。
 - 来源：PR #25，状态 `MERGED`。
 - 合并后 CI：run `34181985716`，`quality`、`db-validation`、`browser-qa` 全部通过。
-- 服务器 release：`/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`（MOBILE-C3 PR #33 HEAD `b18b91d`；PR 尚未合并）。
+- 服务器 release：`/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`（MOBILE-C4 HEAD `8e9f53e`；MOBILE-C4 PR 尚未创建）。
 - API、用户端和管理端入口均返回 HTTP 200；切换后的 warning/error 日志为空。
 - 本次 `prisma migrate deploy` 补齐仓库既有 `20260908150000_web_push_subscriptions` migration；未修改 MySQL/Nginx、扩展域名或改变 Provider 开关。
 

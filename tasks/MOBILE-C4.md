@@ -3,7 +3,7 @@
 ## Metadata
 
 - Contract: `MOBILE_C4_COMPLEX_SECONDARY_PAGES_V1`
-- Status: `FROZEN / READY / NOT_STARTED`
+- Status: `ACCEPTED / ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING`
 - Base: Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
 - Predecessor: MOBILE-C3 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
 - Delivery model: 一个 canonical task，四个严格顺序切片；每个切片独立实现、验证和提交，不跨组顺手改造。
@@ -21,12 +21,20 @@
 
 ## Implementation slices
 
-### C4.1 — Transaction form
+### C4.1 — Transaction pages
 
-- 页面：`apps/web/src/views/TransactionFormView.vue`。
-- 目标：统一新建/编辑记账页面的页头、字段分组、错误位置和底部操作；窄屏按钮不得重叠，键盘出现后主要操作仍可访问。
+- 页面：`apps/web/src/views/TransactionsView.vue`、`apps/web/src/views/TransactionFormView.vue`。根 Tab `RecordsView.vue` 已采用当前 V2 视觉基线，只做回归检查，不在本切片改写。
+- 目标：统一账单筛选、明细列表、新建/编辑页面的页头、内容层级、字段分组、错误位置和操作区；窄屏筛选、金额、按钮不得重叠，键盘出现后主要操作仍可访问。
 - 配套测试：现有账单页面测试及新增的布局/交互专项测试。
 - 退出条件：本切片验证通过并形成独立提交后，才能进入 C4.2。
+
+#### C4.1 implementation evidence
+
+- `TransactionsView.vue` 与 `TransactionFormView.vue` 已迁移到 `SecondaryPageShell`、`SectionCard` 和 `FormActions`，保留既有筛选、导出、创建、编辑、退款、删除恢复及返回行为。
+- 375、390、430、768、1440 CSS px 已完成页面运行检查；筛选区、退款字段和操作按钮无重叠、遮挡或横向溢出。
+- Web lint、typecheck、31 files / 137 tests、build 通过；完整 `npm run quality`、`git diff --check` 通过。
+- C4.1 实现与后续候选已经完成 CI、私有预览和 iPhone/Android 实机验收；交付 PR 仍待独立授权。
+- C4.1 实现提交 `4efe4a4` 及 E2E 标题兼容修正 `1cd52c6`、`0c9b51d` 已推送；CI run `34686801343` 的 quality、db-validation、browser-qa 全部通过。
 
 ### C4.2 — Planner lists
 
@@ -35,6 +43,13 @@
 - 配套测试：`PlannerListsView.test.ts` 及受影响的浏览器流程。
 - 退出条件：三个页面共同验证通过并形成独立提交后，才能进入 C4.3。
 
+#### C4.2 implementation evidence
+
+- `CalendarView.vue`、`TasksView.vue`、`RemindersView.vue` 已迁移到共享二级页壳和分区卡片，统一筛选、新建、列表、编辑、状态提示与移动端操作区。
+- 375、390、430、768、1440 CSS px 已完成真实页面渲染检查；全部页面横向溢出为 0，交互控件均保持在视口内。
+- Planner 列表专项 3 tests、Web lint/typecheck/build 及完整 `npm run quality`、`git diff --check` 通过。
+- C4.2 与完整候选已经完成 CI、私有预览和 iPhone/Android 实机验收；交付 PR 仍待独立授权。
+
 ### C4.3 — Planner and trip details
 
 - 页面：`PlannerDetailView.vue`、`TripDetailView.vue`。
@@ -42,12 +57,25 @@
 - 配套测试：`PlannerDetailView.test.ts`、行程详情专项测试及深链接/返回流程。
 - 退出条件：两个详情页验证通过并形成独立提交后，才能进入 C4.4。
 
+#### C4.3 implementation evidence
+
+- `PlannerDetailView.vue` 与 `TripDetailView.vue` 已统一二级页壳、摘要、属性、编辑区、关联列表和操作区；修复行程金额与节点分隔符的异常显示字符。
+- 375、390、430、768、1440 CSS px 已完成真实页面渲染检查；两个详情页横向溢出为 0，交互控件均保持在视口内。
+- PlannerDetail 专项 12 tests、Web lint/typecheck/build 及完整 `npm run quality`、`git diff --check` 通过。
+- C4.3 与完整候选已经完成 CI、私有预览和 iPhone/Android 实机验收；交付 PR 仍待独立授权。
+
 ### C4.4 — AI drafts and proposals
 
 - 页面：`DraftsView.vue`、`ProposalReviewView.vue`、`AiView.vue`。
 - 目标：统一草稿列表、提案摘要、字段确认和失败状态；明确“仅生成草稿/建议，确认后才写入”的操作层级。
 - 配套测试：`ProposalReviewView.test.ts`、`AiView.test.ts` 及 AI 草稿确认浏览器流程。
 - 退出条件：页面、完整门禁和设备验收通过后，MOBILE-C4 才能进入交付决策。
+
+#### C4.4 implementation evidence
+
+- `DraftsView.vue`、`ProposalReviewView.vue`、`AiView.vue` 已统一二级页壳、信息卡片和移动操作区，明确“生成建议、逐项核对、最终确认写入”层级，并将用户可见类型、状态和冲突提示统一为中文。
+- ProposalReview/Ai 专项 48 tests、Web lint/typecheck/build、完整 `npm run quality` 与 `git diff --check` 通过。
+- 本机五档 Playwright 因缺少专用一次性 MySQL 测试库未运行；推送后 CI run `34797420362` 的桌面/移动 browser-qa、quality 和 db-validation 已通过。HEAD `8e9f53e` 已部署私有预览并通过发布后检查，用户已确认 iPhone/Android 实机验收通过；交付 PR 仍待独立授权。
 
 ## Allowed scope
 
@@ -114,4 +142,4 @@
 
 ## Codex execution prompt
 
-> 执行 `MOBILE-C4`，以 `tasks/MOBILE-C4.md` 为唯一任务契约，从 Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99` 建立独立 `codex/mobile-c4-complex-secondary-pages` 分支。一次只执行当前顺序切片：C4.1 TransactionFormView → C4.2 Calendar/Tasks/Reminders → C4.3 PlannerDetail/TripDetail → C4.4 Drafts/ProposalReview/AiView。修改前核对页面现有行为和测试；只调整布局、信息层级、响应式样式、可访问性及应用内反馈，复用 C1-C3 组件。不得修改路由、Navigation Policy、store、API、数据库、同步、认证、SW、Push 或业务语义。每个切片独立验证并提交，运行对应专项测试、五档视口检查、返回/深链接/未保存/离线场景、`npm run quality` 和 `git diff --check`。未经对应授权不得推送、创建 PR、部署或合并。
+> 执行 `MOBILE-C4`，以 `tasks/MOBILE-C4.md` 为唯一任务契约，从 Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99` 建立独立 `codex/mobile-c4-complex-secondary-pages` 分支。一次只执行当前顺序切片：C4.1 TransactionsView/TransactionFormView → C4.2 Calendar/Tasks/Reminders → C4.3 PlannerDetail/TripDetail → C4.4 Drafts/ProposalReview/AiView。修改前核对页面现有行为和测试；只调整布局、信息层级、响应式样式、可访问性及应用内反馈，复用 C1-C3 组件。不得修改路由、Navigation Policy、store、API、数据库、同步、认证、SW、Push 或业务语义。每个切片独立验证并提交，运行对应专项测试、五档视口检查、返回/深链接/未保存/离线场景、`npm run quality` 和 `git diff --check`。未经对应授权不得推送、创建 PR、部署或合并。

@@ -4,7 +4,8 @@ import { RouterLink, useRoute } from "vue-router";
 
 import type { TaskSummary } from "../api/client";
 import DateTimeField from "../components/DateTimeField.vue";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import SectionCard from "../components/SectionCard.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { requestAppConfirm } from "../composables/useAppConfirm";
 import { useAuthStore } from "../stores/auth";
@@ -189,163 +190,186 @@ function messageOf(error: unknown): string {
 </script>
 
 <template>
-  <section class="planner-page" aria-labelledby="tasks-title">
-    <PageHeader title="待办事项" title-id="tasks-title" subtitle="待办">
-      <template #actions>
-        <div class="filters">
-          <label>
-            状态
-            <select v-model="statusFilter">
-              <option value="OPEN">进行中</option>
-              <option value="COMPLETED">已完成</option>
-              <option value="CANCELLED">已取消</option>
-              <option value="">全部</option>
-            </select>
-          </label>
-          <label class="check-label">
-            <input v-model="includeDeleted" type="checkbox" />
-            显示已删除
-          </label>
-        </div>
-      </template>
-    </PageHeader>
+  <SecondaryPageShell
+    class="planner-page planner-workspace"
+    title="待办事项"
+    title-id="tasks-title"
+    subtitle="待办"
+  >
+    <template #actions>
+      <div class="filters">
+        <label>
+          状态
+          <select v-model="statusFilter">
+            <option value="OPEN">进行中</option>
+            <option value="COMPLETED">已完成</option>
+            <option value="CANCELLED">已取消</option>
+            <option value="">全部</option>
+          </select>
+        </label>
+        <label class="check-label">
+          <input v-model="includeDeleted" type="checkbox" />
+          显示已删除
+        </label>
+      </div>
+    </template>
 
-    <p v-if="errorMessage" class="form-error" role="alert">
+    <p
+      v-if="errorMessage"
+      class="planner-feedback planner-feedback-error"
+      role="alert"
+    >
       {{ errorMessage }}
     </p>
-    <p v-if="successMessage" class="form-success" role="status">
+    <p
+      v-if="successMessage"
+      class="planner-feedback planner-feedback-success"
+      role="status"
+    >
       {{ successMessage }}
     </p>
 
-    <form class="planner-create" @submit.prevent="submit">
-      <label class="planner-field">
-        标题
-        <input v-model="form.title" maxlength="200" required />
-      </label>
-      <label class="planner-field">
-        优先级
-        <select v-model="form.priority">
-          <option value="LOW">低</option>
-          <option value="MEDIUM">中</option>
-          <option value="HIGH">高</option>
-        </select>
-      </label>
-      <label class="planner-field">
-        截止时间（可选）
-        <DateTimeField v-model="form.dueAt" />
-      </label>
-      <button class="primary-button" type="submit">新建待办</button>
-    </form>
+    <SectionCard
+      title="新建待办"
+      description="记录任务、优先级和可选截止时间。"
+      class="planner-create-card"
+    >
+      <form class="planner-create" @submit.prevent="submit">
+        <label class="planner-field">
+          标题
+          <input v-model="form.title" maxlength="200" required />
+        </label>
+        <label class="planner-field">
+          优先级
+          <select v-model="form.priority">
+            <option value="LOW">低</option>
+            <option value="MEDIUM">中</option>
+            <option value="HIGH">高</option>
+          </select>
+        </label>
+        <label class="planner-field">
+          截止时间（可选）
+          <DateTimeField v-model="form.dueAt" />
+        </label>
+        <button class="primary-button" type="submit">新建待办</button>
+      </form>
+    </SectionCard>
 
-    <p v-if="!planner.tasks.length" class="empty-copy">当前没有待办。</p>
-    <ul v-else class="resource-list">
-      <li
-        v-for="item in planner.tasks"
-        :key="item.id"
-        :class="{ 'is-deleted': item.deletedAt !== null }"
-      >
-        <template v-if="editingId === item.id">
-          <form class="planner-edit" @submit.prevent="saveEdit(item)">
-            <label class="planner-field">
-              标题
-              <input v-model="editForm.title" maxlength="200" required />
-            </label>
-            <label class="planner-field">
-              优先级
-              <select v-model="editForm.priority">
-                <option value="LOW">低</option>
-                <option value="MEDIUM">中</option>
-                <option value="HIGH">高</option>
-              </select>
-            </label>
-            <label class="planner-field">
-              截止时间（可选）
-              <DateTimeField v-model="editForm.dueAt" />
-            </label>
-            <div class="planner-actions">
-              <button class="primary-button" :disabled="saving" type="submit">
-                保存
+    <SectionCard
+      title="待办列表"
+      description="按状态查看并处理现有待办。"
+      class="planner-list-card"
+    >
+      <p v-if="!planner.tasks.length" class="empty-copy">当前没有待办。</p>
+      <ul v-else class="resource-list">
+        <li
+          v-for="item in planner.tasks"
+          :key="item.id"
+          :class="{ 'is-deleted': item.deletedAt !== null }"
+        >
+          <template v-if="editingId === item.id">
+            <form class="planner-edit" @submit.prevent="saveEdit(item)">
+              <label class="planner-field">
+                标题
+                <input v-model="editForm.title" maxlength="200" required />
+              </label>
+              <label class="planner-field">
+                优先级
+                <select v-model="editForm.priority">
+                  <option value="LOW">低</option>
+                  <option value="MEDIUM">中</option>
+                  <option value="HIGH">高</option>
+                </select>
+              </label>
+              <label class="planner-field">
+                截止时间（可选）
+                <DateTimeField v-model="editForm.dueAt" />
+              </label>
+              <div class="planner-actions">
+                <button class="primary-button" :disabled="saving" type="submit">
+                  保存
+                </button>
+                <button
+                  class="secondary-button"
+                  type="button"
+                  @click="cancelEdit"
+                >
+                  取消
+                </button>
+              </div>
+            </form>
+          </template>
+          <template v-else>
+            <div class="planner-main">
+              <strong :class="{ 'overdue-mark': item.overdue }">{{
+                item.title
+              }}</strong>
+              <small v-if="item.dueAt">
+                截止 {{ formatDateTime(item.dueAt) }}
+                <span v-if="item.overdue" class="overdue-mark">（已过期）</span>
+              </small>
+              <small v-else>无截止时间</small>
+              <span class="status-badge" :class="statusClass(item.status)">
+                {{ statusLabel(item.status) }}
+              </span>
+              <span class="priority-badge">{{
+                priorityLabel(item.priority)
+              }}</span>
+              <span v-if="item.deletedAt" class="revoked-mark">已删除</span>
+            </div>
+            <div class="row-actions">
+              <button
+                v-if="!item.deletedAt && item.status === 'OPEN'"
+                class="text-button"
+                type="button"
+                @click="complete(item)"
+              >
+                完成
               </button>
               <button
-                class="secondary-button"
+                v-if="!item.deletedAt && item.status === 'OPEN'"
+                class="text-button danger"
                 type="button"
-                @click="cancelEdit"
+                @click="cancel(item)"
               >
                 取消
               </button>
+              <button
+                v-if="!item.deletedAt"
+                class="text-button"
+                type="button"
+                @click="startEdit(item)"
+              >
+                编辑
+              </button>
+              <button
+                v-if="!item.deletedAt"
+                class="text-button danger"
+                type="button"
+                @click="remove(item)"
+              >
+                删除
+              </button>
+              <RouterLink
+                class="text-button"
+                :to="withTasksSource(`/tasks/${item.id}`)"
+              >
+                查看
+              </RouterLink>
+              <button
+                v-if="item.deletedAt"
+                class="text-button"
+                type="button"
+                @click="restore(item)"
+              >
+                恢复
+              </button>
             </div>
-          </form>
-        </template>
-        <template v-else>
-          <div class="planner-main">
-            <strong :class="{ 'overdue-mark': item.overdue }">{{
-              item.title
-            }}</strong>
-            <small v-if="item.dueAt">
-              截止 {{ formatDateTime(item.dueAt) }}
-              <span v-if="item.overdue" class="overdue-mark">（已过期）</span>
-            </small>
-            <small v-else>无截止时间</small>
-            <span class="status-badge" :class="statusClass(item.status)">
-              {{ statusLabel(item.status) }}
-            </span>
-            <span class="priority-badge">{{
-              priorityLabel(item.priority)
-            }}</span>
-            <span v-if="item.deletedAt" class="revoked-mark">已删除</span>
-          </div>
-          <div class="row-actions">
-            <button
-              v-if="!item.deletedAt && item.status === 'OPEN'"
-              class="text-button"
-              type="button"
-              @click="complete(item)"
-            >
-              完成
-            </button>
-            <button
-              v-if="!item.deletedAt && item.status === 'OPEN'"
-              class="text-button danger"
-              type="button"
-              @click="cancel(item)"
-            >
-              取消
-            </button>
-            <button
-              v-if="!item.deletedAt"
-              class="text-button"
-              type="button"
-              @click="startEdit(item)"
-            >
-              编辑
-            </button>
-            <button
-              v-if="!item.deletedAt"
-              class="text-button danger"
-              type="button"
-              @click="remove(item)"
-            >
-              删除
-            </button>
-            <RouterLink
-              class="text-button"
-              :to="withTasksSource(`/tasks/${item.id}`)"
-            >
-              查看
-            </RouterLink>
-            <button
-              v-if="item.deletedAt"
-              class="text-button"
-              type="button"
-              @click="restore(item)"
-            >
-              恢复
-            </button>
-          </div>
-        </template>
-      </li>
-    </ul>
-  </section>
+          </template>
+        </li>
+      </ul>
+    </SectionCard>
+  </SecondaryPageShell>
 </template>
 
 <script lang="ts">

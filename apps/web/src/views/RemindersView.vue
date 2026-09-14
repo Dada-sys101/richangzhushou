@@ -9,7 +9,8 @@ import type {
 } from "../api/client";
 import { api } from "../api/client";
 import DateTimeField from "../components/DateTimeField.vue";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import SectionCard from "../components/SectionCard.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { requestAppConfirm } from "../composables/useAppConfirm";
 import { useAuthStore } from "../stores/auth";
@@ -388,28 +389,31 @@ function messageOf(error: unknown): string {
 </script>
 
 <template>
-  <section class="planner-page" aria-labelledby="reminders-title">
-    <PageHeader title="提醒设置" title-id="reminders-title" subtitle="提醒">
-      <template #actions>
-        <div class="filters">
-          <label>
-            状态
-            <select v-model="statusFilter">
-              <option value="SCHEDULED">待发送</option>
-              <option value="SENT">已发送</option>
-              <option value="FAILED">发送失败</option>
-              <option value="SUPPRESSED">已抑制</option>
-              <option value="CANCELLED">已取消</option>
-              <option value="">全部</option>
-            </select>
-          </label>
-          <label class="check-label">
-            <input v-model="includeDeleted" type="checkbox" />
-            显示已删除
-          </label>
-        </div>
-      </template>
-    </PageHeader>
+  <SecondaryPageShell
+    class="planner-page planner-workspace"
+    title="提醒设置"
+    title-id="reminders-title"
+    subtitle="提醒"
+  >
+    <template #actions>
+      <div class="filters">
+        <label>
+          状态
+          <select v-model="statusFilter">
+            <option value="SCHEDULED">待发送</option>
+            <option value="SENT">已发送</option>
+            <option value="FAILED">发送失败</option>
+            <option value="SUPPRESSED">已抑制</option>
+            <option value="CANCELLED">已取消</option>
+            <option value="">全部</option>
+          </select>
+        </label>
+        <label class="check-label">
+          <input v-model="includeDeleted" type="checkbox" />
+          显示已删除
+        </label>
+      </div>
+    </template>
 
     <div class="panel-copy">
       <template v-if="pushAvailable">
@@ -425,221 +429,244 @@ function messageOf(error: unknown): string {
       </template>
       <span v-else>当前仅支持应用内查看提醒。</span>
     </div>
-    <p v-if="errorMessage" class="form-error" role="alert">
+    <p
+      v-if="errorMessage"
+      class="planner-feedback planner-feedback-error"
+      role="alert"
+    >
       {{ errorMessage }}
     </p>
-    <p v-if="successMessage" class="form-success" role="status">
+    <p
+      v-if="successMessage"
+      class="planner-feedback planner-feedback-success"
+      role="status"
+    >
       {{ successMessage }}
     </p>
 
-    <form class="planner-create" @submit.prevent="submit">
-      <label class="planner-field">
-        标题
-        <input v-model="form.title" maxlength="200" required />
-      </label>
-      <label class="planner-field">
-        备注（可选）
-        <input v-model="form.note" maxlength="500" />
-      </label>
-      <label class="planner-field">
-        重复
-        <select v-model="form.scheduleType">
-          <option value="ONCE">一次性</option>
-          <option value="DAILY">每天</option>
-          <option value="WEEKLY">每周</option>
-          <option value="MONTHLY">每月</option>
-        </select>
-      </label>
-      <label class="planner-field">
-        首次时间
-        <DateTimeField v-model="form.startsAt" required />
-      </label>
-      <template v-if="form.scheduleType !== 'ONCE'">
+    <SectionCard
+      title="新建提醒"
+      description="设置提醒时间与重复方式。"
+      class="planner-create-card"
+    >
+      <form class="planner-create" @submit.prevent="submit">
         <label class="planner-field">
-          间隔
-          <input v-model="form.interval" max="366" min="1" type="number" />
+          标题
+          <input v-model="form.title" maxlength="200" required />
         </label>
-        <fieldset v-if="form.scheduleType === 'WEEKLY'" class="scope-fieldset">
-          <legend>星期</legend>
-          <label v-for="day in weekdays" :key="day" class="check-label">
-            <input
-              :checked="form.weekdays.includes(day)"
-              type="checkbox"
-              @change="toggleWeekday(day)"
-            />
-            周{{ weekdayLabel(day) }}
+        <label class="planner-field">
+          备注（可选）
+          <input v-model="form.note" maxlength="500" />
+        </label>
+        <label class="planner-field">
+          重复
+          <select v-model="form.scheduleType">
+            <option value="ONCE">一次性</option>
+            <option value="DAILY">每天</option>
+            <option value="WEEKLY">每周</option>
+            <option value="MONTHLY">每月</option>
+          </select>
+        </label>
+        <label class="planner-field">
+          首次时间
+          <DateTimeField v-model="form.startsAt" required />
+        </label>
+        <template v-if="form.scheduleType !== 'ONCE'">
+          <label class="planner-field">
+            间隔
+            <input v-model="form.interval" max="366" min="1" type="number" />
           </label>
-        </fieldset>
-        <label v-if="form.scheduleType === 'MONTHLY'" class="planner-field">
-          每月几号
-          <input v-model="form.dayOfMonth" max="31" min="1" type="number" />
-        </label>
-        <label class="planner-field">
-          截止时间（可选）
-          <DateTimeField v-model="form.until" :min="form.startsAt" />
-        </label>
-      </template>
-      <button class="primary-button" type="submit">新建提醒</button>
-    </form>
+          <fieldset
+            v-if="form.scheduleType === 'WEEKLY'"
+            class="scope-fieldset"
+          >
+            <legend>星期</legend>
+            <label v-for="day in weekdays" :key="day" class="check-label">
+              <input
+                :checked="form.weekdays.includes(day)"
+                type="checkbox"
+                @change="toggleWeekday(day)"
+              />
+              周{{ weekdayLabel(day) }}
+            </label>
+          </fieldset>
+          <label v-if="form.scheduleType === 'MONTHLY'" class="planner-field">
+            每月几号
+            <input v-model="form.dayOfMonth" max="31" min="1" type="number" />
+          </label>
+          <label class="planner-field">
+            截止时间（可选）
+            <DateTimeField v-model="form.until" :min="form.startsAt" />
+          </label>
+        </template>
+        <button class="primary-button" type="submit">新建提醒</button>
+      </form>
+    </SectionCard>
 
-    <p v-if="!planner.reminders.length" class="empty-copy">当前没有提醒。</p>
-    <ul v-else class="resource-list">
-      <li
-        v-for="item in planner.reminders"
-        :key="item.id"
-        :class="{ 'is-deleted': item.deletedAt !== null }"
-      >
-        <template v-if="editingId === item.id">
-          <form class="planner-edit" @submit.prevent="saveEdit(item)">
-            <label class="planner-field">
-              标题
-              <input v-model="editForm.title" maxlength="200" required />
-            </label>
-            <label class="planner-field">
-              备注（可选）
-              <input v-model="editForm.note" maxlength="500" />
-            </label>
-            <label class="planner-field">
-              重复
-              <select v-model="editForm.scheduleType">
-                <option value="ONCE">一次性</option>
-                <option value="DAILY">每天</option>
-                <option value="WEEKLY">每周</option>
-                <option value="MONTHLY">每月</option>
-              </select>
-            </label>
-            <label class="planner-field">
-              首次时间
-              <DateTimeField v-model="editForm.startsAt" required />
-            </label>
-            <template v-if="editForm.scheduleType !== 'ONCE'">
+    <SectionCard
+      title="提醒列表"
+      description="查看发送状态并管理现有提醒。"
+      class="planner-list-card"
+    >
+      <p v-if="!planner.reminders.length" class="empty-copy">当前没有提醒。</p>
+      <ul v-else class="resource-list">
+        <li
+          v-for="item in planner.reminders"
+          :key="item.id"
+          :class="{ 'is-deleted': item.deletedAt !== null }"
+        >
+          <template v-if="editingId === item.id">
+            <form class="planner-edit" @submit.prevent="saveEdit(item)">
               <label class="planner-field">
-                间隔
-                <input
-                  v-model="editForm.interval"
-                  max="366"
-                  min="1"
-                  type="number"
-                />
+                标题
+                <input v-model="editForm.title" maxlength="200" required />
               </label>
-              <fieldset
-                v-if="editForm.scheduleType === 'WEEKLY'"
-                class="scope-fieldset"
-              >
-                <legend>星期</legend>
-                <label v-for="day in weekdays" :key="day" class="check-label">
+              <label class="planner-field">
+                备注（可选）
+                <input v-model="editForm.note" maxlength="500" />
+              </label>
+              <label class="planner-field">
+                重复
+                <select v-model="editForm.scheduleType">
+                  <option value="ONCE">一次性</option>
+                  <option value="DAILY">每天</option>
+                  <option value="WEEKLY">每周</option>
+                  <option value="MONTHLY">每月</option>
+                </select>
+              </label>
+              <label class="planner-field">
+                首次时间
+                <DateTimeField v-model="editForm.startsAt" required />
+              </label>
+              <template v-if="editForm.scheduleType !== 'ONCE'">
+                <label class="planner-field">
+                  间隔
                   <input
-                    :checked="editForm.weekdays.includes(day)"
-                    type="checkbox"
-                    @change="toggleEditWeekday(day)"
+                    v-model="editForm.interval"
+                    max="366"
+                    min="1"
+                    type="number"
                   />
-                  周{{ weekdayLabel(day) }}
                 </label>
-              </fieldset>
-              <label
-                v-if="editForm.scheduleType === 'MONTHLY'"
-                class="planner-field"
-              >
-                每月几号
-                <input
-                  v-model="editForm.dayOfMonth"
-                  max="31"
-                  min="1"
-                  type="number"
-                />
-              </label>
-              <label class="planner-field">
-                截止时间（可选）
-                <DateTimeField
-                  v-model="editForm.until"
-                  :min="editForm.startsAt"
-                />
-              </label>
-            </template>
-            <div class="planner-actions">
-              <button class="primary-button" :disabled="saving" type="submit">
-                保存
-              </button>
+                <fieldset
+                  v-if="editForm.scheduleType === 'WEEKLY'"
+                  class="scope-fieldset"
+                >
+                  <legend>星期</legend>
+                  <label v-for="day in weekdays" :key="day" class="check-label">
+                    <input
+                      :checked="editForm.weekdays.includes(day)"
+                      type="checkbox"
+                      @change="toggleEditWeekday(day)"
+                    />
+                    周{{ weekdayLabel(day) }}
+                  </label>
+                </fieldset>
+                <label
+                  v-if="editForm.scheduleType === 'MONTHLY'"
+                  class="planner-field"
+                >
+                  每月几号
+                  <input
+                    v-model="editForm.dayOfMonth"
+                    max="31"
+                    min="1"
+                    type="number"
+                  />
+                </label>
+                <label class="planner-field">
+                  截止时间（可选）
+                  <DateTimeField
+                    v-model="editForm.until"
+                    :min="editForm.startsAt"
+                  />
+                </label>
+              </template>
+              <div class="planner-actions">
+                <button class="primary-button" :disabled="saving" type="submit">
+                  保存
+                </button>
+                <button
+                  class="secondary-button"
+                  type="button"
+                  @click="cancelEdit"
+                >
+                  取消
+                </button>
+              </div>
+            </form>
+          </template>
+          <template v-else>
+            <div class="planner-main">
+              <strong>{{ item.title }}</strong>
+              <small>下一次：{{ formatDateTime(item.scheduledAt) }}</small>
+              <small>{{ scheduleLabel(item) }}</small>
+              <span class="status-badge" :class="statusClass(item.status)">
+                {{ statusLabel(item.status) }}
+              </span>
+              <small v-if="item.attemptCount > 0">
+                尝试 {{ item.attemptCount }} 次
+              </small>
+              <small v-if="item.failureReason" class="overdue-mark">
+                {{ item.failureReason }}
+              </small>
+              <span v-if="item.deletedAt" class="revoked-mark">已删除</span>
+            </div>
+            <div class="row-actions">
               <button
-                class="secondary-button"
+                v-if="
+                  !item.deletedAt &&
+                  item.status !== 'SENT' &&
+                  item.status !== 'CANCELLED'
+                "
+                class="text-button danger"
                 type="button"
-                @click="cancelEdit"
+                @click="setStatus(item, 'CANCELLED')"
               >
                 取消
               </button>
+              <button
+                v-if="!item.deletedAt && item.status === 'CANCELLED'"
+                class="text-button"
+                type="button"
+                @click="setStatus(item, 'SCHEDULED')"
+              >
+                重新启用
+              </button>
+              <button
+                v-if="!item.deletedAt && item.status !== 'SENT'"
+                class="text-button"
+                type="button"
+                @click="startEdit(item)"
+              >
+                编辑
+              </button>
+              <button
+                v-if="!item.deletedAt"
+                class="text-button danger"
+                type="button"
+                @click="remove(item)"
+              >
+                删除
+              </button>
+              <RouterLink
+                class="text-button"
+                :to="withRemindersSource(`/reminders/${item.id}`)"
+              >
+                查看
+              </RouterLink>
+              <button
+                v-if="item.deletedAt"
+                class="text-button"
+                type="button"
+                @click="restore(item)"
+              >
+                恢复
+              </button>
             </div>
-          </form>
-        </template>
-        <template v-else>
-          <div class="planner-main">
-            <strong>{{ item.title }}</strong>
-            <small>下一次：{{ formatDateTime(item.scheduledAt) }}</small>
-            <small>{{ scheduleLabel(item) }}</small>
-            <span class="status-badge" :class="statusClass(item.status)">
-              {{ statusLabel(item.status) }}
-            </span>
-            <small v-if="item.attemptCount > 0">
-              尝试 {{ item.attemptCount }} 次
-            </small>
-            <small v-if="item.failureReason" class="overdue-mark">
-              {{ item.failureReason }}
-            </small>
-            <span v-if="item.deletedAt" class="revoked-mark">已删除</span>
-          </div>
-          <div class="row-actions">
-            <button
-              v-if="
-                !item.deletedAt &&
-                item.status !== 'SENT' &&
-                item.status !== 'CANCELLED'
-              "
-              class="text-button danger"
-              type="button"
-              @click="setStatus(item, 'CANCELLED')"
-            >
-              取消
-            </button>
-            <button
-              v-if="!item.deletedAt && item.status === 'CANCELLED'"
-              class="text-button"
-              type="button"
-              @click="setStatus(item, 'SCHEDULED')"
-            >
-              重新启用
-            </button>
-            <button
-              v-if="!item.deletedAt && item.status !== 'SENT'"
-              class="text-button"
-              type="button"
-              @click="startEdit(item)"
-            >
-              编辑
-            </button>
-            <button
-              v-if="!item.deletedAt"
-              class="text-button danger"
-              type="button"
-              @click="remove(item)"
-            >
-              删除
-            </button>
-            <RouterLink
-              class="text-button"
-              :to="withRemindersSource(`/reminders/${item.id}`)"
-            >
-              查看
-            </RouterLink>
-            <button
-              v-if="item.deletedAt"
-              class="text-button"
-              type="button"
-              @click="restore(item)"
-            >
-              恢复
-            </button>
-          </div>
-        </template>
-      </li>
-    </ul>
-  </section>
+          </template>
+        </li>
+      </ul>
+    </SectionCard>
+  </SecondaryPageShell>
 </template>

@@ -1,22 +1,22 @@
 # Project Status
 
-updatedAt: 2026-09-12T16:55:00+08:00
+updatedAt: 2026-09-14T10:30:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 integrationHead: 45d52c664fd9232c2fb0dbf5b14f27d277aa1e99
-activeBranch: codex/v15-integration-foundation
-activeHead: 45d52c6
+activeBranch: codex/mobile-c4-complex-secondary-pages
+activeHead: 8e9f53e
 activeTask: MOBILE-C4 Complex Secondary Pages
-executionStatus: READY
-deliveryStatus: CONTRACT_FROZEN_LOCAL / IMPLEMENTATION_NOT_STARTED
-nextCanonicalTask: Execute MOBILE-C4 C4.1 TransactionFormView from Integration 45d52c6
-nextCanonicalTaskAfterCompletion: Continue MOBILE-C4 sequential slices C4.2 through C4.4
-localRevision: 45d52c6
+executionStatus: ACCEPTED
+deliveryStatus: ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING
+nextCanonicalTask: Complete MOBILE-C4 delivery decision
+nextCanonicalTaskAfterCompletion: TBD_AFTER_MOBILE_C4_INTEGRATION
+localRevision: 8e9f53e
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
-privatePreviewRelease: b18b91d / b18b91d0-20260912T0735Z
+privatePreviewRelease: 8e9f53e / 8e9f53e0-20260914T1007Z
 
 ## Completed
 
@@ -30,7 +30,7 @@ privatePreviewRelease: b18b91d / b18b91d0-20260912T0735Z
 
 ## Current
 
-`MOBILE-C3` is complete in Integration. `MOBILE-C4` contract is frozen locally with four sequential slices; implementation has not started, and C4.1 TransactionFormView is first.
+`MOBILE-C3` is complete in Integration. MOBILE-C4 HEAD `8e9f53e` is deployed to private preview with green CI and post-deploy checks; device acceptance remains pending.
 
 ## Remaining
 

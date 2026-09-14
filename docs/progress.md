@@ -1,5 +1,37 @@
 # 项目进度（派生摘要）
 
+## 2026-09-14 — MOBILE-C4 实机验收通过（ACCEPTED）
+
+- iPhone/Android 私有预览实机验收已由用户确认通过。候选 `8e9f53e` 的 CI、发布后检查和设备验收证据完整，当前等待独立 PR 授权。
+
+## 2026-09-14 — MOBILE-C4 私有预览部署（DEVICE_ACCEPTANCE_PENDING）
+
+- 候选 HEAD `8e9f53e` 的 CI `34797681890` 全绿，已部署至 `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`。
+- 部署前备份为 `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260914T020652Z.sql.gz`；回滚 release 为 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`。
+- 私有入口主要页面、API 健康、Manifest 与 Service Worker 均返回 200，API/Nginx/MySQL 服务正常；下一步执行 iPhone/Android 实机验收。
+
+## 2026-09-14 — MOBILE-C4 C4.4 AI 页面改版（DONE_LOCAL）
+
+- 草稿、提案核对和 AI 生成页面已统一共享页面壳、确认层级、中文状态与窄屏操作区；未修改 AI 写入规则、接口或数据语义。
+- 专项 48 tests 和完整 quality 通过；最终 CI `34797420362` 的 quality、db-validation、桌面/移动 browser-qa 全绿，设备验收待执行。
+
+## 2026-09-14 — MOBILE-C4 C4.3 详情页面改版（DONE_LOCAL）
+
+- 完成计划详情与行程详情的信息分区、编辑态、操作区和窄屏布局统一，并修复行程金额/节点分隔符异常字符。
+- 五档 CSS 视口、PlannerDetail 12 项专项测试和完整 quality 通过；当前为 `UNCOMMITTED`。
+
+## 2026-09-12 — MOBILE-C4 C4.2 日程、待办、提醒页面改版（DONE_LOCAL）
+
+- `CalendarView.vue`、`TasksView.vue`、`RemindersView.vue` 已完成统一页面结构、响应式表单、状态列表和操作区改版。
+- 375、390、430、768、1440 CSS px 真实页面渲染无横向溢出或越界控件；专项测试和完整 quality 通过。
+- C4.2 当前为 `UNCOMMITTED`；下一切片为 C4.3 计划与行程详情页。
+
+## 2026-09-12 — MOBILE-C4 C4.1 记账页面改版（DONE_LOCAL）
+
+- 完成 `TransactionsView.vue` 与 `TransactionFormView.vue` 的信息层级、响应式布局、中文反馈和操作区统一，业务逻辑与路由行为保持不变。
+- 五档 CSS 视口运行检查通过；Web 专项验证和完整 `npm run quality`、`git diff --check` 通过。
+- 改动仍为 `UNCOMMITTED`；数据库支持的 browser-qa、CI、私有预览及手机实机验收留待交付门禁，下一切片为 C4.2 日程/待办/提醒。
+
 ## 2026-09-12 — MOBILE-C1 二级页面壳（FOURTH_FEEDBACK_FIX_DEPLOYED / DEVICE_RECHECK_PENDING）
 
 - MOBILE-B PR #30 已合并为 Integration `5d6c5c5`，合并后 CI run `34667321147` 的三个任务全部通过。

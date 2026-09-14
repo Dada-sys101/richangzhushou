@@ -2,20 +2,20 @@
 
 ## Last Updated
 
-2026-09-12 16:55 +08:00 — MOBILE-C4 complex secondary-page contract frozen locally from Integration `45d52c6`; implementation has not started.
+2026-09-14 10:30 +08:00 — MOBILE-C4 HEAD `8e9f53e` passed iPhone/Android private-preview device acceptance after protected deployment, CI and post-deployment checks.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
-- Active worktree: `D:\daily-assistant-worktrees\quality-r1-governance-draft-write`
-- Active branch: `codex/v15-integration-foundation`
-- Active delivery: MOBILE-C3 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
+- Verified Integration HEAD: `cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d`
+- Active worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
+- Active branch: `codex/mobile-c4-complex-secondary-pages`
+- Active delivery: MOBILE-C4 `ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
-- MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 and MOBILE-C1/C2/C3 PRs #31/#32/#33 are merged. Active release is `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`.
+- MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 and MOBILE-C1/C2/C3 PRs #31/#32/#33 are merged. Active release is `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`.
 
 ## Project Summary
 
@@ -30,7 +30,7 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `MOBILE-C4 Complex Secondary Pages / READY`.
+- Current canonical task: `MOBILE-C4 Complex Secondary Pages / ACCEPTED / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -50,13 +50,13 @@
 
 - ID: `MOBILE-C4 Complex Secondary Pages`.
 - Goal: migrate complex secondary pages to the shared C1-C3 UI foundation without changing business behavior.
-- Scope: four strict sequential slices defined by `tasks/MOBILE-C4.md`; C4.1 TransactionFormView is first.
-- Current state: `FROZEN / READY / IMPLEMENTATION_NOT_STARTED`.
+- Scope: four strict sequential slices defined by `tasks/MOBILE-C4.md`; C4.1 through C4.4 are implemented, pushed, CI verified and deployed.
+- Current state: `ACCEPTED / ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING`.
 - Excluded: routes, navigation policy, stores, API/database, sync, auth, SW, Push and business semantics.
 
 ## Next Recommended Task
 
-Execute only MOBILE-C4 C4.1 TransactionFormView from Integration `45d52c6`, then verify and close that slice before C4.2.
+Make the independent MOBILE-C4 delivery decision: commit the release-state record, create a PR, and then consider Integration only after CI and separate authorization.
 
 MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of the frozen MOBILE-C sequence.
 
@@ -65,7 +65,7 @@ MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of 
 - V1 and the V1.5 R1 foundation, AI proposal/router/provider adapter integration, offline synchronization, Web UX closure and release candidate integration are complete.
 - H7 is closed based on the recorded synthetic-data Provider evaluation; this does not authorize broader/public Provider use.
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
-- The active release is `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`; rollback release is `/opt/daily-assistant-preview/releases/b6208500-20260912T0627Z`. MOBILE-C3 custom temporal controls are live in private preview, accepted on physical devices and merged into Integration.
+- The active release is `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`; rollback release is `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`. MOBILE-C4 is live in private preview and passed iPhone/Android physical-device acceptance.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
 - MOBILE-B update takeover fixes `e756c0b`/`727cb60` and MOBILE-C planning commit `d7860cd` pass required validation; private preview runs `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z` with `927dea30-20260912T0129Z` retained for rollback.
 

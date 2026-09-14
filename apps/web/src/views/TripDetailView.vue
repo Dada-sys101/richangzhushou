@@ -11,7 +11,7 @@ import {
 } from "../api/client";
 import DateField from "../components/DateField.vue";
 import DateTimeField from "../components/DateTimeField.vue";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useTripsStore } from "../stores/trips";
@@ -437,50 +437,57 @@ function percent(value: string | null): string {
 </script>
 
 <template>
-  <section class="trip-page" aria-labelledby="trip-detail-title">
-    <PageHeader
-      :title="detail?.trip.title ?? '行程详情'"
-      title-id="trip-detail-title"
-      :subtitle="
-        detail
-          ? `${detail.trip.destination} · ${detail.trip.startDate} – ${detail.trip.endDate}`
-          : '行程'
-      "
-    >
-      <template #actions>
-        <div v-if="detail" class="trip-head-actions">
-          <button
-            v-if="!editingTrip && !detail.trip.deletedAt"
-            class="secondary-button"
-            type="button"
-            @click="startEditTrip"
-          >
-            编辑行程
-          </button>
-          <button
-            v-if="!detail.trip.deletedAt"
-            class="danger-button"
-            type="button"
-            @click="removeTrip"
-          >
-            删除
-          </button>
-          <button
-            v-if="detail.trip.deletedAt"
-            class="secondary-button"
-            type="button"
-            @click="restoreTrip"
-          >
-            恢复
-          </button>
-        </div>
-      </template>
-    </PageHeader>
+  <SecondaryPageShell
+    class="trip-page trip-detail-workspace"
+    :title="detail?.trip.title ?? '行程详情'"
+    title-id="trip-detail-title"
+    :subtitle="
+      detail
+        ? `${detail.trip.destination} · ${detail.trip.startDate} – ${detail.trip.endDate}`
+        : '行程'
+    "
+  >
+    <template #actions>
+      <div v-if="detail" class="trip-head-actions">
+        <button
+          v-if="!editingTrip && !detail.trip.deletedAt"
+          class="secondary-button"
+          type="button"
+          @click="startEditTrip"
+        >
+          编辑行程
+        </button>
+        <button
+          v-if="!detail.trip.deletedAt"
+          class="danger-button"
+          type="button"
+          @click="removeTrip"
+        >
+          删除
+        </button>
+        <button
+          v-if="detail.trip.deletedAt"
+          class="secondary-button"
+          type="button"
+          @click="restoreTrip"
+        >
+          恢复
+        </button>
+      </div>
+    </template>
 
-    <p v-if="errorMessage" class="form-error" role="alert">
+    <p
+      v-if="errorMessage"
+      class="planner-feedback planner-feedback-error"
+      role="alert"
+    >
       {{ errorMessage }}
     </p>
-    <p v-if="successMessage" class="form-success" role="status">
+    <p
+      v-if="successMessage"
+      class="planner-feedback planner-feedback-success"
+      role="status"
+    >
       {{ successMessage }}
     </p>
 
@@ -541,7 +548,7 @@ function percent(value: string | null): string {
         <div class="today-stat">
           <span class="stat-label">实际支出</span>
           <strong class="stat-value"
-            >楼{{ detail.expense.actualExpense }}</strong
+            >¥{{ detail.expense.actualExpense }}</strong
           >
         </div>
         <div class="today-stat">
@@ -549,7 +556,7 @@ function percent(value: string | null): string {
           <strong class="stat-value">
             {{
               detail.expense.budgetAmount
-                ? `楼${detail.expense.budgetAmount}`
+                ? `¥${detail.expense.budgetAmount}`
                 : "未设置"
             }}
           </strong>
@@ -671,7 +678,7 @@ function percent(value: string | null): string {
             <template v-else>
               <div class="planner-main">
                 <strong
-                  >{{ itemTypeLabel(item.type) }} 路
+                  >{{ itemTypeLabel(item.type) }} ·
                   {{ item.location || "未填地点" }}</strong
                 >
                 <small
@@ -843,7 +850,7 @@ function percent(value: string | null): string {
     <p v-else-if="!tripsStore.errorMessage" class="empty-copy">
       正在加载行程……
     </p>
-  </section>
+  </SecondaryPageShell>
 </template>
 
 <script lang="ts">
@@ -866,7 +873,7 @@ function typeLabel(type: string): string {
 
 function signedMoney(item: TransactionSummary): string {
   const sign = item.type === "EXPENSE" ? "-" : "+";
-  return `${sign}楼${item.amount}`;
+  return `${sign}¥${item.amount}`;
 }
 
 function amountClass(type: string): string {

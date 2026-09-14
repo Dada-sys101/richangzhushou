@@ -1,5 +1,38 @@
 # Session End
 
+## 2026-09-14 — MOBILE-C4 实机验收通过
+
+- 用户确认 iPhone/Android 私有预览实机验收通过；任务进入 `ACCEPTED / PR_AUTHORIZATION_PENDING`。
+- 当前状态文档尚未提交或推送；创建 PR 与合入 Integration 均需独立授权。
+
+## 2026-09-14 — MOBILE-C4 私有预览部署
+
+- 用户授权后，已将候选 `8e9f53e` 部署至 `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`；部署前数据库备份和回滚 release 均已保留。
+- 锁定安装、构建、依赖审计、服务状态及主要 Web/API/PWA 资源冒烟通过。
+- 当前状态为 `PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`；下一步仅执行 iPhone/Android 实机验收，状态文档改动尚未提交或推送。
+
+## 2026-09-14 — MOBILE-C4 C4.4
+
+- C4.3 已提交并推送为 `698b2c4`，CI `34795552676` 全绿；C4.4 AI 页面改版为 `DONE_LOCAL / UNCOMMITTED`。
+- 专项 48 tests 和完整 quality 通过；最终推送至 `b44c1a6`，CI `34797420362` 全绿，设备验收待执行。
+
+## 2026-09-14 — MOBILE-C4 C4.3
+
+- C4.2 已提交并推送为 `16dfde8` 且 CI 全绿；C4.3 计划/行程详情改版为 `DONE_LOCAL / UNCOMMITTED`。
+- 五档视口、PlannerDetail 专项测试、完整 `npm run quality` 和 `git diff --check` 通过；下一步为 C4.4 AI 页面。
+
+## 2026-09-12 — MOBILE-C4 C4.2
+
+- C4.1 已提交并推送为 `4efe4a4`；C4.2 日程、待办、提醒页面改版为 `DONE_LOCAL / UNCOMMITTED`。
+- 五档 CSS 视口真实渲染、Planner 列表专项测试、完整 `npm run quality` 和 `git diff --check` 通过。
+- 下一步先审查并提交 C4.2，再单独执行 C4.3 PlannerDetailView/TripDetailView。
+
+## 2026-09-12 — MOBILE-C4 C4.1
+
+- `codex/mobile-c4-complex-secondary-pages` 已完成账单列表与表单 UI 改版，状态为 `DONE_LOCAL / UNCOMMITTED`。
+- 375/390/430/768/1440 CSS px 页面检查及完整 `npm run quality`、`git diff --check` 通过；真实数据库 browser-qa、CI、部署和实机验收未运行。
+- 下一步先审查并提交 C4.1，再单独执行 C4.2 CalendarView/TasksView/RemindersView。
+
 ## 2026-09-12 — MOBILE-C3 实机验收通过
 
 - 用户确认 iPhone/Android 日期、月份和日期时间控件实机验收通过。
