@@ -88,14 +88,19 @@ watch(
 );
 
 function show() {
-  draft.value = props.modelValue;
-  const datePart = props.modelValue.split("T")[0] || today();
+  const initialValue = props.modelValue || defaultValue();
+  draft.value = initialValue;
+  const datePart = initialValue.split("T")[0] || today();
   visibleMonth.value = datePart.slice(0, 7);
-  const time = props.modelValue.split("T")[1] || "00:00";
+  const time = initialValue.split("T")[1] || "00:00";
   const [nextHour = "00", nextMinute = "00"] = time.split(":");
   hour.value = nextHour;
   minute.value = nextMinute;
   open.value = true;
+}
+function defaultValue(): string {
+  if (!props.required) return "";
+  return props.mode === "month" ? today().slice(0, 7) : today();
 }
 function shiftMonth(offset: number) {
   const next = new Date(Date.UTC(year.value, month.value - 1 + offset, 1));

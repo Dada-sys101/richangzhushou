@@ -12,7 +12,7 @@ afterEach(() => {
 });
 
 describe("TemporalPickerField", () => {
-  it("allows confirming today's date when it equals the minimum datetime", async () => {
+  it("selects today for an empty required datetime before confirmation", async () => {
     const parts = new Intl.DateTimeFormat("en-CA", {
       timeZone: "Asia/Shanghai",
       year: "numeric",
@@ -24,7 +24,12 @@ describe("TemporalPickerField", () => {
     const today = `${value("year")}-${value("month")}-${value("day")}`;
     const wrapper = mount(TemporalPickerField, {
       attachTo: document.body,
-      props: { min: `${today}T00:00`, mode: "datetime", modelValue: "" },
+      props: {
+        min: `${today}T00:00`,
+        mode: "datetime",
+        modelValue: "",
+        required: true,
+      },
     });
 
     await wrapper.get(".temporal-field").trigger("click");
@@ -34,12 +39,16 @@ describe("TemporalPickerField", () => {
     );
     expect(todayButton).not.toBeNull();
     expect(todayButton?.disabled).toBe(false);
-    todayButton?.click();
+    expect(todayButton?.classList.contains("selected")).toBe(true);
     await nextTick();
     const confirm = Array.from(document.body.querySelectorAll("button")).find(
       (button) => button.textContent?.trim() === "确定",
     )!;
     expect(confirm.disabled).toBe(false);
+    confirm.click();
+    expect(wrapper.emitted("update:modelValue")?.[0]).toEqual([
+      `${today}T00:00`,
+    ]);
   });
 
   it("shows and preserves a leap-day value when cancelled", async () => {

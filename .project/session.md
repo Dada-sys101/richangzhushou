@@ -10,8 +10,8 @@ ACTIVE / PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8
 - Execution: `ACTIVE`
 - Delivery: `FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`
 - Worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
-- Branch: `codex/private-preview-feedback-operations`
-- Base HEAD: Integration `cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d`
+- Branch: `codex/reminder-picker-default-selection`
+- Base HEAD: Integration `9ddc354676b831afda7de2afb4948a90fadfef38`
 - Contract: `PLANS.md` simplified private-preview scope.
 - Scope: 现有私有预览继续供受邀用户使用，处理实际反馈的必要缺陷修复，并完成用户明确选择的 R1.1 Web Push 真实订阅/送达验收。
 - Excluded: REL-04～REL-06、R2/R3、公共入口、生产部署、Provider 扩展和新基础设施。
@@ -22,6 +22,7 @@ ACTIVE / PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8
 - 用户决定不主动推进后续发布阶段，仅在收到真实使用反馈时处理；PR #35 已合并为 Integration `6e3ba34`，合并 CI `34810670074` 的 quality、db-validation、browser-qa 全绿。
 - 用户确认 H8 许可门禁后，私有预览已生成仅服务器保存的 VAPID 与订阅加密密钥；Push 双开关已开启，真实设备订阅后调度器已恢复。用户确认应用外提醒送达、点击、关闭和重新开启正常，H6 为 `DEVICE_ACCEPTANCE_PASS`。
 - 用户随后报告 iPhone 上选择当天会禁用日期时间确认；已修复日期格式比较并添加回归测试，完整 `npm run quality` 通过，已完成部署。
+- 后续截图确认空的必填提醒时间字段仅描边提示“今天”，未实际选中日期，导致“确定”仍置灰。现已改为打开时临时选中今天，取消时不写回表单；组件回归测试和完整 `npm run quality` 通过。新增五档 Playwright 用例，但本机未配置独立 E2E MySQL，端到端矩阵待 CI 与设备复验；尚未提交、推送或部署。
 - MOBILE-C4 C4.4 已提交为 `841ea8b`；中文状态导致 E2E 全页定位歧义后，以 `f7299a3`、`b44c1a6` 收紧到操作卡片。状态证据提交 `8e9f53e` 对应 CI run `34797681890` 的 quality、db-validation、browser-qa 全绿。
 - MOBILE-C4 C4.3 已提交并推送为 `698b2c4`，CI run `34795552676` 全绿。C4.4 三个 AI 页面已完成共享页面壳、确认层级、响应式操作区和中文状态改版；专项 48 tests 与完整 quality 通过并已推送。
 - 本机五档 Playwright 因未配置专用一次性 MySQL 测试库而未运行；必须由推送后的 CI browser-qa 和后续 iPhone/Android 私有预览验收补齐。
@@ -100,4 +101,4 @@ ACTIVE / PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8
 
 ## Last Updated
 
-2026-09-14 15:30 +08:00 — 用户确认应用外提醒实机验收通过；当天日期时间确认修复已合入 Integration、通过 CI 并部署至私有预览。
+2026-09-14 16:18 +08:00 — 必填日期时间字段默认选中今天的后续修复已完成本地质量验证，等待提交、CI、私有预览部署与设备复验。
