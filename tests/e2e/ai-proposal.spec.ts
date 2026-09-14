@@ -58,7 +58,9 @@ test("H05-B01/B02/B03/B05: create, accept, explicit final confirm, reload safety
 
   // H05-B03: explicit Final Confirm writes exactly one Task.
   await page.getByRole("button", { name: "最终确认并写入" }).click();
-  await expect(page.getByText("已写入")).toBeVisible();
+  await expect(
+    page.locator("article.operation-card").getByText("已写入"),
+  ).toBeVisible();
   const taskCountAfterConfirm = await countTasks(request, username);
   expect(taskCountAfterConfirm).toBe(1);
 
@@ -91,7 +93,9 @@ test("H05-B04: reject path never offers final write and creates no Task", async 
 
   // Reject the operation (not the whole proposal).
   await page.getByRole("button", { name: "拒绝此项" }).click();
-  await expect(page.getByText("已拒绝")).toBeVisible();
+  await expect(
+    page.locator("article.operation-card").getByText("已拒绝"),
+  ).toBeVisible();
 
   // No final confirm panel and no formal Task.
   await expect(page.getByText("最终确认写入")).not.toBeVisible();
@@ -185,7 +189,9 @@ test("H05-FINAL-DOUBLE-CLICK: FinalConfirm creates one Task and one APPLIED oper
     finalConfirmButton.dblclick(),
   ]);
 
-  await expect(page.getByText("已写入")).toBeVisible();
+  await expect(
+    page.locator("article.operation-card").getByText("已写入"),
+  ).toBeVisible();
   expect(finalConfirmRequests).toBe(1);
   const detail = await getProposal(request, username, proposalId);
   const operation = detail.operations[0];
@@ -241,7 +247,9 @@ test("H05-FINAL-RESPONSE-LOSS: a successful server write replays to the same APP
   expect(await countTasks(request, username)).toBe(1);
 
   await page.reload();
-  await expect(page.getByText("已写入")).toBeVisible();
+  await expect(
+    page.locator("article.operation-card").getByText("已写入"),
+  ).toBeVisible();
   await expect(page.getByText(String(resultEntityId))).toBeVisible();
   await expect(
     page.getByRole("button", { name: "最终确认并写入" }),
@@ -261,7 +269,9 @@ test("H05-FINAL-APPLIED-REPLAY: direct APPLIED entry is read-only and server rep
 
   await page.getByRole("button", { name: "接受此项" }).click();
   await page.getByRole("button", { name: "最终确认并写入" }).click();
-  await expect(page.getByText("已写入")).toBeVisible();
+  await expect(
+    page.locator("article.operation-card").getByText("已写入"),
+  ).toBeVisible();
 
   const applied = await getProposal(request, username, proposalId);
   const appliedOperation = applied.operations[0];
@@ -294,7 +304,9 @@ test("H05-FINAL-APPLIED-REPLAY: direct APPLIED entry is read-only and server rep
     page.goto(`/ai/proposals/${proposalId}`),
   ]);
 
-  await expect(page.getByText("已写入")).toBeVisible();
+  await expect(
+    page.locator("article.operation-card").getByText("已写入"),
+  ).toBeVisible();
   await expect(page.getByText(String(resultEntityId))).toBeVisible();
   await expect(
     page.getByRole("button", { name: "接受此项" }),
@@ -468,7 +480,9 @@ test("H05-FINAL-ACCEPTED-REJECT: accepted Operation can be rejected without a fo
   const rejectButton = page.getByRole("button", { name: "拒绝此项" });
   await expect(rejectButton).toBeVisible();
   await rejectButton.click();
-  await expect(page.getByText("已拒绝")).toBeVisible();
+  await expect(
+    page.locator("article.operation-card").getByText("已拒绝"),
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "接受此项" }),
   ).not.toBeVisible();
