@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-14 — Required date-time picker follow-up deployed
+
+- Empty required date-time pickers now temporarily select today when opened, so confirmation is available without changing the form until the user confirms.
+- PR #38 merged as Integration `8bbb302`; merged CI `34823090430` passed. After protected backup `daily_assistant_preview_20260914T084007Z.sql.gz`, the private preview switched to release `8bbb3022-20260914T083606Z`; service, health, reminder deep link and PWA resource checks passed.
+
 ## 2026-09-14 — R1.1 private-preview Web Push acceptance (DONE_LOCAL)
 
 - The user selected real external reminders and accepted the `web-push@3.6.7` MPL-2.0 use boundary. Server-only VAPID and subscription-encryption keys are configured, both Push flags are enabled, and the API restart is healthy.

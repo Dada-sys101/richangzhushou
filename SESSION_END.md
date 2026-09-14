@@ -1,5 +1,10 @@
 # Session End
 
+## 2026-09-14 — Required date-time picker follow-up deployed
+
+- Empty required date-time fields had only outlined today instead of a selected date, so confirmation remained disabled. The picker now temporarily selects today when opened; cancel does not alter the form.
+- PR #38 merged as Integration `8bbb302`; merged CI `34823090430` passed quality, db-validation and browser-qa. After protected backup `daily_assistant_preview_20260914T084007Z.sql.gz`, private preview switched to `8bbb3022-20260914T083606Z`; API, Nginx, MySQL, health, reminder deep link, Manifest, Service Worker, assets and recent logs passed. Device recheck remains pending.
+
 ## 2026-09-14 — R1.1 private-preview Web Push acceptance
 
 - User selected real external reminders and closed H8 by accepting `web-push@3.6.7` MPL-2.0 use with retained notices and no third-party source modification.
