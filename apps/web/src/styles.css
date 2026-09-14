@@ -1585,6 +1585,155 @@ html.app-dialog-open body {
   background: transparent;
 }
 
+.drafts-workspace .secondary-page-content,
+.proposal-review-workspace .secondary-page-content,
+.ai-workspace .secondary-page-content {
+  gap: var(--space-section);
+}
+
+.drafts-workspace .filters {
+  align-items: end;
+}
+
+.drafts-workspace .batch-bar {
+  margin: 0;
+  padding: 16px;
+  border-color: var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  box-shadow: none;
+}
+
+.drafts-workspace .draft-list {
+  gap: 16px;
+}
+
+.drafts-workspace .draft-item {
+  position: relative;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.drafts-workspace .draft-check {
+  position: absolute;
+  z-index: 1;
+  top: 18px;
+  right: 18px;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+}
+
+.drafts-workspace .draft-check + .draft-card .draft-card-head {
+  padding-right: 36px;
+}
+
+.drafts-workspace .draft-card,
+.proposal-review-workspace .operation-card {
+  padding: 18px;
+  border-color: var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.proposal-review-workspace .proposal-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--color-primary-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-subtle);
+}
+
+.proposal-review-workspace .proposal-meta .eyebrow {
+  margin: 0;
+}
+
+.proposal-review-workspace .proposal-meta .draft-time {
+  margin-left: auto;
+}
+
+.proposal-review-workspace .operation-list {
+  display: grid;
+  gap: 16px;
+}
+
+.proposal-review-workspace .proposal-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.proposal-review-workspace .final-confirm-panel {
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--color-primary-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-subtle);
+  box-shadow: var(--shadow-card);
+}
+
+.proposal-review-workspace .final-confirm-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.proposal-review-workspace .final-confirm-list li {
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
+  font-weight: 700;
+}
+
+.status-pending_review,
+.status-partially_applied {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.status-applied {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.status-rejected,
+.status-expired {
+  color: #475569;
+  background: #e2e8f0;
+}
+
+.ai-workspace .section-card {
+  border-color: var(--color-primary-soft);
+}
+
+.ai-workspace .ai-request-form {
+  gap: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.ai-workspace .capture-label textarea {
+  min-height: 148px;
+  resize: vertical;
+}
+
+.ai-workspace .form-actions {
+  margin-top: 0;
+}
+
+.ai-workspace .form-actions .primary-button {
+  min-width: 180px;
+}
+
 @media (max-width: 768px) {
   .planner-detail-workspace .planner-detail-card-head {
     align-items: flex-start;
@@ -1633,6 +1782,47 @@ html.app-dialog-open body {
     width: 100%;
     padding-top: 9px;
     border-top: 1px solid var(--color-border);
+  }
+
+  .drafts-workspace .filters,
+  .drafts-workspace .batch-bar,
+  .proposal-review-workspace .proposal-meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .drafts-workspace .filters > *,
+  .drafts-workspace .batch-bar > *,
+  .proposal-review-workspace .proposal-actions > *,
+  .proposal-review-workspace .final-confirm-button,
+  .ai-workspace .form-actions > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .proposal-review-workspace .proposal-meta .draft-time {
+    margin-left: 0;
+  }
+
+  .drafts-workspace .draft-form,
+  .proposal-review-workspace .draft-form,
+  .drafts-workspace .draft-readonly,
+  .proposal-review-workspace .draft-readonly {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .drafts-workspace .draft-actions,
+  .proposal-review-workspace .draft-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .drafts-workspace .draft-actions > *,
+  .proposal-review-workspace .draft-actions > * {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
   }
 }
 

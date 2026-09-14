@@ -3,7 +3,7 @@
 ## Metadata
 
 - Contract: `MOBILE_C4_COMPLEX_SECONDARY_PAGES_V1`
-- Status: `IN_PROGRESS / C4_1_C4_2_DONE_PUSHED / C4_3_DONE_LOCAL / C4_4_NOT_STARTED`
+- Status: `IN_PROGRESS / C4_1_C4_3_DONE_PUSHED / C4_4_DONE_LOCAL / BROWSER_CI_PENDING`
 - Base: Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
 - Predecessor: MOBILE-C3 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
 - Delivery model: 一个 canonical task，四个严格顺序切片；每个切片独立实现、验证和提交，不跨组顺手改造。
@@ -70,6 +70,12 @@
 - 目标：统一草稿列表、提案摘要、字段确认和失败状态；明确“仅生成草稿/建议，确认后才写入”的操作层级。
 - 配套测试：`ProposalReviewView.test.ts`、`AiView.test.ts` 及 AI 草稿确认浏览器流程。
 - 退出条件：页面、完整门禁和设备验收通过后，MOBILE-C4 才能进入交付决策。
+
+#### C4.4 implementation evidence
+
+- `DraftsView.vue`、`ProposalReviewView.vue`、`AiView.vue` 已统一二级页壳、信息卡片和移动操作区，明确“生成建议、逐项核对、最终确认写入”层级，并将用户可见类型、状态和冲突提示统一为中文。
+- ProposalReview/Ai 专项 48 tests、Web lint/typecheck/build、完整 `npm run quality` 与 `git diff --check` 通过。
+- 本机五档 Playwright 因缺少专用一次性 MySQL 测试库未运行；当前为 `DONE_LOCAL / UNCOMMITTED / BROWSER_CI_PENDING`，不得写成浏览器或设备验收通过。
 
 ## Allowed scope
 

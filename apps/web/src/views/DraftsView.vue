@@ -4,7 +4,7 @@ import { RouterLink } from "vue-router";
 
 import { ApiClientError } from "../api/client";
 import DraftReviewCard from "../components/DraftReviewCard.vue";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
 import { useAuthStore } from "../stores/auth";
 import { useDraftsStore } from "../stores/drafts";
 import { useFinanceStore } from "../stores/finance";
@@ -161,31 +161,30 @@ function messageOf(error: unknown): string {
 </script>
 
 <template>
-  <section class="drafts-page" aria-labelledby="drafts-title">
-    <PageHeader
-      title="草稿中心"
-      title-id="drafts-title"
-      subtitle="快速新增生成的内容需确认"
-    >
-      <template #actions>
-        <div class="filters">
-          <RouterLink
-            class="secondary-button"
-            :to="appendReturnTo('/capture', route?.fullPath ?? '/drafts')"
-            >快速新增</RouterLink
-          >
-          <label>
-            状态
-            <select v-model="statusFilter">
-              <option value="PENDING">待确认</option>
-              <option value="CONFIRMED">已确认</option>
-              <option value="DISCARDED">已丢弃</option>
-              <option value="">全部</option>
-            </select>
-          </label>
-        </div>
-      </template>
-    </PageHeader>
+  <SecondaryPageShell
+    class="drafts-page drafts-workspace"
+    title="草稿中心"
+    title-id="drafts-title"
+    subtitle="核对草稿内容，确认后才会正式入账"
+  >
+    <template #actions>
+      <div class="filters">
+        <RouterLink
+          class="secondary-button"
+          :to="appendReturnTo('/capture', route?.fullPath ?? '/drafts')"
+          >快速新增</RouterLink
+        >
+        <label>
+          状态
+          <select v-model="statusFilter">
+            <option value="PENDING">待确认</option>
+            <option value="CONFIRMED">已确认</option>
+            <option value="DISCARDED">已丢弃</option>
+            <option value="">全部</option>
+          </select>
+        </label>
+      </div>
+    </template>
 
     <p v-if="drafts.errorMessage" class="form-error" role="alert">
       {{ drafts.errorMessage }}
@@ -197,7 +196,11 @@ function messageOf(error: unknown): string {
       {{ cardErrors["batch"] }}
     </p>
 
-    <div v-if="statusFilter === 'PENDING'" class="batch-bar">
+    <section
+      v-if="statusFilter === 'PENDING'"
+      class="batch-bar"
+      aria-label="批量处理"
+    >
       <label class="check-label">
         <input
           :checked="
@@ -223,7 +226,7 @@ function messageOf(error: unknown): string {
       >
         批量丢弃
       </button>
-    </div>
+    </section>
 
     <p v-if="!drafts.loading && drafts.drafts.length === 0" class="empty-copy">
       当前没有草稿。
@@ -285,5 +288,5 @@ function messageOf(error: unknown): string {
         </div>
       </div>
     </div>
-  </section>
+  </SecondaryPageShell>
 </template>

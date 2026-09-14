@@ -4,7 +4,7 @@ import { RouterLink, useRoute } from "vue-router";
 
 import type { AiOperation, AiProposalDetail } from "../api/client";
 import AiOperationCard from "../components/AiOperationCard.vue";
-import PageHeader from "../components/PageHeader.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
 import { requestAppConfirm } from "../composables/useAppConfirm";
 import { useAiStore, type AiProposalLoadMode } from "../stores/ai";
 import { appendReturnTo } from "../utils/navigation";
@@ -62,6 +62,20 @@ const canFinalConfirm = computed(
   () =>
     isReviewable.value && acceptedOperations.value.length > 0 && !saving.value,
 );
+
+const proposalStatusLabel = computed(() => {
+  const labels: Record<string, string> = {
+    APPLIED: "已写入",
+    EXPIRED: "已过期",
+    FAILED: "失败",
+    PARTIALLY_APPLIED: "部分写入",
+    PENDING_REVIEW: "待核对",
+    REJECTED: "已拒绝",
+  };
+  return proposal.value
+    ? (labels[proposal.value.status] ?? proposal.value.status)
+    : "";
+});
 
 watch(
   () => proposalId.value,
@@ -263,7 +277,7 @@ function handleMutationError(targetProposalId: string) {
     return;
   }
   if (ai.errorKind === "CONFLICT") {
-    conflictMessage.value = "Proposal 已发生变化，请重新确认";
+    conflictMessage.value = "提案已发生变化，请重新确认";
     void loadProposal({
       mode: "AUTHORITATIVE_RECOVERY",
       preserveStateChangeMessage: true,
@@ -278,19 +292,29 @@ function handleMutationError(targetProposalId: string) {
 }
 
 function operationLabel(operation: AiOperation): string {
-  return operation.operationType;
+  const labels: Record<string, string> = {
+    CALENDAR_EVENT: "日程",
+    REMINDER: "提醒",
+    TASK: "待办",
+    TRANSACTION: "账单",
+    TRIP: "行程",
+  };
+  return labels[operation.operationType] ?? operation.operationType;
 }
 </script>
 
 <template>
-  <section class="proposal-review-page" aria-labelledby="review-title">
-    <PageHeader title="提案核对" title-id="review-title" subtitle="AI 提案">
-      <template #actions>
-        <RouterLink class="secondary-button" :to="withProposalSource('/ai')"
-          >新建提案</RouterLink
-        >
-      </template>
-    </PageHeader>
+  <SecondaryPageShell
+    class="proposal-review-page proposal-review-workspace"
+    title="提案核对"
+    title-id="review-title"
+    subtitle="逐项确认建议，最终确认后才会写入"
+  >
+    <template #actions>
+      <RouterLink class="secondary-button" :to="withProposalSource('/ai')"
+        >新建提案</RouterLink
+      >
+    </template>
 
     <p v-if="errorKind === 'NOT_FOUND'" class="form-error" role="alert">
       未找到该提案，可能已被删除或不存在。
@@ -310,7 +334,7 @@ function operationLabel(operation: AiOperation): string {
           class="status-badge"
           :class="`status-${proposal.status.toLowerCase()}`"
         >
-          {{ proposal.status }}
+          {{ proposalStatusLabel }}
         </span>
         <small v-if="proposal.completedAt" class="draft-time">
           完成于 {{ new Date(proposal.completedAt).toLocaleString("zh-CN") }}
@@ -360,7 +384,7 @@ function operationLabel(operation: AiOperation): string {
           type="button"
           @click="rejectProposal"
         >
-          {{ rejectProposalConfirming ? "拒绝中…" : "拒绝整个 Proposal" }}
+          {{ rejectProposalConfirming ? "拒绝中…" : "拒绝整个提案" }}
         </button>
       </div>
 
@@ -376,7 +400,6 @@ function operationLabel(operation: AiOperation): string {
         <ul class="final-confirm-list">
           <li v-for="operation in acceptedOperations" :key="operation.id">
             {{ operationLabel(operation) }}
-            <span class="schedule-tag">{{ operation.operationType }}</span>
           </li>
         </ul>
         <p class="panel-copy warning-copy">
@@ -392,5 +415,5 @@ function operationLabel(operation: AiOperation): string {
         </button>
       </section>
     </template>
-  </section>
+  </SecondaryPageShell>
 </template>

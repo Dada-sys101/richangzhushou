@@ -1,5 +1,10 @@
 # Session End
 
+## 2026-09-14 — MOBILE-C4 C4.4
+
+- C4.3 已提交并推送为 `698b2c4`，CI `34795552676` 全绿；C4.4 AI 页面改版为 `DONE_LOCAL / UNCOMMITTED`。
+- 专项 48 tests 和完整 quality 通过；本机浏览器矩阵因缺少专用测试数据库未运行，等待推送后 CI 和设备验收。
+
 ## 2026-09-14 — MOBILE-C4 C4.3
 
 - C4.2 已提交并推送为 `16dfde8` 且 CI 全绿；C4.3 计划/行程详情改版为 `DONE_LOCAL / UNCOMMITTED`。

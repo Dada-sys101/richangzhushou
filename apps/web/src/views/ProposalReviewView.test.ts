@@ -114,7 +114,7 @@ describe("ProposalReviewView", () => {
 
     expect(api.getAiProposal).toHaveBeenCalledWith("proposal_1");
     expect(wrapper.text()).toContain("提案核对");
-    expect(wrapper.text()).toContain("PENDING_REVIEW");
+    expect(wrapper.text()).toContain("待核对");
     expect(api.editAiOperation).not.toHaveBeenCalled();
     expect(api.finalConfirmAiProposal).not.toHaveBeenCalled();
   });
@@ -271,7 +271,7 @@ describe("ProposalReviewView", () => {
       operationIds: ["operation_1"],
       version: 1,
     });
-    expect(wrapper.text()).toContain("APPLIED");
+    expect(wrapper.text()).toContain("已写入");
     expect(wrapper.text()).toContain("task_server");
     expect(wrapper.find(".final-confirm-panel").exists()).toBe(false);
   });
@@ -333,7 +333,7 @@ describe("ProposalReviewView", () => {
 
     expect(api.acceptAiOperation).toHaveBeenCalledTimes(1);
     expect(api.getAiProposal).toHaveBeenCalledTimes(getCallsBefore + 1);
-    expect(wrapper.text()).toContain("Proposal 已发生变化");
+    expect(wrapper.text()).toContain("提案已发生变化");
     expect(useAiStore().proposal?.version).toBe(2);
     expect(
       (wrapper.find('input[type="text"]').element as HTMLInputElement).value,
@@ -397,7 +397,7 @@ describe("ProposalReviewView", () => {
     expect(api.finalConfirmAiProposal).toHaveBeenCalledTimes(1);
     expect(api.getAiProposal).toHaveBeenCalledTimes(2);
     expect(wrapper.text()).toContain("操作状态已发生变化，已刷新最新数据");
-    expect(wrapper.text()).toContain("REJECTED");
+    expect(wrapper.text()).toContain("已拒绝");
     expect(wrapper.text()).not.toContain("task_server");
     expect(wrapper.find(".final-confirm-panel").exists()).toBe(false);
     expect(useAiStore().proposal?.status).toBe("REJECTED");
@@ -470,7 +470,7 @@ describe("ProposalReviewView", () => {
     const wrapper = mountReview(pinia);
     await flushPromises();
 
-    expect(wrapper.text()).toContain("APPLIED");
+    expect(wrapper.text()).toContain("已写入");
     expect(wrapper.text()).toContain("写入结果");
     expect(wrapper.text()).toContain("task_1");
     expect(wrapper.find(".final-confirm-panel").exists()).toBe(false);

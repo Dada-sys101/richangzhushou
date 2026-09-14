@@ -3,7 +3,9 @@ import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import { ApiClientError, type AiProposalCreateRequest } from "../api/client";
-import PageHeader from "../components/PageHeader.vue";
+import FormActions from "../components/FormActions.vue";
+import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import SectionCard from "../components/SectionCard.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAiStore } from "../stores/ai";
 
@@ -30,6 +32,14 @@ const lastAttemptInput = ref<{ requestType: string; userInput: string } | null>(
 const canGenerate = computed(
   () => userInput.value.trim().length > 0 && !generating.value,
 );
+
+const requestTypeLabels: Record<(typeof AI_REQUEST_TYPES)[number], string> = {
+  CALENDAR_EVENT: "日程",
+  REMINDER: "提醒",
+  TASK: "待办",
+  TRANSACTION: "账单",
+  TRIP: "行程",
+};
 const { allowNavigation } = useUnsavedChanges(
   computed(() => userInput.value.trim().length > 0),
 );
@@ -128,41 +138,46 @@ function isNetworkFailure(error: unknown): boolean {
 </script>
 
 <template>
-  <section class="ai-page" aria-labelledby="ai-title">
-    <PageHeader title="生成提案" title-id="ai-title" subtitle="AI 助手" />
+  <SecondaryPageShell
+    class="ai-page ai-workspace"
+    title="生成提案"
+    title-id="ai-title"
+    subtitle="描述需求，先生成可核对的建议"
+  >
+    <SectionCard
+      title="输入请求"
+      description="系统只生成建议，不会直接写入账单、日程、待办、提醒或行程。"
+    >
+      <form class="capture-panel ai-request-form" @submit.prevent="generate">
+        <label class="capture-label">
+          类型
+          <select v-model="requestType">
+            <option v-for="type in AI_REQUEST_TYPES" :key="type" :value="type">
+              {{ requestTypeLabels[type] }}
+            </option>
+          </select>
+        </label>
 
-    <form class="capture-panel" @submit.prevent="generate">
-      <h2>输入请求</h2>
-      <p class="panel-copy">
-        用自然语言描述待办事项、日程、账单、提醒或行程，系统将生成提案供你核对。
-      </p>
+        <label class="capture-label">
+          内容
+          <textarea
+            v-model="userInput"
+            maxlength="2000"
+            placeholder="例如：明天下午三点和产品团队开会"
+            rows="4"
+          ></textarea>
+        </label>
 
-      <label class="capture-label">
-        类型
-        <select v-model="requestType">
-          <option v-for="type in AI_REQUEST_TYPES" :key="type" :value="type">
-            {{ type }}
-          </option>
-        </select>
-      </label>
+        <p v-if="errorMessage" class="form-error" role="alert">
+          {{ errorMessage }}
+        </p>
 
-      <label class="capture-label">
-        内容
-        <textarea
-          v-model="userInput"
-          maxlength="2000"
-          placeholder="例如：明天下午三点和产品团队开会"
-          rows="4"
-        ></textarea>
-      </label>
-
-      <p v-if="errorMessage" class="form-error" role="alert">
-        {{ errorMessage }}
-      </p>
-
-      <button class="primary-button" :disabled="!canGenerate" type="submit">
-        {{ generating ? "生成中…" : "生成 Proposal" }}
-      </button>
-    </form>
-  </section>
+        <FormActions>
+          <button class="primary-button" :disabled="!canGenerate" type="submit">
+            {{ generating ? "生成中…" : "生成提案" }}
+          </button>
+        </FormActions>
+      </form>
+    </SectionCard>
+  </SecondaryPageShell>
 </template>

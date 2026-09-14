@@ -2,22 +2,24 @@
 
 ## Session Status
 
-IN_PROGRESS / MOBILE_C4 / C4_1_C4_2_DONE_PUSHED / C4_3_DONE_LOCAL / UNCOMMITTED
+IN_PROGRESS / MOBILE_C4 / C4_1_C4_3_DONE_PUSHED / C4_4_DONE_LOCAL / UNCOMMITTED
 
 ## Task
 
 - ID: `MOBILE-C4 Complex Secondary Pages`
 - Execution: `IN_PROGRESS`
-- Delivery: `C4_1_C4_2_DONE_PUSHED / C4_3_DONE_LOCAL / UNCOMMITTED / C4_4_NOT_STARTED`
+- Delivery: `C4_1_C4_3_DONE_PUSHED / C4_4_DONE_LOCAL / UNCOMMITTED / BROWSER_CI_PENDING`
 - Worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
 - Branch: `codex/mobile-c4-complex-secondary-pages`
 - Base HEAD: Integration `cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d`
 - Contract: `tasks/MOBILE-C4.md` (`MOBILE_C4_COMPLEX_SECONDARY_PAGES_V1`).
-- Scope: 四个顺序切片迁移复杂二级页面；C4.1/C4.2 已推送，C4.3 计划/行程详情已本地完成，下一步为 C4.4 AI 页面。
+- Scope: 四个顺序切片迁移复杂二级页面；C4.1-C4.3 已推送，C4.4 草稿/提案/AI 页面已本地完成，下一步为提交后 CI 和设备验收。
 - Excluded: 路由、Navigation Policy、store、API、数据库、同步、认证、SW、Push 和业务语义。
 
 ## Current Progress
 
+- MOBILE-C4 C4.3 已提交并推送为 `698b2c4`，CI run `34795552676` 全绿。C4.4 三个 AI 页面已完成共享页面壳、确认层级、响应式操作区和中文状态改版；专项 48 tests 与完整 quality 通过，当前未提交。
+- 本机五档 Playwright 因未配置专用一次性 MySQL 测试库而未运行；必须由推送后的 CI browser-qa 和后续 iPhone/Android 私有预览验收补齐。
 - MOBILE-C4 C4.2 已提交并推送为 `16dfde8`，CI run `34794564558` 全绿；C4.3 两个详情页已完成共享页面壳、信息分区、响应式操作区和异常字符修复，五档视口与完整 quality 通过，当前未提交。
 - MOBILE-C4 C4.1 实现 `4efe4a4` 及 E2E 修正已推送至 `0c9b51d`，CI run `34686801343` 全绿；C4.2 三个规划列表页已完成共享页面壳、内容分区、响应式操作区和中文反馈改版，五档视口与完整 quality 通过，当前未提交。
 - PR #33 已合并为 Integration `5a0dc52`。合并 CI run `34683019629` 的 quality、db-validation 通过；browser-qa 首次因详情重载时序断言失败，未改代码重跑后 job `103525654367` 通过，最终矩阵全绿。

@@ -32,7 +32,7 @@ test("H05-B01/B02/B03/B05: create, accept, explicit final confirm, reload safety
   await expect(page.getByRole("heading", { name: "生成提案" })).toBeVisible();
   await page.getByLabel("类型").selectOption("TASK");
   await page.getByLabel("内容").fill(taskTitle);
-  await page.getByRole("button", { name: "生成 Proposal" }).click();
+  await page.getByRole("button", { name: "生成提案" }).click();
 
   // Review route visible with the operation card.
   await expect(page).toHaveURL(/\/ai\/proposals\/.+/);
@@ -85,7 +85,7 @@ test("H05-B04: reject path never offers final write and creates no Task", async 
   await expect(page.getByRole("heading", { name: "生成提案" })).toBeVisible();
   await page.getByLabel("类型").selectOption("TASK");
   await page.getByLabel("内容").fill(taskTitle);
-  await page.getByRole("button", { name: "生成 Proposal" }).click();
+  await page.getByRole("button", { name: "生成提案" }).click();
   await expect(page).toHaveURL(/\/ai\/proposals\/.+/);
   await expect(page.getByRole("heading", { name: "提案核对" })).toBeVisible();
 
@@ -523,7 +523,7 @@ async function createTaskProposal(
   await expect(page.getByRole("heading", { name: "生成提案" })).toBeVisible();
   await page.getByLabel("类型").selectOption("TASK");
   await page.getByLabel("内容").fill(`AI待办-${username}`);
-  await page.getByRole("button", { name: "生成 Proposal" }).click();
+  await page.getByRole("button", { name: "生成提案" }).click();
   await expect(page).toHaveURL(/\/ai\/proposals\/.+/);
   await expect(page.getByRole("heading", { name: "提案核对" })).toBeVisible();
   const proposalId = new URL(page.url()).pathname.split("/").pop() ?? "";
