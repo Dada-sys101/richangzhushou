@@ -2,17 +2,17 @@
 
 ## Last Updated
 
-2026-09-14 10:30 +08:00 — MOBILE-C4 HEAD `8e9f53e` passed iPhone/Android private-preview device acceptance after protected deployment, CI and post-deployment checks.
+2026-09-14 11:20 +08:00 — User simplified the roadmap: the existing private preview remains available for invited users, with feedback-driven fixes only.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d`
+- Verified Integration HEAD: `e40715714f06034614e25bf0f5e6735a9494bb9a`
 - Active worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
 - Active branch: `codex/mobile-c4-complex-secondary-pages`
-- Active delivery: MOBILE-C4 `ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING`
+- Last delivery: MOBILE-C4 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 and MOBILE-C1/C2/C3 PRs #31/#32/#33 are merged. Active release is `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`.
@@ -30,33 +30,27 @@
 - H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
-- Current canonical task: `MOBILE-C4 Complex Secondary Pages / ACCEPTED / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING`.
+- Current operating mode: `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
 
-`MOBILE-C3 Date and Time Controls` completed after:
+`MOBILE-C4 Complex Secondary Pages` completed after:
 
-- Custom date, month and date-time controls replaced user-web native temporal fields and passed physical-device acceptance.
-- PR #33 merged as Integration `5a0dc52`; merge CI run `34683019629` ended green after an unchanged browser-qa rerun.
-- Local MySQL 8.4.11 integration passed 18 files / 160 tests and database-backed Chromium smoke passed 44/44.
-- PR #25 merged at Integration `6515b8f`; merged CI passed all three jobs.
-- The candidate passed target-host Linux build, audit 0, 1043-component SBOM validation and dependency-version checks.
-- The candidate was deployed to the existing private preview and passed login, forced password change, task, calendar, transaction and refresh-persistence smoke with zero blocking browser errors.
-- The disposable account and cascaded records were removed with `deleted=1 / remaining=0`.
-- Current-scope license handling was explicitly accepted; future external backend/container distribution or modified third-party libraries require renewed review.
+- Four UI slices covered transactions, planner lists, planner/trip details and AI drafts/proposals without changing business semantics.
+- Candidate `8e9f53e` passed its CI, private-preview deployment checks and iPhone/Android device acceptance.
+- PR #34 merged as Integration `e407157`; merged CI `34800440131` passed quality, db-validation and browser-qa.
 
 ## Current Task
 
-- ID: `MOBILE-C4 Complex Secondary Pages`.
-- Goal: migrate complex secondary pages to the shared C1-C3 UI foundation without changing business behavior.
-- Scope: four strict sequential slices defined by `tasks/MOBILE-C4.md`; C4.1 through C4.4 are implemented, pushed, CI verified and deployed.
-- Current state: `ACCEPTED / ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING`.
-- Excluded: routes, navigation policy, stores, API/database, sync, auth, SW, Push and business semantics.
+- ID: `PRIVATE_PREVIEW_OPERATION`.
+- Goal: let invited users use the existing private preview and address real feedback when it arises.
+- Current state: `ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE`.
+- Deferred: REL-04～REL-06, real Push delivery, R2/R3, public entry and new infrastructure.
 
 ## Next Recommended Task
 
-Make the independent MOBILE-C4 delivery decision: commit the release-state record, create a PR, and then consider Integration only after CI and separate authorization.
+Address user-reported defects only; select any expansion work only after explicit user direction.
 
 MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of the frozen MOBILE-C sequence.
 

@@ -1,9 +1,14 @@
 # Session End
 
-## 2026-09-14 — MOBILE-C4 实机验收通过
+## 2026-09-14 — REL-03 private-preview readiness closure
 
-- 用户确认 iPhone/Android 私有预览实机验收通过；任务进入 `ACCEPTED / PR_AUTHORIZATION_PENDING`。
-- 当前状态文档尚未提交或推送；创建 PR 与合入 Integration 均需独立授权。
+- Existing private-preview release, services, health, protected backup and rollback target were rechecked; `docs/50-rel-03-private-preview-runbook.md` records the reusable procedure.
+- REL-03 is `DONE_LOCAL`; no deployment or infrastructure change was made. REL-04 needs separate scope authorization.
+
+## 2026-09-14 — MOBILE-C4 合入 Integration
+
+- 用户确认 iPhone/Android 私有预览实机验收通过；PR #34 已合并为 Integration `e407157`，合并 CI `34800440131` 全绿。
+- 当前没有自动启动的后续任务，等待用户明确选择。
 
 ## 2026-09-14 — MOBILE-C4 私有预览部署
 

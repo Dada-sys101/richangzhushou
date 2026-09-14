@@ -1,20 +1,21 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-14T10:30:00+08:00
+updatedAt: 2026-09-14T10:55:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d
+integrationHead: e40715714f06034614e25bf0f5e6735a9494bb9a
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
-currentTask: MOBILE-C4 Complex Secondary Pages
-executionStatus: ACCEPTED
-deliveryStatus: ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING
-currentWork: MOBILE-C4 HEAD 8e9f53e is deployed at /opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z after protected backup; post-deploy checks and iPhone/Android device acceptance pass
+currentTask: PRIVATE_PREVIEW_OPERATION
+lastCompletedTask: REL-03 Private Preview Readiness
+executionStatus: DONE
+deliveryStatus: ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE
+currentWork: Existing private preview is available for invited users; only feedback-driven fixes are in scope
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Complete MOBILE-C4 delivery decision
-nextCanonicalTaskAfterCompletion: TBD_AFTER_MOBILE_C4_INTEGRATION
+nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
+nextCanonicalTaskAfterCompletion: USER_DIRECTED_SCOPE_SELECTION
 openPullRequests: []
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
@@ -24,7 +25,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 - Active release: MOBILE-C4 HEAD `8e9f53e`, deployed at `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`; previous `b18b91d0-20260912T0735Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / DEVICE_ACCEPTANCE_PASS / PUBLIC_NOT_READY`.
-- Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
+- Delivery: MOBILE-C4 PR #34 merged as Integration `e407157`; merged CI run `34800440131` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
 - H1/H2: `WAIVED_FOR_R1 / UNVERIFIED` by explicit user approval on 2026-09-08; never treat this as physical-device pass evidence, and reassess before public support claims.
 - Remaining gate: R1 Quality Gate is `APPROVED / DONE`; REL-02 requires independent resource/fee authorization. Non-sensitive readiness belongs to REL-03 under the approved REL-01 D7 boundary; public DNS/HTTPS/CORS validation belongs to the later public-entry gate. Local daily backup with 7-day cleanup is configured, and live AI is retained by explicit user decision for the private preview.
@@ -253,10 +254,10 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 | R1-APPROVAL-PACKAGE-01 | DONE | DONE_LOCAL / UNCOMMITTED / APPROVED | R1 | R1 Quality Gate; REL-01 design draft | `docs/48-r1-approval-decision-pack.md` records H1/H2 and dependency evidence, approved D1-D8 and the separate REL-02 boundary |
 | REL-01-DECISION-RECORD-01 | DONE | DONE_LOCAL / UNCOMMITTED / APPROVED / REL-02_AUTHORIZATION_PENDING | R1 | REL-01; R1 gate remains blocked | D1-D8 approval and REL-02 execution preflight recorded in `docs/48`; no resource, credential, deployment or real-data action |
 | REL-02 | CANCELLED | SEPARATE_STAGING_WAIVED | R1 | explicit user scope decision | no new resources or fees; reconsider for public launch, larger scale or important real data |
-| REL-03 | READY | NOT_STARTED / EXISTING_ENVIRONMENT | R1 | R1 approved; existing private preview | lightweight readiness and release-procedure closure without new cloud resources |
-| REL-04 | BLOCKED | NOT_STARTED | R1 | REL-03 and PLANS gates | public/real-service scope remains separately gated |
-| REL-05 | BLOCKED | NOT_STARTED | R1 | REL-04 | no pilot |
-| REL-06 | BLOCKED | NOT_STARTED | R1 | REL-05 + release gates | no production |
+| REL-03 | DONE | DONE_LOCAL / EXISTING_ENVIRONMENT / READINESS_EVIDENCE_COMPLETE | R1 | R1 approved; existing private preview | release runbook, backup/recovery, rollback target, health and smoke evidence completed |
+| REL-04 | DEFERRED | NOT_STARTED | R1 | explicit future public/expanded-use decision | not in current private-preview scope |
+| REL-05 | DEFERRED | NOT_STARTED | R1 | explicit future pilot decision | not in current private-preview scope |
+| REL-06 | DEFERRED | NOT_STARTED | R1 | explicit future production decision | not in current private-preview scope |
 
 ## Human Gates
 

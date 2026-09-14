@@ -1,8 +1,14 @@
 # 项目进度（派生摘要）
 
-## 2026-09-14 — MOBILE-C4 实机验收通过（ACCEPTED）
+## 2026-09-14 — REL-03 私有预览 readiness 收口（DONE_LOCAL）
 
-- iPhone/Android 私有预览实机验收已由用户确认通过。候选 `8e9f53e` 的 CI、发布后检查和设备验收证据完整，当前等待独立 PR 授权。
+- 只读复核确认 active release、API/Nginx/MySQL、健康检查、最新受保护备份和应用回滚目标均可用。
+- 新增 `docs/50-rel-03-private-preview-runbook.md`，固化私有预览的预检查、受控发布、发布后验证、应用回滚与数据库恢复边界。
+- 未创建资源、未更改服务器配置、未开放公网或生产环境；当前转为私有预览持续使用与反馈修复。
+
+## 2026-09-14 — MOBILE-C4 合入 Integration（DONE_INTEGRATION）
+
+- iPhone/Android 私有预览实机验收已由用户确认通过。候选 `8e9f53e` 的 CI、发布后检查和设备验收证据完整；PR #34 已合并为 Integration `e407157`，合并 CI `34800440131` 全绿。
 
 ## 2026-09-14 — MOBILE-C4 私有预览部署（DEVICE_ACCEPTANCE_PENDING）
 

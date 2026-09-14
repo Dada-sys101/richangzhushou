@@ -84,5 +84,6 @@ GitHub / Git / CI / 实际部署环境
 39. `47-rel-01-staging-architecture-decision.md`：REL-01 Staging 架构、资源、权限、成本、RPO/RTO 与发布边界设计稿（D1-D8 已批准；REL-02 独立授权待定）。
 40. `48-r1-approval-decision-pack.md`：R1 剩余阻塞复核、H1/H2/依赖证据映射、REL-01 D1-D8 决策记录与 REL-02 执行前清单。
 41. `49-private-preview-release-assessment.md`：当前私有预览正式基线、服务器复核、备份恢复证据与公网切换前剩余项。
+42. `50-rel-03-private-preview-runbook.md`：现有私有预览的发布、验证、应用回滚与边界运行手册。
 
 所有文档以稳定编号引用规则、功能、页面、数据、API 和验收项。未确认信息必须标记为 `[待确认]` 或 `[关键假设]`。
