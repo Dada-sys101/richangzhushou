@@ -1,9 +1,9 @@
 # 项目进度（派生摘要）
 
-## 2026-09-14 — 必填日期时间默认选中当天（DONE_LOCAL）
+## 2026-09-14 — 必填日期时间默认选中当天（PRIVATE_PREVIEW_DEPLOYED）
 
 - 实机截图显示“今天”只有描边提示，空的必填提醒时间尚未真正选中，因而“确定”仍被禁用。日期时间选择器现在仅在打开空的必填字段时临时选中今天，确认可用；取消不写回表单。
-- 组件回归测试和完整 `npm run quality` 已通过。新增五档 Playwright 用例；本机缺少独立 E2E MySQL，端到端矩阵留待 CI 和 iPhone/Android 私有预览复验，当前未提交、未推送、未部署。
+- PR #38 已合入 Integration `8bbb302`，合并 CI `34823090430` 的 quality、db-validation、browser-qa 全绿。受保护备份 `daily_assistant_preview_20260914T084007Z.sql.gz` 后，私有预览已部署 `/opt/daily-assistant-preview/releases/8bbb3022-20260914T083606Z`，并通过入口、提醒深链接、Manifest、Service Worker、新资源、服务和日志检查；iPhone/Android 复验待执行。
 
 ## 2026-09-14 — R1.1 私有预览 Web Push 实机验收（DONE_LOCAL）
 

@@ -1,5 +1,7 @@
 # 私有预览发布评估
 
+> 2026-09-14 必填日期时间默认选中当天发布：PR #38 已合入 Integration `8bbb302`，合并 CI run `34823090430` 的 quality、db-validation、browser-qa 全绿。目标 Linux 隔离 release 顺序完成锁定依赖安装、Prisma 生成、API/Web/Admin 构建与依赖审计；受保护备份为 `daily_assistant_preview_20260914T084007Z.sql.gz`。当前 release 为 `/opt/daily-assistant-preview/releases/8bbb3022-20260914T083606Z`，旧 release `9ddc3546-20260914T074811Z` 保留回滚。API、Nginx、MySQL、健康接口、提醒深链接、Manifest、Service Worker、新用户端资源和启动日志检查通过；iPhone/Android 复验待执行。
+
 评估更新：2026-09-14（`Asia/Shanghai`）
 
 ## 2026-09-14 — iPhone 当天日期时间确认修复发布

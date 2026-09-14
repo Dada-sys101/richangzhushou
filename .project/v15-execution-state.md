@@ -1,18 +1,18 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-14T16:00:00+08:00
+updatedAt: 2026-09-14T16:42:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: 9ddc354676b831afda7de2afb4948a90fadfef38
+integrationHead: 8bbb30228e6520506ac440764e12ff535382d9eb
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: PRIVATE_PREVIEW_OPERATION
 lastCompletedTask: REL-03 Private Preview Readiness
 executionStatus: ACTIVE
 deliveryStatus: ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
-currentWork: The iPhone today-date confirmation fix is merged, CI-verified and deployed to the existing private preview; R1.1 Web Push remains active after user-confirmed device acceptance
+currentWork: The required date-time picker default-selection follow-up is merged, CI-verified and deployed to the existing private preview; R1.1 Web Push remains active after user-confirmed device acceptance
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
 nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
 nextCanonicalTaskAfterCompletion: USER_DIRECTED_SCOPE_SELECTION
@@ -23,9 +23,9 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Current Private Preview Release Assessment
 
-- Active release: Integration `9ddc354`, deployed at `/opt/daily-assistant-preview/releases/9ddc3546-20260914T074811Z`; previous `8e9f53e0-20260914T1007Z` remains the rollback release.
+- Active release: Integration `8bbb302`, deployed at `/opt/daily-assistant-preview/releases/8bbb3022-20260914T083606Z`; previous `9ddc3546-20260914T074811Z` remains the rollback release.
 - Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / DEVICE_ACCEPTANCE_PASS / PUBLIC_NOT_READY`.
-- Delivery: date-time confirmation PR #36 merged as Integration `9ddc354`; merged CI run `34819073059` passed quality, db-validation and browser-qa. Isolated target-host build, audit 0, service and private-preview asset checks passed.
+- Delivery: required-picker default-selection PR #38 merged as Integration `8bbb302`; merged CI run `34823090430` passed quality, db-validation and browser-qa. Isolated target-host build, audit, protected backup, service and private-preview asset checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
 - H1/H2: `WAIVED_FOR_R1 / UNVERIFIED` by explicit user approval on 2026-09-08; never treat this as physical-device pass evidence, and reassess before public support claims.
 - Remaining gate: R1 Quality Gate is `APPROVED / DONE`; REL-02 requires independent resource/fee authorization. Non-sensitive readiness belongs to REL-03 under the approved REL-01 D7 boundary; public DNS/HTTPS/CORS validation belongs to the later public-entry gate. Local daily backup with 7-day cleanup is configured, and live AI is retained by explicit user decision for the private preview.
