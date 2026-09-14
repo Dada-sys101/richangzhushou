@@ -1,8 +1,13 @@
 # 变更日志（Changelog）
 
-## 2026-09-14 — MOBILE-C4 实机验收通过（ACCEPTED）
+## 2026-09-14 — REL-03 私有预览 readiness 收口（DONE_LOCAL）
 
-- 用户确认 iPhone/Android 私有预览实机验收通过；下一步为独立的 PR 与 Integration 交付决定。
+- 记录当前 release、服务、健康、受保护备份和回滚目标的只读复核结果，并新增可复用的私有预览发布与应用回滚运行手册。
+- 本轮不创建资源、不改变服务配置、不触发部署；当前仅处理私有预览的真实反馈。
+
+## 2026-09-14 — MOBILE-C4 合入 Integration（DONE_INTEGRATION）
+
+- 用户确认 iPhone/Android 私有预览实机验收通过；PR #34 已合并为 Integration `e407157`，合并 CI `34800440131` 的 quality、db-validation、browser-qa 全绿。
 
 ## 2026-09-14 — MOBILE-C4 私有预览部署（DEVICE_ACCEPTANCE_PENDING）
 

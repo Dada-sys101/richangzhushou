@@ -5,7 +5,7 @@
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前 canonical 任务：`MOBILE-C4 Complex Secondary Pages`（`FROZEN / READY / NOT_STARTED`；契约 `tasks/MOBILE-C4.md`，基于 Integration `45d52c6`）
+当前 canonical 任务：`PRIVATE_PREVIEW_OPERATION`（`ACTIVE / FEEDBACK_FIXES_ONLY`；现有私有预览继续供受邀用户使用）
 PR18 Integration：`7caf892022c9bb6833c7316893bfddeb169b7243`（PR #17，历史事实）
 PR19 Integration：`c42c19ecb606893b1384fab4a13af2afb6b9981c`（PR #18，`DONE_INTEGRATION`）
 PR20 Adapter Integration：历史证据为 `d53f84a4ff99208f69d209e98a1d3f07c588d760`（PR #20/#21/#22/#23，`DONE_INTEGRATION`）
@@ -18,7 +18,9 @@ Governance write state：`DONE_INTEGRATION / POST_WRITE_REVIEW_PASS`（commit `6
 Commit authorization：`GRANTED_AND_CONSUMED_FOR_MOBILE_A`
 Persisted Successor Gate：`REL-03 PRIVATE PREVIEW READINESS READY；REL-02 SEPARATE_STAGING_WAIVED；R1 APPROVED`
 
-移动端优化执行顺序（2026-09-11 批准）：`R1.1 Web Push Candidate（DONE_INTEGRATION）→ MOBILE-A（DONE_INTEGRATION）→ MOBILE-B（DONE_INTEGRATION）→ MOBILE-C1/C2/C3（DONE_INTEGRATION）→ MOBILE-C4（FROZEN / READY）`。MOBILE-C4 以 `tasks/MOBILE-C4.md` 为唯一执行契约，不改变冻结架构、发布范围或 Push 启用门禁。
+移动端优化执行顺序（2026-09-11 批准）：`R1.1 Web Push Candidate（DONE_INTEGRATION）→ MOBILE-A（DONE_INTEGRATION）→ MOBILE-B（DONE_INTEGRATION）→ MOBILE-C1/C2/C3（DONE_INTEGRATION）→ MOBILE-C4（DONE_INTEGRATION）`。MOBILE-C4 已合入 Integration `e407157`，不改变冻结架构、发布范围或 Push 启用门禁。
+
+当前私有预览简化范围（2026-09-14 用户决定）：现有 Alibaba 私有预览可直接作为约 10 名受邀用户的使用环境。当前只处理真实使用反馈和必要缺陷修复；不主动推进 REL-04～REL-06、真实 Push 送达、R2/R3 功能线、独立 Staging、公网 DNS/HTTPS/CORS 或生产发布。上述事项不删除，待用户明确提出公开发布、扩容或新功能目标时再重新评估。
 
 ## 1. 版本目标与边界
 
@@ -475,10 +477,10 @@ AI-DECISION-001 已完成 ADR-027 v1.0 Final Accepted，当前为 `DONE / DONE_I
 8. R3。
 
 ```yaml
-currentTask: REL-03 Private Preview Readiness
-nextCanonicalTask: REL-03 Private Preview Readiness
-currentGovernanceGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 APPROVED
-nextCanonicalTaskAfterCompletion: REL-04_REASSESSMENT
+currentTask: PRIVATE_PREVIEW_OPERATION
+nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
+currentGovernanceGate: REL-03 DONE_LOCAL / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 APPROVED
+nextCanonicalTaskAfterCompletion: USER_DIRECTED_SCOPE_SELECTION
 ```
 
 当前交付/执行门禁：PR19 已达到 `DONE / DONE_INTEGRATION`；PR20 adapter integration
@@ -488,7 +490,7 @@ nextCanonicalTaskAfterCompletion: REL-04_REASSESSMENT
 的 `quality`、`db-validation`、`browser-qa` 均 SUCCESS；`browser-qa` 报告上传步骤被
 跳过，不能宣称存在完整浏览器报告。
 
-当前 canonical task 已转为 `REL-03 Private Preview Readiness`（`READY / EXISTING_ENVIRONMENT`）；R1 Quality Gate 已获批准，独立 Staging 资源建设已由用户明确豁免，现有 Alibaba 私有预览作为验证环境。
+REL-03 已完成本地 evidence 收口；当前转为 `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY`。R1 Quality Gate 已获批准，独立 Staging 资源建设已由用户明确豁免，现有 Alibaba 私有预览作为受邀用户使用环境。
 `QUALITY-R1-GOVERNANCE-RECONCILIATION` 已在 commit
 `6adc111492dcbeb35e79475a3d69f6a63007e5bb` 中完成，并经 post-write review；
 ADR-028 为 `Accepted`；

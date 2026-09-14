@@ -2,31 +2,31 @@
 
 ## Session Status
 
-ACCEPTED / MOBILE_C4 / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING
+ACTIVE / PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY
 
 ## Task
 
-- ID: `MOBILE-C4 Complex Secondary Pages`
-- Execution: `ACCEPTED`
-- Delivery: `ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING`
+- ID: `PRIVATE_PREVIEW_OPERATION`
+- Execution: `ACTIVE`
+- Delivery: `FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE`
 - Worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
 - Branch: `codex/mobile-c4-complex-secondary-pages`
 - Base HEAD: Integration `cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d`
-- Contract: `tasks/MOBILE-C4.md` (`MOBILE_C4_COMPLEX_SECONDARY_PAGES_V1`).
-- Scope: 四个顺序切片迁移复杂二级页面；C4.1-C4.4 已推送、CI 全绿、私有预览部署及 iPhone/Android 实机验收通过。
-- Excluded: 路由、Navigation Policy、store、API、数据库、同步、认证、SW、Push 和业务语义。
+- Contract: `PLANS.md` simplified private-preview scope.
+- Scope: 现有私有预览继续供受邀用户使用，仅处理实际反馈的必要缺陷修复。
+- Excluded: REL-04～REL-06、真实 Push、R2/R3、公共入口、生产部署、Provider 扩展和新基础设施。
 
 ## Current Progress
 
-- MOBILE-C4 HEAD `8e9f53e` 已在受保护备份 `daily_assistant_preview_20260914T020652Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`；旧 release `b18b91d0-20260912T0735Z` 保留回滚。
-- 用户端入口及交易、日程、待办、提醒、草稿、AI 深链接，API、Manifest、Service Worker、新资源、服务状态和启动日志检查通过；用户于 2026-09-14 确认 iPhone/Android 实机验收通过。
+- REL-03 已完成 readiness、备份和运行手册收口；当前私有预览可直接使用。
+- 用户决定不主动推进后续发布阶段，仅在收到真实使用反馈时处理。
 - MOBILE-C4 C4.4 已提交为 `841ea8b`；中文状态导致 E2E 全页定位歧义后，以 `f7299a3`、`b44c1a6` 收紧到操作卡片。状态证据提交 `8e9f53e` 对应 CI run `34797681890` 的 quality、db-validation、browser-qa 全绿。
 - MOBILE-C4 C4.3 已提交并推送为 `698b2c4`，CI run `34795552676` 全绿。C4.4 三个 AI 页面已完成共享页面壳、确认层级、响应式操作区和中文状态改版；专项 48 tests 与完整 quality 通过并已推送。
 - 本机五档 Playwright 因未配置专用一次性 MySQL 测试库而未运行；必须由推送后的 CI browser-qa 和后续 iPhone/Android 私有预览验收补齐。
 - MOBILE-C4 C4.2 已提交并推送为 `16dfde8`，CI run `34794564558` 全绿；C4.3 两个详情页已完成共享页面壳、信息分区、响应式操作区和异常字符修复并推送。
 - MOBILE-C4 C4.1 实现 `4efe4a4` 及 E2E 修正已推送至 `0c9b51d`，CI run `34686801343` 全绿；C4.2 三个规划列表页已完成共享页面壳、内容分区、响应式操作区和中文反馈改版并推送。
 - PR #33 已合并为 Integration `5a0dc52`。合并 CI run `34683019629` 的 quality、db-validation 通过；browser-qa 首次因详情重载时序断言失败，未改代码重跑后 job `103525654367` 通过，最终矩阵全绿。
-- MOBILE-C3 状态为 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`；MOBILE-C4 现为 `ACCEPTED / PR_AUTHORIZATION_PENDING`。
+- MOBILE-C3 状态为 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`；MOBILE-C4 PR #34 已合并为 Integration `e407157`，合并 CI `34800440131` 全绿。
 
 - 已建立 `TemporalPickerField`、`DateField`、`DateTimeField`、`MonthField`，使用现有 AppDialog 提供中文日期网格、月份网格、24 小时时间、今天、清除、取消和确认。
 - 已迁移账单筛选、记账表单、预算、行程列表、日程、待办和提醒页面；共享控件及 Planner 列表专项 5 tests、Web lint/typecheck 通过。
@@ -77,8 +77,8 @@ ACCEPTED / MOBILE_C4 / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AU
 
 ## Remaining Work
 
-1. 获得独立授权后提交当前发布状态记录并创建 MOBILE-C4 PR。
-2. PR CI 通过后，再由用户独立决定是否合入 Integration。
+1. 收集真实使用反馈并修复必要问题。
+2. 不自动启动后续发布、扩容或新功能任务。
 3. 不自动进入后续 canonical 任务。
 
 ## Previous Task Record
@@ -93,10 +93,9 @@ ACCEPTED / MOBILE_C4 / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AU
 
 ## Resume Instructions
 
-1. 以 `tasks/MOBILE-C4.md` 为唯一执行契约。
-2. 实机验收已通过；下一动作是独立的提交与 PR 授权。
-3. 合并及后续任务分别遵守适用授权边界。
+1. 仅处理用户明确提出的私有预览问题。
+2. 扩容、公开发布或新功能需要用户重新指定。
 
 ## Last Updated
 
-2026-09-14 10:30 +08:00 — MOBILE-C4 HEAD `8e9f53e` 已通过 iPhone/Android 实机验收；等待独立的提交与 PR 交付决定。
+2026-09-14 11:20 +08:00 — 路线已收敛为现有私有预览持续使用与反馈修复，不自动推进后续发布阶段。

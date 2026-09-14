@@ -1,8 +1,13 @@
 # Changelog
 
-## 2026-09-14 — MOBILE-C4 实机验收通过（ACCEPTED）
+## 2026-09-14 — REL-03 private-preview readiness closure (DONE_LOCAL)
 
-- 用户确认 iPhone/Android 私有预览实机验收通过；MOBILE-C4 进入 `PR_AUTHORIZATION_PENDING`，尚未创建 PR 或合入 Integration。
+- Verified the active private-preview release, service health, protected backup and application rollback target, and added the release/rollback runbook.
+- No infrastructure, server configuration, public entry or production change was made; the current scope is feedback-driven private-preview fixes only.
+
+## 2026-09-14 — MOBILE-C4 合入 Integration（DONE_INTEGRATION）
+
+- 用户确认 iPhone/Android 私有预览实机验收通过；PR #34 已合并为 Integration `e407157`，合并 CI `34800440131` 的 quality、db-validation、browser-qa 全绿。
 
 ## 2026-09-14 — MOBILE-C4 私有预览部署（DEVICE_ACCEPTANCE_PENDING）
 

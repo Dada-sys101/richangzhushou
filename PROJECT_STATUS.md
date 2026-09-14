@@ -1,18 +1,18 @@
 # Project Status
 
-updatedAt: 2026-09-14T10:30:00+08:00
+updatedAt: 2026-09-14T10:55:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
-integrationHead: 45d52c664fd9232c2fb0dbf5b14f27d277aa1e99
-activeBranch: codex/mobile-c4-complex-secondary-pages
-activeHead: 8e9f53e
-activeTask: MOBILE-C4 Complex Secondary Pages
-executionStatus: ACCEPTED
-deliveryStatus: ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING
-nextCanonicalTask: Complete MOBILE-C4 delivery decision
-nextCanonicalTaskAfterCompletion: TBD_AFTER_MOBILE_C4_INTEGRATION
-localRevision: 8e9f53e
+integrationHead: e40715714f06034614e25bf0f5e6735a9494bb9a
+activeBranch: codex/v15-integration-foundation
+activeHead: e407157
+activeTask: PRIVATE_PREVIEW_OPERATION
+executionStatus: ACTIVE
+deliveryStatus: FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE
+nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
+nextCanonicalTaskAfterCompletion: NONE
+localRevision: e407157
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY

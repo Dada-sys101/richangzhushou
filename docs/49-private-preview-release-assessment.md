@@ -1,8 +1,8 @@
 # 私有预览发布评估
 
-评估更新：2026-09-11（`Asia/Shanghai`）
+评估更新：2026-09-14（`Asia/Shanghai`）
 
-> 2026-09-14 MOBILE-C4 复杂二级页面发布：HEAD `8e9f53e` 的 CI 全绿。发布前备份为 `daily_assistant_preview_20260914T020652Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`，旧 release `b18b91d0-20260912T0735Z` 保留回滚。用户端主要入口与深链接、API、Manifest、Service Worker、新构建资源、服务状态和启动日志检查通过；用户已确认 iPhone/Android 实机验收通过，等待独立 PR 授权。
+> 2026-09-14 MOBILE-C4 复杂二级页面发布：HEAD `8e9f53e` 的 CI 全绿。发布前备份为 `daily_assistant_preview_20260914T020652Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`，旧 release `b18b91d0-20260912T0735Z` 保留回滚。用户端主要入口与深链接、API、Manifest、Service Worker、新构建资源、服务状态和启动日志检查通过；用户已确认 iPhone/Android 实机验收通过，PR #34 已合并为 Integration `e407157`，合并 CI `34800440131` 全绿。
 
 > 2026-09-12 MOBILE-C3 实机验收：用户确认 iPhone/Android 日期、月份和日期时间控件通过，任务更新为 `ACCEPTED / READY_TO_MERGE`；PR #33 合并仍需独立授权。
 
@@ -26,15 +26,15 @@
 - H1/H2：`WAIVED_FOR_R1 / UNVERIFIED`，不能记为物理 iPhone 通过。
 - REL-02 独立 Staging：`CANCELLED / SEPARATE_STAGING_WAIVED`。
 - 验证环境：现有 Alibaba 私有预览。
-- 当前任务：`MOBILE-C4 Complex Secondary Pages / ACCEPTED / PR_AUTHORIZATION_PENDING`；候选已部署并完成 iPhone/Android 实机验收。
+- 当前模式：`PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY`；MOBILE-C4 Complex Secondary Pages 已达到 `DONE_INTEGRATION / MERGED_CI_PASS`，REL-03 已完成本地收口。
 - 公网 DNS/HTTPS/CORS、Provider 扩展、REL-04 和生产发布仍是独立门禁。
 
 ## 当前发布版本
 
-- Integration commit：`6515b8fd0f13969a0e434d3d8223f60a82cb0310`。
-- 来源：PR #25，状态 `MERGED`。
-- 合并后 CI：run `34181985716`，`quality`、`db-validation`、`browser-qa` 全部通过。
-- 服务器 release：`/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`（MOBILE-C4 HEAD `8e9f53e`；MOBILE-C4 PR 尚未创建）。
+- Integration commit：`e40715714f06034614e25bf0f5e6735a9494bb9a`。
+- 来源：MOBILE-C4 PR #34，状态 `MERGED`。
+- 合并后 CI：run `34800440131`，`quality`、`db-validation`、`browser-qa` 全部通过。
+- 服务器 release：`/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`（MOBILE-C4 HEAD `8e9f53e`；PR #34 已合并为 Integration `e407157`）。
 - API、用户端和管理端入口均返回 HTTP 200；切换后的 warning/error 日志为空。
 - 本次 `prisma migrate deploy` 补齐仓库既有 `20260908150000_web_push_subscriptions` migration；未修改 MySQL/Nginx、扩展域名或改变 Provider 开关。
 
@@ -87,13 +87,11 @@
 - 需要验证托管 MySQL 私网/TLS、跨位置恢复或复杂网络故障；
 - 准备正式生产发布。
 
-## 未完成事项
+## 后续事项
 
-1. REL-03 轻量 readiness 实现、测试和现有环境验证。
-2. 固化备份、不可变部署、liveness/readiness、业务 smoke 和应用回滚流程。
-3. REL-03 完成后重新界定精简后的 REL-04。
-4. 公网开放时再处理 DNS、HTTPS、精确 CORS 和公网 smoke。
-5. 物理 iPhone Safari/PWA 仍未验证；公网或支持声明前重新评估。
+1. 当前只处理私有预览的真实反馈和必要缺陷修复。
+2. REL-04～REL-06、真实 Push、R2/R3、公网 DNS/HTTPS/CORS 与生产发布均延后，只有在公开发布、扩容或用户明确提出新目标时重新评估。
+3. 物理 iPhone Safari/PWA 的 R1 豁免不等于公网支持声明；该场景仍需在公开前重新评估。
 
 ## 发布边界
 
