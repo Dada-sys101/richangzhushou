@@ -1,6 +1,6 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-12T18:30:00+08:00
+updatedAt: 2026-09-14T10:30:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -9,12 +9,12 @@ integrationHead: cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: MOBILE-C4 Complex Secondary Pages
-executionStatus: IN_PROGRESS
-deliveryStatus: ALL_SLICES_DONE_PUSHED / CI_PASS / DEVICE_ACCEPTANCE_PENDING
-currentWork: C4.1 through C4.4 are pushed through b44c1a6; final CI 34797420362 passed quality, db-validation and browser-qa
+executionStatus: ACCEPTED
+deliveryStatus: ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING
+currentWork: MOBILE-C4 HEAD 8e9f53e is deployed at /opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z after protected backup; post-deploy checks and iPhone/Android device acceptance pass
 latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
-nextCanonicalTask: Deploy MOBILE-C4 to private preview after separate authorization, then verify iPhone and Android
-nextCanonicalTaskAfterCompletion: Complete MOBILE-C4 delivery decision
+nextCanonicalTask: Complete MOBILE-C4 delivery decision
+nextCanonicalTaskAfterCompletion: TBD_AFTER_MOBILE_C4_INTEGRATION
 openPullRequests: []
 repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
 repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
@@ -22,8 +22,8 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Current Private Preview Release Assessment
 
-- Active release: MOBILE-C3 PR #33 HEAD `b18b91d`, deployed at `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`; previous `b6208500-20260912T0627Z` remains the rollback release.
-- Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_BUSINESS_SMOKE_PASS / PUBLIC_NOT_READY`.
+- Active release: MOBILE-C4 HEAD `8e9f53e`, deployed at `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`; previous `b18b91d0-20260912T0735Z` remains the rollback release.
+- Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / DEVICE_ACCEPTANCE_PASS / PUBLIC_NOT_READY`.
 - Delivery: PR #25 is merged; merged CI run `34181985716` passed quality, db-validation and browser-qa. Target-host Linux build, audit 0, SBOM validation and entry-point health checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
 - H1/H2: `WAIVED_FOR_R1 / UNVERIFIED` by explicit user approval on 2026-09-08; never treat this as physical-device pass evidence, and reassess before public support claims.

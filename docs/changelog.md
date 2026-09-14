@@ -1,5 +1,15 @@
 # 变更日志（Changelog）
 
+## 2026-09-14 — MOBILE-C4 实机验收通过（ACCEPTED）
+
+- 用户确认 iPhone/Android 私有预览实机验收通过；下一步为独立的 PR 与 Integration 交付决定。
+
+## 2026-09-14 — MOBILE-C4 私有预览部署（DEVICE_ACCEPTANCE_PENDING）
+
+- CI 全绿候选 `8e9f53e` 已部署到 Alibaba 私有预览 release `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`。
+- 数据库备份、锁定安装、构建、依赖审计、服务健康和主要路由冒烟通过；保留上一 release 作为回滚目标。
+- 下一门禁为 iPhone/Android 实机验收，尚未声明 MOBILE-C4 验收完成。
+
 ## 2026-09-14 — MOBILE-C4 C4.4 AI 页面改版（DONE_LOCAL）
 
 - 重整草稿列表、提案状态、操作卡片和 AI 请求表单，并将用户可见 AI 类型与状态统一为中文。

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-09-14 — MOBILE-C4 实机验收通过（ACCEPTED）
+
+- 用户确认 iPhone/Android 私有预览实机验收通过；MOBILE-C4 进入 `PR_AUTHORIZATION_PENDING`，尚未创建 PR 或合入 Integration。
+
+## 2026-09-14 — MOBILE-C4 私有预览部署（DEVICE_ACCEPTANCE_PENDING）
+
+- 已将 CI 全绿候选 `8e9f53e` 部署至 Alibaba 私有预览 release `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`。
+- 部署前数据库备份、锁定依赖安装、构建、依赖审计、服务启动及主要页面/API/Manifest/Service Worker 冒烟均通过；旧 release 保留用于回滚。
+- 当前等待 iPhone/Android 对记账、规划、详情和 AI 页面进行实机验收。
+
 ## 2026-09-14 — MOBILE-C4 C4.4 AI 页面改版（DONE_LOCAL）
 
 - 草稿中心、提案核对与 AI 生成页统一使用共享移动端页面结构，明确建议核对与最终写入层级。

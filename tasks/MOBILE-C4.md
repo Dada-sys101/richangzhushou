@@ -3,7 +3,7 @@
 ## Metadata
 
 - Contract: `MOBILE_C4_COMPLEX_SECONDARY_PAGES_V1`
-- Status: `IN_PROGRESS / ALL_SLICES_DONE_PUSHED / CI_PASS / DEVICE_ACCEPTANCE_PENDING`
+- Status: `ACCEPTED / ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING`
 - Base: Integration `45d52c664fd9232c2fb0dbf5b14f27d277aa1e99`
 - Predecessor: MOBILE-C3 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
 - Delivery model: 一个 canonical task，四个严格顺序切片；每个切片独立实现、验证和提交，不跨组顺手改造。
@@ -33,7 +33,7 @@
 - `TransactionsView.vue` 与 `TransactionFormView.vue` 已迁移到 `SecondaryPageShell`、`SectionCard` 和 `FormActions`，保留既有筛选、导出、创建、编辑、退款、删除恢复及返回行为。
 - 375、390、430、768、1440 CSS px 已完成页面运行检查；筛选区、退款字段和操作按钮无重叠、遮挡或横向溢出。
 - Web lint、typecheck、31 files / 137 tests、build 通过；完整 `npm run quality`、`git diff --check` 通过。
-- 当前为 `DONE_LOCAL / UNCOMMITTED`；数据库支持的完整 browser-qa、CI、私有预览与 iPhone/Android 实机验收尚未执行，不视为交付完成。
+- C4.1 实现与后续候选已经完成 CI、私有预览和 iPhone/Android 实机验收；交付 PR 仍待独立授权。
 - C4.1 实现提交 `4efe4a4` 及 E2E 标题兼容修正 `1cd52c6`、`0c9b51d` 已推送；CI run `34686801343` 的 quality、db-validation、browser-qa 全部通过。
 
 ### C4.2 — Planner lists
@@ -48,7 +48,7 @@
 - `CalendarView.vue`、`TasksView.vue`、`RemindersView.vue` 已迁移到共享二级页壳和分区卡片，统一筛选、新建、列表、编辑、状态提示与移动端操作区。
 - 375、390、430、768、1440 CSS px 已完成真实页面渲染检查；全部页面横向溢出为 0，交互控件均保持在视口内。
 - Planner 列表专项 3 tests、Web lint/typecheck/build 及完整 `npm run quality`、`git diff --check` 通过。
-- 当前为 `DONE_LOCAL / UNCOMMITTED`；数据库支持的 browser-qa、CI、私有预览与 iPhone/Android 实机验收尚未执行。
+- C4.2 与完整候选已经完成 CI、私有预览和 iPhone/Android 实机验收；交付 PR 仍待独立授权。
 
 ### C4.3 — Planner and trip details
 
@@ -62,7 +62,7 @@
 - `PlannerDetailView.vue` 与 `TripDetailView.vue` 已统一二级页壳、摘要、属性、编辑区、关联列表和操作区；修复行程金额与节点分隔符的异常显示字符。
 - 375、390、430、768、1440 CSS px 已完成真实页面渲染检查；两个详情页横向溢出为 0，交互控件均保持在视口内。
 - PlannerDetail 专项 12 tests、Web lint/typecheck/build 及完整 `npm run quality`、`git diff --check` 通过。
-- 当前为 `DONE_LOCAL / UNCOMMITTED`；CI、私有预览与 iPhone/Android 实机验收尚未执行。
+- C4.3 与完整候选已经完成 CI、私有预览和 iPhone/Android 实机验收；交付 PR 仍待独立授权。
 
 ### C4.4 — AI drafts and proposals
 
@@ -75,7 +75,7 @@
 
 - `DraftsView.vue`、`ProposalReviewView.vue`、`AiView.vue` 已统一二级页壳、信息卡片和移动操作区，明确“生成建议、逐项核对、最终确认写入”层级，并将用户可见类型、状态和冲突提示统一为中文。
 - ProposalReview/Ai 专项 48 tests、Web lint/typecheck/build、完整 `npm run quality` 与 `git diff --check` 通过。
-- 本机五档 Playwright 因缺少专用一次性 MySQL 测试库未运行；推送后 CI run `34797420362` 的桌面/移动 browser-qa、quality 和 db-validation 已通过。私有预览与 iPhone/Android 实机验收尚未执行。
+- 本机五档 Playwright 因缺少专用一次性 MySQL 测试库未运行；推送后 CI run `34797420362` 的桌面/移动 browser-qa、quality 和 db-validation 已通过。HEAD `8e9f53e` 已部署私有预览并通过发布后检查，用户已确认 iPhone/Android 实机验收通过；交付 PR 仍待独立授权。
 
 ## Allowed scope
 

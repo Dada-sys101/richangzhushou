@@ -1,5 +1,16 @@
 # Session End
 
+## 2026-09-14 — MOBILE-C4 实机验收通过
+
+- 用户确认 iPhone/Android 私有预览实机验收通过；任务进入 `ACCEPTED / PR_AUTHORIZATION_PENDING`。
+- 当前状态文档尚未提交或推送；创建 PR 与合入 Integration 均需独立授权。
+
+## 2026-09-14 — MOBILE-C4 私有预览部署
+
+- 用户授权后，已将候选 `8e9f53e` 部署至 `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`；部署前数据库备份和回滚 release 均已保留。
+- 锁定安装、构建、依赖审计、服务状态及主要 Web/API/PWA 资源冒烟通过。
+- 当前状态为 `PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PENDING`；下一步仅执行 iPhone/Android 实机验收，状态文档改动尚未提交或推送。
+
 ## 2026-09-14 — MOBILE-C4 C4.4
 
 - C4.3 已提交并推送为 `698b2c4`，CI `34795552676` 全绿；C4.4 AI 页面改版为 `DONE_LOCAL / UNCOMMITTED`。

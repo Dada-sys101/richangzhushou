@@ -2,29 +2,31 @@
 
 ## Session Status
 
-IN_PROGRESS / MOBILE_C4 / ALL_SLICES_DONE_PUSHED / CI_PASS / DEVICE_ACCEPTANCE_PENDING
+ACCEPTED / MOBILE_C4 / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING
 
 ## Task
 
 - ID: `MOBILE-C4 Complex Secondary Pages`
-- Execution: `IN_PROGRESS`
-- Delivery: `ALL_SLICES_DONE_PUSHED / CI_PASS / DEVICE_ACCEPTANCE_PENDING`
+- Execution: `ACCEPTED`
+- Delivery: `ALL_SLICES_DONE_PUSHED / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS / PR_AUTHORIZATION_PENDING`
 - Worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
 - Branch: `codex/mobile-c4-complex-secondary-pages`
 - Base HEAD: Integration `cf3d39845f02c86e1de9b573d71d9f4d3ac2c75d`
 - Contract: `tasks/MOBILE-C4.md` (`MOBILE_C4_COMPLEX_SECONDARY_PAGES_V1`).
-- Scope: 四个顺序切片迁移复杂二级页面；C4.1-C4.4 已推送且 CI 全绿，下一步为经独立授权部署私有预览并完成设备验收。
+- Scope: 四个顺序切片迁移复杂二级页面；C4.1-C4.4 已推送、CI 全绿、私有预览部署及 iPhone/Android 实机验收通过。
 - Excluded: 路由、Navigation Policy、store、API、数据库、同步、认证、SW、Push 和业务语义。
 
 ## Current Progress
 
-- MOBILE-C4 C4.4 已提交为 `841ea8b`；中文状态导致 E2E 全页定位歧义后，以 `f7299a3`、`b44c1a6` 收紧到操作卡片。最终 CI run `34797420362` 的 quality、db-validation、browser-qa 全绿。
-- MOBILE-C4 C4.3 已提交并推送为 `698b2c4`，CI run `34795552676` 全绿。C4.4 三个 AI 页面已完成共享页面壳、确认层级、响应式操作区和中文状态改版；专项 48 tests 与完整 quality 通过，当前未提交。
+- MOBILE-C4 HEAD `8e9f53e` 已在受保护备份 `daily_assistant_preview_20260914T020652Z.sql.gz` 后部署至 `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`；旧 release `b18b91d0-20260912T0735Z` 保留回滚。
+- 用户端入口及交易、日程、待办、提醒、草稿、AI 深链接，API、Manifest、Service Worker、新资源、服务状态和启动日志检查通过；用户于 2026-09-14 确认 iPhone/Android 实机验收通过。
+- MOBILE-C4 C4.4 已提交为 `841ea8b`；中文状态导致 E2E 全页定位歧义后，以 `f7299a3`、`b44c1a6` 收紧到操作卡片。状态证据提交 `8e9f53e` 对应 CI run `34797681890` 的 quality、db-validation、browser-qa 全绿。
+- MOBILE-C4 C4.3 已提交并推送为 `698b2c4`，CI run `34795552676` 全绿。C4.4 三个 AI 页面已完成共享页面壳、确认层级、响应式操作区和中文状态改版；专项 48 tests 与完整 quality 通过并已推送。
 - 本机五档 Playwright 因未配置专用一次性 MySQL 测试库而未运行；必须由推送后的 CI browser-qa 和后续 iPhone/Android 私有预览验收补齐。
-- MOBILE-C4 C4.2 已提交并推送为 `16dfde8`，CI run `34794564558` 全绿；C4.3 两个详情页已完成共享页面壳、信息分区、响应式操作区和异常字符修复，五档视口与完整 quality 通过，当前未提交。
-- MOBILE-C4 C4.1 实现 `4efe4a4` 及 E2E 修正已推送至 `0c9b51d`，CI run `34686801343` 全绿；C4.2 三个规划列表页已完成共享页面壳、内容分区、响应式操作区和中文反馈改版，五档视口与完整 quality 通过，当前未提交。
+- MOBILE-C4 C4.2 已提交并推送为 `16dfde8`，CI run `34794564558` 全绿；C4.3 两个详情页已完成共享页面壳、信息分区、响应式操作区和异常字符修复并推送。
+- MOBILE-C4 C4.1 实现 `4efe4a4` 及 E2E 修正已推送至 `0c9b51d`，CI run `34686801343` 全绿；C4.2 三个规划列表页已完成共享页面壳、内容分区、响应式操作区和中文反馈改版并推送。
 - PR #33 已合并为 Integration `5a0dc52`。合并 CI run `34683019629` 的 quality、db-validation 通过；browser-qa 首次因详情重载时序断言失败，未改代码重跑后 job `103525654367` 通过，最终矩阵全绿。
-- MOBILE-C3 状态为 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`；当前活动实施任务为 MOBILE-C4 C4.1 本地收口。
+- MOBILE-C3 状态为 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`；MOBILE-C4 现为 `ACCEPTED / PR_AUTHORIZATION_PENDING`。
 
 - 已建立 `TemporalPickerField`、`DateField`、`DateTimeField`、`MonthField`，使用现有 AppDialog 提供中文日期网格、月份网格、24 小时时间、今天、清除、取消和确认。
 - 已迁移账单筛选、记账表单、预算、行程列表、日程、待办和提醒页面；共享控件及 Planner 列表专项 5 tests、Web lint/typecheck 通过。
@@ -75,9 +77,9 @@ IN_PROGRESS / MOBILE_C4 / ALL_SLICES_DONE_PUSHED / CI_PASS / DEVICE_ACCEPTANCE_P
 
 ## Remaining Work
 
-1. 完成 iPhone/Android 五个二级页面的视觉、滚动、返回和键盘验收。
-2. 验收通过后单独决定 PR #31 合并。
-3. 不自动进入 MOBILE-C2。
+1. 获得独立授权后提交当前发布状态记录并创建 MOBILE-C4 PR。
+2. PR CI 通过后，再由用户独立决定是否合入 Integration。
+3. 不自动进入后续 canonical 任务。
 
 ## Previous Task Record
 
@@ -91,12 +93,10 @@ IN_PROGRESS / MOBILE_C4 / ALL_SLICES_DONE_PUSHED / CI_PASS / DEVICE_ACCEPTANCE_P
 
 ## Resume Instructions
 
-1. 以 `tasks/MOBILE-B.md` 为唯一执行契约。
-2. 先完成现状审查和实施计划，再修改允许范围内文件。
-3. 提交、推送、PR、合并和部署分别遵守适用授权边界。
+1. 以 `tasks/MOBILE-C4.md` 为唯一执行契约。
+2. 实机验收已通过；下一动作是独立的提交与 PR 授权。
+3. 合并及后续任务分别遵守适用授权边界。
 
 ## Last Updated
 
-2026-09-12 14:16 +08:00 — MOBILE-C2 PR #32 HEAD `3a07d28` 已部署私有预览并通过发布后检查；等待实机验收。
-
-- PR #33 current HEAD `b18b91d` deployed to `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z` after protected backup `daily_assistant_preview_20260912T074830Z.sql.gz`. Existing Web Push migration was applied; entry points, API health, deep links, Manifest, Service Worker, new temporal-picker assets and startup logs passed. Physical-device acceptance passed by user confirmation on 2026-09-12; merge authorization remains pending.
+2026-09-14 10:30 +08:00 — MOBILE-C4 HEAD `8e9f53e` 已通过 iPhone/Android 实机验收；等待独立的提交与 PR 交付决定。

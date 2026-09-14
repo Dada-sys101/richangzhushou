@@ -1,5 +1,15 @@
 # 项目进度（派生摘要）
 
+## 2026-09-14 — MOBILE-C4 实机验收通过（ACCEPTED）
+
+- iPhone/Android 私有预览实机验收已由用户确认通过。候选 `8e9f53e` 的 CI、发布后检查和设备验收证据完整，当前等待独立 PR 授权。
+
+## 2026-09-14 — MOBILE-C4 私有预览部署（DEVICE_ACCEPTANCE_PENDING）
+
+- 候选 HEAD `8e9f53e` 的 CI `34797681890` 全绿，已部署至 `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`。
+- 部署前备份为 `/opt/daily-assistant-preview/shared/backups/daily_assistant_preview_20260914T020652Z.sql.gz`；回滚 release 为 `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`。
+- 私有入口主要页面、API 健康、Manifest 与 Service Worker 均返回 200，API/Nginx/MySQL 服务正常；下一步执行 iPhone/Android 实机验收。
+
 ## 2026-09-14 — MOBILE-C4 C4.4 AI 页面改版（DONE_LOCAL）
 
 - 草稿、提案核对和 AI 生成页面已统一共享页面壳、确认层级、中文状态与窄屏操作区；未修改 AI 写入规则、接口或数据语义。
