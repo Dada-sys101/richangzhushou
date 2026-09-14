@@ -2,20 +2,20 @@
 
 ## Last Updated
 
-2026-09-14 15:30 +08:00 — Web Push device acceptance passed; today-date confirmation fix is verified locally.
+2026-09-14 16:00 +08:00 — Web Push device acceptance remains passed; the today-date confirmation fix is merged, CI-verified and deployed to private preview.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `6e3ba34bfd070c0276dea4183ec51423d8f4724c`
+- Verified Integration HEAD: `9ddc354676b831afda7de2afb4948a90fadfef38`
 - Active worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
 - Active branch: `codex/private-preview-feedback-operations`
-- Current delivery: private-preview simplified operations `PR #35 MERGED / MERGED_CI_PASS`.
+- Current delivery: date-time confirmation fix `PR #36 MERGED / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED`.
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
-- MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 and MOBILE-C1/C2/C3 PRs #31/#32/#33 are merged. Active release is `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`.
+- MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 and MOBILE-C1/C2/C3 PRs #31/#32/#33 are merged. Active release is `/opt/daily-assistant-preview/releases/9ddc3546-20260914T074811Z`.
 
 ## Project Summary
 
@@ -45,7 +45,7 @@
 
 - ID: `PRIVATE_PREVIEW_OPERATION`.
 - Goal: let invited users use the existing private preview, address real feedback, and complete the explicitly selected R1.1 Web Push device validation.
-- Current state: `ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_PUSH_ACTIVE / H6_DEVICE_ACCEPTANCE_PASS`; the iPhone today-date confirmation fix is `DONE_LOCAL / VERIFIED`.
+- Current state: `ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_PUSH_ACTIVE / H6_DEVICE_ACCEPTANCE_PASS`; the iPhone today-date confirmation fix is `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED`.
 - Deferred: REL-04～REL-06, R2/R3, public entry and new infrastructure.
 
 ## Next Recommended Task
@@ -59,13 +59,13 @@ MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of 
 - V1 and the V1.5 R1 foundation, AI proposal/router/provider adapter integration, offline synchronization, Web UX closure and release candidate integration are complete.
 - H7 is closed based on the recorded synthetic-data Provider evaluation; this does not authorize broader/public Provider use.
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
-- The active release is `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`; rollback release is `/opt/daily-assistant-preview/releases/b18b91d0-20260912T0735Z`. MOBILE-C4 is live in private preview and passed iPhone/Android physical-device acceptance.
+- The active release is `/opt/daily-assistant-preview/releases/9ddc3546-20260914T074811Z`; rollback release is `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`. MOBILE-C4 remains accepted and the iPhone date-time confirmation fix is live in private preview.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
 - MOBILE-B update takeover fixes `e756c0b`/`727cb60` and MOBILE-C planning commit `d7860cd` pass required validation; private preview runs `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z` with `927dea30-20260912T0129Z` retained for rollback.
 
 ## Remaining Work
 
-- Deliver the verified local fix for iPhone date-time confirmation when the user authorizes its commit, CI and private-preview deployment.
+- Continue handling only necessary feedback from invited users; the iPhone date-time confirmation fix is deployed.
 - Address necessary defects reported by invited users in the existing private preview.
 - Keep all scope expansion, public release and new infrastructure deferred until the user explicitly selects one.
 - Public DNS, HTTPS, exact CORS and public-entry smoke only when public access is requested.

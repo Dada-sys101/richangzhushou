@@ -2,6 +2,10 @@
 
 评估更新：2026-09-14（`Asia/Shanghai`）
 
+## 2026-09-14 — iPhone 当天日期时间确认修复发布
+
+> PR #36 修复提醒选择当天时“确定”被禁用的问题，已合入 Integration `9ddc354`。合并 CI run `34819073059` 的 quality、db-validation、browser-qa 全绿。目标 Linux 隔离 release 顺序完成 Prisma 生成、API/Web/Admin 构建及依赖审计；受保护备份为 `daily_assistant_preview_20260914T075331Z.sql.gz`。当前 release 为 `/opt/daily-assistant-preview/releases/9ddc3546-20260914T074811Z`，旧 release `8e9f53e0-20260914T1007Z` 保留回滚。API、Nginx、MySQL、健康接口、Manifest、Service Worker、新用户端资源和启动日志检查通过。
+
 > 2026-09-14 MOBILE-C4 复杂二级页面发布：HEAD `8e9f53e` 的 CI 全绿。发布前备份为 `daily_assistant_preview_20260914T020652Z.sql.gz`，当前 release 为 `/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`，旧 release `b18b91d0-20260912T0735Z` 保留回滚。用户端主要入口与深链接、API、Manifest、Service Worker、新构建资源、服务状态和启动日志检查通过；用户已确认 iPhone/Android 实机验收通过，PR #34 已合并为 Integration `e407157`，合并 CI `34800440131` 全绿。
 
 > 2026-09-12 MOBILE-C3 实机验收：用户确认 iPhone/Android 日期、月份和日期时间控件通过，任务更新为 `ACCEPTED / READY_TO_MERGE`；PR #33 合并仍需独立授权。
@@ -26,15 +30,15 @@
 - H1/H2：`WAIVED_FOR_R1 / UNVERIFIED`，不能记为物理 iPhone 通过。
 - REL-02 独立 Staging：`CANCELLED / SEPARATE_STAGING_WAIVED`。
 - 验证环境：现有 Alibaba 私有预览。
-- 当前模式：`PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY`；MOBILE-C4 Complex Secondary Pages 已达到 `DONE_INTEGRATION / MERGED_CI_PASS`，REL-03 已完成本地收口。
+- 当前模式：`PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE`；PR #36 日期时间确认修复已达到 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED`，REL-03 已完成本地收口。
 - 公网 DNS/HTTPS/CORS、Provider 扩展、REL-04 和生产发布仍是独立门禁。
 
 ## 当前发布版本
 
-- Integration commit：`e40715714f06034614e25bf0f5e6735a9494bb9a`。
-- 来源：MOBILE-C4 PR #34，状态 `MERGED`。
-- 合并后 CI：run `34800440131`，`quality`、`db-validation`、`browser-qa` 全部通过。
-- 服务器 release：`/opt/daily-assistant-preview/releases/8e9f53e0-20260914T1007Z`（MOBILE-C4 HEAD `8e9f53e`；PR #34 已合并为 Integration `e407157`）。
+- Integration commit：`9ddc354676b831afda7de2afb4948a90fadfef38`。
+- 来源：日期时间确认修复 PR #36，状态 `MERGED`。
+- 合并后 CI：run `34819073059`，`quality`、`db-validation`、`browser-qa` 全部通过。
+- 服务器 release：`/opt/daily-assistant-preview/releases/9ddc3546-20260914T074811Z`（PR #36 已合并为 Integration `9ddc354`；前一 release `8e9f53e0-20260914T1007Z` 保留回滚）。
 - API、用户端和管理端入口均返回 HTTP 200；切换后的 warning/error 日志为空。
 - 本次 `prisma migrate deploy` 补齐仓库既有 `20260908150000_web_push_subscriptions` migration；未修改 MySQL/Nginx、扩展域名或改变 Provider 开关。
 

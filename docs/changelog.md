@@ -7,7 +7,7 @@
 
 ## 2026-09-14 — iPhone 当天日期时间确认修复（DONE_LOCAL）
 
-- 提醒选择当天时可能因本地化日期字符串参与文本比较而禁用“确定”。组件现以 `formatToParts()` 组装稳定的 ISO 日期；专项回归测试和完整 `npm run quality` 均通过。
+- 提醒选择当天时可能因本地化日期字符串参与文本比较而禁用“确定”。组件现以 `formatToParts()` 组装稳定的 ISO 日期；专项回归测试和完整 `npm run quality` 均通过。PR #36 已合入 Integration `9ddc354`，合并 CI `34819073059` 全绿，并已部署私有预览。
 
 ## 2026-09-14 — REL-03 私有预览 readiness 收口（DONE_LOCAL）
 

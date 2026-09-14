@@ -7,7 +7,7 @@
 
 ## 2026-09-14 — iPhone date-time confirmation fix (DONE_LOCAL)
 
-- Selecting today in a reminder date-time picker could leave confirmation disabled because locale-formatted dates were compared as text. The picker now assembles a stable ISO date from `formatToParts()`; a focused regression test and full `npm run quality` pass.
+- Selecting today in a reminder date-time picker could leave confirmation disabled because locale-formatted dates were compared as text. The picker now assembles a stable ISO date from `formatToParts()`; a focused regression test and full `npm run quality` pass. PR #36 merged as Integration `9ddc354`, merged CI `34819073059` passed, and the fix is deployed to the private preview.
 
 ## 2026-09-14 — REL-03 private-preview readiness closure (DONE_LOCAL)
 

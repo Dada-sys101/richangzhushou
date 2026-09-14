@@ -5,7 +5,7 @@
 - User selected real external reminders and closed H8 by accepting `web-push@3.6.7` MPL-2.0 use with retained notices and no third-party source modification.
 - Server-only VAPID and subscription-encryption keys were generated after confirming zero existing subscriptions/deliveries and creating protected backup `daily_assistant_preview_20260914T063732Z.sql.gz`; Push flags are enabled and API health is clean.
 - The user confirmed real-device subscription, system delivery, notification click-through, unsubscribe and re-enable are normal. H6 is closed for the private preview and the scheduler is active; one previously due reminder remains on its normal retry path.
-- A user-reported iPhone defect could disable confirmation when today was selected in a date-time picker. The locale-dependent date has been replaced with an ISO date assembled from `formatToParts()`; regression test and full quality pass, awaiting independent delivery authorization.
+- A user-reported iPhone defect could disable confirmation when today was selected in a date-time picker. The locale-dependent date has been replaced with an ISO date assembled from `formatToParts()`; regression test and full quality pass. PR #36 merged as Integration `9ddc354`, merged CI `34819073059` passed, and the fix is deployed to private preview.
 
 ## 2026-09-14 — REL-03 private-preview readiness closure
 
