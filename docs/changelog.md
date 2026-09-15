@@ -821,3 +821,21 @@
 - 2026-09-12 用户确认 iPhone/Android 实机日期、月份和日期时间控件验收通过；MOBILE-C3 更新为 `ACCEPTED / READY_TO_MERGE`，PR #33 合并仍需独立授权。
 - PR #33 已合并为 Integration `5a0dc52`；合并 CI run `34683019629` 最终全绿。browser-qa 首次详情重载时序断言失败后在未修改代码的重跑 job `103525654367` 中通过。
 - 新增 MOBILE-C4 独立契约，将复杂二级页面拆为四个顺序切片，并冻结允许文件、禁止范围、兼容性 Gate、五档视口与设备验收要求；未修改业务代码。
+
+## 2026-09-15 — UIR-02 本地实现（未提交）
+
+- 在 `codex/ui-reconstruction-foundation` 基线 `1907c5898d5916fe5d443444bf14b33a82ac97e4` 完成用户端语义 token、基础样式层、`UiPageFrame`、`UiFormField` 和 `ChangePasswordView` 样板迁移；未触碰 API、Store、router、数据库、管理端或 E2E。
+- `format:check`、用户端 lint/typecheck、3 个 focused test files（14 tests）、`npm run quality`、`check:context` 和 `git diff --check` 通过。
+- 浏览器验收已补充：复用 `D:\daily-assistant-runtime` 的 MySQL 8.4.11（`daily_assistant_e2e`），forced-password Playwright 在 `mobile-375`、`chromium-mobile`（390）、`mobile-430`、`tablet-768`、`desktop-1440` 五项全部通过，总耗时 18.1s；成功流程由五档 E2E 覆盖。
+- 手工验收记录：五档 CSS 宽度及 200% 根字号无横向溢出且内容可滚动。已通过项：取消和 Browser Back 均出现自定义未保存确认；Tab、原生 required、客户端不一致、模拟 400、离线提交的输入保留行为符合预期。另观察到 Browser Back 触发原生 `beforeunload`。FAIL/待独立处理：拒绝离开后地址栏为 `/account` 但页面仍显示改密页；该状态未闭合，不作为通过依据。
+- 观察与缺口：控制台存在开发环境 Service Worker MIME、`mustChangePassword` 下 sync 403、预期 mock 400；不宣称零错误。加载中仅单测验证，手工延迟模拟未成功；实体软键盘和真实安全区未验证，仅检查移动 viewport 与可滚动布局。离线改密“当前离线，操作已保存到本地并将在联网后同步”作为既有范围外 UX 风险记录，不修改同步/API。UIR-02 focused suite 当前为 3 files / 14 tests。
+- 本轮不提交、不推送、不创建/修改 PR、不部署。
+
+## 2026-09-15 — UIR-02 Browser Back 收尾修复（未提交）
+
+- 修复 `useUnsavedChanges` 的 Browser Back 拒绝恢复：`createWebHistory` 的 `popstate` 监听位于 `window`，改用 window capture 拦截并捕获目标 fullPath；用 Vue Router history 的 `go(delta, false)` 恢复当前项，接受时以 `allowNavigation` + `router.replace(targetPath)` 完成一次真实路由更新，避免 `pauseState` 吞导航和历史循环。
+- 修复后 active authenticated ChangePassword Browser Back 在 `375/390/430/768/1440` 五档矩阵全部通过：拒绝 URL/page/input/dialog 保持，接受为 `/account` 且显示“我的”页面；无重复确认或历史循环。
+- 五档额外中止改密请求验证网络失败降级：均显示既有离线提示且保留三个输入；直接打开 `/change-password` 后再 Back 的拒绝/接受同样保持 URL 与页面一致。
+- forced-password auth E2E 8/8 projects 全部通过；`ChangePasswordView.test.ts` 真实 Web History 覆盖 dirty 拒绝/接受、弹窗关闭与单次确认、clean Back、应用内返回接受/拒绝，UIR focused suite 共 18 tests。
+- 控制台仅有开发环境既有 Service Worker MIME、`mustChangePassword` 下 sync 403 和预期 mock 400；不宣称零错误。实体软键盘与真实安全区标记为 `DEVICE_ACCEPTANCE_PENDING`。
+- 未修改 API、Store、认证、其他页面或 E2E；本轮未提交、未推送、未创建/修改 PR、未部署。

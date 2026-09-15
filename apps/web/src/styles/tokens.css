@@ -1,0 +1,138 @@
+/*
+ * User-web semantic tokens.
+ *
+ * The legacy --color-* and --v2-* names remain available below so pages that
+ * have not migrated yet keep their existing computed styles. New UI work
+ * should consume the --ui-* names instead.
+ */
+:root,
+[data-ui-theme="default"] {
+  --ui-color-bg: #fbfaf7;
+  --ui-color-surface: #ffffff;
+  --ui-color-surface-muted: #f7f5fb;
+  --ui-color-primary: #7c5cfa;
+  --ui-color-primary-strong: #6244d8;
+  --ui-color-primary-soft: #eee9ff;
+  --ui-color-text: #2b243d;
+  --ui-color-text-muted: #756e83;
+  --ui-color-border: #e7e1f3;
+  --ui-color-border-strong: #d7cfeb;
+  --ui-color-success: #15803d;
+  --ui-color-success-soft: #eaf7ee;
+  --ui-color-warning: #a16207;
+  --ui-color-warning-soft: #fff7df;
+  --ui-color-danger: #b91c1c;
+  --ui-color-danger-soft: #fff0f0;
+  --ui-color-info: #2563a6;
+  --ui-color-info-soft: #edf5ff;
+  --ui-color-scrim: rgb(31 25 52 / 42%);
+  --ui-color-focus-ring: #6244d8;
+  --ui-color-weather-soft: #eaf7ff;
+  --ui-color-weather-contrast: #146c94;
+  --ui-color-ai-soft: #f1edff;
+  --ui-color-ai-accent: #6244d8;
+
+  --ui-font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --ui-font-size-12: 12px;
+  --ui-font-size-14: 14px;
+  --ui-font-size-16: 16px;
+  --ui-font-size-18: 18px;
+  --ui-font-size-20: 20px;
+  --ui-font-size-24: 24px;
+  --ui-line-height-body: 1.55;
+  --ui-line-height-compact: 1.4;
+  --ui-line-height-heading: 1.2;
+  --ui-font-weight-normal: 400;
+  --ui-font-weight-medium: 500;
+  --ui-font-weight-semibold: 600;
+
+  --ui-space-1: 4px;
+  --ui-space-2: 8px;
+  --ui-space-3: 12px;
+  --ui-space-4: 16px;
+  --ui-space-5: 20px;
+  --ui-space-6: 24px;
+  --ui-space-7: 32px;
+  --ui-radius-sm: 8px;
+  --ui-radius-md: 12px;
+  --ui-radius-lg: 16px;
+  --ui-radius-xl: 24px;
+  --ui-shadow-low: 0 1px 2px rgb(64 45 31 / 4%);
+  --ui-shadow-medium:
+    0 1px 2px rgb(64 45 31 / 4%), 0 10px 28px rgb(64 45 31 / 6%);
+  --ui-shadow-high: 0 20px 48px rgb(31 25 52 / 18%);
+
+  --ui-control-height-compact: 40px;
+  --ui-control-height-default: 44px;
+  --ui-control-height: 48px;
+  --ui-page-padding: clamp(16px, 3vw, 28px);
+  --ui-section-gap: 16px;
+  --ui-form-max-width: 720px;
+  --ui-content-max-width: 1160px;
+  --ui-safe-area-top: env(safe-area-inset-top, 0px);
+  --ui-safe-area-right: env(safe-area-inset-right, 0px);
+  --ui-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --ui-safe-area-left: env(safe-area-inset-left, 0px);
+
+  --ui-z-base: 0;
+  --ui-z-sticky: 30;
+  --ui-z-popover: 80;
+  --ui-z-dialog: 1200;
+  --ui-z-toast: 1300;
+  --ui-motion-fast: 120ms;
+  --ui-motion-normal: 180ms;
+  --ui-motion-slow: 220ms;
+}
+
+[data-ui-density="comfortable"] {
+  --ui-control-height: 48px;
+  --ui-section-gap: 16px;
+}
+
+[data-ui-density="compact"] {
+  --ui-control-height: 40px;
+  --ui-section-gap: 12px;
+}
+
+/* Compatibility aliases for the pre-tokenized user web styles. */
+:root {
+  --color-bg: var(--ui-color-bg, #fbfaf7);
+  --color-surface: var(--ui-color-surface, #ffffff);
+  --color-surface-muted: var(--ui-color-surface-muted, #f7f5fb);
+  --color-border: var(--ui-color-border, #e7e1f3);
+  --color-border-strong: var(--ui-color-border-strong, #d7cfeb);
+  --color-primary: var(--ui-color-primary, #7c5cfa);
+  --color-primary-dark: var(--ui-color-primary-strong, #6244d8);
+  --color-primary-soft: var(--ui-color-primary-soft, #eee9ff);
+  --color-text: var(--ui-color-text, #2b243d);
+  --color-text-secondary: var(--ui-color-text-muted, #756e83);
+  --color-text-muted: var(--ui-color-text-muted, #756e83);
+  --color-success: var(--ui-color-success, #15803d);
+  --color-danger: var(--ui-color-danger, #b91c1c);
+  --color-warning-bg: var(--ui-color-warning-soft, #fff7df);
+  --color-warning-text: var(--ui-color-warning, #a16207);
+
+  --v2-purple: var(--ui-color-primary, #7c5cfa);
+  --v2-purple-deep: #261a58;
+  --v2-lavender: var(--ui-color-primary-soft, #eee9ff);
+  --v2-lavender-strong: var(--ui-color-border-strong, #d7cfeb);
+  --v2-warm: #fff1dc;
+  --v2-mint: #e4f8ef;
+  --v2-danger: var(--ui-color-danger-soft, #fff0f0);
+  --v2-text: var(--ui-color-text, #2b243d);
+  --v2-secondary: var(--ui-color-text-muted, #756e83);
+  --v2-border: var(--ui-color-border, #e7e1f3);
+  --v2-radius: var(--ui-radius-lg, 16px);
+  --v2-compact-radius: var(--ui-radius-md, 12px);
+  --v2-shadow: var(--ui-shadow-medium);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ui-motion-fast: 0ms;
+    --ui-motion-normal: 0ms;
+    --ui-motion-slow: 0ms;
+  }
+}
