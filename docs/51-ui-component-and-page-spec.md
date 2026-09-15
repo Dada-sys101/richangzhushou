@@ -245,3 +245,26 @@
 - 第一项代码任务只允许完成 token/样式与组件基础架构、主题/密度/slot 扩展点和一个低风险样板页；样板未通过前不得批量迁移页面。
 - 开始代码前须重新核验实际 Integration 已包含 PR #33 merge、合并后 CI 和现有设备证据，并从该新鲜基线创建独立 UIR 分支；当前本地 MOBILE-C3 checkout 不得承载 UI 实现。
 - 不运行服务、不创建生产资源、不执行数据库迁移、不提交/推送/创建 PR/部署，除非新的独立授权和任务契约明确允许。
+
+## 14. UIR-02 本地实现记录（2026-09-15）
+
+- 基线：`codex/ui-reconstruction-foundation`，`1907c5898d5916fe5d443444bf14b33a82ac97e4`；实现保持在任务白名单文件内，未修改 API、Store、router、composable、数据库、管理端或 E2E。
+- 已实现：用户端 `--ui-*` 语义 token（背景、表面、文字、交互、状态、遮罩、焦点、AI/天气预留、排版、间距、圆角、阴影、层级、宽度、安全区和动效），comfortable/compact 密度与 reduced-motion 覆盖，以及 `--color-*`/`--v2-*` 兼容别名。
+- 已实现：`UiPageFrame` 的默认 `PageHeader`、header/status/filter/content/action 插槽和 form/content max-width；`UiFormField` 的 `useId()`、label/required/help/error、描述关联和错误优先级语义。
+- 已迁移：`ChangePasswordView.vue` 仅使用上述样板组件；`auth.changePassword`、密码字段属性、强制改密提示、安全返回、未保存保护、错误输入保留、提交中防重复及成功清理/导航行为保持不变。
+- 本地验证：`format:check`、用户端 lint、用户端 typecheck、UIR-02 focused tests（3 files / 14 tests）、`quality`、`check:context` 和 `git diff --check` 均已通过；未创建提交、PR、部署或生产资源。
+- 浏览器验收：复用 `D:\daily-assistant-runtime` 的 MySQL 8.4.11（数据库 `daily_assistant_e2e`）运行 forced-password Playwright 流程；`mobile-375`、`chromium-mobile`（390）、`mobile-430`、`tablet-768`、`desktop-1440` 五项全部通过，总耗时 18.1s。成功流程由五档 E2E 覆盖。
+- 手工验收：375/390/430/768/1440 CSS 宽度及 200% 根字号均无横向溢出且内容可滚动。已通过项：取消和 Browser Back 均出现自定义未保存确认；Tab 顺序从当前密码到新密码；空输入触发原生 `required` 且焦点回到首字段；客户端不一致、模拟 400 服务端失败、离线提交均保留输入。另观察到 Browser Back 继续触发原生 `beforeunload`。FAIL/待独立处理：拒绝离开后地址栏为 `/account` 但页面仍为改密页；该状态未闭合，不作为通过依据。
+- 运行观察与未验证项：控制台仍有开发环境 Service Worker MIME、`mustChangePassword` 下 sync 403 和预期 mock 400；不宣称零错误。加载中仅由单测验证，手工延迟模拟未成功；实体软键盘和真实安全区未验证，仅完成移动 viewport 与可滚动布局检查。离线改密显示“当前离线，操作已保存到本地并将在联网后同步”，作为既有范围外 UX 风险记录，不修改同步/API。
+- 复核补充：`ChangePasswordView.test.ts` 现有 8 个测试覆盖安全取消、路由内存历史 Back 的未保存拦截，以及成功导航先调用 `allowNavigation` 再执行安全返回；UIR-02 focused suite 共 3 files / 14 tests 通过。
+
+## 15. UIR-02 Browser Back 收尾修复（2026-09-15）
+
+- 根因：Vue Router 5.2 `createWebHistory` 在 `window` 注册 `popstate`；原未保存保护挂在 `document`，无法可靠阻止 Router 先处理浏览器历史，因此拒绝离开后出现地址栏 `/account`、页面仍为修改密码的分裂状态。
+- 修复：`useUnsavedChanges` 改为 `window` capture 监听；捕获原始目标 fullPath，拒绝确认前使用 `router.options.history.go(-delta, false)` 借助 Vue Router 的暂停监听恢复当前历史项，接受后以 `allowNavigation` + `router.replace(targetPath)` 完成一次路由更新并 reset guard，避免 `pauseState` 吞掉后续导航和历史循环。
+- `ChangePasswordView.test.ts` 的真实 `createWebHistory` 覆盖：dirty Browser Back 拒绝时 URL、页面、输入保持不变且弹窗关闭/只请求一次；接受时进入 `/account` 并渲染“我的”页面；clean Browser Back 不打开确认；应用内返回接受/拒绝均覆盖。UIR focused suite 为 3 files / 18 tests 通过。
+- 修复后 active authenticated ChangePassword Browser Back 五档页面矩阵 `375/390/430/768/1440` 全部 PASS：拒绝离开 URL/page/input/dialog 保持，接受进入 `/account` 且显示“我的”页面，无重复确认或历史循环。
+- 复验补充：五档均实际执行 API 网络失败（中止 `/api/v1/me/change-password`）并观察到既有离线提示“当前离线，操作已保存到本地并将在联网后同步”，三个密码输入仍保留；从账户页直接打开 `/change-password` 后再 Browser Back 的拒绝/接受也保持 URL 与页面一致。
+- forced-password auth E2E 8/8 projects 全部 PASS，包含 `mobile-375`、`390`、`430`、`768`、`desktop-1440` 等五档流程。
+- 控制台仅记录开发环境既有 Service Worker MIME、`mustChangePassword` 下 sync 403 和预期 mock 400；不宣称零错误。实体软键盘与真实安全区为 `DEVICE_ACCEPTANCE_PENDING`。
+- 本轮仅更新未保存保护与既有样板测试/验收记录；未修改 API、Store、认证、其他页面、E2E、生产资源或外部服务。

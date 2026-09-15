@@ -1,0 +1,170 @@
+/* Minimal user-web foundation for incremental page migration. */
+
+.ui-page-frame {
+  width: min(100%, var(--ui-content-max-width, 1160px));
+  max-width: var(--ui-content-max-width, 1160px);
+  min-width: 0;
+  margin-inline: auto;
+  padding: 0 0 calc(var(--ui-space-7, 32px) + var(--ui-safe-area-bottom, 0px));
+  display: grid;
+  gap: var(--ui-section-gap, 16px);
+}
+
+.ui-page-frame--form {
+  max-width: var(--ui-form-max-width, 720px);
+}
+
+.ui-page-frame__header,
+.ui-page-frame__status,
+.ui-page-frame__filter,
+.ui-page-frame__content,
+.ui-page-frame__action {
+  min-width: 0;
+}
+
+.ui-page-frame__header .page-header {
+  margin-bottom: 0;
+}
+
+.ui-page-frame__status,
+.ui-page-frame__filter,
+.ui-page-frame__action {
+  display: grid;
+  gap: var(--ui-space-2, 8px);
+}
+
+.ui-page-frame__content {
+  display: grid;
+  gap: var(--ui-section-gap, 16px);
+}
+
+.ui-form-field {
+  display: grid;
+  min-width: 0;
+  gap: var(--ui-space-2, 8px);
+}
+
+.ui-page-frame .ui-form-field__label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--ui-space-1, 4px);
+  color: var(--ui-color-text, #2b243d);
+  font-size: var(--ui-font-size-14, 14px);
+  font-weight: var(--ui-font-weight-semibold, 600);
+  line-height: var(--ui-line-height-compact, 1.4);
+}
+
+.ui-page-frame .ui-form-field__required {
+  color: var(--ui-color-danger, #b91c1c);
+}
+
+.ui-form-field__control {
+  min-width: 0;
+}
+
+.ui-form-field__help,
+.ui-form-field__error {
+  margin: 0;
+  font-size: var(--ui-font-size-14, 14px);
+  line-height: var(--ui-line-height-body, 1.55);
+  overflow-wrap: anywhere;
+}
+
+.ui-form-field__help {
+  color: var(--ui-color-text-muted, #756e83);
+}
+
+.ui-form-field__error {
+  color: var(--ui-color-danger, #b91c1c);
+  font-weight: var(--ui-font-weight-medium, 500);
+}
+
+.ui-page-frame .ui-form-field input,
+.ui-page-frame .ui-form-field select,
+.ui-page-frame .ui-form-field textarea {
+  width: 100%;
+  min-height: var(--ui-control-height, 48px);
+  padding: var(--ui-space-3, 12px);
+  border: 1px solid var(--ui-color-border-strong, #d7cfeb);
+  border-radius: var(--ui-radius-sm, 8px);
+  color: var(--ui-color-text, #2b243d);
+  background: var(--ui-color-surface, #ffffff);
+  font: inherit;
+  line-height: var(--ui-line-height-compact, 1.4);
+}
+
+.ui-page-frame .ui-form-field input:focus-visible,
+.ui-page-frame .ui-form-field select:focus-visible,
+.ui-page-frame .ui-form-field textarea:focus-visible,
+.ui-page-frame .form-actions a:focus-visible,
+.ui-page-frame .form-actions button:focus-visible {
+  outline: 3px solid var(--ui-color-focus-ring, #6244d8);
+  outline-offset: 2px;
+}
+
+.ui-page-frame .section-card {
+  border-color: var(--ui-color-border, #e7e1f3);
+  border-radius: var(--ui-radius-lg, 16px);
+  background: var(--ui-color-surface, #ffffff);
+  box-shadow: var(--ui-shadow-medium);
+}
+
+.ui-page-frame .section-card-header,
+.ui-page-frame .section-card-body {
+  padding-inline: var(--ui-space-5, 20px);
+}
+
+.ui-page-frame .primary-button,
+.ui-page-frame .secondary-button {
+  min-height: var(--ui-control-height, 48px);
+}
+
+.ui-page-frame .primary-button {
+  color: var(--ui-color-surface, #ffffff);
+  background: var(--ui-color-primary, #7c5cfa);
+  box-shadow: var(--ui-shadow-low);
+}
+
+.ui-page-frame .primary-button:hover {
+  background: var(--ui-color-primary-strong, #6244d8);
+}
+
+.ui-page-frame .secondary-button {
+  border: 1px solid var(--ui-color-border-strong, #d7cfeb);
+  color: var(--ui-color-text-muted, #756e83);
+  background: var(--ui-color-surface, #ffffff);
+}
+
+.ui-page-frame .form-actions {
+  gap: var(--ui-space-3, 12px);
+  margin-top: var(--ui-space-2, 8px);
+}
+
+.ui-page-frame .form-error {
+  color: var(--ui-color-danger, #b91c1c);
+}
+
+.ui-page-frame .form-success {
+  color: var(--ui-color-success, #15803d);
+}
+
+@media (max-width: 520px) {
+  .ui-page-frame .form-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ui-page-frame .form-actions > * {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-page-frame *,
+  .ui-page-frame *::before,
+  .ui-page-frame *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}

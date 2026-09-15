@@ -4,8 +4,9 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 
 import { ApiClientError } from "../api/client";
 import FormActions from "../components/FormActions.vue";
-import SecondaryPageShell from "../components/SecondaryPageShell.vue";
 import SectionCard from "../components/SectionCard.vue";
+import UiFormField from "../components/UiFormField.vue";
+import UiPageFrame from "../components/UiPageFrame.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { safeReturnTo } from "../utils/navigation";
@@ -32,6 +33,9 @@ const { allowNavigation } = useUnsavedChanges(
 );
 
 async function submit() {
+  if (submitting.value) {
+    return;
+  }
   errorMessage.value = "";
   successMessage.value = "";
   if (newPassword.value !== confirmPassword.value) {
@@ -57,9 +61,10 @@ async function submit() {
 </script>
 
 <template>
-  <SecondaryPageShell
+  <UiPageFrame
     title="修改密码"
     title-id="change-password-title"
+    max-width="form"
     subtitle="账号安全"
   >
     <SectionCard
@@ -77,36 +82,61 @@ async function submit() {
           name="username"
           type="text"
         />
-        <label>
-          当前密码
-          <input
-            v-model="currentPassword"
-            autocomplete="current-password"
-            minlength="12"
-            required
-            type="password"
-          />
-        </label>
-        <label>
-          新密码
-          <input
-            v-model="newPassword"
-            autocomplete="new-password"
-            minlength="12"
-            required
-            type="password"
-          />
-        </label>
-        <label>
-          确认新密码
-          <input
-            v-model="confirmPassword"
-            autocomplete="new-password"
-            minlength="12"
-            required
-            type="password"
-          />
-        </label>
+        <UiFormField label="当前密码" for="change-password-current" required>
+          <template #default="{ controlId, describedBy, required }">
+            <input
+              :id="controlId"
+              v-model="currentPassword"
+              aria-label="当前密码"
+              :aria-describedby="describedBy"
+              :aria-required="required"
+              autocomplete="current-password"
+              minlength="12"
+              :required="required"
+              type="password"
+            />
+          </template>
+        </UiFormField>
+        <UiFormField
+          label="新密码"
+          for="change-password-new"
+          help="至少 12 位。"
+          required
+        >
+          <template #default="{ controlId, describedBy, required }">
+            <input
+              :id="controlId"
+              v-model="newPassword"
+              aria-label="新密码"
+              :aria-describedby="describedBy"
+              :aria-required="required"
+              autocomplete="new-password"
+              minlength="12"
+              :required="required"
+              type="password"
+            />
+          </template>
+        </UiFormField>
+        <UiFormField
+          label="确认新密码"
+          for="change-password-confirm"
+          help="请再次输入相同密码。"
+          required
+        >
+          <template #default="{ controlId, describedBy, required }">
+            <input
+              :id="controlId"
+              v-model="confirmPassword"
+              aria-label="确认新密码"
+              :aria-describedby="describedBy"
+              :aria-required="required"
+              autocomplete="new-password"
+              minlength="12"
+              :required="required"
+              type="password"
+            />
+          </template>
+        </UiFormField>
         <p v-if="errorMessage" class="form-error" role="alert">
           {{ errorMessage }}
         </p>
@@ -123,5 +153,5 @@ async function submit() {
         </FormActions>
       </form>
     </SectionCard>
-  </SecondaryPageShell>
+  </UiPageFrame>
 </template>
