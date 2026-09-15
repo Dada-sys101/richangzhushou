@@ -1,5 +1,12 @@
 # 变更日志（Changelog）
 
+## 2026-09-15 — UIR-02 候选部署私有预览
+
+- 新增 UI 语义 Token、基础样式、页面/表单插槽及修改密码单页样板，并修复拒绝 Browser Back 后地址栏与页面状态分裂的问题。
+- 候选 `05e4d696` 的本地质量检查和 PR #41 两组 CI 全部通过；受保护备份后部署至私有预览并通过发布后 smoke。
+- 用户随后确认 iPhone/Android 的软键盘、安全区和连续 Browser Back 行为均正常，真机验收通过。
+- PR #41 已合并为 Integration `d05b25cb`，合并 CI `34952298758` 全绿；未部署公网或生产环境。
+
 ## 2026-09-15 — UI 规划基线移植（DOCUMENTATION_ONLY）
 
 - 基于 Integration `77bedde...` 移植 UI 视觉/页面基线、当前状态审计、九项未决决策、UIR-00 总任务图和 UIR-02 bounded Luna 契约。

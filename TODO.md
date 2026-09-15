@@ -6,7 +6,7 @@
 
 MOBILE-C3 已通过 PR #33 合入 Integration `5a0dc52`，合并 CI 最终全绿；私有预览与 iPhone/Android 验收保持通过。下一步是冻结 MOBILE-C4 独立任务契约。Web Push 候选保持关闭，真实送达门禁独立保留。
 MOBILE-C4 候选 `8e9f53e` 已在受保护备份后部署私有预览，最终 CI、发布后检查及 iPhone/Android 实机验收均通过；PR #34 已合并为 Integration `e407157`，合并 CI `34800440131` 全绿。简化运营与 REL-03 运行手册 PR #35 已合并为 Integration `6e3ba34`，合并 CI `34810670074` 全绿。用户已明确选择 R1.1 Web Push 私有预览验收：服务器密钥和功能开关已配置，H8/H6 均已关闭：用户确认真实设备订阅、送达、点击、退订和重新开启正常，调度器已恢复。当天日期时间确认修复 PR #36 已合入 Integration `9ddc354`，合并 CI `34819073059` 全绿，已部署私有预览。必填日期时间默认选中当天的后续修复 PR #38 已合入 Integration `8bbb302`，合并 CI `34823090430` 全绿，已在备份后部署至 `8bbb3022-20260914T083606Z`，等待 iPhone/Android 复验。
-UIR-00/01 规划和 UIR-02 契约已移植到 Integration `77bedde...` 本地新基线；UIR-02 未开始，规划提交进入 Integration 或精确本地 SHA 获独立授权前保持阻塞。
+UIR-00/01 和 UIR-02 已进入 Integration `d05b25cb`。UIR-02 的本地质量、PR/Integration CI、私有预览 smoke 及 iPhone/Android 软键盘、安全区和连续 Browser Back 验收全部通过；未自动开始 UIR-03。
 
 | ID | 任务 | 状态 | 工作包 |
 | --- | --- | --- | --- |
@@ -14,7 +14,7 @@ UIR-00/01 规划和 UIR-02 契约已移植到 Integration `77bedde...` 本地新
 | DA-1202 | PWA Manifest、安装、主屏启动与安全更新 | DONE | MOBILE-B（PR #30 / DONE_INTEGRATION / ACCEPTED_WITH_DEFERRED_LIMITATIONS） |
 | DA-1203 | 应用内日期、月份和日期时间选择器 | DONE | MOBILE-C3（PR #33 / DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS） |
 | DA-1204 | 复杂二级页面统一 | DONE | MOBILE-C4（DONE_INTEGRATION / MERGED_CI_PASS / DEVICE_ACCEPTANCE_PASS） |
-| UIR-02 | UI 语义 Token、基础样式和修改密码样板 | BLOCKED | CONTRACT_READY_LOCAL / PLANNING_NOT_IN_INTEGRATION / IMPLEMENTATION_NOT_STARTED |
+| UIR-02 | UI 语义 Token、基础样式和修改密码样板 | DONE | PR_41_MERGED / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS |
 | DA-1101 | Web Push 订阅、送达、Service Worker 与权限 UI | DONE | R1.1 PR3/PR16/PR17（真实送达为独立门禁） |
 | DA-0001 | 完成产品与功能范围 | DONE | WP0 |
 | DA-0002 | 完成页面、流程和业务规则 | DONE | WP0 |

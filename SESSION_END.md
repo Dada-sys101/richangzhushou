@@ -1,5 +1,13 @@
 # Session End
 
+## 2026-09-15 — UIR-02 private-preview candidate deployed
+
+- Commit `05e4d696` was pushed to PR #41; push and PR CI passed quality, db-validation and browser-qa.
+- Protected backup `daily_assistant_preview_20260915T091514Z.sql.gz` preceded the atomic switch to release `05e4d696-20260915T091034Z`; release `8bbb3022-20260914T083606Z` remains available for rollback.
+- Post-deployment checks passed and no public release was performed.
+- The user confirmed iPhone/Android soft-keyboard layout, safe-area layout and repeated Browser Back behavior are normal; device acceptance is now `PASS`.
+- PR #41 merged as Integration `d05b25cb`; merged CI run `34952298758` passed quality, db-validation and browser-qa.
+
 ## 2026-09-15 — UI 规划迁移到最新 Integration 基线
 
 - 以远端 Integration `77bedde231b11342e7bbec40234fc1ee5bcb6860` 为新基线，移植 UIR-00/01 规划、UI 当前状态审计、未决决策和 UIR-02 Luna 契约。

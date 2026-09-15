@@ -1,5 +1,12 @@
 # 项目进度（派生摘要）
 
+## 2026-09-15 — UIR-02 私有预览候选（DEVICE_ACCEPTANCE_PASS）
+
+- Luna 完成限定范围实现，候选提交 `05e4d696` 已推送至 PR #41；push/PR 两组 CI 的 quality、db-validation、browser-qa 全绿。
+- 受保护备份后，私有预览切换至 `/opt/daily-assistant-preview/releases/05e4d696-20260915T091034Z`。用户端、改密页、管理端、PWA 资源、API liveness、服务和近期错误日志检查通过；旧 release 保留回滚。
+- 用户已确认上述 iPhone/Android 真机项目均正常，UIR-02 更新为 `DEVICE_ACCEPTANCE_PASS`。
+- PR #41 已合并为 Integration `d05b25cb`，合并 CI `34952298758` 的 quality、db-validation、browser-qa 全绿；公网未发布，未开始 UIR-03。
+
 ## 2026-09-15 — UI 重构规划移植（DONE_LOCAL / NOT_PUSHED）
 
 - 以远端 Integration `77bedde231b11342e7bbec40234fc1ee5bcb6860` 为新基线，移植 UIR-00/01、实际 UI 审计、九项未决决策和 UIR-02 Luna 契约。

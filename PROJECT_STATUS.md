@@ -1,12 +1,12 @@
 # Project Status
 
-updatedAt: 2026-09-15T15:20:00+08:00
+updatedAt: 2026-09-15T17:29:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
-integrationHead: 77bedde231b11342e7bbec40234fc1ee5bcb6860
-activeBranch: codex/v15-integration-foundation
-activeHead: 8bbb302
+integrationHead: d05b25cb058d0940b29508ba9ef071920226f994
+activeBranch: codex/uir-02-delivery-record
+activeHead: 05e4d696
 activeTask: PRIVATE_PREVIEW_OPERATION
 executionStatus: ACTIVE
 deliveryStatus: FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
@@ -16,7 +16,7 @@ localRevision: 8bbb302
 staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
 production: NOT_DEPLOYED
 privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
-privatePreviewRelease: 8bbb302 / 8bbb3022-20260914T083606Z
+privatePreviewRelease: 05e4d696 / 05e4d696-20260915T091034Z
 
 ## Completed
 
@@ -30,13 +30,15 @@ privatePreviewRelease: 8bbb302 / 8bbb3022-20260914T083606Z
 
 ## Current
 
+UIR-02 candidate `05e4d696` is deployed to private preview and passed device acceptance. PR #41 merged as Integration `d05b25cb`; merged CI run `34952298758` passed quality, db-validation and browser-qa.
+
 `MOBILE-C4` is integrated and passed private-preview iPhone/Android acceptance. R1.1 Web Push is active only in the existing private preview; real-device subscription, delivery, click-through, unsubscribe and re-enable are user-confirmed, and the scheduler is active. PR #38 makes empty required date-time pickers select today temporarily so confirmation is available; it is merged, CI-verified and deployed, pending device recheck.
 
-UIR-00/01 planning and the bounded UIR-02 contract are prepared locally on Integration `77bedde...`. UIR-02 remains `NOT_STARTED / PLANNING_NOT_IN_INTEGRATION`; this documentation work does not change the active private-preview operation mode.
+UIR-00/01 planning and UIR-02 are integrated at `d05b25cb`. UIR-02 passed CI, private-preview smoke and device acceptance; UIR-03 has not started.
 
 ## Remaining
 
-- Deliver the local UI planning commit through separately authorized push, PR and merge gates; do not create the UIR-02 implementation branch or invoke Luna before its gate is satisfied.
+- Select and authorize the next bounded UI task; do not start UIR-03 automatically.
 - Handle DNS, HTTPS, exact CORS and public smoke only when public entry is requested.
 
 ## Verification

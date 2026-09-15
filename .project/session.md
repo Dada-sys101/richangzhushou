@@ -2,26 +2,28 @@
 
 ## Session Status
 
-UI_PLANNING_BASELINE_REFRESH / DONE_LOCAL / NOT_PUSHED / UIR_02_NOT_STARTED
+UIR_02 / DONE_INTEGRATION / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS
 
 ## Task
 
-- ID: `UIR-BASELINE-REFRESH`
-- Execution: `DONE_LOCAL`
-- Delivery: `LOCAL_DOCUMENT_COMMIT / NOT_PUSHED / NOT_IN_INTEGRATION`
+- ID: `UIR-02`
+- Execution: `DONE_INTEGRATION / MERGED_CI_PASS`
+- Delivery: `PR_41_MERGED / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
 - Worktree: `D:\daily-assistant`
-- Branch: `codex/ui-reconstruction-baseline-refresh`
-- Base HEAD: Integration `77bedde231b11342e7bbec40234fc1ee5bcb6860`
-- Contract: current user-authorized documentation-only transplant of `370c024...`.
-- Scope: preserve current Integration facts, transplant UIR-00/01 planning and the UIR-02 contract, and semantically merge the ten overlapping state documents.
-- Excluded: Vue/API/database/dependency/config changes, push, PR, merge, deployment and UIR-02 implementation.
+- Branch: `codex/uir-02-delivery-record`
+- Base HEAD: Integration `1907c5898d5916fe5d443444bf14b33a82ac97e4`
+- Candidate: `05e4d6963b2978848e09ff7ec5894edd2a7a1e13`.
+- Scope: semantic tokens, foundation styles, four layout/form slots, ChangePassword sample and Browser Back guard closure.
+- Excluded: API/database changes, other page migration, PR merge and public release.
 - Canonical operating mode preserved: `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`.
 
 ## Current Progress
 
-- UI planning content from `370c024...` has been transplanted onto Integration `77bedde...` without overwriting the later MOBILE-C4, Web Push, PR #38/#39 or private-preview deployment facts.
-- UIR-00/01 are documentation-only; UIR-02 remains `NOT_STARTED / CONTRACT_READY_LOCAL / PLANNING_NOT_IN_INTEGRATION`.
-- No UI code, API, database, dependency or configuration file is modified.
+- Luna implemented the bounded UIR-02 sample; the main agent reviewed and verified it. PR #41 push/PR CI runs `34950214147` and `34950218806` are green.
+- Private preview now runs `/opt/daily-assistant-preview/releases/05e4d696-20260915T091034Z`; backup `daily_assistant_preview_20260915T091514Z.sql.gz` and rollback release `8bbb3022-20260914T083606Z` are retained. Post-deployment smoke passed.
+- User confirmed iPhone/Android soft-keyboard layout, safe-area layout and repeated Browser Back behavior are normal; device acceptance is `PASS`.
+- PR #41 merged as Integration `d05b25cb`; merged CI run `34952298758` passed quality, db-validation and browser-qa.
+- UIR-00/01 planning and UIR-02 are integrated without changing API, database, dependency or configuration contracts.
 - REL-03 已完成 readiness、备份和运行手册收口；当前私有预览可直接使用。
 - 用户决定不主动推进后续发布阶段，仅在收到真实使用反馈时处理；PR #35 已合并为 Integration `6e3ba34`，合并 CI `34810670074` 的 quality、db-validation、browser-qa 全绿。
 - 用户确认 H8 许可门禁后，私有预览已生成仅服务器保存的 VAPID 与订阅加密密钥；Push 双开关已开启，真实设备订阅后调度器已恢复。用户确认应用外提醒送达、点击、关闭和重新开启正常，H6 为 `DEVICE_ACCEPTANCE_PASS`。
