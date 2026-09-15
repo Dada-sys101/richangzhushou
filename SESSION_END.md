@@ -1,5 +1,11 @@
 # Session End
 
+## 2026-09-15 — UI 规划迁移到最新 Integration 基线
+
+- 以远端 Integration `77bedde231b11342e7bbec40234fc1ee5bcb6860` 为新基线，移植 UIR-00/01 规划、UI 当前状态审计、未决决策和 UIR-02 Luna 契约。
+- 对 10 个重叠状态文档逐项语义合并，保留 MOBILE-C4、PR #38/#39、Web Push H6/H8 和当前私有预览 release 事实；没有整文件覆盖。
+- 本轮仅形成本地文档提交，不推送、不创建 PR、不部署、不修改业务代码，也不开始 UIR-02。
+
 ## 2026-09-14 — Required date-time picker follow-up deployed
 
 - Empty required date-time fields had only outlined today instead of a selected date, so confirmation remained disabled. The picker now temporarily selects today when opened; cancel does not alter the form.

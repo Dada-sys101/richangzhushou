@@ -2,17 +2,17 @@
 
 ## Last Updated
 
-2026-09-14 16:42 +08:00 — Web Push device acceptance remains passed; the required date-time picker follow-up is merged, CI-verified and deployed to private preview.
+2026-09-15 15:20 +08:00 — The UI reconstruction planning baseline was transplanted onto verified Integration `77bedde...`; private-preview operation facts remain unchanged and UIR-02 has not started.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `8bbb30228e6520506ac440764e12ff535382d9eb`
-- Active worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
-- Active branch: `codex/reminder-picker-deployment-record`
-- Current delivery: required-picker default-selection follow-up `PR #38 MERGED / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED`.
+- Verified Integration HEAD: `77bedde231b11342e7bbec40234fc1ee5bcb6860`
+- Active worktree: `D:\daily-assistant`
+- Active branch: `codex/ui-reconstruction-baseline-refresh`
+- Current delivery: required-picker default-selection follow-up `PR #38 MERGED / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED`; its deployment record PR #39 is also merged.
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
 - MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 and MOBILE-C1/C2/C3 PRs #31/#32/#33 are merged. Active release is `/opt/daily-assistant-preview/releases/9ddc3546-20260914T074811Z`.
@@ -31,6 +31,7 @@
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
 - Current operating mode: `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`.
+- UI planning gate: `UIR-00/01 DONE_LOCAL / UIR-02 CONTRACT_READY_LOCAL / PLANNING_NOT_IN_INTEGRATION / IMPLEMENTATION_NOT_STARTED`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -50,9 +51,7 @@
 
 ## Next Recommended Task
 
-Address user-reported defects only; select any expansion work only after explicit user direction.
-
-MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of the frozen MOBILE-C sequence.
+Deliver the local UI planning baseline through separately authorized push, PR and merge gates. Continue private-preview feedback fixes only when explicitly requested; do not start UIR-02 until the planning baseline is in Integration or its exact local SHA is separately authorized.
 
 ## Completed Work
 
@@ -61,11 +60,13 @@ MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of 
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
 - The active release is `/opt/daily-assistant-preview/releases/8bbb3022-20260914T083606Z`; rollback release is `/opt/daily-assistant-preview/releases/9ddc3546-20260914T074811Z`. MOBILE-C4 remains accepted and both iPhone date-time confirmation fixes are live in private preview.
 - The required date-time picker now defaults to a temporary selection of today for empty required fields, so the dialog can confirm immediately; cancel continues to leave the form unchanged. PR #38 and merged CI passed; the database-backed browser matrix passed in CI. Private-preview device recheck remains pending.
+- UIR-00/01 planning documents and the bounded UIR-02 Luna contract are prepared locally on Integration `77bedde...`; no UI implementation, API, database or deployment change is included.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
 - MOBILE-B update takeover fixes `e756c0b`/`727cb60` and MOBILE-C planning commit `d7860cd` pass required validation; private preview runs `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z` with `927dea30-20260912T0129Z` retained for rollback.
 
 ## Remaining Work
 
+- Deliver the local UI planning commit through separately authorized push, PR and merge gates; keep UIR-02 blocked until that delivery reaches Integration or its exact local SHA is separately authorized.
 - Continue handling only necessary feedback from invited users; the iPhone date-time confirmation fix is deployed.
 - Address necessary defects reported by invited users in the existing private preview.
 - Keep all scope expansion, public release and new infrastructure deferred until the user explicitly selects one.
@@ -75,6 +76,7 @@ MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of 
 ## Blockers
 
 - REL-03 has no current technical blocker.
+- UIR-02 is blocked by `PLANNING_NOT_IN_INTEGRATION`; the planning contract being present locally is not implementation authorization.
 - Public entry is blocked until domain/DNS/HTTPS/CORS work is explicitly requested and verified.
 - Production and broader Provider use remain independently unauthorized.
 
@@ -98,6 +100,8 @@ MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of 
 - REL-03 readiness: `NOT_STARTED`.
 - Public entry and physical iPhone: `NOT_VERIFIED`.
 - MOBILE-B second feedback fix: local quality `PASS`（Web 26 files/130 tests、API 34 files/281 tests）；CI runs `34664717946` and `34664718882` all green; private-preview post-deployment checks pass.
+- Latest verified Integration CI run `34824580264` at `77bedde...`: `PASS`.
+- UI planning documentation checks: `format:check`、`check:context`、`git diff --check` `PASS`; UIR-02 business/browser verification `NOT_RUN / NOT_STARTED`.
 
 ## Recent Changes
 
@@ -118,7 +122,7 @@ MOBILE-C1 through MOBILE-C3 are integrated; MOBILE-C4 is the remaining stage of 
 ## Handoff Instructions
 
 1. Restore state from `AGENTS.md`, `PLANS.md`, `.project/v15-execution-state.md` and `.project/session.md` before implementation.
-2. Treat Integration `6515b8f` and the active private-preview release as the current verified facts.
-3. Keep REL-03 limited to lightweight readiness and release-procedure closure on the existing environment.
-4. Preserve the uncommitted documentation work until it is reviewed and separately authorized for commit/push.
+2. Treat Integration `77bedde231b11342e7bbec40234fc1ee5bcb6860`, PR #39 merge and the active private-preview release as the latest verified facts.
+3. Preserve `PRIVATE_PREVIEW_OPERATION`, H6/H8, MOBILE-C4 and required-picker delivery facts when handling the UI planning branch.
+4. Keep UIR-02 blocked until the planning commit enters Integration or its exact local SHA is separately authorized; push, PR, merge and implementation remain separate actions.
 5. Reassess separate Staging only for public launch, larger scale or important real data.
