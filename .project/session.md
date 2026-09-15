@@ -2,22 +2,26 @@
 
 ## Session Status
 
-ACTIVE / PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
+UI_PLANNING_BASELINE_REFRESH / DONE_LOCAL / NOT_PUSHED / UIR_02_NOT_STARTED
 
 ## Task
 
-- ID: `PRIVATE_PREVIEW_OPERATION`
-- Execution: `ACTIVE`
-- Delivery: `FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`
-- Worktree: `D:\daily-assistant-worktrees\mobile-c4-complex-secondary-pages`
-- Branch: `codex/reminder-picker-deployment-record`
-- Base HEAD: Integration `8bbb30228e6520506ac440764e12ff535382d9eb`
-- Contract: `PLANS.md` simplified private-preview scope.
-- Scope: 现有私有预览继续供受邀用户使用，处理实际反馈的必要缺陷修复，并完成用户明确选择的 R1.1 Web Push 真实订阅/送达验收。
-- Excluded: REL-04～REL-06、R2/R3、公共入口、生产部署、Provider 扩展和新基础设施。
+- ID: `UIR-BASELINE-REFRESH`
+- Execution: `DONE_LOCAL`
+- Delivery: `LOCAL_DOCUMENT_COMMIT / NOT_PUSHED / NOT_IN_INTEGRATION`
+- Worktree: `D:\daily-assistant`
+- Branch: `codex/ui-reconstruction-baseline-refresh`
+- Base HEAD: Integration `77bedde231b11342e7bbec40234fc1ee5bcb6860`
+- Contract: current user-authorized documentation-only transplant of `370c024...`.
+- Scope: preserve current Integration facts, transplant UIR-00/01 planning and the UIR-02 contract, and semantically merge the ten overlapping state documents.
+- Excluded: Vue/API/database/dependency/config changes, push, PR, merge, deployment and UIR-02 implementation.
+- Canonical operating mode preserved: `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`.
 
 ## Current Progress
 
+- UI planning content from `370c024...` has been transplanted onto Integration `77bedde...` without overwriting the later MOBILE-C4, Web Push, PR #38/#39 or private-preview deployment facts.
+- UIR-00/01 are documentation-only; UIR-02 remains `NOT_STARTED / CONTRACT_READY_LOCAL / PLANNING_NOT_IN_INTEGRATION`.
+- No UI code, API, database, dependency or configuration file is modified.
 - REL-03 已完成 readiness、备份和运行手册收口；当前私有预览可直接使用。
 - 用户决定不主动推进后续发布阶段，仅在收到真实使用反馈时处理；PR #35 已合并为 Integration `6e3ba34`，合并 CI `34810670074` 的 quality、db-validation、browser-qa 全绿。
 - 用户确认 H8 许可门禁后，私有预览已生成仅服务器保存的 VAPID 与订阅加密密钥；Push 双开关已开启，真实设备订阅后调度器已恢复。用户确认应用外提醒送达、点击、关闭和重新开启正常，H6 为 `DEVICE_ACCEPTANCE_PASS`。
@@ -80,9 +84,9 @@ ACTIVE / PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8
 
 ## Remaining Work
 
-1. 持续收集真实使用反馈并修复必要问题。
-2. 持续收集真实使用反馈并修复必要问题。
-3. 不自动进入后续 canonical 任务。
+1. 本地规划提交后，推送、PR 和合并仍需分别授权。
+2. 继续保留私有预览反馈修复模式；仅处理用户明确提出的必要问题。
+3. 规划提交进入 Integration 或精确本地 SHA 获单独授权前，不创建 UIR-02 实现分支、不调用 Luna。
 
 ## Previous Task Record
 
@@ -93,12 +97,15 @@ ACTIVE / PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8
 
 - MOBILE-A merged Integration CI: `PASS`（run `34578075462`）。
 - MOBILE-B implementation validation: `PASS`；两组 PR CI 矩阵全绿，私有预览部署后检查通过。
+- Latest Integration CI: `PASS`（run `34824580264` at `77bedde...`）。
+- UI planning/state checks: `npm run format:check`、`npm run check:context`、`git diff --check` `PASS`；UIR-02 tests/browser matrix `NOT_RUN / NOT_STARTED`。
 
 ## Resume Instructions
 
-1. 仅处理用户明确提出的私有预览问题。
-2. 扩容、公开发布或新功能需要用户重新指定。
+1. 交付本地 UI 规划提交需单独的 push/PR/merge 授权。
+2. UIR-02 必须等待规划提交进入 Integration 或精确本地 SHA 的独立授权。
+3. 私有预览反馈修复、扩容、公开发布和新功能继续遵守各自授权边界。
 
 ## Last Updated
 
-2026-09-14 16:42 +08:00 — 必填日期时间字段默认选中今天的后续修复已合入 Integration、通过合并 CI 并部署至私有预览，等待 iPhone/Android 复验。
+2026-09-15 15:20 +08:00 — UI 规划内容已移植到 Integration `77bedde...` 新基线并完成状态语义合并；未推送、未创建 PR、未开始 UIR-02。

@@ -1,5 +1,11 @@
 # 变更日志（Changelog）
 
+## 2026-09-15 — UI 规划基线移植（DOCUMENTATION_ONLY）
+
+- 基于 Integration `77bedde...` 移植 UI 视觉/页面基线、当前状态审计、九项未决决策、UIR-00 总任务图和 UIR-02 bounded Luna 契约。
+- 对重叠状态文档逐项语义合并，保留 Integration 最近 MOBILE-C4、Web Push、日期时间修复、PR #38/#39、部署和 CI 事实。
+- 未修改 Vue、API、数据库、依赖或配置；未推送、未创建 PR、未部署，UIR-02 仍未开始。
+
 ## 2026-09-14 — 必填日期时间默认选中当天（PRIVATE_PREVIEW_DEPLOYED）
 
 - 修复空的必填日期时间字段仅以描边标识“今天”、却未真正选择日期的问题。打开选择器时临时选中今天，使“确定”立即可用；取消仍不改变表单值。

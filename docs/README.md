@@ -1,22 +1,30 @@
 # Documentation Index
 
-版本：0.8
-状态：已同步 Integration `d53f84a…`、PR19/PR20 历史事实与
-`QUALITY-R1-GOVERNANCE-RECONCILIATION` 的 Gate 2 规范冻结写入；docs/40 为 V1.2，ADR-028 为 Accepted
-更新：2026-09-02
+版本：0.9
+状态：已同步 Integration `77bedde…` 的私有预览事实和 UI 重构规划基线；UIR-02 为 `PLANNING_NOT_IN_INTEGRATION / NOT_STARTED`
+更新：2026-09-15
+
+## UI 重构后续基线（规划完成，业务实现尚未开始）
+
+- [UI 重构视觉与产品基线（docs/50）](50-ui-reconstruction-baseline.md)：暖白/柔和紫方向、信息架构、天气与 AI 边界、响应式和迁移原则。
+- [UI 组件、页面与验收规范（docs/51）](51-ui-component-and-page-spec.md)：Token、组件状态、二级页面模板、管理端和五档验收矩阵。
+- [UI 当前状态全量审计（docs/52）](52-ui-current-state-audit.md)：实际路由、页面、组件、CSS、测试、风险和样板选择。
+- [UI 未决产品与技术决策包（docs/53）](53-ui-open-decisions.md)：天气、AI、桌面导航、主题密度和小猫资产九项未批准建议。
+- [UIR-00 总契约](../tasks/UIR-00.md)：UIR-00～UIR-12 的范围、依赖、禁区和验收。
+- [UIR-02 Luna 契约](../tasks/UIR-02.md)：首个代码任务的精确白名单、保留行为、测试和主代理复核门禁；当前不得执行。
 
 ## V1.5 接手与状态恢复导航
 
 1. `../AGENTS.md`：强制约束、恢复顺序和授权边界。
 2. `../PLANS.md`：V1.5 唯一执行总路线。
 3. `../.project/v15-execution-state.md`：唯一仓库内执行状态快照，不是 GitHub/CI 实时镜像。
-4. `../tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md`：当前 Gate 2 治理批准与规范冻结契约。
+4. `../tasks/UIR-02.md`：下一 UI 代码任务契约；当前受规划提交交付门禁阻塞。
 5. `../tasks/PR19.md`：PR19 V10 冻结契约及非规范事实附录。
 6. `adr/ADR-028-v15-pr20-adapter-integration-h7-boundary.md`：PR20/H7 边界（Accepted）。
 7. `adr/ADR-027-ai-provider-evaluation-policy.md`：AI Stage 1 接入、安全与评测策略（Accepted）。
 8. `41-pr6a-mysql84-validation.md`：临时 MySQL 8.4 入口、边界与已集成验收。
 9. `40-v15-final-development-baseline.md`：V1.2 冻结技术与开发基线（ADR-028 有限修订）。
-10. `adr/ADR-026-v15-release-scope-r1.md`：发布范围与门禁增量修订（Accepted，规范未改）。
+10. `adr/ADR-026-v15-release-scope-r1.md`：发布范围与门禁增量修订（Accepted，规范未改）；`../tasks/QUALITY-R1-GOVERNANCE-RECONCILIATION.md` 为历史 Gate 2 治理契约。
 11. `../.project/context.md`：长期项目状态。
 12. `../.project/session.md`：当前或暂停任务。
 13. `project-overview.md`：项目概述。

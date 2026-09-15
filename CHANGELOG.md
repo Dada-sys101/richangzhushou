@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-15 — UI reconstruction planning rebased on current Integration
+
+- Transplanted the reviewed UI baseline, current-state audit, open decisions, UIR-00 task map and bounded UIR-02 contract onto Integration `77bedde...`.
+- Semantically merged the ten overlapping state documents while preserving MOBILE-C4, Web Push H6/H8, PR #38/#39, private-preview deployment and current CI facts.
+- Documentation only: no business code, push, PR, deployment or UIR-02 implementation.
+
 ## 2026-09-14 — Required date-time picker follow-up deployed
 
 - Empty required date-time pickers now temporarily select today when opened, so confirmation is available without changing the form until the user confirms.

@@ -1,5 +1,11 @@
 # 项目进度（派生摘要）
 
+## 2026-09-15 — UI 重构规划移植（DONE_LOCAL / NOT_PUSHED）
+
+- 以远端 Integration `77bedde231b11342e7bbec40234fc1ee5bcb6860` 为新基线，移植 UIR-00/01、实际 UI 审计、九项未决决策和 UIR-02 Luna 契约。
+- 10 个重叠状态文档均逐项保留并合并 MOBILE-C4、PR #38/#39、Web Push H6/H8、当前私有预览 release 和最新 CI 事实。
+- UIR-02 为 `NOT_STARTED / CONTRACT_READY_LOCAL / PLANNING_NOT_IN_INTEGRATION`；本轮不修改业务代码、不推送、不创建 PR、不部署。
+
 ## 2026-09-14 — 必填日期时间默认选中当天（PRIVATE_PREVIEW_DEPLOYED）
 
 - 实机截图显示“今天”只有描边提示，空的必填提醒时间尚未真正选中，因而“确定”仍被禁用。日期时间选择器现在仅在打开空的必填字段时临时选中今天，确认可用；取消不写回表单。

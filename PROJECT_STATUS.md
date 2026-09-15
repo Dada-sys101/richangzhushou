@@ -1,10 +1,10 @@
 # Project Status
 
-updatedAt: 2026-09-14T16:42:00+08:00
+updatedAt: 2026-09-15T15:20:00+08:00
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
-integrationHead: 8bbb30228e6520506ac440764e12ff535382d9eb
+integrationHead: 77bedde231b11342e7bbec40234fc1ee5bcb6860
 activeBranch: codex/v15-integration-foundation
 activeHead: 8bbb302
 activeTask: PRIVATE_PREVIEW_OPERATION
@@ -32,8 +32,11 @@ privatePreviewRelease: 8bbb302 / 8bbb3022-20260914T083606Z
 
 `MOBILE-C4` is integrated and passed private-preview iPhone/Android acceptance. R1.1 Web Push is active only in the existing private preview; real-device subscription, delivery, click-through, unsubscribe and re-enable are user-confirmed, and the scheduler is active. PR #38 makes empty required date-time pickers select today temporarily so confirmation is available; it is merged, CI-verified and deployed, pending device recheck.
 
+UIR-00/01 planning and the bounded UIR-02 contract are prepared locally on Integration `77bedde...`. UIR-02 remains `NOT_STARTED / PLANNING_NOT_IN_INTEGRATION`; this documentation work does not change the active private-preview operation mode.
+
 ## Remaining
 
+- Deliver the local UI planning commit through separately authorized push, PR and merge gates; do not create the UIR-02 implementation branch or invoke Luna before its gate is satisfied.
 - Handle DNS, HTTPS, exact CORS and public smoke only when public entry is requested.
 
 ## Verification
@@ -43,6 +46,8 @@ privatePreviewRelease: 8bbb302 / 8bbb3022-20260914T083606Z
 - Controlled Chromium Web Push flows and five widths: `2/2 PASS`.
 - Database-backed browser smoke: `44/44 PASS`.
 - Merged CI: `PASS` (PR #38 / run `34823090430`).
+- Latest Integration CI: `PASS` (PR #39 / run `34824580264` at `77bedde...`).
+- UI planning documentation checks: `format:check`、`check:context`、`git diff --check` `PASS`; UI implementation checks `NOT_RUN / NOT_STARTED`.
 - Target Linux build/audit/SBOM: `PASS`.
 - Private-preview entry, business smoke and cleanup: `PASS`.
 - Backup/retention/restore: `PASS`.
@@ -53,6 +58,6 @@ privatePreviewRelease: 8bbb302 / 8bbb3022-20260914T083606Z
 
 ## Git State
 
-- MOBILE-B functional commit `4d86f90` is committed and pushed; this state reconciliation is pending its documentation commit.
-- PR #30 remains open and unmerged; PR #29 is merged at Integration `6e1313f`.
 - PR #38 is merged as Integration `8bbb302`; CI run `34823090430` passed and release `8bbb3022-20260914T083606Z` is deployed. No public switch, new resource creation or Provider expansion was performed.
+- PR #39 is merged as Integration `77bedde`; latest CI run `34824580264` passed.
+- Local UI planning branch `codex/ui-reconstruction-baseline-refresh` is based on `77bedde...`; its documentation commit is not pushed and UIR-02 has not started.
