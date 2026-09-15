@@ -1,11 +1,11 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-15T15:20:00+08:00
+updatedAt: 2026-09-15T17:29:00+08:00
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: 77bedde231b11342e7bbec40234fc1ee5bcb6860
+integrationHead: d05b25cb058d0940b29508ba9ef071920226f994
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: PRIVATE_PREVIEW_OPERATION
@@ -23,17 +23,19 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## UI Reconstruction Planning Gate
 
-- baseline: Integration `77bedde231b11342e7bbec40234fc1ee5bcb6860`
+- baseline: Integration `1907c5898d5916fe5d443444bf14b33a82ac97e4`
 - sourcePlanningCommit: `370c0247479894602624c089d0212feee894bdf0`
-- planningStatus: `UIR-00/01 DONE_LOCAL / UIR-02 CONTRACT_READY_LOCAL / PLANNING_NOT_IN_INTEGRATION`
-- implementationStatus: `NOT_STARTED`; no UI, API, database, dependency, configuration or deployment change is included
-- deliveryGate: the new planning commit must enter Integration, or its exact local SHA must receive separate authorization, before an implementation branch may be created or Luna invoked
+- planningStatus: `UIR-00/01 DONE_INTEGRATION / UIR-02 CONTRACT_ACTIVE`
+- implementationStatus: `DONE_INTEGRATION / PR_41_MERGED / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`
+- deliveryGate: complete for UIR-02; do not start UIR-03 without a separate task authorization
 - preservedCurrentMode: `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`
 
 ## Current Private Preview Release Assessment
 
-- Active release: Integration `8bbb302`, deployed at `/opt/daily-assistant-preview/releases/8bbb3022-20260914T083606Z`; previous `9ddc3546-20260914T074811Z` remains the rollback release.
-- Status: `OPERATIONAL / PRIVATE_PREVIEW_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / DEVICE_ACCEPTANCE_PASS / PUBLIC_NOT_READY`.
+- Active release: UIR-02 candidate `05e4d696`, deployed at `/opt/daily-assistant-preview/releases/05e4d696-20260915T091034Z`; previous `/opt/daily-assistant-preview/releases/8bbb3022-20260914T083606Z` remains available for rollback.
+- Status: `OPERATIONAL / UIR_02_CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / DEVICE_ACCEPTANCE_PASS / PUBLIC_NOT_READY`.
+- UIR-02 delivery: PR #41 merged as Integration `d05b25cb`; merged CI run `34952298758` passed quality, db-validation and browser-qa. Push and PR CI runs `34950214147` and `34950218806` also passed. Protected backup `daily_assistant_preview_20260915T091514Z.sql.gz` was created before the atomic switch.
+- UIR-02 device acceptance: user confirmed iPhone/Android soft-keyboard layout, safe-area layout and repeated Browser Back behavior are normal on 2026-09-15.
 - Delivery: required-picker default-selection PR #38 merged as Integration `8bbb302`; merged CI run `34823090430` passed quality, db-validation and browser-qa. Isolated target-host build, audit, protected backup, service and private-preview asset checks passed.
 - Verified: release artifact integrity, API/user/admin/Nginx health, current database migration state, protected backup creation and temporary-database restore; daily backup timer, 7-day cleanup and cleanup logic.
 - H1/H2: `WAIVED_FOR_R1 / UNVERIFIED` by explicit user approval on 2026-09-08; never treat this as physical-device pass evidence, and reassess before public support claims.

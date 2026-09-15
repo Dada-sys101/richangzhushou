@@ -2,16 +2,16 @@
 
 ## Last Updated
 
-2026-09-15 15:20 +08:00 — The UI reconstruction planning baseline was transplanted onto verified Integration `77bedde...`; private-preview operation facts remain unchanged and UIR-02 has not started.
+2026-09-15 17:29 +08:00 — UIR-02 passed local, PR, private-preview and device gates; PR #41 merged as Integration `d05b25cb` and merged CI passed.
 
 ## Repository State
 
 - Repository: `Dada-sys101/richangzhushou`
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
 - Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `77bedde231b11342e7bbec40234fc1ee5bcb6860`
+- Verified Integration HEAD: `d05b25cb058d0940b29508ba9ef071920226f994`
 - Active worktree: `D:\daily-assistant`
-- Active branch: `codex/ui-reconstruction-baseline-refresh`
+- Active branch: `codex/uir-02-delivery-record`
 - Current delivery: required-picker default-selection follow-up `PR #38 MERGED / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED`; its deployment record PR #39 is also merged.
 - PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
 - Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
@@ -31,7 +31,7 @@
 - REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
 - Validation environment: existing Alibaba private preview.
 - Current operating mode: `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`.
-- UI planning gate: `UIR-00/01 DONE_LOCAL / UIR-02 CONTRACT_READY_LOCAL / PLANNING_NOT_IN_INTEGRATION / IMPLEMENTATION_NOT_STARTED`.
+- UI reconstruction gate: `UIR-00/01 DONE_INTEGRATION / UIR-02 DONE_INTEGRATION / PR_41_MERGED / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`.
 - Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
 
 ## Last Completed Task
@@ -51,16 +51,16 @@
 
 ## Next Recommended Task
 
-Deliver the local UI planning baseline through separately authorized push, PR and merge gates. Continue private-preview feedback fixes only when explicitly requested; do not start UIR-02 until the planning baseline is in Integration or its exact local SHA is separately authorized.
+Await explicit selection and authorization of the next bounded UI task; do not start UIR-03 automatically.
 
 ## Completed Work
 
 - V1 and the V1.5 R1 foundation, AI proposal/router/provider adapter integration, offline synchronization, Web UX closure and release candidate integration are complete.
 - H7 is closed based on the recorded synthetic-data Provider evaluation; this does not authorize broader/public Provider use.
 - Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
-- The active release is `/opt/daily-assistant-preview/releases/8bbb3022-20260914T083606Z`; rollback release is `/opt/daily-assistant-preview/releases/9ddc3546-20260914T074811Z`. MOBILE-C4 remains accepted and both iPhone date-time confirmation fixes are live in private preview.
+- The active release is `/opt/daily-assistant-preview/releases/05e4d696-20260915T091034Z`; `/opt/daily-assistant-preview/releases/8bbb3022-20260914T083606Z` is retained for rollback. UIR-02 post-deployment service, entry, PWA asset and recent-error-log checks passed.
 - The required date-time picker now defaults to a temporary selection of today for empty required fields, so the dialog can confirm immediately; cancel continues to leave the form unchanged. PR #38 and merged CI passed; the database-backed browser matrix passed in CI. Private-preview device recheck remains pending.
-- UIR-00/01 planning documents and the bounded UIR-02 Luna contract are prepared locally on Integration `77bedde...`; no UI implementation, API, database or deployment change is included.
+- UIR-00/01 and the bounded UIR-02 implementation are in Integration `d05b25cb`; UIR-02 changed no API or database contract.
 - Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
 - MOBILE-B update takeover fixes `e756c0b`/`727cb60` and MOBILE-C planning commit `d7860cd` pass required validation; private preview runs `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z` with `927dea30-20260912T0129Z` retained for rollback.
 

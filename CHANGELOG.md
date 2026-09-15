@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-15 — UIR-02 private-preview candidate
+
+- Added the bounded UI foundation and ChangePassword sample, including Browser Back state-consistency handling.
+- Candidate `05e4d696` passed local quality and both PR #41 CI runs, then passed protected private-preview deployment smoke.
+- The user confirmed normal iPhone/Android soft-keyboard, safe-area and repeated Browser Back behavior; device acceptance passed.
+- PR #41 merged as Integration `d05b25cb`; merged CI run `34952298758` passed quality, db-validation and browser-qa. No public release was performed.
+
 ## 2026-09-15 — UI reconstruction planning rebased on current Integration
 
 - Transplanted the reviewed UI baseline, current-state audit, open decisions, UIR-00 task map and bounded UIR-02 contract onto Integration `77bedde...`.
