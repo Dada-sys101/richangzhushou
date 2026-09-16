@@ -16,6 +16,9 @@ const sync = useSyncStore();
 const isRootNavigationSurface = computed(
   () => classifyRoute(router.currentRoute.value) === "ROOT_TAB",
 );
+const showBottomNav = computed(
+  () => auth.isAuthenticated && isRootNavigationSurface.value,
+);
 const removeRouteHook = router.afterEach(() => {
   void sync.requestSync("route");
 });
@@ -99,7 +102,10 @@ function handleSyncChanged(event: Event) {
 <template>
   <div
     class="app-shell"
-    :class="{ 'root-navigation-surface': isRootNavigationSurface }"
+    :class="{
+      'root-navigation-surface': isRootNavigationSurface,
+      'bottom-nav-visible': showBottomNav,
+    }"
   >
     <SiteHeader />
     <p
@@ -109,10 +115,10 @@ function handleSyncChanged(event: Event) {
     >
       当前离线，新记录将保存在本地并在联网后同步。
     </p>
-    <main class="app-main">
+    <main class="app-main" :class="{ 'has-bottom-nav': showBottomNav }">
       <RouterView />
     </main>
-    <BottomNav v-if="auth.isAuthenticated" />
+    <BottomNav v-if="showBottomNav" />
     <PwaLifecyclePrompt />
     <AppDialogHost />
   </div>

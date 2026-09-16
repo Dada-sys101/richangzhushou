@@ -3066,7 +3066,7 @@ html.app-dialog-open body {
     min-height: 56px;
   }
 
-  .app-main {
+  .app-main.has-bottom-nav {
     padding-bottom: 88px;
   }
 
@@ -3526,7 +3526,7 @@ html.app-dialog-open body {
 }
 
 @media (max-width: 768px) {
-  .app-main {
+  .app-main.has-bottom-nav {
     padding-bottom: calc(76px + env(safe-area-inset-bottom));
   }
   .finance-page .page-header {

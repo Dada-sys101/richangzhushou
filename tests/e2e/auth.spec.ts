@@ -75,6 +75,9 @@ test.describe("用户端认证", () => {
     await page.waitForURL("**/account");
     await page.goto("/tasks");
     await expect(page.getByRole("heading", { name: "待办事项" })).toBeVisible();
+    await page.getByRole("button", { name: "返回计划", exact: true }).click();
+    await page.waitForURL("**/plan");
+    await expect(page.getByRole("heading", { name: "计划中心" })).toBeVisible();
     await navLink(page, "我的").click();
     await page.waitForURL("**/account");
     await page
