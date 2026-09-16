@@ -851,3 +851,12 @@
 
 - `TemporalPickerField` 小时/分钟改为原生紧凑 `<select>`（00–23、00–59），保持原日期/月行为、`YYYY-MM-DDTHH:mm` 值格式、取消/确认和边界校验；既有 E2E helper 改用 `selectOption`。
 - 聚焦单测 5/5、用户端 lint/typecheck、`format:check` 与 `git diff --check` 通过；本地未提交、未推送、未创建 PR、未部署。
+
+## 2026-09-16 — UIR-04A Dialog foundation 本地实现
+
+- 加固 `AppDialog`、`ConfirmDialog` 和 `ActionSheet` 的焦点、键盘/遮罩关闭去重、滚动锁、安全区、长内容和可访问标题/描述关联；聚焦 3 文件 16 测试、用户端 lint/typecheck 与差异检查通过，未提交、未推送、未创建 PR 或部署。
+
+## 2026-09-16 — UIR-04A 430px 验收收尾（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 430 CSS px 浏览器验收通过：ConfirmDialog 与 ActionSheet 的焦点、Tab/Shift+Tab、Escape、遮罩、长内容滚动、安全区变量、底部操作区和横向溢出均符合预期；组件检查无新增控制台或网络错误，既有开发环境 `/api/v1/auth/refresh` 502 已单独记录。
+- 本轮未修改代码；专项测试 16/16、`git diff --check` 通过；继续保持未提交、未推送、未创建 PR、未合并、未部署。

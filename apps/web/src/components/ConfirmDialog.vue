@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { watch } from "vue";
+
 import AppDialog from "./AppDialog.vue";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     cancelLabel?: string;
     confirmLabel?: string;
@@ -19,20 +21,71 @@ withDefaults(
 );
 const emit = defineEmits<{ cancel: []; confirm: [] }>();
 const titleId = "app-confirm-title";
+const descriptionId = "app-confirm-description";
+let openCycleActive = false;
+let actionEmitted = false;
+
+watch(
+  () => props.open,
+  (open) => {
+    if (open) {
+      if (openCycleActive) return;
+      openCycleActive = true;
+      actionEmitted = false;
+      return;
+    }
+    openCycleActive = false;
+    actionEmitted = false;
+  },
+  { immediate: true },
+);
+
+function emitAction(action: "cancel" | "confirm") {
+  if (!props.open || !openCycleActive || actionEmitted) return;
+  actionEmitted = true;
+  if (action === "cancel") {
+    emit("cancel");
+  } else {
+    emit("confirm");
+  }
+}
+
+function handleActionKeydown(
+  event: KeyboardEvent,
+  action: "cancel" | "confirm",
+) {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  emitAction(action);
+}
 </script>
 
 <template>
-  <AppDialog :labelledby="titleId" :open="open" @close="emit('cancel')">
+  <AppDialog
+    :describedby="descriptionId"
+    :labelledby="titleId"
+    :open="open"
+    @close="emitAction('cancel')"
+  >
     <h2 :id="titleId">{{ title }}</h2>
-    <p class="app-dialog-description">{{ description }}</p>
+    <p :id="descriptionId" class="app-dialog-description">
+      {{ description }}
+    </p>
     <div class="app-dialog-actions">
-      <button type="button" class="secondary" @click="emit('cancel')">
+      <button
+        type="button"
+        class="secondary"
+        data-dialog-initial-focus
+        @click="emitAction('cancel')"
+        @keydown="handleActionKeydown($event, 'cancel')"
+      >
         {{ cancelLabel }}
       </button>
       <button
         type="button"
         :class="destructive ? 'danger' : 'primary'"
-        @click="emit('confirm')"
+        @click="emitAction('confirm')"
+        @keydown="handleActionKeydown($event, 'confirm')"
       >
         {{ confirmLabel }}
       </button>
