@@ -860,3 +860,9 @@
 
 - 430 CSS px 浏览器验收通过：ConfirmDialog 与 ActionSheet 的焦点、Tab/Shift+Tab、Escape、遮罩、长内容滚动、安全区变量、底部操作区和横向溢出均符合预期；组件检查无新增控制台或网络错误，既有开发环境 `/api/v1/auth/refresh` 502 已单独记录。
 - 本轮未修改代码；专项测试 16/16、`git diff --check` 通过；继续保持未提交、未推送、未创建 PR、未合并、未部署。
+
+## 2026-09-16 — UIR-04B 反馈组件基础（本地实现）
+
+- 在当前用户端基础上完善 `ToastMessage`、`EmptyState`，新增展示型 `LoadingState` 和 `ErrorState`；保持业务页面、Store、API、Router、PWA 和管理端不变。
+- 组件仅负责语义化展示和可选操作：Toast 不含队列/计时器，ErrorState 只发出一次 retry，LoadingState 不管理异步状态；长文案、纯文本渲染、focus-visible、减少动态效果与语义 Token 样式已覆盖。
+- 新增四个组件的专项测试；本记录对应本地实现，尚未提交、推送、创建 PR、合并或部署。
