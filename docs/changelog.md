@@ -846,3 +846,8 @@
 - forced-password auth E2E 8/8 projects 全部通过；`ChangePasswordView.test.ts` 真实 Web History 覆盖 dirty 拒绝/接受、弹窗关闭与单次确认、clean Back、应用内返回接受/拒绝，UIR focused suite 共 18 tests。
 - 控制台仅有开发环境既有 Service Worker MIME、`mustChangePassword` 下 sync 403 和预期 mock 400；不宣称零错误。实体软键盘与真实安全区标记为 `DEVICE_ACCEPTANCE_PENDING`。
 - 未修改 API、Store、认证、其他页面或 E2E；本轮未提交、未推送、未创建/修改 PR、未部署。
+
+## 2026-09-15 — UIR-03 TemporalPicker 时间选择控件本地实现
+
+- `TemporalPickerField` 小时/分钟改为原生紧凑 `<select>`（00–23、00–59），保持原日期/月行为、`YYYY-MM-DDTHH:mm` 值格式、取消/确认和边界校验；既有 E2E helper 改用 `selectOption`。
+- 聚焦单测 5/5、用户端 lint/typecheck、`format:check` 与 `git diff --check` 通过；本地未提交、未推送、未创建 PR、未部署。

@@ -772,7 +772,7 @@ html.app-dialog-open body {
   color: #68637d;
   font-size: 0.82rem;
 }
-.time-entry input {
+.time-entry select {
   min-height: 48px;
   text-align: center;
   color: #25223a;

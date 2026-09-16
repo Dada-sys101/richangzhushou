@@ -23,6 +23,12 @@ const draft = ref("");
 const visibleMonth = ref("");
 const hour = ref("00");
 const minute = ref("00");
+const hourOptions = Array.from({ length: 24 }, (_, index) =>
+  String(index).padStart(2, "0"),
+);
+const minuteOptions = Array.from({ length: 60 }, (_, index) =>
+  String(index).padStart(2, "0"),
+);
 const titleId = computed(() => `temporal-picker-${props.mode}-title`);
 const title = computed(
   () =>
@@ -94,8 +100,8 @@ function show() {
   visibleMonth.value = datePart.slice(0, 7);
   const time = initialValue.split("T")[1] || "00:00";
   const [nextHour = "00", nextMinute = "00"] = time.split(":");
-  hour.value = nextHour;
-  minute.value = nextMinute;
+  hour.value = normalizePart(nextHour, 23);
+  minute.value = normalizePart(nextMinute, 59);
   open.value = true;
 }
 function defaultValue(): string {
@@ -221,19 +227,23 @@ function normalizePart(value: string, max: number) {
         </div>
         <div v-if="mode === 'datetime'" class="time-entry">
           <label
-            >小时<input
-              v-model="hour"
-              inputmode="numeric"
-              maxlength="2"
-              type="text" /></label
+            >小时<select v-model="hour">
+              <option v-for="value in hourOptions" :key="value" :value="value">
+                {{ value }}
+              </option>
+            </select></label
           ><span>:</span
           ><label
-            >分钟<input
-              v-model="minute"
-              inputmode="numeric"
-              maxlength="2"
-              type="text"
-          /></label>
+            >分钟<select v-model="minute">
+              <option
+                v-for="value in minuteOptions"
+                :key="value"
+                :value="value"
+              >
+                {{ value }}
+              </option>
+            </select></label
+          >
         </div>
       </template>
       <div class="temporal-picker-shortcuts">
