@@ -51,6 +51,9 @@ test("首页与核心业务创建、刷新持久化且无阻塞错误", async ({
   await expect(page.getByText("日程已创建")).toBeVisible();
   await expect(page.getByText(eventTitle)).toBeVisible();
 
+  await page.getByRole("button", { name: "返回计划", exact: true }).click();
+  await page.waitForURL("**/plan");
+  await expect(page.getByRole("heading", { name: "计划中心" })).toBeVisible();
   await navLink(page, "首页").click();
   await page.goto("/transactions/new");
   await page.getByLabel("金额（元）").fill("12.34");
