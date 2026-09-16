@@ -153,8 +153,8 @@ export async function selectDateTimeViaUi(
     .locator(".calendar-grid:not(.calendar-weekdays) button")
     .filter({ hasText: new RegExp(`^${targetDay}$`) })
     .click();
-  await dialog.getByLabel("小时").fill(hour);
-  await dialog.getByLabel("分钟").fill(minute);
+  await dialog.getByLabel("小时").selectOption(hour);
+  await dialog.getByLabel("分钟").selectOption(minute);
   await dialog.getByRole("button", { name: "确定", exact: true }).click();
 }
 
