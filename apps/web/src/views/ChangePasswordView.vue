@@ -20,6 +20,7 @@ const confirmPassword = ref("");
 const errorMessage = ref("");
 const successMessage = ref("");
 const submitting = ref(false);
+const changePasswordFormId = "change-password-form";
 const returnTarget = computed(() =>
   safeReturnTo(route.query, route.meta.page?.parent?.path ?? "/"),
 );
@@ -74,7 +75,11 @@ async function submit() {
       <p v-if="auth.mustChangePassword" class="panel-copy">
         首次登录或管理员重置密码后，必须先设置新密码才能继续使用。
       </p>
-      <form class="auth-form" @submit.prevent="submit">
+      <form
+        :id="changePasswordFormId"
+        class="auth-form"
+        @submit.prevent="submit"
+      >
         <input
           :value="auth.user?.username ?? ''"
           autocomplete="username"
@@ -143,15 +148,22 @@ async function submit() {
         <p v-if="successMessage" class="form-success" role="status">
           {{ successMessage }}
         </p>
-        <FormActions>
-          <RouterLink class="secondary-button" replace :to="returnTarget"
-            >取消</RouterLink
-          >
-          <button class="primary-button" :disabled="submitting" type="submit">
-            {{ submitting ? "提交中…" : "确认修改" }}
-          </button>
-        </FormActions>
       </form>
     </SectionCard>
+    <template #action>
+      <FormActions>
+        <RouterLink class="secondary-button" replace :to="returnTarget"
+          >取消</RouterLink
+        >
+        <button
+          class="primary-button"
+          :disabled="submitting"
+          :form="changePasswordFormId"
+          type="submit"
+        >
+          {{ submitting ? "提交中…" : "确认修改" }}
+        </button>
+      </FormActions>
+    </template>
   </UiPageFrame>
 </template>

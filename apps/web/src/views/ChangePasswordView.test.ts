@@ -31,6 +31,7 @@ const RouterHost = {
 };
 
 interface MountOptions {
+  attachToDocument?: boolean;
   realReplace?: boolean;
   seedBackHistory?: boolean;
   webHistory?: boolean;
@@ -93,6 +94,7 @@ async function mountView(
     replace.mockResolvedValue(undefined as never);
   }
   const wrapper = mount(RouterHost, {
+    attachTo: options.attachToDocument ? document.body : undefined,
     global: {
       plugins: [pinia, router],
       stubs: { AppIcon: true },
@@ -181,6 +183,26 @@ describe("ChangePasswordView", () => {
         .findAll(".ui-form-field__required")
         .every((marker) => marker.attributes("aria-hidden") === "true"),
     ).toBe(true);
+    wrapper.unmount();
+  });
+
+  it("associates the external confirmation button with the stable form", async () => {
+    const { changePassword, wrapper } = await mountView({}, false, {
+      attachToDocument: true,
+    });
+    const form = wrapper.get("form");
+    const submit = wrapper.get('button[type="submit"]');
+    const formId = form.attributes("id");
+
+    expect(formId).toBe("change-password-form");
+    expect(submit.attributes("form")).toBe(formId);
+    expect((submit.element as HTMLButtonElement).form).toBe(form.element);
+
+    await fillForm(wrapper);
+    (submit.element as HTMLButtonElement).click();
+    await flushPromises();
+
+    expect(changePassword).toHaveBeenCalledWith(CURRENT_VALUE, NEW_VALUE);
     wrapper.unmount();
   });
 
