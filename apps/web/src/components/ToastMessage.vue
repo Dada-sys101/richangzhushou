@@ -1,15 +1,20 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ message: string; tone?: "error" | "success" }>(), {
-  tone: "success",
-});
+type ToastTone = "error" | "info" | "success" | "warning";
+
+const props = withDefaults(
+  defineProps<{ message: string; tone?: ToastTone }>(),
+  { tone: "success" },
+);
 </script>
 
 <template>
   <p
     class="app-toast"
-    :class="`app-toast-${tone}`"
-    :role="tone === 'error' ? 'alert' : 'status'"
+    :class="`app-toast-${props.tone}`"
+    :role="props.tone === 'error' ? 'alert' : 'status'"
+    :aria-live="props.tone === 'error' ? 'assertive' : 'polite'"
+    aria-atomic="true"
   >
-    {{ message }}
+    {{ props.message }}
   </p>
 </template>
