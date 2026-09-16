@@ -634,46 +634,59 @@ textarea {
 html.app-dialog-open,
 html.app-dialog-open body {
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .app-dialog-backdrop {
   position: fixed;
-  z-index: 1200;
+  z-index: var(--ui-z-dialog, 1200);
   inset: 0;
   display: grid;
   place-items: center;
-  padding: max(20px, env(safe-area-inset-top)) 18px
-    max(20px, env(safe-area-inset-bottom));
-  background: rgb(20 18 38 / 62%);
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: max(var(--ui-space-5, 20px), var(--ui-safe-area-top, 0px))
+    max(var(--ui-space-4, 16px), var(--ui-safe-area-right, 0px))
+    max(var(--ui-space-5, 20px), var(--ui-safe-area-bottom, 0px))
+    max(var(--ui-space-4, 16px), var(--ui-safe-area-left, 0px));
+  background: var(--ui-color-scrim, rgb(20 18 38 / 62%));
   backdrop-filter: blur(2px);
 }
 
 .app-dialog-panel {
   width: min(100%, 400px);
+  max-width: 100%;
   max-height: min(80dvh, 620px);
-  padding: 24px;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--ui-space-6, 24px);
+  overflow-x: hidden;
   overflow-y: auto;
-  border: 1px solid var(--color-border, #ded9ee);
-  border-radius: 20px;
-  color: var(--color-text, #25223a);
-  background: var(--color-surface, #ffffff);
-  box-shadow: 0 24px 70px rgb(20 18 38 / 38%);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--ui-color-border, #ded9ee);
+  border-radius: var(--ui-radius-xl, 20px);
+  color: var(--ui-color-text, #25223a);
+  background: var(--ui-color-surface, #ffffff);
+  box-shadow: var(--ui-shadow-high, 0 24px 70px rgb(20 18 38 / 38%));
 }
 
 .app-dialog-panel h2 {
   margin: 0;
-  color: var(--color-text, #25223a);
-  font-size: 1.35rem;
+  color: var(--ui-color-text, #25223a);
+  font-size: var(--ui-font-size-20, 1.35rem);
   font-weight: 750;
-  line-height: 1.35;
+  line-height: var(--ui-line-height-heading, 1.35);
 }
 
 .app-dialog-description {
   margin: 12px 0 20px;
-  color: #4b4761;
-  font-size: 1rem;
+  color: var(--ui-color-text-muted, #4b4761);
+  font-size: var(--ui-font-size-16, 1rem);
   font-weight: 550;
-  line-height: 1.65;
+  line-height: var(--ui-line-height-body, 1.65);
   overflow-wrap: anywhere;
 }
 
@@ -685,7 +698,7 @@ html.app-dialog-open body {
 
 .app-dialog-actions button {
   min-width: 0;
-  min-height: 50px;
+  min-height: var(--ui-control-height, 50px);
   font-weight: 700;
 }
 
@@ -794,7 +807,60 @@ html.app-dialog-open body {
 
 .app-action-sheet {
   display: grid;
-  gap: 10px;
+  gap: var(--ui-space-3, 10px);
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  padding-bottom: var(--ui-safe-area-bottom, 0px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-dialog-backdrop:has(> .app-dialog-panel > .app-action-sheet) {
+  place-items: end center;
+  padding: 0;
+}
+
+.app-dialog-panel:has(> .app-action-sheet) {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 520px;
+  max-height: min(88dvh, 720px);
+  padding-bottom: var(--ui-space-6, 24px);
+  overflow: hidden;
+  border-radius: var(--ui-radius-xl, 20px) var(--ui-radius-xl, 20px) 0 0;
+}
+
+.app-dialog-panel:has(> .app-action-sheet) > .app-action-sheet {
+  flex: 1 1 auto;
+}
+
+.app-action-sheet > .app-dialog-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  padding-top: var(--ui-space-2, 8px);
+  background: var(--ui-color-surface, #ffffff);
+}
+
+@media (min-width: 769px) {
+  .app-dialog-backdrop:has(> .app-dialog-panel > .app-action-sheet) {
+    place-items: center;
+    padding: max(var(--ui-space-5, 20px), var(--ui-safe-area-top, 0px))
+      max(var(--ui-space-4, 16px), var(--ui-safe-area-right, 0px))
+      max(var(--ui-space-5, 20px), var(--ui-safe-area-bottom, 0px))
+      max(var(--ui-space-4, 16px), var(--ui-safe-area-left, 0px));
+  }
+
+  .app-dialog-panel:has(> .app-action-sheet) {
+    width: min(100%, 520px);
+    max-height: min(80dvh, 720px);
+    padding-bottom: var(--ui-space-6, 24px);
+    border-radius: var(--ui-radius-xl, 20px);
+  }
 }
 
 .app-toast {
