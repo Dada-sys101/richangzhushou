@@ -114,6 +114,33 @@ describe("HomeView", () => {
     });
   });
 
+  it("renders an accessible loading state while the home request is pending", async () => {
+    const pinia = createHomeContext();
+    const auth = useAuthStore();
+    auth.$patch({ accessToken: "token", user: user() });
+    const finance = useFinanceStore();
+    let resolveFinance: (() => void) | undefined;
+    vi.spyOn(finance, "loadFinanceData").mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveFinance = resolve;
+      }),
+    );
+
+    const wrapper = mountHome(pinia);
+    await wrapper.vm.$nextTick();
+
+    const loading = wrapper.find('[role="status"]');
+    expect(loading.exists()).toBe(true);
+    expect(loading.attributes("aria-live")).toBe("polite");
+    expect(loading.attributes("aria-busy")).toBe("true");
+    expect(loading.text()).toContain("正在整理今天的安排…");
+    expect(wrapper.find(".home-layout").exists()).toBe(false);
+
+    resolveFinance?.();
+    await flushPromises();
+    expect(wrapper.find(".home-layout").exists()).toBe(true);
+  });
+
   it("shows the request-failed state and retries on demand", async () => {
     const pinia = createHomeContext();
     const auth = useAuthStore();
@@ -127,11 +154,18 @@ describe("HomeView", () => {
     const wrapper = mountHome(pinia);
     await flushPromises();
     expect(wrapper.text()).toContain("暂时无法加载今天");
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true);
+    expect(wrapper.find('[role="alert"]').text()).toContain(
+      "检查网络后重试，离线记录仍会保留在本机。",
+    );
+    expect(wrapper.find(".home-layout").exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("今日时间轴");
     expect(load).toHaveBeenCalledOnce();
 
-    await wrapper.find("button").trigger("click");
+    await wrapper.find('[role="alert"] button').trigger("click");
     await flushPromises();
     expect(load).toHaveBeenCalledTimes(2);
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true);
   });
 
   it("renders one V2 home focus and a combined empty timeline", async () => {

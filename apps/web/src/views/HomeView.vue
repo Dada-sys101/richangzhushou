@@ -5,6 +5,8 @@ import { RouterLink } from "vue-router";
 import AppIcon from "../components/AppIcon.vue";
 import AssistantMark from "../components/AssistantMark.vue";
 import EmptyState from "../components/EmptyState.vue";
+import ErrorState from "../components/ErrorState.vue";
+import LoadingState from "../components/LoadingState.vue";
 import PageHeader from "../components/PageHeader.vue";
 import { useAuthStore } from "../stores/auth";
 import { useDraftsStore } from "../stores/drafts";
@@ -243,18 +245,15 @@ function addDays(date: string, days: number): string {
       </div>
     </template>
     <template v-else-if="status === 'request-failed'">
-      <EmptyState
-        icon="alert"
+      <ErrorState
         title="暂时无法加载今天"
         description="检查网络后重试，离线记录仍会保留在本机。"
-        :action="{ label: '重试', onClick: loadHome }"
+        action-label="重试"
+        @retry="loadHome"
       />
     </template>
     <template v-else-if="status === 'loading'">
-      <div class="auth-state-card loading-card" aria-busy="true">
-        <span class="spinner" aria-hidden="true"></span>
-        <p class="auth-state-message">正在整理今天的安排…</p>
-      </div>
+      <LoadingState title="正在整理今天的安排…" />
     </template>
     <template v-else>
       <PageHeader
