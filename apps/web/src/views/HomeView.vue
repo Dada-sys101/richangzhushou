@@ -7,7 +7,6 @@ import AssistantMark from "../components/AssistantMark.vue";
 import EmptyState from "../components/EmptyState.vue";
 import ErrorState from "../components/ErrorState.vue";
 import LoadingState from "../components/LoadingState.vue";
-import PageHeader from "../components/PageHeader.vue";
 import { useAuthStore } from "../stores/auth";
 import { useDraftsStore } from "../stores/drafts";
 import { useFinanceStore } from "../stores/finance";
@@ -256,16 +255,27 @@ function addDays(date: string, days: number): string {
       <LoadingState title="正在整理今天的安排…" />
     </template>
     <template v-else>
-      <PageHeader
-        :title="`${greeting}，${auth.user?.displayName ?? '今天'}`"
-        title-id="home-title"
-        :subtitle="today"
-        :show-back="false"
-      >
-        <template #actions>
-          <AssistantMark size="md" />
-        </template>
-      </PageHeader>
+      <header class="home-greeting">
+        <AssistantMark size="md" />
+        <div class="home-greeting-copy">
+          <h1 id="home-title">
+            {{ greeting }}，{{ auth.user?.displayName ?? "今天" }}
+          </h1>
+          <p class="home-date">{{ today }}</p>
+          <p class="home-weather">天气暂未配置</p>
+        </div>
+      </header>
+      <RouterLink class="home-capture" :to="withHomeSource('/capture')">
+        <span>例如：明天 10 点和李想开会</span>
+        <AppIcon name="chevron-right" :size="18" />
+      </RouterLink>
+      <RouterLink class="home-ai-link" :to="withHomeSource('/ai')">
+        <span class="home-ai-copy">
+          <strong>AI 助手</strong>
+          <small>生成建议或内容，确认后再写入</small>
+        </span>
+        <AppIcon name="chevron-right" :size="18" />
+      </RouterLink>
       <div class="home-layout">
         <div class="home-priority-column">
           <RouterLink
@@ -360,10 +370,6 @@ function addDays(date: string, days: number): string {
           ></span
         ><AppIcon name="chevron-right" :size="18"
       /></RouterLink>
-      <RouterLink class="home-capture" :to="withHomeSource('/capture')">
-        <span>例如：明天 10 点和李想开会</span>
-        <AppIcon name="chevron-right" :size="18" />
-      </RouterLink>
     </template>
   </section>
 </template>
