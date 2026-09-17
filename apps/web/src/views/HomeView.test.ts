@@ -202,4 +202,64 @@ describe("HomeView", () => {
       quickLinks.some((link) => link.props("to") === "/capture?returnTo=%2F"),
     ).toBe(true);
   });
+
+  it("prioritizes the greeting, capture entry, and confirmation-safe AI entry", async () => {
+    const pinia = createHomeContext();
+    const auth = useAuthStore();
+    auth.$patch({ accessToken: "token", user: user() });
+    const wrapper = mountHome(pinia);
+    await flushPromises();
+
+    const greeting = wrapper.find(".home-greeting");
+    expect(greeting.exists()).toBe(true);
+    expect(greeting.find("#home-title").exists()).toBe(true);
+    expect(greeting.find(".home-date").text()).toBe(
+      new Intl.DateTimeFormat("zh-CN", {
+        day: "numeric",
+        month: "long",
+        timeZone: "Asia/Shanghai",
+        weekday: "long",
+      }).format(new Date()),
+    );
+    expect(greeting.text()).toContain("天气暂未配置");
+
+    const assistantMark = greeting.find(".assistant-mark");
+    expect(assistantMark.attributes("aria-hidden")).toBe("true");
+    expect(greeting.find(".page-header-actions .assistant-mark").exists()).toBe(
+      false,
+    );
+
+    const links = wrapper.findAllComponents(RouterLinkStub);
+    const captureLink = links.find((link) =>
+      link.classes().includes("home-capture"),
+    );
+    const aiLink = links.find((link) =>
+      link.classes().includes("home-ai-link"),
+    );
+    expect(captureLink?.props("to")).toBe("/capture?returnTo=%2F");
+    expect(aiLink?.props("to")).toBe("/ai?returnTo=%2F");
+    expect(wrapper.find(".home-ai-link").text()).toContain(
+      "生成建议或内容，确认后再写入",
+    );
+    expect(wrapper.text()).not.toContain("已同步");
+
+    expect(
+      greeting.element.compareDocumentPosition(
+        wrapper.find(".home-capture").element,
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      wrapper
+        .find(".home-capture")
+        .element.compareDocumentPosition(
+          wrapper.find(".home-ai-link").element,
+        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      wrapper
+        .find(".home-ai-link")
+        .element.compareDocumentPosition(wrapper.find(".home-layout").element) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
 });
