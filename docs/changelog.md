@@ -864,6 +864,12 @@
 - 控制台仅有开发环境既有 Service Worker MIME、`mustChangePassword` 下 sync 403 和预期 mock 400；不宣称零错误。实体软键盘与真实安全区标记为 `DEVICE_ACCEPTANCE_PENDING`。
 - 未修改 API、Store、认证、其他页面或 E2E；本轮未提交、未推送、未创建/修改 PR、未部署。
 
+## 2026-09-17 — UIR-06B 记录中心根页本地实现
+
+- RecordsView 保持 /records、现有 PageHeader 语义、Store/API/路由不变；将快速记录固定为首要入口，摘要改为使用 Store 原始金额字符串，并对未加载、失败和未设置预算显示诚实状态。
+- 最近记录与待确认使用带 query 保留的可访问 tabs（RECENT/PENDING），各自最多展示六行，保留来源链接、支出/收入/退款标签与金额符号；财务和草稿 loading/error/retry 状态相互隔离。
+- 新增 RecordsView.test.ts 覆盖标题与来源、摘要降级、tab query/ARIA、行数与金额、错误重试和空状态；记录页专项测试 7/7、用户端 lint/typecheck、`npm run quality`、格式、上下文与 git diff --check 已通过。浏览器已检查正常/空/加载/失败重试、Tab query/刷新、来源链接、待确认逐行“待确认/去确认”、375/390/430/768/1440 和 200% 文本缩放；仅记录开发环境既有 Service Worker MIME 错误，未发现业务请求失败。本轮未提交、未推送、未创建 PR 或部署。
+
 ## 2026-09-15 — UIR-03 TemporalPicker 时间选择控件本地实现
 
 - `TemporalPickerField` 小时/分钟改为原生紧凑 `<select>`（00–23、00–59），保持原日期/月行为、`YYYY-MM-DDTHH:mm` 值格式、取消/确认和边界校验；既有 E2E helper 改用 `selectOption`。
@@ -899,3 +905,8 @@
 
 - 首页成功态将 Asia/Shanghai 问候、日期/星期、诚实天气 fallback 与 AssistantMark 置于同一信息组；快速记录保持原来源上下文并前置，AI 入口明确为待确认的建议/内容。
 - 保持首页请求、状态机、业务内容顺序与既有路由/API/Store 不变；本地 focused tests、用户端 lint/typecheck、格式、quality、context 检查通过。使用一次性 loopback MySQL 运行首页 E2E 五档（375、390、430、768、1440）5/5 通过，并以标准字号与 200% 文本放大检查横向溢出；长用户名和长业务标题在 375px 下也未溢出。仅记录既有开发环境 `/api/v1/auth/refresh` 401 与 Service Worker MIME 噪声，未发现本次组件新增错误；测试数据库、服务和浏览器已清理停止。未提交、未推送、未部署。
+
+## 2026-09-17 — UIR-06B 200% 文本缩放验收补充
+
+- 在 390、430、768 CSS px 下分别启用 200% 根字号，正常记录（长商户名、支出/收入/退款金额）、待确认草稿、空状态、finance/drafts 失败与重试、加载态、Tab/焦点、快速记录/账单明细/预算管理入口及底部导航均完成检查；三档 `scrollWidth === clientWidth`，未发现文字裁切、横向溢出或底部导航遮挡。
+- 失败态使用一次性 503 mock 后点击“重试”恢复，业务请求在恢复路径返回 200；控制台仅有开发环境既有 Service Worker MIME 错误，无新增组件错误。未修改实现代码，仅补充本验收记录；实体设备软键盘和真实安全区仍未验证。状态归一为 `DONE_LOCAL / READY_FOR_DELIVERY`；本轮未提交、未推送、未创建 PR、未部署。
