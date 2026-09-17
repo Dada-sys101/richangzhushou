@@ -1,5 +1,11 @@
 # 变更日志（Changelog）
 
+## 2026-09-16 — UIR-05C 统一二级页标题栏样式（本地实现）
+
+- 统一 `SecondaryPageShell` 与 `UiPageFrame` 默认 `PageHeader` 的移动端间距、返回触控高度、背景/边界和长文案换行；沿用现有语义 Token，不增加 sticky 或重复安全区顶部间距。
+- 空 actions slot 不再生成空的操作区域；保留 named/default slot、标题/副标题、`returnTo`/fallback/Browser Back 返回语义及可访问名称。
+- 新增 PageHeader/SecondaryPageShell 的空/有操作、长文案和 slot 契约回归；Web 41 files / 205 tests 与完整 `npm run quality` 已通过。本轮尚未提交、推送、创建 PR、合并或部署。
+
 ## 2026-09-16 — UIR-05B 二级编辑页底部操作区样板（本地实现）
 
 - 为 `UiPageFrame` action 插槽增加移动端页面内粘性操作区、语义层级、边界背景和安全区内边距；桌面端继续使用普通内容流，空 action 不生成区域。

@@ -24,5 +24,25 @@ describe("SecondaryPageShell", () => {
     expect(wrapper.get("h1").text()).toBe("资金账户");
     expect(wrapper.text()).toContain("筛选");
     expect(wrapper.text()).toContain("页面内容");
+    expect(wrapper.get(".page-header-actions").text()).toContain("筛选");
+    expect(wrapper.get(".secondary-page-content").text()).toContain("页面内容");
+  });
+
+  it("keeps the default slot for page content and omits empty actions", () => {
+    const wrapper = mount(SecondaryPageShell, {
+      props: { title: "同步冲突", titleId: "conflicts-title" },
+      slots: {
+        actions: () => [],
+        default: '<p data-test="content">请处理冲突</p>',
+      },
+      global: {
+        stubs: { AppIcon: true },
+      },
+    });
+
+    expect(wrapper.find(".page-header-actions").exists()).toBe(false);
+    expect(
+      wrapper.get(".secondary-page-content [data-test=content]").text(),
+    ).toBe("请处理冲突");
   });
 });

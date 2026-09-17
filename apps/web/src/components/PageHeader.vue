@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { Comment, Fragment, computed, useSlots } from "vue";
 
 import AppIcon from "./AppIcon.vue";
 import { navigateBack } from "../navigation-policy";
@@ -28,6 +28,7 @@ const props = withDefaults(
   },
 );
 
+const slots = useSlots();
 const route = useOptionalRoute();
 const router = useOptionalRouter();
 const activeRoute = computed(() => route ?? router?.currentRoute.value ?? null);
@@ -48,6 +49,29 @@ const parentTitle = computed(() =>
     props.parentTitle ?? pageMeta.value?.parent?.title ?? "上一级",
   ),
 );
+
+function hasSlotContent(name: "actions" | "default"): boolean {
+  const slot = slots[name];
+  if (!slot) return false;
+  return slot().some(hasVNodeContent);
+}
+
+function hasVNodeContent(vnode: {
+  type: unknown;
+  children?: unknown;
+}): boolean {
+  if (vnode.type === Comment) return false;
+  if (vnode.type === Fragment && Array.isArray(vnode.children)) {
+    return vnode.children.some((child) =>
+      typeof child === "object" && child !== null
+        ? hasVNodeContent(child as { type: unknown; children?: unknown })
+        : typeof child === "string" && child.trim().length > 0,
+    );
+  }
+  return typeof vnode.children === "string"
+    ? vnode.children.trim().length > 0
+    : true;
+}
 
 async function goBack() {
   if (router) {
@@ -74,7 +98,10 @@ async function goBack() {
       <h1 :id="titleId">{{ title }}</h1>
       <p v-if="subtitle" class="page-header-subtitle">{{ subtitle }}</p>
     </div>
-    <div v-if="$slots.actions || $slots.default" class="page-header-actions">
+    <div
+      v-if="hasSlotContent('actions') || hasSlotContent('default')"
+      class="page-header-actions"
+    >
       <slot name="actions" />
       <slot />
     </div>

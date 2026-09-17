@@ -4658,3 +4658,122 @@ html.app-dialog-open body {
     margin-top: 22px;
   }
 }
+
+/* UIR-05C: keep secondary headers usable across the shared page shells. */
+.secondary-page .page-header,
+.ui-page-frame__header .page-header {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.secondary-page .page-header-main,
+.ui-page-frame__header .page-header-main {
+  min-width: 0;
+  flex: 1 1 18rem;
+}
+
+.secondary-page .page-header h1,
+.ui-page-frame__header .page-header h1,
+.secondary-page .page-header-subtitle,
+.ui-page-frame__header .page-header-subtitle {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.secondary-page .page-header-back,
+.ui-page-frame__header .page-header-back {
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  text-align: start;
+}
+
+.secondary-page .page-header-back span,
+.ui-page-frame__header .page-header-back span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.secondary-page .page-header-back:focus-visible,
+.ui-page-frame__header .page-header-back:focus-visible {
+  outline: 3px solid var(--ui-color-focus-ring, #6244d8);
+  outline-offset: 2px;
+}
+
+.secondary-page .page-header-actions,
+.ui-page-frame__header .page-header-actions {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.secondary-page .page-header-actions > *,
+.ui-page-frame__header .page-header-actions > * {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+  .secondary-page .page-header,
+  .ui-page-frame__header .page-header {
+    display: grid;
+    align-items: start;
+    gap: var(--ui-space-3, 12px);
+    margin-bottom: var(--ui-space-4, 16px);
+    padding-block: var(--ui-space-3, 12px);
+    border-bottom: 1px solid var(--ui-color-border, #e7e1f3);
+    background: var(--ui-color-surface, #ffffff);
+  }
+
+  .ui-page-frame__header .page-header {
+    margin-bottom: 0;
+  }
+
+  .secondary-page .page-header-main,
+  .ui-page-frame__header .page-header-main {
+    width: 100%;
+    flex-basis: auto;
+    gap: var(--ui-space-2, 8px);
+  }
+
+  .secondary-page .page-header h1,
+  .ui-page-frame__header .page-header h1 {
+    font-size: var(--ui-font-size-20, 20px);
+    line-height: var(--ui-line-height-heading, 1.2);
+  }
+
+  .secondary-page .page-header-back,
+  .ui-page-frame__header .page-header-back {
+    min-height: var(--ui-control-height-default, 44px);
+    margin-bottom: 0;
+    padding-block: var(--ui-space-2, 8px);
+  }
+
+  .secondary-page .page-header-actions,
+  .ui-page-frame__header .page-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: var(--ui-space-2, 8px);
+  }
+
+  .secondary-page .page-header-actions > button,
+  .secondary-page .page-header-actions > a,
+  .ui-page-frame__header .page-header-actions > button,
+  .ui-page-frame__header .page-header-actions > a {
+    min-height: var(--ui-control-height-default, 44px);
+    white-space: normal;
+  }
+
+  .secondary-page .page-header-subtitle,
+  .ui-page-frame__header .page-header-subtitle {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  .secondary-page .page-header-subtitle,
+  .ui-page-frame__header .page-header-subtitle {
+    display: block;
+  }
+}
