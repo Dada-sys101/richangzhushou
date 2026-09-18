@@ -4106,6 +4106,7 @@ html.app-dialog-open body {
 
 .plan-page {
   max-width: 420px;
+  min-width: 0;
 }
 .plan-page .v2-page-head {
   align-items: center;
@@ -4124,6 +4125,35 @@ html.app-dialog-open body {
 
 .plan-page .page-header .primary-button {
   display: inline-flex;
+}
+.plan-page .page-header-actions .primary-button {
+  display: inline-flex;
+  min-height: 44px;
+}
+.plan-controls {
+  display: grid;
+  min-width: 0;
+  gap: 12px;
+  margin-top: 14px;
+}
+.plan-control-group {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+.plan-control-label {
+  color: var(--v2-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.plan-page .segmented-control {
+  width: max-content;
+  max-width: 100%;
+  margin-top: 0;
+  flex-wrap: wrap;
+}
+.plan-page .segmented-control button {
+  min-height: 44px;
 }
 .segmented-control {
   margin-top: 14px;
@@ -4144,7 +4174,8 @@ html.app-dialog-open body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
-  margin-top: 16px;
+  min-width: 0;
+  margin-top: 0;
 }
 .plan-date-rail button {
   display: grid;
@@ -4171,7 +4202,28 @@ html.app-dialog-open body {
 .range-chips {
   display: none;
 }
+.plan-page .range-chips {
+  display: flex;
+  max-width: 100%;
+  margin-top: 0;
+  gap: 6px;
+}
+.plan-page .range-chips button {
+  min-height: 44px;
+  padding: 8px 12px;
+}
+.plan-page .segmented-control button:focus-visible,
+.plan-page .plan-date-rail button:focus-visible,
+.plan-page .range-chips button:focus-visible,
+.plan-page .plan-item-link:focus-visible,
+.plan-page .plan-item-actions .text-button:focus-visible,
+.plan-page .plan-desktop-aside .text-link:focus-visible,
+.plan-page .overdue-panel a:focus-visible {
+  outline: 3px solid var(--ui-color-focus-ring, #6244d8);
+  outline-offset: 2px;
+}
 .plan-page .v2-section {
+  min-width: 0;
   margin-top: 12px;
   padding: 0;
 }
@@ -4187,6 +4239,7 @@ html.app-dialog-open body {
   align-items: center;
   gap: 8px;
   min-height: 52px;
+  min-width: 0;
   padding: 6px 0;
 }
 .plan-item-link {
@@ -4197,6 +4250,25 @@ html.app-dialog-open body {
   gap: 9px;
   color: inherit;
   text-decoration: none;
+}
+.plan-item-link time,
+.plan-timeline .timeline-content,
+.plan-timeline .timeline-content strong,
+.plan-timeline .timeline-item-type {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.plan-timeline .timeline-item-type {
+  line-height: 1.35;
+}
+.plan-timeline .timeline-item-type.is-event {
+  color: var(--v2-purple);
+}
+.plan-timeline .timeline-item-type.is-task {
+  color: var(--color-warning-text);
+}
+.plan-timeline .timeline-item-type.is-reminder {
+  color: var(--v2-purple-deep);
 }
 .plan-timeline .plan-item-actions {
   grid-column: auto;
@@ -4215,6 +4287,31 @@ html.app-dialog-open body {
 }
 .plan-item-actions .text-button {
   font-size: 0.68rem;
+}
+.plan-page .plan-item-actions {
+  align-items: flex-start;
+}
+.plan-page .plan-item-actions .text-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 4px;
+}
+.plan-load-warning {
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-warning-text);
+  border-radius: var(--v2-compact-radius);
+  color: var(--color-warning-text);
+  background: var(--color-warning-bg);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.plan-page > .feedback-state {
+  min-width: 0;
+  margin-top: 20px;
 }
 @media (max-width: 520px) {
   .plan-timeline li > div {
@@ -4255,6 +4352,24 @@ html.app-dialog-open body {
   font-size: 0.72rem;
   font-weight: 700;
   text-decoration: none;
+}
+.plan-page .overdue-panel {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.plan-page .overdue-panel div {
+  min-width: 0;
+  flex: 1 1 12rem;
+}
+.plan-page .overdue-panel strong {
+  overflow-wrap: anywhere;
+}
+.plan-page .overdue-panel a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  min-height: 44px;
 }
 
 .prototype-capture {
