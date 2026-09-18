@@ -5402,3 +5402,144 @@ html.app-dialog-open body {
     padding-inline: var(--ui-space-2, 8px);
   }
 }
+
+/* UIR-07A: keep the transaction collection dense, scannable, and actionable. */
+.transactions-page {
+  width: min(100%, 760px);
+  max-width: 760px;
+}
+
+.transactions-page .section-card {
+  box-shadow: var(--ui-shadow-low, 0 1px 2px rgb(64 45 31 / 4%));
+}
+
+.transactions-page .page-header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ui-space-2, 8px);
+}
+
+.transactions-header-action {
+  min-height: var(--ui-control-height-default, 44px);
+  white-space: nowrap;
+}
+
+.transactions-page .transaction-filters {
+  gap: var(--ui-space-4, 16px) var(--ui-space-3, 12px);
+}
+
+.transactions-list-state,
+.transactions-page .feedback-state,
+.transactions-page .empty-state {
+  min-width: 0;
+  margin: 0;
+}
+
+.transactions-page .transaction-list {
+  gap: var(--ui-space-2, 8px);
+}
+
+.transactions-page .transaction-list li {
+  min-width: 0;
+  border-color: var(--ui-color-border, #e7e1f3);
+  border-radius: var(--ui-radius-md, 12px);
+  background: var(--ui-color-surface, #ffffff);
+}
+
+.transactions-page .transaction-row {
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+  min-width: 0;
+  gap: var(--ui-space-3, 12px);
+  padding: var(--ui-space-3, 12px) var(--ui-space-4, 16px) 0;
+}
+
+.transactions-page .transaction-main,
+.transactions-page .transaction-title-row,
+.transactions-page .transaction-meta,
+.transactions-page .note {
+  min-width: 0;
+}
+
+.transactions-page .transaction-title-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--ui-space-2, 8px);
+}
+
+.transactions-page .transaction-title-row strong,
+.transactions-page .transaction-meta,
+.transactions-page .note {
+  overflow-wrap: anywhere;
+}
+
+.transactions-page .transaction-title-row strong {
+  color: var(--ui-color-text, #2b243d);
+  line-height: var(--ui-line-height-compact, 1.4);
+}
+
+.transactions-page .transaction-meta,
+.transactions-page .note {
+  color: var(--ui-color-text-muted, #756e83);
+  line-height: var(--ui-line-height-compact, 1.4);
+}
+
+.transactions-page .transaction-deleted-status {
+  flex: 0 0 auto;
+  padding: 2px 6px;
+  border-radius: 999px;
+  color: var(--ui-color-danger, #b91c1c);
+  background: var(--ui-color-danger-soft, #fff0f0);
+  font-size: var(--ui-font-size-12, 12px);
+  font-weight: var(--ui-font-weight-semibold, 600);
+  line-height: var(--ui-line-height-compact, 1.4);
+}
+
+.transactions-page .note {
+  white-space: normal;
+}
+
+.transactions-page .transaction-amount {
+  align-self: start;
+  min-width: 0;
+  max-width: 10ch;
+  overflow-wrap: anywhere;
+  text-align: right;
+  white-space: normal;
+}
+
+.transactions-page .row-actions {
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: var(--ui-space-1, 4px) var(--ui-space-3, 12px);
+  padding: var(--ui-space-2, 8px) 0 var(--ui-space-3, 12px);
+}
+
+.transactions-page .text-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--ui-control-height-default, 44px);
+  padding: var(--ui-space-2, 8px) 0;
+  overflow-wrap: anywhere;
+}
+
+.transactions-page .text-button:focus-visible {
+  outline: 3px solid var(--ui-color-focus-ring, #6244d8);
+  outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  .transactions-page .page-header-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .transactions-page .page-header-actions > * {
+    width: 100%;
+    min-width: 0;
+  }
+}
