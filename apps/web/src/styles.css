@@ -1157,6 +1157,30 @@ html.app-dialog-open body {
 .transaction-form {
   display: grid;
   gap: var(--space-section);
+  min-width: 0;
+}
+
+.transaction-form-page {
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+}
+
+.transaction-form-page .ui-page-frame__status,
+.transaction-form-page .transaction-form-feedback,
+.transaction-form-page .warning-banner {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.transaction-form-page .transaction-form-actions {
+  min-width: 0;
+}
+
+.transaction-form-page .transaction-form-actions > * {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .transaction-form-grid {
