@@ -4,14 +4,17 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 
 import { ApiClientError } from "../api/client";
 import DateTimeField from "../components/DateTimeField.vue";
+import ErrorState from "../components/ErrorState.vue";
 import FormActions from "../components/FormActions.vue";
-import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import LoadingState from "../components/LoadingState.vue";
 import SectionCard from "../components/SectionCard.vue";
+import UiPageFrame from "../components/UiPageFrame.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
 import { useTripsStore } from "../stores/trips";
 import { safeReturnTo } from "../utils/navigation";
+import { toLocalDateTimeInput, toShanghaiIso } from "../utils/time";
 
 const route = useRoute();
 const router = useRouter();
@@ -20,6 +23,7 @@ const finance = useFinanceStore();
 const trips = useTripsStore();
 
 const editingId = typeof route.params.id === "string" ? route.params.id : null;
+const formId = "transaction-form";
 const type = ref<"EXPENSE" | "INCOME" | "REFUND">("EXPENSE");
 const amount = ref("");
 const occurredAt = ref(defaultOccurredAt());
@@ -35,9 +39,8 @@ const errorMessage = ref("");
 const successMessage = ref("");
 const duplicateWarning = ref<string | null>(null);
 const submitting = ref(false);
-const returnTarget = computed(() =>
-  safeReturnTo(route.query, route.meta.page?.parent?.path ?? "/"),
-);
+const initializing = ref(true);
+const initializationError = ref("");
 const formSnapshot = computed(() =>
   JSON.stringify({
     accountId: accountId.value,
@@ -53,6 +56,9 @@ const formSnapshot = computed(() =>
   }),
 );
 const initialSnapshot = ref(formSnapshot.value);
+const returnTarget = computed(() =>
+  safeReturnTo(route.query, route.meta.page?.parent?.path ?? "/"),
+);
 const { allowNavigation } = useUnsavedChanges(
   computed(() => formSnapshot.value !== initialSnapshot.value),
 );
@@ -75,22 +81,47 @@ const activeAccounts = computed(() =>
   finance.accounts.filter((item) => !item.isArchived),
 );
 
-onMounted(async () => {
+const activeTrips = computed(() =>
+  trips.trips.filter((trip) => trip.deletedAt === null),
+);
+
+onMounted(() => {
+  void initialize();
+});
+
+async function initialize() {
+  initializing.value = true;
+  initializationError.value = "";
+  errorMessage.value = "";
+  successMessage.value = "";
+  duplicateWarning.value = null;
+  finance.clearError();
+  trips.clearError();
+
   if (!auth.isAuthenticated) {
+    initializing.value = false;
+    initialSnapshot.value = formSnapshot.value;
     return;
   }
-  await Promise.all([
-    finance.loadCategories(true),
-    finance.loadAccounts(true),
-    finance.loadTransactions(),
-    trips.loadTrips(),
-  ]);
-  if (editingId) {
-    try {
+
+  try {
+    await Promise.all([
+      finance.loadCategories(true),
+      finance.loadAccounts(true),
+      finance.loadTransactions(),
+      trips.loadTrips(),
+    ]);
+
+    const storeError = finance.errorMessage || trips.errorMessage;
+    if (storeError) {
+      throw new Error(storeError);
+    }
+
+    if (editingId) {
       const item = await finance.getTransaction(editingId);
       type.value = item.type;
       amount.value = item.amount;
-      occurredAt.value = toLocalInputValue(item.occurredAt);
+      occurredAt.value = toLocalDateTimeInput(item.occurredAt);
       categoryId.value = item.categoryId ?? "";
       accountId.value = item.accountId ?? "";
       merchant.value = item.merchant ?? "";
@@ -99,30 +130,44 @@ onMounted(async () => {
       isUnlinkedRefund.value = item.isUnlinkedRefund;
       tripId.value = item.tripId ?? "";
       version.value = item.version;
-      initialSnapshot.value = formSnapshot.value;
-    } catch (error) {
-      errorMessage.value = messageOf(error);
     }
+
+    // Keep initialization out of the dirty-state guard. For edits this runs
+    // only after every server value has been hydrated into the form.
+    initialSnapshot.value = formSnapshot.value;
+  } catch (error) {
+    initializationError.value = messageOf(error);
+  } finally {
+    initializing.value = false;
   }
-});
+}
 
 async function submit() {
+  if (submitting.value) {
+    return;
+  }
+
   errorMessage.value = "";
   successMessage.value = "";
   duplicateWarning.value = null;
   submitting.value = true;
+  const isRefund = type.value === "REFUND";
   const body = {
     accountId: accountId.value || null,
     amount: amount.value,
     categoryId: categoryId.value || null,
-    isUnlinkedRefund: isUnlinkedRefund.value,
+    isUnlinkedRefund: isRefund ? isUnlinkedRefund.value : false,
     merchant: merchant.value.trim() || null,
     note: note.value.trim() || null,
-    occurredAt: new Date(occurredAt.value).toISOString(),
-    originalTransactionId: originalTransactionId.value || null,
+    occurredAt: toShanghaiIso(occurredAt.value),
+    originalTransactionId:
+      isRefund && !isUnlinkedRefund.value
+        ? originalTransactionId.value || null
+        : null,
     tripId: tripId.value || null,
     type: type.value,
   };
+
   try {
     const result = editingId
       ? await finance.updateTransaction(editingId, {
@@ -149,193 +194,217 @@ function messageOf(error: unknown): string {
     const field = error.fieldErrors?.[0];
     return field ? `${field.message}` : error.message;
   }
-  return "操作失败，请稍后重试";
+  return error instanceof Error ? error.message : "操作失败，请稍后重试";
+}
+
+function defaultOccurredAt(): string {
+  return toLocalDateTimeInput(new Date().toISOString());
 }
 </script>
 
 <template>
-  <SecondaryPageShell
+  <UiPageFrame
     :title="editingId ? '编辑账单' : '记一笔'"
     class="finance-page transaction-form-page"
+    max-width="form"
     subtitle="记账"
-    title-id="form-title"
+    title-id="transaction-form-title"
   >
-    <div
-      v-if="finance.errorMessage || errorMessage"
-      class="transaction-form-feedback"
-      role="alert"
-    >
-      {{ errorMessage || finance.errorMessage }}
-    </div>
-    <p
-      v-if="successMessage"
-      class="form-success transaction-form-feedback"
-      role="status"
-    >
-      {{ successMessage }}
-    </p>
-    <div
-      v-if="duplicateWarning"
-      class="warning-banner transaction-form-feedback"
-      role="status"
-    >
-      {{ duplicateWarning }}
-    </div>
-
-    <form class="transaction-form" @submit.prevent="submit">
-      <SectionCard
-        title="基本信息"
-        description="填写账单类型、金额和实际发生时间。"
+    <template #status>
+      <div
+        v-if="
+          !initializing &&
+          !initializationError &&
+          (errorMessage || finance.errorMessage)
+        "
+        class="transaction-form-feedback"
+        role="alert"
       >
-        <div class="transaction-form-grid">
-          <label class="transaction-form-field">
-            <span>类型</span>
-            <select v-model="type">
-              <option value="EXPENSE">支出</option>
-              <option value="INCOME">收入</option>
-              <option value="REFUND">退款</option>
-            </select>
-          </label>
-          <label class="transaction-form-field transaction-amount-field">
-            <span>金额（元）</span>
-            <input
-              v-model="amount"
-              inputmode="decimal"
-              placeholder="0.00"
-              required
-              step="0.01"
-              type="text"
-            />
-          </label>
-          <label class="transaction-form-field transaction-time-field">
-            <span>时间</span>
-            <DateTimeField v-model="occurredAt" required />
-          </label>
-        </div>
-      </SectionCard>
-
-      <SectionCard
-        title="分类与关联"
-        description="分类和账户可留空，也可以关联到已有行程。"
+        {{ errorMessage || finance.errorMessage }}
+      </div>
+      <p
+        v-if="successMessage"
+        class="form-success transaction-form-feedback"
+        role="status"
       >
-        <div class="transaction-form-grid">
-          <label class="transaction-form-field">
-            <span>分类</span>
-            <select v-model="categoryId">
-              <option value="">不分类</option>
-              <option
-                v-for="item in categoriesForType"
-                :key="item.id"
-                :value="item.id"
-              >
-                {{ item.name }}
-              </option>
-            </select>
-          </label>
-          <label class="transaction-form-field">
-            <span>账户</span>
-            <select v-model="accountId">
-              <option value="">不指定</option>
-              <option
-                v-for="item in activeAccounts"
-                :key="item.id"
-                :value="item.id"
-              >
-                {{ item.name }}
-              </option>
-            </select>
-          </label>
-          <label class="transaction-form-field transaction-wide-field">
-            <span>行程（可选）</span>
-            <select v-model="tripId">
-              <option value="">不关联</option>
-              <option
-                v-for="item in trips.trips.filter(
-                  (trip) => trip.deletedAt === null,
-                )"
-                :key="item.id"
-                :value="item.id"
-              >
-                {{ item.title }}（{{ item.startDate }}）
-              </option>
-            </select>
-          </label>
-        </div>
-      </SectionCard>
-
-      <SectionCard
-        v-if="type === 'REFUND'"
-        title="退款关联"
-        description="退款可关联原支出；无法确认原单时可标记为无原单退款。"
-        tone="muted"
+        {{ successMessage }}
+      </p>
+      <div
+        v-if="duplicateWarning"
+        class="warning-banner transaction-form-feedback"
+        role="status"
       >
-        <fieldset class="refund-fields transaction-refund-fields">
-          <legend class="sr-only">退款关联方式</legend>
-          <label class="check-label transaction-refund-toggle">
-            <input v-model="isUnlinkedRefund" type="checkbox" />
-            <span>无原单退款（不引用原账单）</span>
-          </label>
-          <label v-if="!isUnlinkedRefund" class="transaction-form-field">
-            <span>原账单</span>
-            <select v-model="originalTransactionId">
-              <option value="">选择一笔支出</option>
-              <option
-                v-for="item in expenseTransactions"
-                :key="item.id"
-                :value="item.id"
-              >
-                {{ item.merchant || "支出" }} · {{ item.amount }}
-              </option>
-            </select>
-          </label>
-        </fieldset>
-      </SectionCard>
+        {{ duplicateWarning }}
+      </div>
+    </template>
 
-      <SectionCard title="补充说明" tone="muted">
-        <div class="transaction-form-grid">
-          <label class="transaction-form-field transaction-wide-field">
-            <span>商户/说明</span>
-            <input
-              v-model="merchant"
-              maxlength="100"
-              placeholder="例如：便利店"
-              type="text"
-            />
-          </label>
-          <label class="transaction-form-field transaction-wide-field">
-            <span>备注（可选）</span>
-            <textarea
-              v-model="note"
-              maxlength="500"
-              placeholder="补充票据、用途或其他说明"
-              rows="3"
-            ></textarea>
-          </label>
-        </div>
-      </SectionCard>
+    <template #default>
+      <LoadingState
+        v-if="initializing"
+        description="正在加载分类、账户和行程…"
+        title="正在准备账单"
+      />
+      <ErrorState
+        v-else-if="initializationError"
+        action-label="重试"
+        :description="initializationError"
+        title="账单数据加载失败"
+        @retry="initialize"
+      />
+      <form
+        v-else
+        :id="formId"
+        class="transaction-form"
+        @submit.prevent="submit"
+      >
+        <SectionCard
+          title="基本信息"
+          description="填写账单类型、金额和实际发生时间。"
+        >
+          <div class="transaction-form-grid">
+            <label class="transaction-form-field">
+              <span>类型</span>
+              <select v-model="type">
+                <option value="EXPENSE">支出</option>
+                <option value="INCOME">收入</option>
+                <option value="REFUND">退款</option>
+              </select>
+            </label>
+            <label class="transaction-form-field transaction-amount-field">
+              <span>金额（元）</span>
+              <input
+                v-model="amount"
+                inputmode="decimal"
+                placeholder="0.00"
+                required
+                step="0.01"
+                type="text"
+              />
+            </label>
+            <label class="transaction-form-field transaction-time-field">
+              <span>时间</span>
+              <DateTimeField v-model="occurredAt" required />
+            </label>
+          </div>
+        </SectionCard>
 
-      <FormActions class="transaction-form-actions">
+        <SectionCard
+          title="分类与关联"
+          description="分类和账户可留空，也可以关联到已有行程。"
+        >
+          <div class="transaction-form-grid">
+            <label class="transaction-form-field">
+              <span>分类</span>
+              <select v-model="categoryId">
+                <option value="">不分类</option>
+                <option
+                  v-for="item in categoriesForType"
+                  :key="item.id"
+                  :value="item.id"
+                >
+                  {{ item.name }}
+                </option>
+              </select>
+            </label>
+            <label class="transaction-form-field">
+              <span>账户</span>
+              <select v-model="accountId">
+                <option value="">不指定</option>
+                <option
+                  v-for="item in activeAccounts"
+                  :key="item.id"
+                  :value="item.id"
+                >
+                  {{ item.name }}
+                </option>
+              </select>
+            </label>
+            <label class="transaction-form-field transaction-wide-field">
+              <span>行程（可选）</span>
+              <select v-model="tripId">
+                <option value="">不关联</option>
+                <option
+                  v-for="item in activeTrips"
+                  :key="item.id"
+                  :value="item.id"
+                >
+                  {{ item.title }}（{{ item.startDate }}）
+                </option>
+              </select>
+            </label>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          v-if="type === 'REFUND'"
+          title="退款关联"
+          description="退款可关联原支出；无法确认原单时可标记为无原单退款。"
+          tone="muted"
+        >
+          <fieldset class="refund-fields transaction-refund-fields">
+            <legend class="sr-only">退款关联方式</legend>
+            <label class="check-label transaction-refund-toggle">
+              <input v-model="isUnlinkedRefund" type="checkbox" />
+              <span>无原单退款（不引用原账单）</span>
+            </label>
+            <label v-if="!isUnlinkedRefund" class="transaction-form-field">
+              <span>原账单</span>
+              <select v-model="originalTransactionId">
+                <option value="">选择一笔支出</option>
+                <option
+                  v-for="item in expenseTransactions"
+                  :key="item.id"
+                  :value="item.id"
+                >
+                  {{ item.merchant || "支出" }} · {{ item.amount }}
+                </option>
+              </select>
+            </label>
+          </fieldset>
+        </SectionCard>
+
+        <SectionCard title="补充说明" tone="muted">
+          <div class="transaction-form-grid">
+            <label class="transaction-form-field transaction-wide-field">
+              <span>商户/说明</span>
+              <input
+                v-model="merchant"
+                maxlength="100"
+                placeholder="例如：便利店"
+                type="text"
+              />
+            </label>
+            <label class="transaction-form-field transaction-wide-field">
+              <span>备注（可选）</span>
+              <textarea
+                v-model="note"
+                maxlength="500"
+                placeholder="补充票据、用途或其他说明"
+                rows="3"
+              ></textarea>
+            </label>
+          </div>
+        </SectionCard>
+      </form>
+    </template>
+
+    <template #action>
+      <FormActions
+        v-if="!initializing && !initializationError"
+        class="transaction-form-actions"
+      >
         <RouterLink replace class="secondary-button" :to="returnTarget">
           取消
         </RouterLink>
-        <button class="primary-button" :disabled="submitting" type="submit">
+        <button
+          class="primary-button"
+          :disabled="submitting"
+          :form="formId"
+          type="submit"
+        >
           {{ submitting ? "保存中…" : "保存" }}
         </button>
       </FormActions>
-    </form>
-  </SecondaryPageShell>
+    </template>
+  </UiPageFrame>
 </template>
-
-<script lang="ts">
-function defaultOccurredAt(): string {
-  const now = new Date();
-  const offset = now.getTimezoneOffset() * 60_000;
-  return new Date(now.getTime() - offset).toISOString().slice(0, 16);
-}
-
-function toLocalInputValue(iso: string): string {
-  const date = new Date(iso);
-  const offset = date.getTimezoneOffset() * 60_000;
-  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
-}
-</script>
