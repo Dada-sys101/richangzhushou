@@ -1560,6 +1560,174 @@ html.app-dialog-open body {
   width: 100%;
 }
 
+.budgets-page .budget-overview-card {
+  min-width: 0;
+}
+
+.budgets-page .budget-overview-count {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.budgets-page .budget-overview-count strong {
+  color: var(--color-text-primary);
+}
+
+.budgets-page .budget-overview-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  color: var(--color-text-secondary);
+  flex-wrap: wrap;
+}
+
+.budgets-page .budget-overview-summary strong {
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.budgets-page .budget-muted,
+.budgets-page .budget-status {
+  margin: 10px 0 0;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.budgets-page .budget-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-sm);
+  color: var(--color-danger);
+  background: #fff7f7;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.budgets-page .budget-create-form {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.8fr) minmax(0, 1.2fr) auto;
+  align-items: end;
+  gap: 12px;
+  margin: 0;
+}
+
+.budgets-page .budget-create-field {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.budgets-page .budget-create-field input,
+.budgets-page .budget-create-field select,
+.budgets-page .budget-create-submit {
+  min-width: 0;
+  min-height: 48px;
+}
+
+.budgets-page .budget-create-submit {
+  white-space: normal;
+}
+
+.budgets-page .budget-name,
+.budgets-page .budget-amounts,
+.budgets-page .budget-status {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.budgets-page .budget-name {
+  flex: 1 1 150px;
+}
+
+.budgets-page .budget-amounts {
+  flex: 1 1 220px;
+}
+
+.budgets-page .budget-ratio {
+  flex: 0 0 auto;
+}
+
+.budgets-page .budget-ratio.over,
+.budgets-page .budget-status-over {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.budgets-page .budget-feedback button {
+  flex: 0 0 auto;
+  white-space: normal;
+}
+
+.budgets-page .budget-actions {
+  align-items: flex-end;
+}
+
+.budgets-page .inline-amount {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.budgets-page .inline-amount input {
+  min-width: min(180px, 100%);
+  min-height: 44px;
+  width: min(180px, 100%);
+}
+
+.budgets-page .budget-actions .text-button {
+  min-width: 44px;
+  min-height: 44px;
+  white-space: normal;
+}
+
+.budgets-page .progress-track {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.budgets-page .progress-track[role="progressbar"] {
+  outline: none;
+}
+
+@media (max-width: 520px) {
+  .budgets-page .budget-create-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .budgets-page .budget-create-submit {
+    width: 100%;
+  }
+
+  .budgets-page .budget-actions {
+    align-items: stretch;
+  }
+
+  .budgets-page .inline-amount {
+    width: 100%;
+  }
+
+  .budgets-page .inline-amount input {
+    flex: 1 1 150px;
+  }
+}
+
 .inline-amount input {
   width: 140px;
   padding: 6px 10px;

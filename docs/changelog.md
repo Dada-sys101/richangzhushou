@@ -953,3 +953,9 @@
 - 编辑页在 390px 与 1440px 注入详情 GET 503 时展示 ErrorState、不渲染未初始化表单；点击“重试”后请求恢复 200，正确回填类型、金额、时间、商户、备注及 `version: 1`，不触发未保存保护。
 - 390px 完成 Browser Back 未保存保护抽查：拒绝离开后 URL、页面和 `21.00` 输入保持，确认弹窗关闭；再次 Back 接受后进入 `/records`。1440px 编辑页取消入口返回 `/records`，两档均无横向溢出（`scrollWidth` 不超过 viewport）。
 - 控制台仅见既有开发环境 Service Worker MIME 噪声及本轮预期注入 503；未发现新的业务异常。未修改实现代码，仅追加本验收记录；Fresh Sol 复用既有 `ship`。本轮未提交、未推送、未创建 PR、未部署，UIR-07C/UIR-08 未开始；实体软键盘和真实设备安全区仍待设备验收。
+
+## 2026-09-18 — UIR-07D 预算管理页面迁移（本地实现）
+
+- 预算页保留 `MonthField`、Asia/Shanghai 默认月份、Finance Store/API payload、字符串金额和预算 `version` 语义；页面按月份控件、当月概览、设置新预算和预算列表组织。
+- 使用现有 `LoadingState`、`ErrorState`、`EmptyState` 和 `requestAppConfirm`；区分列表加载、摘要失败与写操作错误，缓存列表在刷新失败时仍可见，删除取消不会调用 Store。
+- 本轮仅修改 `BudgetsView.vue`、`BudgetsView.test.ts`、预算页作用域样式和本变更记录；专项测试 11/11、用户端 lint/typecheck、`npm run quality`、格式、上下文与差异检查通过。真实浏览器在 375、390、430、768、1440 CSS px 及各档 200% 根字号下检查标题、月份控件、新增表单、预算列表、操作按钮和横向溢出，均未发现新增溢出或遮挡；390px 另以受控延迟捕获 `LoadingState`。390px 完成月份切换、创建成功/503 失败保留输入、行内更新 503 保留输入、删除确认取消与 503 失败保留列表；1440px 完成预算加载 503、摘要 503、重试恢复及创建/更新/删除 503 失败保留数据。390px Browser Back 未保存金额拒绝后 URL、页面和 `123.45` 输入保持，确认弹窗关闭；再次 Back 接受后进入 `/account`，未出现重复弹窗或历史循环。控制台仅见开发环境既有 Service Worker MIME/同步刷新噪声与本轮注入 503；停止本地服务后浏览器残余同步请求的 `ERR_CONNECTION_REFUSED` 属于 teardown 噪声，未发现实现新增业务异常请求。实体软键盘和真实安全区仍待设备验收。Fresh Sol 复核结论为 `ship`。本轮未提交、未推送、未创建 PR、未部署；UIR-08 未开始。
