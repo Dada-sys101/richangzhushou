@@ -1362,6 +1362,169 @@ html.app-dialog-open body {
   font-weight: 700;
 }
 
+/* UIR-07C finance settings pages keep their controls and rows readable when
+ * the viewport is narrow or the user's text size is enlarged. */
+.categories-page .finance-create-form,
+.accounts-page .finance-create-form {
+  display: grid;
+  grid-template-columns: minmax(128px, 0.7fr) minmax(0, 1.3fr) auto;
+  align-items: end;
+  gap: 12px;
+  margin: 0;
+}
+
+.categories-page .finance-create-field,
+.accounts-page .finance-create-field {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.categories-page .finance-create-field input,
+.categories-page .finance-create-field select,
+.accounts-page .finance-create-field input,
+.accounts-page .finance-create-field select {
+  min-width: 0;
+  min-height: 48px;
+}
+
+.categories-page .finance-create-submit,
+.accounts-page .finance-create-submit {
+  min-height: 48px;
+  white-space: normal;
+}
+
+.categories-page .finance-page-feedback,
+.accounts-page .finance-page-feedback {
+  min-width: 0;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-sm);
+  color: var(--color-danger);
+  background: #fff7f7;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.categories-page .finance-resource-list,
+.accounts-page .finance-resource-list {
+  min-width: 0;
+}
+
+.categories-page .finance-resource-row,
+.accounts-page .finance-resource-row {
+  align-items: flex-start;
+  min-width: 0;
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+.categories-page .finance-row-main,
+.accounts-page .finance-row-main {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 220px;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.45;
+}
+
+.categories-page .finance-row-name,
+.accounts-page .finance-row-name {
+  min-width: 0;
+  flex: 1 1 140px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.categories-page .finance-kind-badge,
+.accounts-page .finance-kind-badge {
+  flex: 0 0 auto;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.categories-page .finance-row-edit-field {
+  display: block;
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.categories-page .finance-row-edit-field input {
+  min-width: 0;
+  min-height: 44px;
+}
+
+.categories-page .finance-row-actions,
+.accounts-page .finance-row-actions {
+  display: flex;
+  min-width: 0;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.categories-page .finance-row-actions .text-button,
+.accounts-page .finance-row-actions .text-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 6px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.categories-page button:focus-visible,
+.accounts-page button:focus-visible,
+.categories-page input:focus-visible,
+.categories-page select:focus-visible,
+.accounts-page input:focus-visible,
+.accounts-page select:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.categories-page button:disabled,
+.accounts-page button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+@media (max-width: 520px) {
+  .categories-page .finance-create-form,
+  .accounts-page .finance-create-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .categories-page .finance-create-submit,
+  .accounts-page .finance-create-submit {
+    width: 100%;
+  }
+
+  .categories-page .finance-row-actions,
+  .accounts-page .finance-row-actions {
+    width: 100%;
+    justify-content: flex-start;
+    margin-left: 0;
+    padding-top: 8px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .categories-page .finance-row-edit-field {
+    flex-basis: 100%;
+  }
+}
+
 .budget-line {
   display: flex;
   justify-content: space-between;
