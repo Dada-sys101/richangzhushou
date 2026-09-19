@@ -967,3 +967,19 @@
 - 专项测试 27/27、用户端 lint/typecheck、`npm run quality`、`npm run format:check`、`npm run check:context` 和 `git diff --check` 通过；既有 `capture-draft.spec.ts` 在 chromium desktop/mobile、webkit mobile、375、430、768、1440 七个 Playwright 项目 7/7 通过。Fresh Sol 初次复核提出的未保存确认、变更后刷新失败可重复操作和多卡重复离开确认问题，已在本任务允许文件内收紧并由新增回归测试覆盖；后续复核补充确认了跨 reload 保留未保存输入、陈旧卡片选择框禁用和筛选请求串行化。
 - 实际浏览器检查覆盖 375、390、430、768、1440；各档启用 200% 根字号后 `document/body scrollWidth` 均与 viewport 相等。390 与 1440 注入草稿列表 503 后均显示 ErrorState，移除拦截并点击“重试”后恢复列表；390 另验证单条丢弃取消不改变草稿，以及批量确认 503 后对话框、原因、选择和重试上下文保留，恢复后成功丢弃并显示空状态。控制台仅记录开发环境既有 Service Worker MIME 噪声及本轮主动注入的 503，未发现新增业务异常请求；真实设备软键盘和安全区仍为 `DEVICE_ACCEPTANCE_PENDING`。
 - Fresh Sol 最终复核结论为 `ship`；本轮未提交、未推送、未创建 PR、未合并、未部署；UIR-08 未开始。
+
+## 2026-09-19 — UIR-08A 日程列表页面迁移（DONE_LOCAL；Fresh Sol 复核不可观测）
+
+- 基于 Integration `97f4cd8b6f7837e5e6eccb4b329729f1e2aa8572` 完成 `/calendar` 页面层级、当日概览、加载/空/失败/陈旧刷新反馈、日程创建/编辑/软删除/恢复、版本与状态提交、重叠警告、日期/删除筛选、`returnTo` 和未保存导航保护；保持现有 Store、API、Router、DateField/DateTimeField、时间工具及其他页面不变。
+- 新增 `CalendarView.test.ts`，覆盖有效日期查询、加载竞态、缓存刷新失败、全天半开区间、Asia/Shanghai 非全天序列化、重复提交防护、版本/状态、失败保留输入、删除确认/恢复和 Browser Back；用户端全量测试 50 个文件 / 301 个测试通过。
+- 仅修改 `CalendarView.vue`、`CalendarView.test.ts`、日历作用域样式和本记录；`npm run quality`、`npm run format:check`、`npm run check:context`、`git diff --check` 全部通过。Playwright CLI preview 验收覆盖 375、390、430、768、1440 CSS px、删除筛选、503 ErrorState 和 375px/200% 文本缩放，均无横向溢出；截图保存在 `output/playwright/uir-08a-calendar-*.png`。
+- 真实 E2E 入口已尝试，但配置要求的专用 `E2E_DATABASE_URL`/`DATABASE_URL` 与本机 MySQL 均不可用，因此未宣称真实后端 E2E 通过。Fresh Sol 最终审查因 runtime 路由元数据不可观测而按规则关闭，未采纳 reviewer verdict；本轮未提交、未推送、未创建 PR、未合并、未部署，未开始 UIR-08B。
+
+## 2026-09-19 — UIR-08A 真实 E2E 与 Fresh Sol 验收收尾（DONE_LOCAL；REVIEW_BLOCKED_RUNTIME_METADATA）
+
+- 复用项目既有 MySQL 8.4.11 与 `daily_assistant_e2e` 测试库，使用既有 E2E 启动脚本完成 migration、API、Web、Admin 和浏览器验收；本轮启动的 MySQL、API、Web、Admin 与浏览器均已停止，未输出连接凭据或 Cookie。
+- 首轮真实 E2E 的 5 个失败均定位为 UIR-08A 的页面兼容性问题：日程详情入口应沿用既有“查看”名称，以及初始 `/calendar` 的 `returnTo` 不应注入未出现在当前 URL 中的默认日期；仅在允许文件内完成最小修复，未修改 E2E 断言。最终 `navigation-shell.spec.ts` 15/15、`temporal-picker.spec.ts` 5/5，五个项目 `mobile-375`、`chromium-mobile`（390）、`mobile-430`、`tablet-768`、`desktop-1440` 共 20/20 通过，覆盖日程创建、详情 returnTo、返回、编辑、取消、删除、恢复、计划入口和 Browser Back。
+- `CalendarView`/`PlannerListsView` 聚焦回归 17/17；Web 全量 50 files / 301 tests；Web lint/typecheck、`npm run quality`、format、context 和 `git diff --check` 全部通过。最终 E2E 输出仅有 FORCE_COLOR/NO_COLOR 警告，未报告失败断言或失败网络请求；五档视口及五档 200% 文本缩放沿用此前通过证据。
+- Sol Advisor `install-agents.sh --check` 精确性通过，原生 Luna/Terra/Sol 角色均暴露。新 Fresh Sol reviewer `01a0b87a-d46b-7303-8600-6addbd6cd832` 的公开元数据未提供 model/effort；`inspect-agent-runtime.sh` 返回 `ERROR: rollout is missing, ambiguous, invalid, or inconsistent required routing metadata.`，故 reviewer 已关闭、未采纳 verdict。sandbox policy 与 permission profile 也因同一运行时元数据缺失而不可观测；审查前后工作区状态和允许文件集合一致。
+- 用户已明确决定本任务暂不以实际执行模型、reviewer 路由元数据、sandbox 或 permission metadata 作为交付门禁，批准在如实保留 Fresh Sol 未形成有效 verdict 的前提下继续交付；不将 Fresh Sol 记录为 `ship`。
+- 本次交付仅负责提交、推送和创建 PR，不合并、不部署、不开始 UIR-08B；Fresh Sol 不形成可采纳 verdict，不记录为 `ship`。
