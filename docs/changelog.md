@@ -983,3 +983,14 @@
 - Sol Advisor `install-agents.sh --check` 精确性通过，原生 Luna/Terra/Sol 角色均暴露。新 Fresh Sol reviewer `01a0b87a-d46b-7303-8600-6addbd6cd832` 的公开元数据未提供 model/effort；`inspect-agent-runtime.sh` 返回 `ERROR: rollout is missing, ambiguous, invalid, or inconsistent required routing metadata.`，故 reviewer 已关闭、未采纳 verdict。sandbox policy 与 permission profile 也因同一运行时元数据缺失而不可观测；审查前后工作区状态和允许文件集合一致。
 - 用户已明确决定本任务暂不以实际执行模型、reviewer 路由元数据、sandbox 或 permission metadata 作为交付门禁，批准在如实保留 Fresh Sol 未形成有效 verdict 的前提下继续交付；不将 Fresh Sol 记录为 `ship`。
 - 本次交付仅负责提交、推送和创建 PR，不合并、不部署、不开始 UIR-08B；Fresh Sol 不形成可采纳 verdict，不记录为 `ship`。
+
+## 2026-09-19 — UIR-08B 待办列表页面迁移（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 基于 Integration 合并基线完成 `/tasks` 页面迁移：重组待办列表信息层级和响应式布局，补齐状态/优先级/逾期/无截止时间展示，以及加载、错误、陈旧缓存、空状态和重试反馈；保留现有 Planner Store、API、Router、时间工具和详情页不变。
+- 真实浏览器复核中发现全局同步无筛选刷新可能覆盖当前筛选快照；在 TasksView 页面层增加 status/软删除收敛防线，并补充回归断言，未修改 Store 或同步规则。
+- 完善新建、编辑、完成、取消、删除确认、软删除恢复、失败输入保留、重复提交锁定、版本提交、`returnTo` 和未保存导航保护；保持 OPEN/COMPLETED/CANCELLED、LOW/MEDIUM/HIGH、`dueAt` 的 Asia/Shanghai 序列化和既有离线/冲突语义。
+- 仅修改 `TasksView.vue`、新增 `TasksView.test.ts`、待办作用域样式和本记录；未修改 Store、API、Router、E2E 测试、数据库、公共时间/选择器或其他页面。
+- `TasksView` 与 `PlannerListsView` 聚焦测试 19/19；Web 全量测试 51 files / 317 tests；`npm run quality`、`format:check`、`check:context` 和 `git diff --check` 全部通过。
+- 复用项目既有便携 MySQL 8.4.11 与 `daily_assistant_e2e`，使用既有 E2E 启动脚本顺序执行 `navigation-shell.spec.ts` 与 `temporal-picker.spec.ts`，五个项目（375、390、430、768、1440）共 20/20 通过；Playwright CLI 另在五档宽度启用 200% 根字号检查，均无横向溢出。验收后 MySQL、API、Web、Admin 和浏览器均已停止。
+- 故障注入集中在 390/1440：初始任务 GET 503 均展示 ErrorState，移除注入后点击重试恢复；390 在完成请求成功但列表刷新 GET 503 时保留旧行并显示“刷新失败/上次成功加载”提示，恢复后重试收敛；1440 另检查 COMPLETED、CANCELLED、全部筛选及筛选对应空状态。网络中的 503 均为主动注入，恢复请求为 200；控制台仅见既有开发环境 Service Worker MIME 噪声及主动注入的 503。
+- 实现与本地验收阶段未提交、未推送、未创建 PR；本交付任务仅执行提交、推送和创建 PR，仍不合并、不部署、未开始 UIR-08C。Fresh Sol 审查不是本任务门禁，未将任何审查状态写成 `ship`。
