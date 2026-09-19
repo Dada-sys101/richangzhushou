@@ -959,3 +959,11 @@
 - 预算页保留 `MonthField`、Asia/Shanghai 默认月份、Finance Store/API payload、字符串金额和预算 `version` 语义；页面按月份控件、当月概览、设置新预算和预算列表组织。
 - 使用现有 `LoadingState`、`ErrorState`、`EmptyState` 和 `requestAppConfirm`；区分列表加载、摘要失败与写操作错误，缓存列表在刷新失败时仍可见，删除取消不会调用 Store。
 - 本轮仅修改 `BudgetsView.vue`、`BudgetsView.test.ts`、预算页作用域样式和本变更记录；专项测试 11/11、用户端 lint/typecheck、`npm run quality`、格式、上下文与差异检查通过。真实浏览器在 375、390、430、768、1440 CSS px 及各档 200% 根字号下检查标题、月份控件、新增表单、预算列表、操作按钮和横向溢出，均未发现新增溢出或遮挡；390px 另以受控延迟捕获 `LoadingState`。390px 完成月份切换、创建成功/503 失败保留输入、行内更新 503 保留输入、删除确认取消与 503 失败保留列表；1440px 完成预算加载 503、摘要 503、重试恢复及创建/更新/删除 503 失败保留数据。390px Browser Back 未保存金额拒绝后 URL、页面和 `123.45` 输入保持，确认弹窗关闭；再次 Back 接受后进入 `/account`，未出现重复弹窗或历史循环。控制台仅见开发环境既有 Service Worker MIME/同步刷新噪声与本轮注入 503；停止本地服务后浏览器残余同步请求的 `ERR_CONNECTION_REFUSED` 属于 teardown 噪声，未发现实现新增业务异常请求。实体软键盘和真实安全区仍待设备验收。Fresh Sol 复核结论为 `ship`。本轮未提交、未推送、未创建 PR、未部署；UIR-08 未开始。
+
+## 2026-09-19 — UIR-07E 草稿审核页面迁移（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 草稿中心按“确认边界说明 → 快速新增/状态筛选 → 加载/错误/陈旧提示 → 待确认批量操作 → 草稿审核卡片/空状态”组织；仅保留 `PENDING`、`CONFIRMED`、`DISCARDED` 和全部筛选，不新增 FAILED 筛选。单条丢弃使用现有应用确认，批量丢弃继续使用意图、confirmationToken 和二次确认；确认前不会写入正式账单。
+- DraftReviewCard 保留金额字符串、`EXPENSE`/`INCOME`/`REFUND`、`Asia/Shanghai` 时间序列化、版本号、分类/账户过滤、失败输入保留、只读已确认/已丢弃/失败状态和可访问文字语义；未修改 Store、API、Router、数据库、时间组件、其他页面或依赖。
+- 专项测试 27/27、用户端 lint/typecheck、`npm run quality`、`npm run format:check`、`npm run check:context` 和 `git diff --check` 通过；既有 `capture-draft.spec.ts` 在 chromium desktop/mobile、webkit mobile、375、430、768、1440 七个 Playwright 项目 7/7 通过。Fresh Sol 初次复核提出的未保存确认、变更后刷新失败可重复操作和多卡重复离开确认问题，已在本任务允许文件内收紧并由新增回归测试覆盖；后续复核补充确认了跨 reload 保留未保存输入、陈旧卡片选择框禁用和筛选请求串行化。
+- 实际浏览器检查覆盖 375、390、430、768、1440；各档启用 200% 根字号后 `document/body scrollWidth` 均与 viewport 相等。390 与 1440 注入草稿列表 503 后均显示 ErrorState，移除拦截并点击“重试”后恢复列表；390 另验证单条丢弃取消不改变草稿，以及批量确认 503 后对话框、原因、选择和重试上下文保留，恢复后成功丢弃并显示空状态。控制台仅记录开发环境既有 Service Worker MIME 噪声及本轮主动注入的 503，未发现新增业务异常请求；真实设备软键盘和安全区仍为 `DEVICE_ACCEPTANCE_PENDING`。
+- Fresh Sol 最终复核结论为 `ship`；本轮未提交、未推送、未创建 PR、未合并、未部署；UIR-08 未开始。

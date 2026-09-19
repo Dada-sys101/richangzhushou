@@ -7,6 +7,7 @@ import type {
   FinancialAccountSummary,
   TransactionDraftPayload,
 } from "../api/client";
+import { toLocalDateTimeInput, toShanghaiIso } from "../utils/time";
 import DateTimeField from "./DateTimeField.vue";
 
 const props = defineProps<{
@@ -14,41 +15,66 @@ const props = defineProps<{
   categories: CategorySummary[];
   draft: DraftSummary;
   errorMessage?: string;
+  readOnly?: boolean;
   saving?: boolean;
 }>();
 
 const emit = defineEmits<{
   confirm: [draftId: string];
   discard: [draftId: string];
+  dirtyChange: [draftId: string, dirty: boolean];
   save: [draftId: string, payload: TransactionDraftPayload, version: number];
 }>();
 
-const type = ref<"EXPENSE" | "INCOME" | "REFUND">(props.draft.payload.type);
-const amount = ref(props.draft.payload.amount);
-const merchant = ref(props.draft.payload.merchant ?? "");
-const occurredAt = ref(
-  isoToLocalInput(props.draft.payload.occurredAt ?? new Date().toISOString()),
+type DraftType = "EXPENSE" | "INCOME" | "REFUND";
+
+const type = ref<DraftType>("EXPENSE");
+const amount = ref("");
+const merchant = ref("");
+const occurredAt = ref("");
+const note = ref("");
+const categoryId = ref("");
+const accountId = ref("");
+const originalSnapshot = ref("");
+
+const editable = computed(
+  () => props.draft.status === "PENDING" && !props.readOnly,
 );
-const note = ref(props.draft.payload.note ?? "");
-const categoryId = ref(props.draft.payload.categoryId ?? "");
-const accountId = ref(props.draft.payload.accountId ?? "");
-const dirty = ref(false);
+const hasChanges = computed(
+  () => editable.value && currentSnapshot() !== originalSnapshot.value,
+);
 
 watch(
   () => props.draft,
-  (draft) => {
-    type.value = draft.payload.type;
-    amount.value = draft.payload.amount;
-    merchant.value = draft.payload.merchant ?? "";
-    occurredAt.value = isoToLocalInput(
-      draft.payload.occurredAt ?? new Date().toISOString(),
-    );
-    note.value = draft.payload.note ?? "";
-    categoryId.value = draft.payload.categoryId ?? "";
-    accountId.value = draft.payload.accountId ?? "";
-    dirty.value = false;
+  (draft, previousDraft) => {
+    // A reload triggered by another card's mutation can replace this prop
+    // while local edits are still in progress. Preserve those edits until
+    // the server version changes (for example, after this card is saved).
+    if (
+      hasChanges.value &&
+      previousDraft &&
+      draft.version === previousDraft.version
+    ) {
+      return;
+    }
+    resetFromDraft(draft);
   },
   { deep: true, immediate: true },
+);
+
+watch(
+  hasChanges,
+  (dirty) => {
+    emit("dirtyChange", props.draft.id, dirty);
+  },
+  { immediate: true },
+);
+
+const activeCategories = computed(() =>
+  props.categories.filter((category) => !category.isArchived),
+);
+const activeAccounts = computed(() =>
+  props.accounts.filter((account) => !account.isArchived),
 );
 
 const sourceLabel = computed(() => {
@@ -72,7 +98,13 @@ const statusLabel = computed(() => {
   return labels[props.draft.status] ?? props.draft.status;
 });
 
-const editable = computed(() => props.draft.status === "PENDING");
+const categoryLabel = computed(() =>
+  labelForId(props.categories, props.draft.payload.categoryId, "未分类"),
+);
+const accountLabel = computed(() =>
+  labelForId(props.accounts, props.draft.payload.accountId, "未指定"),
+);
+const draftTitleId = computed(() => `draft-title-${props.draft.id}`);
 
 const confidenceHint = computed(() => {
   const confidence = props.draft.confidence;
@@ -92,38 +124,78 @@ const confidenceHint = computed(() => {
   return `识别置信度：${fields.join(" · ")}，请核对后确认。`;
 });
 
-function markDirty() {
-  if (editable.value) {
-    dirty.value = true;
-  }
+function resetFromDraft(draft: DraftSummary) {
+  type.value = draft.payload.type;
+  amount.value = draft.payload.amount;
+  merchant.value = draft.payload.merchant ?? "";
+  occurredAt.value = draft.payload.occurredAt
+    ? toLocalDateTimeInput(draft.payload.occurredAt)
+    : "";
+  note.value = draft.payload.note ?? "";
+  categoryId.value = draft.payload.categoryId ?? "";
+  accountId.value = draft.payload.accountId ?? "";
+  originalSnapshot.value = snapshotForPayload(draft.payload);
 }
 
-function buildPayload(): TransactionDraftPayload {
-  return {
+function currentSnapshot(): string {
+  return JSON.stringify({
     accountId: accountId.value || null,
     amount: amount.value.trim(),
     categoryId: categoryId.value || null,
-    currency: "CNY",
     merchant: merchant.value.trim() || null,
     note: note.value.trim() || null,
-    occurredAt: occurredAt.value
-      ? new Date(occurredAt.value).toISOString()
+    occurredAt: occurredAt.value ? toShanghaiIso(occurredAt.value) : undefined,
+    type: type.value,
+  });
+}
+
+function snapshotForPayload(payload: TransactionDraftPayload): string {
+  return JSON.stringify({
+    accountId: payload.accountId ?? null,
+    amount: payload.amount.trim(),
+    categoryId: payload.categoryId ?? null,
+    merchant: payload.merchant?.trim() || null,
+    note: payload.note?.trim() || null,
+    occurredAt: payload.occurredAt
+      ? toShanghaiIso(toLocalDateTimeInput(payload.occurredAt))
       : undefined,
+    type: payload.type,
+  });
+}
+
+function buildPayload(): TransactionDraftPayload {
+  const original = props.draft.payload;
+  return {
+    ...original,
+    accountId: accountId.value || null,
+    amount: amount.value.trim(),
+    categoryId: categoryId.value || null,
+    currency: original.currency ?? "CNY",
+    merchant: merchant.value.trim() || null,
+    note: note.value.trim() || null,
+    occurredAt: occurredAt.value ? toShanghaiIso(occurredAt.value) : undefined,
     type: type.value,
   };
 }
 
 function save() {
-  if (!dirty.value) {
+  if (!editable.value || !hasChanges.value || props.saving) {
     return;
   }
   emit("save", props.draft.id, buildPayload(), props.draft.version);
 }
 
-function isoToLocalInput(iso: string): string {
-  const date = new Date(iso);
-  const pad = (value: number) => String(value).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+function labelForId(
+  items: Array<{ id: string; name: string }>,
+  id: string | null | undefined,
+  fallback: string,
+): string {
+  if (!id) return fallback;
+  return items.find((item) => item.id === id)?.name ?? "未找到名称";
+}
+
+function typeName(value: DraftType): string {
+  return value === "INCOME" ? "收入" : value === "REFUND" ? "退款" : "支出";
 }
 
 function percent(value: number): string {
@@ -132,56 +204,80 @@ function percent(value: number): string {
 </script>
 
 <template>
-  <article class="draft-card" :class="{ 'is-settled': !editable }">
+  <article
+    class="draft-card"
+    :class="{ 'is-settled': !editable }"
+    :aria-labelledby="draftTitleId"
+  >
     <header class="draft-card-head">
       <div class="draft-title">
-        <strong>{{ sourceLabel }}</strong>
+        <strong :id="draftTitleId">{{ sourceLabel }}</strong>
         <span
           class="status-badge"
           :class="`status-${draft.status.toLowerCase()}`"
+          role="status"
         >
           {{ statusLabel }}
         </span>
       </div>
-      <small class="draft-time">{{ formatTime(draft.createdAt) }}</small>
+      <small class="draft-time">创建于 {{ formatTime(draft.createdAt) }}</small>
     </header>
+
+    <p class="draft-status-copy" role="note">
+      状态：{{ statusLabel
+      }}<span v-if="editable"
+        >；当前仍是草稿，确认入账前不会写入正式账单。</span
+      >
+    </p>
 
     <p v-if="confidenceHint" class="confidence-hint" role="note">
       {{ confidenceHint }}
     </p>
+    <p v-if="draft.failureReason" class="draft-failure" role="alert">
+      失败原因：{{ draft.failureReason }}
+    </p>
+    <p v-if="errorMessage" class="form-error" role="alert">
+      {{ errorMessage }}
+    </p>
 
     <div v-if="editable" class="draft-form">
       <label class="draft-field">
-        类型
-        <select v-model="type" @change="markDirty">
+        <span>类型</span>
+        <select v-model="type" aria-label="草稿类型" :disabled="saving">
           <option value="EXPENSE">支出</option>
           <option value="INCOME">收入</option>
           <option value="REFUND">退款</option>
         </select>
       </label>
       <label class="draft-field">
-        金额
+        <span>金额</span>
         <input
           v-model="amount"
+          aria-label="草稿金额"
           inputmode="decimal"
           placeholder="0.00"
-          @input="markDirty"
+          :disabled="saving"
         />
       </label>
       <label class="draft-field">
-        商户
-        <input v-model="merchant" maxlength="100" @input="markDirty" />
+        <span>商户</span>
+        <input
+          v-model="merchant"
+          aria-label="草稿商户"
+          maxlength="100"
+          :disabled="saving"
+        />
       </label>
       <label class="draft-field">
-        时间
-        <DateTimeField v-model="occurredAt" @change="markDirty" />
+        <span>时间</span>
+        <DateTimeField v-model="occurredAt" :disabled="saving" />
       </label>
       <label class="draft-field">
-        分类
-        <select v-model="categoryId" @change="markDirty">
+        <span>分类</span>
+        <select v-model="categoryId" aria-label="草稿分类" :disabled="saving">
           <option value="">未分类</option>
           <option
-            v-for="category in categories"
+            v-for="category in activeCategories"
             :key="category.id"
             :value="category.id"
           >
@@ -190,11 +286,11 @@ function percent(value: number): string {
         </select>
       </label>
       <label class="draft-field">
-        账户
-        <select v-model="accountId" @change="markDirty">
+        <span>账户</span>
+        <select v-model="accountId" aria-label="草稿账户" :disabled="saving">
           <option value="">未指定</option>
           <option
-            v-for="account in accounts"
+            v-for="account in activeAccounts"
             :key="account.id"
             :value="account.id"
           >
@@ -203,22 +299,20 @@ function percent(value: number): string {
         </select>
       </label>
       <label class="draft-field draft-field-wide">
-        备注
+        <span>备注</span>
         <textarea
           v-model="note"
+          aria-label="草稿备注"
           maxlength="500"
           rows="2"
-          @input="markDirty"
+          :disabled="saving"
         ></textarea>
       </label>
 
-      <p v-if="errorMessage" class="form-error" role="alert">
-        {{ errorMessage }}
-      </p>
       <div class="draft-actions">
         <button
           class="secondary-button"
-          :disabled="!dirty || saving"
+          :disabled="!hasChanges || saving"
           type="button"
           @click="save"
         >
@@ -226,7 +320,7 @@ function percent(value: number): string {
         </button>
         <button
           class="primary-button"
-          :disabled="saving"
+          :disabled="hasChanges || saving"
           type="button"
           @click="emit('confirm', draft.id)"
         >
@@ -245,6 +339,10 @@ function percent(value: number): string {
 
     <dl v-else class="draft-readonly">
       <div>
+        <dt>类型</dt>
+        <dd>{{ typeName(draft.payload.type) }}</dd>
+      </div>
+      <div>
         <dt>金额</dt>
         <dd>¥{{ draft.payload.amount }}</dd>
       </div>
@@ -259,6 +357,14 @@ function percent(value: number): string {
         </dd>
       </div>
       <div>
+        <dt>分类</dt>
+        <dd>{{ categoryLabel }}</dd>
+      </div>
+      <div>
+        <dt>账户</dt>
+        <dd>{{ accountLabel }}</dd>
+      </div>
+      <div class="draft-readonly-wide">
         <dt>备注</dt>
         <dd>{{ draft.payload.note || "—" }}</dd>
       </div>
