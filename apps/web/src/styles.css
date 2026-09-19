@@ -6218,3 +6218,183 @@ html.app-dialog-open body {
     min-width: 0;
   }
 }
+
+/* UIR-08A: keep the calendar list focused on one day and resilient at narrow widths. */
+.calendar-toolbar {
+  display: grid;
+  grid-template-columns: minmax(150px, 220px) auto;
+  align-items: end;
+  gap: 12px;
+  min-width: 0;
+}
+
+.calendar-date-filter,
+.calendar-deleted-filter {
+  min-width: 0;
+}
+
+.calendar-deleted-filter {
+  min-height: 44px;
+  padding: 0 4px;
+}
+
+.calendar-deleted-filter input,
+.calendar-all-day-field input {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+}
+
+.calendar-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.calendar-overview-grid > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.calendar-overview-grid span,
+.calendar-overview-note {
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+}
+
+.calendar-overview-grid strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.calendar-overview-note {
+  margin: 12px 0 0;
+}
+
+.calendar-event-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.calendar-event-main {
+  min-width: 0;
+}
+
+.calendar-event-heading {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 7px 10px;
+  min-width: 0;
+}
+
+.calendar-event-title {
+  min-width: 0;
+  flex: 1 1 14rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.calendar-event-time {
+  overflow-wrap: anywhere;
+}
+
+.calendar-row-actions {
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.calendar-row-actions .text-button {
+  min-height: 32px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.calendar-row-actions .text-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.planner-feedback-warning,
+.calendar-stale-warning {
+  border-color: #f4c66d;
+  color: #7a4b00;
+  background: #fff9e8;
+}
+
+.calendar-stale-warning {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 12px 14px;
+  border: 1px solid;
+  border-radius: var(--radius-sm);
+  line-height: 1.5;
+  flex-wrap: wrap;
+}
+
+.calendar-stale-warning > span {
+  min-width: 0;
+  flex: 1 1 18rem;
+  overflow-wrap: anywhere;
+}
+
+.calendar-stale-warning .secondary-button {
+  flex: 0 0 auto;
+}
+
+.calendar-refresh-state {
+  margin-bottom: 12px;
+}
+
+.calendar-edit-form {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+@media (max-width: 768px) {
+  .calendar-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .calendar-date-filter,
+  .calendar-deleted-filter {
+    width: 100%;
+  }
+
+  .calendar-overview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .calendar-event-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .calendar-row-actions {
+    width: 100%;
+    justify-content: flex-start;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .calendar-stale-warning {
+    align-items: stretch;
+  }
+
+  .calendar-stale-warning .secondary-button {
+    width: 100%;
+  }
+}
