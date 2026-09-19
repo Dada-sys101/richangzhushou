@@ -2579,6 +2579,326 @@ html.app-dialog-open body {
   font-size: 1.25rem;
 }
 
+/* UIR-07E: draft review keeps the confirmation boundary visible while
+   retaining the warm-white/soft-purple finance page rhythm. */
+.drafts-workspace {
+  width: min(100%, 820px);
+}
+
+.drafts-workspace .draft-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: var(--ui-space-3, 12px);
+  min-width: 0;
+}
+
+.drafts-workspace .drafts-status-filter {
+  min-width: 132px;
+}
+
+.drafts-workspace .draft-confirmation-note {
+  margin: 0;
+  padding: var(--ui-space-3, 12px) var(--ui-space-4, 16px);
+  border: 1px solid var(--ui-color-primary-soft, #eee9ff);
+  border-radius: var(--ui-radius-md, 12px);
+  color: var(--ui-color-text, #2b243d);
+  background: var(--ui-color-primary-subtle, #f7f4ff);
+  line-height: var(--ui-line-height-body, 1.55);
+  overflow-wrap: anywhere;
+}
+
+.drafts-workspace .draft-refresh-state,
+.drafts-workspace .draft-stale-warning {
+  margin: 0;
+}
+
+.drafts-workspace .draft-stale-warning {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-space-3, 12px);
+  min-width: 0;
+  padding: var(--ui-space-3, 12px) var(--ui-space-4, 16px);
+  border: 1px solid var(--ui-color-warning, #b7791f);
+  border-radius: var(--ui-radius-md, 12px);
+  color: var(--ui-color-warning-strong, #7a4b00);
+  background: var(--ui-color-warning-soft, #fff8e7);
+  line-height: var(--ui-line-height-body, 1.55);
+}
+
+.drafts-workspace .draft-stale-warning span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.drafts-workspace .batch-bar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--ui-space-3, 12px);
+  margin: 0;
+  padding: var(--ui-space-4, 16px);
+  border-color: var(--ui-color-border, #e7e1f3);
+  border-radius: var(--ui-radius-md, 12px);
+  background: var(--ui-color-surface-muted, #f7f5fb);
+  box-shadow: none;
+}
+
+.drafts-workspace .draft-select-all,
+.drafts-workspace .batch-reason-field {
+  min-width: 0;
+}
+
+.drafts-workspace .draft-select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-2, 8px);
+  min-height: var(--ui-control-height-default, 44px);
+  color: var(--ui-color-text, #2b243d);
+  font-weight: var(--ui-font-weight-semibold, 600);
+}
+
+.drafts-workspace .batch-reason-field {
+  display: grid;
+  gap: 4px;
+  color: var(--ui-color-text-secondary, #625b7c);
+  font-size: var(--ui-font-size-12, 12px);
+  font-weight: var(--ui-font-weight-semibold, 600);
+}
+
+.drafts-workspace .batch-reason {
+  width: 100%;
+  min-width: 0;
+}
+
+.drafts-workspace .draft-list {
+  display: grid;
+  gap: var(--ui-space-4, 16px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.drafts-workspace .draft-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+.drafts-workspace .draft-check {
+  position: absolute;
+  z-index: 1;
+  top: var(--ui-space-4, 16px);
+  right: var(--ui-space-4, 16px);
+  width: var(--ui-control-height-default, 44px);
+  height: var(--ui-control-height-default, 44px);
+  margin: 0;
+}
+
+.drafts-workspace .draft-check + .draft-card .draft-card-head {
+  padding-right: 56px;
+}
+
+.drafts-workspace .draft-card {
+  display: grid;
+  gap: var(--ui-space-3, 12px);
+  min-width: 0;
+  padding: var(--ui-space-5, 20px);
+  border-color: var(--ui-color-border, #e7e1f3);
+  border-radius: var(--ui-radius-md, 12px);
+  background: var(--ui-color-surface, #ffffff);
+  box-shadow: var(--ui-shadow-low, 0 1px 2px rgb(64 45 31 / 4%));
+}
+
+.drafts-workspace .draft-card.is-settled {
+  opacity: 1;
+  background: var(--ui-color-surface-muted, #f7f5fb);
+}
+
+.drafts-workspace .draft-card-head,
+.drafts-workspace .draft-title {
+  min-width: 0;
+}
+
+.drafts-workspace .draft-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ui-space-3, 12px);
+  flex-wrap: wrap;
+}
+
+.drafts-workspace .draft-title {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-2, 8px);
+  flex-wrap: wrap;
+}
+
+.drafts-workspace .draft-title strong,
+.drafts-workspace .draft-time,
+.drafts-workspace .draft-status-copy,
+.drafts-workspace .confidence-hint,
+.drafts-workspace .draft-failure,
+.drafts-workspace .draft-readonly dd {
+  overflow-wrap: anywhere;
+}
+
+.drafts-workspace .draft-time {
+  color: var(--ui-color-text-muted, #756e83);
+  line-height: var(--ui-line-height-compact, 1.4);
+}
+
+.drafts-workspace .status-badge {
+  padding: 3px 9px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: var(--ui-font-size-12, 12px);
+  font-weight: var(--ui-font-weight-semibold, 600);
+  line-height: var(--ui-line-height-compact, 1.4);
+}
+
+.drafts-workspace .draft-status-copy,
+.drafts-workspace .confidence-hint,
+.drafts-workspace .draft-failure {
+  margin: 0;
+  line-height: var(--ui-line-height-body, 1.55);
+}
+
+.drafts-workspace .draft-status-copy {
+  color: var(--ui-color-text-secondary, #625b7c);
+}
+
+.drafts-workspace .confidence-hint {
+  color: var(--ui-color-warning-strong, #7a4b00);
+  font-weight: var(--ui-font-weight-semibold, 600);
+}
+
+.drafts-workspace .draft-failure {
+  padding: var(--ui-space-2, 8px) var(--ui-space-3, 12px);
+  border-radius: var(--ui-radius-sm, 10px);
+  color: var(--ui-color-danger, #b91c1c);
+  background: var(--ui-color-danger-soft, #fff0f0);
+}
+
+.drafts-workspace .draft-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ui-space-3, 12px);
+  min-width: 0;
+}
+
+.drafts-workspace .draft-field {
+  display: grid;
+  gap: var(--ui-space-1, 4px);
+  min-width: 0;
+  color: var(--ui-color-text-secondary, #625b7c);
+  font-size: var(--ui-font-size-12, 12px);
+  font-weight: var(--ui-font-weight-semibold, 600);
+}
+
+.drafts-workspace .draft-field input,
+.drafts-workspace .draft-field select,
+.drafts-workspace .draft-field textarea {
+  width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.drafts-workspace .draft-field textarea {
+  resize: vertical;
+}
+
+.drafts-workspace .draft-field-wide,
+.drafts-workspace .draft-actions,
+.drafts-workspace .draft-form > .form-error {
+  grid-column: 1 / -1;
+}
+
+.drafts-workspace .draft-actions {
+  display: flex;
+  gap: var(--ui-space-2, 8px);
+  flex-wrap: wrap;
+  padding-top: var(--ui-space-2, 8px);
+  border-top: 1px solid var(--ui-color-border, #e7e1f3);
+}
+
+.drafts-workspace .draft-actions > * {
+  min-width: 120px;
+}
+
+.drafts-workspace .draft-readonly {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ui-space-3, 12px);
+  margin: 0;
+}
+
+.drafts-workspace .draft-readonly > div {
+  display: grid;
+  gap: var(--ui-space-1, 4px);
+  min-width: 0;
+}
+
+.drafts-workspace .draft-readonly-wide {
+  grid-column: 1 / -1;
+}
+
+.drafts-workspace .draft-readonly dt {
+  color: var(--ui-color-text-muted, #756e83);
+  font-size: var(--ui-font-size-12, 12px);
+  font-weight: var(--ui-font-weight-semibold, 600);
+}
+
+.drafts-workspace .draft-readonly dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--ui-color-text, #2b243d);
+  line-height: var(--ui-line-height-body, 1.55);
+}
+
+@media (max-width: 768px) {
+  .drafts-workspace .draft-form,
+  .drafts-workspace .draft-readonly {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .drafts-workspace .draft-field-wide,
+  .drafts-workspace .draft-readonly-wide {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .drafts-workspace .draft-toolbar,
+  .drafts-workspace .batch-bar,
+  .drafts-workspace .draft-stale-warning {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .drafts-workspace .draft-toolbar > *,
+  .drafts-workspace .batch-bar > *,
+  .drafts-workspace .draft-stale-warning > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .drafts-workspace .draft-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .drafts-workspace .draft-actions > * {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+  }
+}
+
 .planner-create,
 .planner-edit {
   display: grid;
