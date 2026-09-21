@@ -1743,7 +1743,7 @@ html.app-dialog-open body {
 }
 
 .planner-detail-page {
-  max-width: 720px;
+  max-width: 780px;
 }
 
 .planner-detail-card {
@@ -1759,10 +1759,25 @@ html.app-dialog-open body {
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .planner-detail-card h2 {
   margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.planner-detail-heading,
+.planner-detail-status {
+  min-width: 0;
+}
+
+.planner-detail-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .planner-detail-list {
@@ -1787,6 +1802,11 @@ html.app-dialog-open body {
 .planner-detail-list dd {
   margin: 0;
   color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.planner-detail-list dd > * + * {
+  margin-left: 8px;
 }
 
 .planner-detail-error {
@@ -1798,6 +1818,11 @@ html.app-dialog-open body {
   color: #b91c1c;
   font-weight: 650;
   flex-wrap: wrap;
+}
+
+.planner-detail-error > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .planner-detail-form {
@@ -1813,9 +1838,22 @@ html.app-dialog-open body {
 
 .planner-detail-actions {
   display: flex;
+  align-items: center;
   gap: 12px;
   margin-top: 22px;
   flex-wrap: wrap;
+}
+
+.planner-detail-action-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.planner-detail-danger-actions {
+  margin-left: auto;
 }
 
 .trip-list {
@@ -1957,6 +1995,11 @@ html.app-dialog-open body {
 }
 
 .planner-detail-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
   padding: 12px 14px;
   border-color: #fecaca;
   background: #fff7f7;
@@ -2180,6 +2223,11 @@ html.app-dialog-open body {
 @media (max-width: 768px) {
   .planner-detail-workspace .planner-detail-card-head {
     align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .planner-detail-workspace .planner-detail-status {
+    justify-content: flex-start;
   }
 
   .planner-detail-workspace .planner-detail-form,
@@ -2201,7 +2249,32 @@ html.app-dialog-open body {
     min-height: 46px;
   }
 
+  .planner-detail-workspace .planner-detail-actions,
+  .planner-detail-workspace .planner-detail-action-group,
   .planner-detail-workspace .planner-detail-actions > *,
+  .trip-detail-workspace .trip-head-actions > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .planner-detail-workspace .planner-detail-actions {
+    display: grid;
+    gap: 10px;
+  }
+
+  .planner-detail-workspace .planner-detail-action-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .planner-detail-workspace .planner-detail-danger-actions {
+    margin-left: 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .planner-detail-workspace .planner-detail-action-group > *,
   .trip-detail-workspace .trip-head-actions > * {
     min-height: 44px;
   }
