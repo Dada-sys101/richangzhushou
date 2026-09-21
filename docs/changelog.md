@@ -1,5 +1,15 @@
 # 变更日志（Changelog）
 
+## 2026-09-21 — UIR-08C 提醒列表页面迁移（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- `/reminders` 按“状态筛选/已删除 → 应用外提醒能力 → 反馈 → 新建 → 列表”重组页面层级；补齐待发送、已发送、发送失败、已抑制、已取消和全部筛选，加载/空/失败/重试反馈，陈旧请求保护，以及长标题、备注、失败原因和移动端操作区换行。
+- 保留 ONCE/DAILY/WEEKLY/MONTHLY 重复规则、Asia/Shanghai 时间转换、version、取消/重新启用、软删除/恢复、SENT 限制、完整 `returnTo` 和未保存保护；Push 入口区分浏览器不支持、服务端未配置、未开启、已开启、权限拒绝和操作失败，失败时不阻塞提醒 CRUD。
+- 仅修改 `RemindersView.vue`、新增 `RemindersView.test.ts`、提醒页作用域样式和本记录；未修改 Planner Store、API、Router、DateTimeField、时间工具、Push/Service Worker、E2E 测试或其他页面。
+- `RemindersView` + `PlannerListsView` 聚焦测试 2 files / 19 tests；Web 全量 52 files / 333 tests；Web lint/typecheck、`npm run quality`、`npm run format:check`、`npm run check:context` 和 `git diff --check` 全部通过。
+- 复用项目既有便携 MySQL 8.4.11、`daily_assistant_e2e` 和原有启动脚本，navigation-shell、temporal-picker、web-push 在 375、390、430、768、1440 五个 Playwright 项目共 30/30 通过；Push 仅使用既有浏览器模拟，未连接真实第三方服务。
+- 浏览器验收在 390 与 1440 注入提醒 GET 503，页面显示可理解的加载失败/重试反馈；移除拦截后请求恢复 200。五档视口启用 200% 根字号时 `document/body scrollWidth` 均等于 viewport，未见横向溢出；SCHEDULED、SENT、FAILED、SUPPRESSED、CANCELLED 状态筛选请求均恢复 200。控制台仅见开发环境既有 Service Worker MIME 噪声，主动注入 503 已在网络记录中确认。
+- 本轮未进行 Fresh Sol 审查；未提交、未推送、未创建 PR、未合并、未部署，未开始 UIR-08D。
+
 ## 2026-09-18 — UIR-07B 账单表单迁移本地实现
 
 - `/transactions/new` 与 `/transactions/:id/edit` 迁移到 `UiPageFrame` 表单模板，使用 `max-width="form"`、稳定表单 ID、外置原生提交按钮和底部 `FormActions`，保留 `returnTo`、取消替换导航和未保存保护。

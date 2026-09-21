@@ -6541,3 +6541,169 @@ html.app-dialog-open body {
     width: 100%;
   }
 }
+
+/* UIR-08C: keep reminder status, recurrence and row actions readable on narrow screens. */
+.reminders-workspace .reminder-filter-toolbar {
+  grid-template-columns: minmax(150px, 220px) auto;
+}
+
+.reminders-workspace .reminder-filter-toolbar label {
+  min-width: 0;
+}
+
+.reminder-filter-summary {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.reminder-push-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  flex-wrap: wrap;
+}
+
+.reminder-push-copy {
+  min-width: 0;
+  flex: 1 1 20rem;
+}
+
+.reminder-push-copy p {
+  margin: 7px 0 0;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.reminder-push-status .secondary-button {
+  flex: 0 0 auto;
+}
+
+.reminder-push-error {
+  margin-top: 12px;
+}
+
+.reminder-heading {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 7px 10px;
+  min-width: 0;
+}
+
+.reminder-title {
+  min-width: 0;
+  flex: 1 1 14rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.reminder-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  min-width: 0;
+}
+
+.reminder-meta small,
+.reminder-note,
+.reminder-failure {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.reminder-note {
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.reminder-failure {
+  color: var(--color-danger);
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.reminder-row-actions {
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.reminder-row-actions .text-button {
+  min-height: 32px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.reminder-row-actions .text-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.reminder-create-form,
+.reminder-edit-form {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.reminder-create-form textarea,
+.reminder-edit-form textarea {
+  min-height: 76px;
+  resize: vertical;
+}
+
+.reminder-weekday-fieldset {
+  grid-column: 1 / -1;
+}
+
+.reminder-refresh-state {
+  margin-bottom: 12px;
+}
+
+.reminder-stale-warning {
+  margin: 0 0 12px;
+}
+
+@media (max-width: 768px) {
+  .reminders-workspace .reminder-filter-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .reminders-workspace .reminder-deleted-filter {
+    width: 100%;
+  }
+
+  .reminder-push-status {
+    align-items: stretch;
+  }
+
+  .reminder-push-status .secondary-button {
+    width: 100%;
+  }
+
+  .reminder-heading {
+    gap: 6px 8px;
+  }
+
+  .reminder-row-actions {
+    width: 100%;
+    justify-content: flex-start;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .reminder-row-actions .text-button {
+    min-height: 40px;
+  }
+
+  .reminder-weekday-fieldset {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
