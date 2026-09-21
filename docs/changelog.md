@@ -1,5 +1,12 @@
 # 变更日志（Changelog）
 
+## 2026-09-21 — UIR-08D1 计划详情公共展示与操作区迁移（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 迁移共享 `PlannerDetailView` 的 `/tasks/:id`、`/calendar/:id`、`/reminders/:id` 详情层级、加载/错误/无效数据/无 ID/404/503/重试反馈和旧请求防覆盖；保留现有三类编辑表单、路由实体分支、字符串 ID、safe `returnTo`、Browser Back、版本保护、Store 同步、软删除/恢复及操作语义。
+- 详情展示统一为中文状态、Asia/Shanghai 时间、全天边界、待办优先级/逾期、提醒重复规则/尝试次数/失败原因；公共操作区补充主要/状态/危险操作分组、重复提交保护和移动端单列触控布局。
+- 改动已迁移至正确 Integration 基线 `6e3d795d5f998f0156cf004521420c2557e03031`；`PlannerDetailView` 专项 25/25、Web 全量 52 files / 346 tests、`npm run quality`、格式、上下文和差异检查通过。真实浏览器使用项目既有便携 MySQL 与 `daily_assistant_e2e`，相关 E2E 在 375、390、430、768、1440 五档项目中 35/35 通过；200% 文本缩放五档均无横向溢出，详情操作区未越界。
+- 390/1440 完成加载、404、503、重试恢复和超长标题/备注/失败原因复核；控制台仅保留既有 Service Worker `text/html` MIME 噪声，网络异常仅为验收主动注入的 404/503。Fresh Sol 不属于本任务门禁，未执行模型或 runtime routing metadata 验证；本地变更尚未提交、推送、创建 PR、合并或部署，UIR-08D2 未开始。
+
 ## 2026-09-21 — UIR-08C 提醒列表页面迁移（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - `/reminders` 按“状态筛选/已删除 → 应用外提醒能力 → 反馈 → 新建 → 列表”重组页面层级；补齐待发送、已发送、发送失败、已抑制、已取消和全部筛选，加载/空/失败/重试反馈，陈旧请求保护，以及长标题、备注、失败原因和移动端操作区换行。

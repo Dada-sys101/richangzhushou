@@ -10,6 +10,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  ApiClientError,
   api,
   type CalendarEventSummary,
   type ReminderSummary,
@@ -105,6 +106,11 @@ function makeRouter(): Router {
       meta: { page: { title: "提醒" } },
     },
     {
+      path: "/missing-planner-detail/:id?",
+      component: PlannerDetailView,
+      meta: { page: { title: "详情", parent }, plannerEntity: "task" },
+    },
+    {
       path: "/tasks/:id",
       component: PlannerDetailView,
       meta: { page: { title: "待办详情", parent }, plannerEntity: "task" },
@@ -147,6 +153,16 @@ function findButton(wrapper: ReturnType<typeof mount>, label: string) {
     throw new Error(`button not found: ${label}`);
   }
   return button;
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, reject, resolve };
 }
 
 describe("PlannerDetailView", () => {
@@ -380,7 +396,7 @@ describe("PlannerDetailView", () => {
     await wrapper.find("input[required]").setValue("重试后的日程");
     await wrapper.find(".planner-detail-form").trigger("submit");
     await flushPromises();
-    expect(wrapper.text()).toContain("日程保存失败");
+    expect(wrapper.text()).toContain("操作失败，请稍后重试");
     expect(wrapper.text()).toContain("重试");
 
     await findButton(wrapper, "重试").trigger("click");
@@ -450,7 +466,7 @@ describe("PlannerDetailView", () => {
     await wrapper.find("input[required]").setValue("重试后的提醒");
     await wrapper.find(".planner-detail-form").trigger("submit");
     await flushPromises();
-    expect(wrapper.text()).toContain("提醒保存失败");
+    expect(wrapper.text()).toContain("操作失败，请稍后重试");
     expect(wrapper.text()).toContain("重试");
 
     await findButton(wrapper, "重试").trigger("click");
@@ -513,12 +529,209 @@ describe("PlannerDetailView", () => {
     await wrapper.find(".planner-detail-form").trigger("submit");
     await flushPromises();
 
-    expect(wrapper.text()).toContain("保存失败");
+    expect(wrapper.text()).toContain("操作失败，请稍后重试");
     expect(wrapper.text()).toContain("重试");
 
     await findButton(wrapper, "重试").trigger("click");
     await flushPromises();
     expect(update).toHaveBeenCalledTimes(2);
     expect(wrapper.text()).toContain("已重试保存");
+  });
+
+  it("uses shared loading and error states without sending a request for a missing id", async () => {
+    const getTask = vi.spyOn(api, "getTask");
+    const context = await mountDetail("/missing-planner-detail");
+
+    expect(getTask).not.toHaveBeenCalled();
+    expect(context.wrapper.findComponent({ name: "ErrorState" }).exists()).toBe(
+      true,
+    );
+    expect(context.wrapper.text()).toContain("缺少记录标识");
+    expect(context.wrapper.text()).not.toContain("HIGH");
+  });
+
+  it("renders LoadingState while the current detail request is pending", async () => {
+    const request = deferred<TaskSummary>();
+    vi.spyOn(api, "getTask").mockReturnValue(request.promise);
+    const context = await mountDetail("/tasks/task-1");
+
+    expect(
+      context.wrapper.findComponent({ name: "LoadingState" }).exists(),
+    ).toBe(true);
+    expect(context.wrapper.find(".planner-detail-card").exists()).toBe(false);
+
+    request.resolve(task());
+    await flushPromises();
+    expect(context.wrapper.text()).toContain("整理发票");
+  });
+
+  it.each([
+    [404, "记录不存在", "找不到这条记录"],
+    [503, "详情暂时无法加载", "详情暂时无法加载"],
+  ])(
+    "uses a safe ErrorState message for API status %s",
+    async (status, title, description) => {
+      const getTask = vi
+        .spyOn(api, "getTask")
+        .mockRejectedValueOnce(
+          new ApiClientError(status, "SERVER_DETAIL", "internal secret"),
+        )
+        .mockResolvedValue(task());
+      const context = await mountDetail("/tasks/task-1");
+
+      expect(context.wrapper.text()).toContain(title);
+      expect(context.wrapper.text()).toContain(description);
+      expect(context.wrapper.text()).not.toContain("internal secret");
+      await findButton(context.wrapper, "重新加载").trigger("click");
+      await flushPromises();
+      expect(getTask).toHaveBeenCalledTimes(2);
+      expect(context.wrapper.text()).toContain("整理发票");
+    },
+  );
+
+  it("rejects invalid detail data instead of rendering a partial card", async () => {
+    vi.spyOn(api, "getTask").mockResolvedValue({
+      id: "task-1",
+      title: "只有标题",
+    } as TaskSummary);
+    const context = await mountDetail("/tasks/task-1");
+
+    expect(context.wrapper.text()).toContain("详情数据无效");
+    expect(context.wrapper.find(".planner-detail-card").exists()).toBe(false);
+  });
+
+  it("does not let an older id request overwrite the current detail", async () => {
+    const first = deferred<TaskSummary>();
+    const getTask = vi
+      .spyOn(api, "getTask")
+      .mockImplementation((requestedId) =>
+        requestedId === "task-1"
+          ? first.promise
+          : Promise.resolve(task({ id: requestedId, title: "第二条待办" })),
+      );
+    const context = await mountDetail("/tasks/task-1");
+
+    await context.router.push("/tasks/task-2");
+    await flushPromises();
+    expect(context.wrapper.text()).toContain("第二条待办");
+
+    first.resolve(task({ title: "过期的第一条待办" }));
+    await flushPromises();
+    expect(context.wrapper.text()).toContain("第二条待办");
+    expect(context.wrapper.text()).not.toContain("过期的第一条待办");
+    expect(getTask).toHaveBeenCalledWith("task-1");
+    expect(getTask).toHaveBeenCalledWith("task-2");
+  });
+
+  it("reloads the correct entity when the route entity changes", async () => {
+    const taskRequest = deferred<TaskSummary>();
+    vi.spyOn(api, "getTask").mockReturnValue(taskRequest.promise);
+    vi.spyOn(api, "getCalendarEvent").mockResolvedValue(
+      calendarEvent({ title: "切换后的日程" }),
+    );
+    const context = await mountDetail("/tasks/task-1");
+
+    await context.router.push("/calendar/event-1");
+    await flushPromises();
+    expect(context.wrapper.text()).toContain("切换后的日程");
+    taskRequest.resolve(task({ title: "过期的待办" }));
+    await flushPromises();
+    expect(context.wrapper.text()).not.toContain("过期的待办");
+  });
+
+  it("shows translated task details, no due date, and overdue state", async () => {
+    vi.spyOn(api, "getTask").mockResolvedValue(
+      task({ dueAt: null, overdue: true, priority: "HIGH" }),
+    );
+    const context = await mountDetail("/tasks/task-1");
+
+    expect(context.wrapper.text()).toContain("高");
+    expect(context.wrapper.text()).toContain("未设置截止时间");
+    expect(context.wrapper.text()).toContain("已逾期");
+    expect(context.wrapper.text()).not.toContain("HIGH");
+  });
+
+  it("shows an all-day calendar date and translated cancelled status", async () => {
+    vi.spyOn(api, "getCalendarEvent").mockResolvedValue(
+      calendarEvent({
+        allDay: true,
+        endsAt: "2026-08-31T16:00:00.000Z",
+        startsAt: "2026-08-30T16:00:00.000Z",
+        status: "CANCELLED",
+      }),
+    );
+    const context = await mountDetail("/calendar/event-1");
+
+    expect(context.wrapper.text()).toContain("全天 · 2026-08-31");
+    expect(context.wrapper.text()).toContain("已取消");
+    expect(context.wrapper.text()).not.toContain("CANCELLED");
+  });
+
+  it("shows reminder recurrence, attempts, failure reason, and translated status", async () => {
+    vi.spyOn(api, "getReminder").mockResolvedValue(
+      reminder({
+        attemptCount: 3,
+        failureReason: "通知服务暂时不可用",
+        recurrence: { interval: 2, weekdays: [1, 3] },
+        scheduleType: "WEEKLY",
+        status: "FAILED",
+      }),
+    );
+    const context = await mountDetail("/reminders/reminder-1");
+
+    expect(context.wrapper.text()).toContain("每 2 周（周一、周三）");
+    expect(context.wrapper.text()).toContain("3 次");
+    expect(context.wrapper.text()).toContain("通知服务暂时不可用");
+    expect(context.wrapper.text()).toContain("发送失败");
+    expect(context.wrapper.text()).not.toContain("WEEKLY");
+  });
+
+  it("keeps return navigation safe when returnTo is external", async () => {
+    vi.spyOn(api, "getTask").mockResolvedValue(task());
+    const context = await mountDetail(
+      "/tasks/task-1?returnTo=https%3A%2F%2Fevil.example%2Faccount",
+    );
+
+    expect(context.wrapper.find(".page-header-back").text()).toContain(
+      "返回计划",
+    );
+    await context.wrapper.find(".page-header-back").trigger("click");
+    await flushPromises();
+    expect(context.router.currentRoute.value.fullPath).toBe("/plan");
+  });
+
+  it("prevents duplicate task completion while the action is pending", async () => {
+    const initial = task();
+    const completed = task({ status: "COMPLETED", version: 2 });
+    const completion = deferred<{ task: TaskSummary }>();
+    vi.spyOn(api, "getTask").mockResolvedValue(initial);
+    const context = await mountDetail("/tasks/task-1");
+    const complete = vi
+      .spyOn(context.planner, "completeTask")
+      .mockReturnValue(completion.promise);
+    const button = findButton(context.wrapper, "完成");
+
+    await button.trigger("click");
+    await button.trigger("click");
+    expect(complete).toHaveBeenCalledTimes(1);
+    expect(button.attributes("disabled")).toBeDefined();
+
+    completion.resolve({ task: completed });
+    await flushPromises();
+    expect(context.wrapper.text()).toContain("已完成");
+  });
+
+  it("cancels edit without changing the displayed entity", async () => {
+    const initial = calendarEvent();
+    vi.spyOn(api, "getCalendarEvent").mockResolvedValue(initial);
+    const context = await mountDetail("/calendar/event-1");
+
+    await findButton(context.wrapper, "编辑").trigger("click");
+    await context.wrapper.find("input[required]").setValue("未保存的标题");
+    await findButton(context.wrapper, "取消编辑").trigger("click");
+
+    expect(context.wrapper.find(".planner-detail-form").exists()).toBe(false);
+    expect(context.wrapper.text()).toContain("产品评审");
+    expect(context.wrapper.text()).not.toContain("未保存的标题");
   });
 });
