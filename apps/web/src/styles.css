@@ -7204,3 +7204,393 @@ html.app-dialog-open body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* UIR-10A: account root information hierarchy and responsive tools. */
+.account-page {
+  width: min(100%, 680px);
+  max-width: 680px;
+  padding: 24px 0 calc(36px + env(safe-area-inset-bottom));
+  overflow-wrap: anywhere;
+}
+
+.account-page .page-header {
+  margin-bottom: 18px;
+}
+
+.account-page .page-header h1 {
+  margin: 0;
+  color: var(--v2-text);
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+}
+
+.account-page .page-header-subtitle {
+  margin-top: 5px;
+  color: var(--v2-secondary);
+  font-size: 0.75rem;
+}
+
+.account-page .profile-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--v2-lavender-strong);
+  border-radius: var(--v2-radius);
+  background: var(--v2-lavender);
+}
+
+.account-page .profile-card-mark {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.account-page .profile-card-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.account-page .profile-card-copy h2 {
+  margin: 0;
+  color: var(--v2-text);
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.account-page .account-kicker,
+.account-page .account-identity,
+.account-page .account-status-summary,
+.account-page .account-section-heading p {
+  margin: 0;
+}
+
+.account-page .account-kicker {
+  color: var(--v2-purple);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.account-page .account-identity {
+  color: var(--v2-secondary);
+  font-size: 0.74rem;
+}
+
+.account-page .account-status-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin-top: 4px;
+  color: var(--v2-secondary);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.account-page .account-status-summary strong {
+  color: var(--v2-text);
+}
+
+.account-page .account-sync-section,
+.account-page .account-group {
+  margin-top: 20px;
+}
+
+.account-page .account-sync-section {
+  padding: 15px;
+  border: 1px solid var(--v2-border);
+  border-radius: var(--v2-radius);
+  background: #fff;
+}
+
+.account-page .account-section-heading {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 11px;
+}
+
+.account-page .account-section-heading .section-label {
+  margin: 0;
+  color: var(--v2-purple);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.account-page .account-section-heading h2 {
+  margin: 0;
+  color: var(--v2-text);
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.account-page .account-section-heading > p:last-child {
+  color: var(--v2-secondary);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.account-page .account-sync-card {
+  padding: 11px 12px;
+  border-radius: var(--v2-compact-radius);
+  background: var(--v2-surface-soft);
+}
+
+.account-page .account-sync-card .sync-area {
+  display: block;
+  margin-left: 0;
+}
+
+.account-page .account-sync-card .sync-badge {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  white-space: normal;
+}
+
+.account-page .account-sync-card .sync-last {
+  flex: 1 1 160px;
+}
+
+.account-page .settings-list {
+  display: grid;
+  gap: 8px;
+}
+
+.account-page .settings-row {
+  min-height: 56px;
+  padding: 10px 12px;
+  border-color: var(--v2-border);
+  border-radius: var(--v2-compact-radius);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.account-page a.settings-row:hover,
+.account-page button.settings-row:hover {
+  border-color: var(--v2-lavender-strong);
+  background: #fcfbff;
+}
+
+.account-page .settings-row:focus-visible,
+.account-page .account-danger-details summary:focus-visible,
+.account-page .account-risk-form input:focus-visible,
+.account-page .account-risk-form textarea:focus-visible {
+  outline: 2px solid var(--v2-purple);
+  outline-offset: 2px;
+}
+
+.account-page .settings-row strong {
+  color: var(--v2-text);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.account-page .settings-row small,
+.account-page .settings-row-state {
+  color: var(--v2-secondary);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.account-page .settings-button {
+  width: 100%;
+  border: 1px solid var(--v2-border);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.account-page .settings-row-state {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.account-page .account-security {
+  margin-top: 24px;
+}
+
+.account-page .account-danger-details {
+  margin-top: 0;
+}
+
+.account-page .account-danger-details summary {
+  gap: 12px;
+  min-height: 56px;
+  padding: 9px 12px;
+  border-color: #e6c7c1;
+  background: #fffdfc;
+  list-style: none;
+}
+
+.account-page .account-danger-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.account-page .account-danger-details summary > span:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.account-page .account-danger-details summary strong {
+  color: #8f3f36;
+  font-size: 0.82rem;
+}
+
+.account-page .account-danger-details summary small {
+  color: var(--v2-secondary);
+  font-size: 0.68rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.account-page .account-danger-details summary > svg {
+  flex: 0 0 auto;
+  color: #b0645b;
+  transition: transform 0.15s ease;
+}
+
+.account-page .account-danger-details[open] summary > svg {
+  transform: rotate(180deg);
+}
+
+.account-page .account-danger-zone {
+  display: grid;
+  gap: 15px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid #e6c7c1;
+  border-top: 0;
+  border-radius: 0 0 var(--v2-compact-radius) var(--v2-compact-radius);
+  background: #fffdfc;
+}
+
+.account-page .account-danger-intro {
+  display: grid;
+  gap: 4px;
+}
+
+.account-page .account-danger-intro h3 {
+  margin: 0;
+  color: var(--v2-text);
+  font-size: 0.86rem;
+}
+
+.account-page .account-danger-intro .risk-copy {
+  margin: 0;
+  color: var(--v2-secondary);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.account-page .risk-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.account-page .risk-actions .danger-button {
+  min-height: 46px;
+  padding: 9px 11px;
+  border: 1px solid #efc7c2;
+  border-radius: var(--v2-compact-radius);
+  color: #8f3f36;
+  background: #fff2f0;
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.account-page .risk-actions .danger-button[aria-pressed="true"] {
+  border-color: #b0645b;
+  background: #fce3df;
+  box-shadow: inset 0 0 0 1px rgb(176 100 91 / 0.14);
+}
+
+.account-page .account-risk-form {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid #ead8d4;
+  border-radius: var(--v2-compact-radius);
+  background: #fff;
+}
+
+.account-page .account-risk-form .action-confirmation {
+  margin: 0;
+  color: #8f3f36;
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.account-page .account-risk-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--v2-text);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.account-page .account-risk-form input,
+.account-page .account-risk-form textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid var(--v2-border);
+  border-radius: var(--v2-compact-radius);
+  color: var(--v2-text);
+  background: #fff;
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.account-page .account-risk-form textarea {
+  resize: vertical;
+}
+
+.account-page .account-risk-submit {
+  width: 100%;
+  min-height: 46px;
+}
+
+@media (max-width: 768px) {
+  .account-page {
+    width: 100%;
+    padding-top: 18px;
+    padding-bottom: calc(36px + 76px + env(safe-area-inset-bottom));
+  }
+
+  .account-page .profile-card {
+    gap: 11px;
+    padding: 14px;
+  }
+
+  .account-page .account-sync-section,
+  .account-page .account-group {
+    margin-top: 16px;
+  }
+
+  .account-page .account-sync-section {
+    padding: 13px;
+  }
+
+  .account-page .settings-list {
+    gap: 6px;
+  }
+
+  .account-page .settings-row {
+    min-height: 52px;
+    padding: 8px 10px;
+  }
+
+  .account-page .risk-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .account-page .account-danger-zone {
+    padding: 13px;
+  }
+}
