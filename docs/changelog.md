@@ -1,5 +1,15 @@
 # 变更日志（Changelog）
 
+## 2026-09-22 — UIR-09A2B 最终确认双击竞态收尾（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 在保留既有 `AiOperationCard` 改造的基础上，修复 `ProposalReviewView` 最终确认双击竞态：此前 `canFinalConfirm` 同时控制确认区显示和可点击状态，最终确认开始后 `ai.saving` 使确认区从 DOM 移除，移动端双击后续事件可能落到操作卡“拒绝此项”，导致 operation reject 与 final-confirm 并发并返回 409。
+- 最终确认区现在只按“提案仍可审核且存在 ACCEPTED 操作”决定是否显示；请求期间保持 DOM 和页面布局稳定，按钮同步禁用并显示“写入中…”。确认入口在设置 `confirming` 前直接检查 confirming、saving、统一 mutation lock、route/proposal ID 和 ACCEPTED 操作数量；保存、接受、拒绝、整项拒绝与最终确认互斥，保持原 operationIds 排序、version、冲突/权威刷新、响应丢失恢复和 APPLIED replay 语义。
+- 保持原字段 key、编辑字段集合、Asia/Shanghai 日期语义、金额字符串、校验规则、payload 构造、`save`/`accept`/`reject` emit、PENDING/ACCEPTED/APPLIED/EXPIRED/FAILED/REJECTED 状态机、保存/接受/拒绝条件和 mutation 锁；未改动 `DateField`、`DateTimeField`、API、Store、Router、后端或数据库。
+- `AiOperationCard` 专项 24/24、`ProposalReviewView` 专项 54/54、`AiView` 专项 12/12 通过；Web 全量、lint、typecheck、`npm run quality`、`npm run format:check`、`npm run check:context` 和 `git diff --check` 在最终文档更新后重新执行并通过。
+- 使用项目既有便携 MySQL、`daily_assistant_e2e` 与 Fake Provider 进行真实 `ai-proposal` 回归。`tablet-768` 的 `H05-FINAL-DOUBLE-CLICK` 连续 3 次通过；五档项目（375、390、430、768、1440）共 60/60 通过，每次双击断言 final-confirm 请求为 1、operation reject 请求为 0、Proposal 最终为 APPLIED、只生成一条 Task 且无 409。
+- Playwright 真实页面手工检查 375、390、430、768、1440 及五档 200% 根字号：长标题/备注、确认后只读结果和操作区均无横向溢出，单击最终确认可进入已写入结果；业务请求均按预期返回 2xx/201。控制台仅记录本地开发环境已有的 refresh 401 与 Service Worker `text/html` MIME 噪声，未发现本次竞态相关错误；验收结束后浏览器、API、Web、Admin 和 MySQL 均已停止。
+- 真实第三方 AI Provider、真实设备/系统级文字缩放、真实软键盘和日期时间选择器未验证；Fake Provider 未调用生产数据库或真实密钥。本轮未执行 Fresh Sol，未提交、推送、创建 PR、合并或部署，未开始天气功能或下一任务。
+
 ## 2026-09-22 — UIR-09A2A Proposal 审核页框架与确认区改造（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 将 `ProposalReviewView` 重组为状态摘要、需求概览、逐项审核、整项拒绝和最终确认的清晰顺序；状态文案同时说明可否继续审核及下一步，不只依赖颜色。详情 API 未提供原始用户输入或请求类型，因此概览仅由现有操作数量与类型组成，并明确不重复保存或伪造原始输入。

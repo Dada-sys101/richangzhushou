@@ -35,6 +35,83 @@ const STATUS_LABELS: Record<string, string> = {
   REJECTED: "已拒绝",
 };
 
+const FIELD_LABELS: Record<AiOperationType, Record<string, string>> = {
+  TRANSACTION: {
+    type: "收支类型",
+    amount: "金额",
+    currency: "币种",
+    occurredAt: "发生时间",
+    merchant: "商户",
+    note: "备注",
+    categoryId: "分类",
+    accountId: "账户",
+    originalTransactionId: "原账单",
+    isUnlinkedRefund: "未关联退款",
+    tripId: "关联行程",
+    source: "来源",
+  },
+  CALENDAR_EVENT: {
+    title: "标题",
+    startsAt: "开始时间",
+    endsAt: "结束时间",
+    allDay: "全天",
+  },
+  TASK: {
+    title: "标题",
+    priority: "优先级",
+    dueAt: "截止时间",
+  },
+  REMINDER: {
+    title: "标题",
+    note: "备注",
+    scheduleType: "重复方式",
+    startsAt: "首次提醒时间",
+    targetType: "关联类型",
+    targetId: "关联对象",
+    recurrence: "重复规则",
+  },
+  TRIP: {
+    title: "标题",
+    destination: "目的地",
+    startDate: "开始日期",
+    endDate: "结束日期",
+    budgetAmount: "预算金额",
+  },
+};
+
+const ENUM_LABELS: Record<string, Record<string, string>> = {
+  type: { EXPENSE: "支出", INCOME: "收入", REFUND: "退款" },
+  priority: { LOW: "低", MEDIUM: "中", HIGH: "高" },
+  scheduleType: {
+    ONCE: "单次",
+    DAILY: "每天",
+    WEEKLY: "每周",
+    MONTHLY: "每月",
+  },
+  targetType: {
+    STANDALONE: "独立提醒",
+    CALENDAR_EVENT: "关联日程",
+    TASK: "关联待办",
+  },
+  source: { TEXT: "文本输入" },
+  resultEntityType: {
+    TRANSACTION: "账单",
+    CALENDAR_EVENT: "日程",
+    TASK: "待办",
+    REMINDER: "提醒",
+    TRIP: "行程",
+  },
+};
+
+const STATUS_DESCRIPTIONS: Record<string, string> = {
+  PENDING: "请核对字段，确认无误后再继续。",
+  ACCEPTED: "当前操作已由用户确认，可在最终确认前撤回。",
+  APPLIED: "正式数据写入已完成，仅展示写入结果。",
+  EXPIRED: "此项已超过有效期，不能继续修改或写入。",
+  FAILED: "正式写入未完成，请查看失败原因。",
+  REJECTED: "当前操作不会写入正式数据。",
+};
+
 const TRANSACTION_TYPES = ["EXPENSE", "INCOME", "REFUND"];
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH"];
 const REMINDER_SCHEDULE_TYPES = ["ONCE", "DAILY", "WEEKLY", "MONTHLY"];
@@ -43,6 +120,98 @@ const FORMAL_WRITE_FORBIDDEN_FIELDS = new Set([
   "clientMutationId",
   "sourceFingerprint",
 ]);
+
+function fieldLabel(operationType: AiOperationType, key: string): string {
+  return FIELD_LABELS[operationType][key] ?? key;
+}
+
+function fieldId(operationId: string, key: string): string {
+  const safeOperationId = operationId.replace(/[^a-zA-Z0-9_-]/g, "-");
+  const safeKey = key.replace(/[^a-zA-Z0-9_-]/g, "-");
+  return `ai-operation-${safeOperationId}-${safeKey}`;
+}
+
+function fieldLabelId(operationId: string, key: string): string {
+  return `${fieldId(operationId, key)}-label`;
+}
+
+function formatDateTime(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  const parts = new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const part = (type: string) =>
+    parts.find((item) => item.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")} ${part("hour")}:${part("minute")}`;
+}
+
+function formatStructuredValue(value: object): string {
+  const seen = new WeakSet<object>();
+  try {
+    return (
+      JSON.stringify(value, (_key, current: unknown) => {
+        if (typeof current === "bigint") {
+          return String(current);
+        }
+        if (current && typeof current === "object") {
+          if (seen.has(current)) {
+            return "[循环引用]";
+          }
+          seen.add(current);
+        }
+        return current;
+      }) ?? "—"
+    );
+  } catch {
+    return "无法读取结构化值";
+  }
+}
+
+function isStructuredValue(value: unknown): boolean {
+  return typeof value === "object" && value !== null;
+}
+
+function formatDisplayValue(
+  operationType: AiOperationType,
+  key: string,
+  value: unknown,
+): string {
+  if (value === null || value === undefined) {
+    return "—";
+  }
+  if (typeof value === "string" && value.trim().length === 0) {
+    return "—";
+  }
+  if (typeof value === "boolean") {
+    return value ? (key === "allDay" ? "是（全天）" : "是") : "否";
+  }
+  if (isStructuredValue(value)) {
+    return formatStructuredValue(value);
+  }
+  if (typeof value === "string") {
+    const enumLabel = ENUM_LABELS[key]?.[value];
+    if (enumLabel) {
+      return enumLabel;
+    }
+    if (isDateTimeField(operationType, key)) {
+      return formatDateTime(value);
+    }
+  }
+  return String(value);
+}
+
+function statusDescription(status: string): string {
+  return STATUS_DESCRIPTIONS[status] ?? "请查看当前状态后再继续操作。";
+}
 
 const ISO_DATE_TIME_PATTERN =
   /^\d{4}-\d{2}-\d{2}(?:[T\s](?:(?:[01]\d|2[0-3])(?::?[0-5]\d)?(?::?[0-5]\d(?:[.,]\d+)?)?|24:?00)(?:Z|[+-](?:[01]\d|2[0-3]):?[0-5]\d)?)?$/;
@@ -626,7 +795,7 @@ function buildFields(): Record<string, unknown> {
 }
 
 function save() {
-  if (!dirty.value || props.mutationLocked) {
+  if (!dirty.value || props.saving || props.mutationLocked) {
     return;
   }
   emit("save", props.operation.id, buildFields());
@@ -640,11 +809,18 @@ function accept() {
 }
 
 function updateBooleanField(key: string, event: Event) {
-  if (props.mutationLocked) {
+  if (props.saving || props.mutationLocked) {
     return;
   }
   editState[key] = String((event.target as HTMLInputElement).checked);
   markDirty();
+}
+
+function reject() {
+  if (!canReject.value) {
+    return;
+  }
+  emit("reject", props.operation.id);
 }
 
 function isoToLocalInput(iso: string): string {
@@ -677,28 +853,42 @@ function inputModeFor(key: string): "decimal" | "text" {
   <article
     class="draft-card operation-card"
     :class="{ 'is-settled': !editable }"
+    :aria-label="`${OPERATION_TYPE_LABELS[operation.operationType]}操作`"
   >
     <header class="draft-card-head">
       <div class="draft-title">
-        <strong>{{ OPERATION_TYPE_LABELS[operation.operationType] }}</strong>
+        <strong class="operation-kind" data-testid="operation-kind">
+          {{ OPERATION_TYPE_LABELS[operation.operationType] }}
+        </strong>
         <span
           class="status-badge"
           :class="`status-${operation.status.toLowerCase()}`"
+          :aria-label="`状态：${STATUS_LABELS[operation.status] ?? operation.status}`"
         >
           {{ STATUS_LABELS[operation.status] ?? operation.status }}
         </span>
       </div>
-      <small class="draft-time">置信度 {{ operation.confidence }}</small>
+      <small class="draft-time"
+        >置信度（原始值） {{ operation.confidence }}</small
+      >
     </header>
+
+    <p class="operation-status-copy" role="status" aria-live="polite">
+      {{ statusDescription(operation.status) }}
+    </p>
 
     <p
       v-if="operation.clarification"
       class="confidence-hint clarification-hint"
-      role="note"
+      role="status"
+      aria-live="polite"
     >
       需要补充的信息：{{ operation.clarification }}
     </p>
-    <p v-if="hasMissingFields" class="confidence-hint" role="note">
+    <p v-if="operation.errorMessage" class="operation-failure" role="alert">
+      失败原因：{{ operation.errorMessage }}
+    </p>
+    <p v-if="hasMissingFields" class="confidence-hint" role="alert">
       请核对并补充必填字段后再接受。
     </p>
     <p v-else-if="hasForbiddenFields" class="confidence-hint" role="alert">
@@ -722,12 +912,25 @@ function inputModeFor(key: string): "decimal" | "text" {
       <label
         v-for="key in editableFieldKeys(operation.operationType)"
         :key="key"
+        :for="fieldId(operation.id, key)"
         class="draft-field"
       >
-        {{ key }}
+        <div class="draft-field-label-row">
+          <span :id="fieldLabelId(operation.id, key)" class="draft-field-label">
+            {{ fieldLabel(operation.operationType, key) }}
+          </span>
+          <span class="field-requirement" aria-hidden="true">
+            {{
+              isOptionalField(operation.operationType, key) ? "可选" : "必填"
+            }}
+          </span>
+          <span class="visually-hidden" aria-hidden="true">{{ key }}</span>
+        </div>
         <select
           v-if="key === 'type'"
+          :id="fieldId(operation.id, key)"
           v-model="editState[key]"
+          :aria-labelledby="fieldLabelId(operation.id, key)"
           :disabled="mutationLocked || saving"
           @change="markDirty"
         >
@@ -737,7 +940,9 @@ function inputModeFor(key: string): "decimal" | "text" {
         </select>
         <select
           v-else-if="key === 'priority'"
+          :id="fieldId(operation.id, key)"
           v-model="editState[key]"
+          :aria-labelledby="fieldLabelId(operation.id, key)"
           :disabled="mutationLocked || saving"
           @change="markDirty"
         >
@@ -747,7 +952,9 @@ function inputModeFor(key: string): "decimal" | "text" {
         </select>
         <select
           v-else-if="key === 'scheduleType'"
+          :id="fieldId(operation.id, key)"
           v-model="editState[key]"
+          :aria-labelledby="fieldLabelId(operation.id, key)"
           :disabled="mutationLocked || saving"
           @change="markDirty"
         >
@@ -758,7 +965,9 @@ function inputModeFor(key: string): "decimal" | "text" {
         </select>
         <select
           v-else-if="key === 'targetType'"
+          :id="fieldId(operation.id, key)"
           v-model="editState[key]"
+          :aria-labelledby="fieldLabelId(operation.id, key)"
           :disabled="mutationLocked || saving"
           @change="markDirty"
         >
@@ -768,28 +977,46 @@ function inputModeFor(key: string): "decimal" | "text" {
         </select>
         <input
           v-else-if="key === 'allDay'"
+          :id="fieldId(operation.id, key)"
+          :aria-labelledby="fieldLabelId(operation.id, key)"
           :checked="booleanFieldValue(key)"
           :disabled="mutationLocked || saving"
           type="checkbox"
           @change="updateBooleanField(key, $event)"
         />
-        <DateTimeField
+        <div
           v-else-if="isDateTimeField(operation.operationType, key)"
-          :disabled="mutationLocked || saving"
-          :model-value="editState[key] ?? ''"
-          @change="markDirty"
-          @update:model-value="editState[key] = $event"
-        />
-        <DateField
+          :id="fieldId(operation.id, key)"
+          class="temporal-field-control"
+          role="group"
+          :aria-labelledby="fieldLabelId(operation.id, key)"
+        >
+          <DateTimeField
+            :disabled="mutationLocked || saving"
+            :model-value="editState[key] ?? ''"
+            @change="markDirty"
+            @update:model-value="editState[key] = $event"
+          />
+        </div>
+        <div
           v-else-if="isDateOnlyField(operation.operationType, key)"
-          :disabled="mutationLocked || saving"
-          :model-value="editState[key] ?? ''"
-          @change="markDirty"
-          @update:model-value="editState[key] = $event"
-        />
+          :id="fieldId(operation.id, key)"
+          class="temporal-field-control"
+          role="group"
+          :aria-labelledby="fieldLabelId(operation.id, key)"
+        >
+          <DateField
+            :disabled="mutationLocked || saving"
+            :model-value="editState[key] ?? ''"
+            @change="markDirty"
+            @update:model-value="editState[key] = $event"
+          />
+        </div>
         <textarea
           v-else-if="key === 'note'"
+          :id="fieldId(operation.id, key)"
           v-model="editState[key]"
+          :aria-labelledby="fieldLabelId(operation.id, key)"
           :disabled="mutationLocked || saving"
           maxlength="500"
           rows="2"
@@ -797,7 +1024,9 @@ function inputModeFor(key: string): "decimal" | "text" {
         ></textarea>
         <input
           v-else
+          :id="fieldId(operation.id, key)"
           v-model="editState[key]"
+          :aria-labelledby="fieldLabelId(operation.id, key)"
           :inputmode="inputModeFor(key)"
           :disabled="mutationLocked || saving"
           type="text"
@@ -826,7 +1055,7 @@ function inputModeFor(key: string): "decimal" | "text" {
           class="danger-button"
           :disabled="!canReject"
           type="button"
-          @click="emit('reject', operation.id)"
+          @click="reject"
         >
           拒绝此项
         </button>
@@ -834,18 +1063,29 @@ function inputModeFor(key: string): "decimal" | "text" {
     </div>
 
     <dl v-else class="draft-readonly">
-      <div v-for="(value, key) in operation.fields" :key="key">
-        <dt>{{ key }}</dt>
-        <dd>
-          {{
-            value === null || value === undefined || value === "" ? "—" : value
-          }}
+      <div
+        v-for="(value, key) in operation.fields"
+        :key="key"
+        :class="{ 'draft-readonly-wide': isStructuredValue(value) }"
+      >
+        <dt>{{ fieldLabel(operation.operationType, key) }}</dt>
+        <dd
+          :class="{ 'is-structured': isStructuredValue(value) }"
+          :title="String(value ?? '')"
+        >
+          {{ formatDisplayValue(operation.operationType, key, value) }}
         </dd>
       </div>
-      <div v-if="operation.status === 'APPLIED'">
+      <div v-if="operation.status === 'APPLIED'" class="draft-readonly-wide">
         <dt>写入结果</dt>
         <dd>
-          {{ operation.resultEntityType || "已写入" }}
+          {{
+            formatDisplayValue(
+              operation.operationType,
+              "resultEntityType",
+              operation.resultEntityType || "已写入",
+            )
+          }}
           <span v-if="operation.resultEntityId" class="result-id">{{
             operation.resultEntityId
           }}</span>
@@ -863,7 +1103,7 @@ function inputModeFor(key: string): "decimal" | "text" {
         class="danger-button"
         :disabled="!canReject"
         type="button"
-        @click="emit('reject', operation.id)"
+        @click="reject"
       >
         拒绝此项
       </button>

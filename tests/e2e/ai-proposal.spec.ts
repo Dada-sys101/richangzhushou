@@ -163,14 +163,29 @@ test("H05-FINAL-DOUBLE-CLICK: FinalConfirm creates one Task and one APPLIED oper
     name: "最终确认并写入",
   });
   let finalConfirmRequests = 0;
+  let operationRejectRequests = 0;
+  let proposalConflictResponses = 0;
   page.on("request", (requestEvent) => {
-    if (
-      requestEvent.method() === "POST" &&
-      requestEvent
-        .url()
-        .includes(`/api/v1/ai/proposals/${proposalId}/final-confirm`)
-    ) {
+    if (requestEvent.method() !== "POST") return;
+    const requestUrl = new URL(requestEvent.url());
+    const proposalPath = `/api/v1/ai/proposals/${proposalId}`;
+    if (requestUrl.pathname === `${proposalPath}/final-confirm`) {
       finalConfirmRequests += 1;
+    }
+    if (
+      requestUrl.pathname.startsWith(`${proposalPath}/operations/`) &&
+      requestUrl.pathname.endsWith("/reject")
+    ) {
+      operationRejectRequests += 1;
+    }
+  });
+  page.on("response", (response) => {
+    const responseUrl = new URL(response.url());
+    if (
+      response.status() === 409 &&
+      responseUrl.pathname.startsWith(`/api/v1/ai/proposals/${proposalId}`)
+    ) {
+      proposalConflictResponses += 1;
     }
   });
 
@@ -191,7 +206,10 @@ test("H05-FINAL-DOUBLE-CLICK: FinalConfirm creates one Task and one APPLIED oper
     page.locator("article.operation-card").getByText("已写入"),
   ).toBeVisible();
   expect(finalConfirmRequests).toBe(1);
+  expect(operationRejectRequests).toBe(0);
+  expect(proposalConflictResponses).toBe(0);
   const detail = await getProposal(request, username, proposalId);
+  expect(detail.status).toBe("APPLIED");
   const operation = detail.operations[0];
   expect(operation?.status).toBe("APPLIED");
   expect(operation?.resultEntityId).toBeTruthy();

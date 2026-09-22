@@ -2306,6 +2306,93 @@ html.app-dialog-open body {
   gap: 16px;
 }
 
+.proposal-review-workspace .operation-card {
+  gap: 14px;
+  overflow: hidden;
+}
+
+.proposal-review-workspace .operation-kind {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.proposal-review-workspace .operation-status-copy,
+.proposal-review-workspace .operation-failure {
+  margin: 0;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.proposal-review-workspace .operation-status-copy {
+  color: var(--color-text-muted);
+}
+
+.proposal-review-workspace .operation-failure {
+  padding: 10px 12px;
+  border-left: 3px solid var(--ui-color-danger, #b91c1c);
+  color: var(--ui-color-danger, #b91c1c);
+  background: var(--ui-color-danger-soft, #fff0f0);
+}
+
+.proposal-review-workspace .draft-field-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.proposal-review-workspace .draft-field-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.proposal-review-workspace .field-requirement {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.proposal-review-workspace .temporal-field-control {
+  min-width: 0;
+}
+
+.proposal-review-workspace .temporal-field-control .temporal-field {
+  width: 100%;
+}
+
+.proposal-review-workspace .draft-readonly dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.proposal-review-workspace .draft-readonly dd.is-structured {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(
+    --font-mono,
+    ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace
+  );
+  font-size: 0.85rem;
+}
+
+.proposal-review-workspace .draft-readonly-wide {
+  grid-column: 1 / -1;
+}
+
+.proposal-review-workspace .result-id {
+  display: inline-block;
+  max-width: 100%;
+  margin-left: 6px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .proposal-review-workspace .proposal-secondary-actions {
   display: flex;
   align-items: center;
@@ -2669,6 +2756,13 @@ html.app-dialog-open body {
     width: 100%;
     min-width: 0;
     min-height: 46px;
+  }
+
+  .proposal-review-workspace
+    .operation-card
+    .draft-actions
+    > .danger-button:last-child {
+    grid-column: 1 / -1;
   }
 }
 

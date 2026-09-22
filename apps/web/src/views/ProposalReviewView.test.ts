@@ -484,6 +484,177 @@ describe("ProposalReviewView", () => {
     await flushPromises();
   });
 
+  it("H05-FIX05-P1-FINAL-CONFIRM-LOCK-014: final confirmation locks synchronously and keeps its panel", async () => {
+    const pinia = createContext();
+    const accepted = proposal({
+      operations: [operation({ status: "ACCEPTED" })],
+    });
+    const applied = proposal({
+      completedAt: "2026-08-15T01:00:00.000Z",
+      status: "APPLIED",
+      operations: [
+        operation({
+          appliedAt: "2026-08-15T01:00:00.000Z",
+          resultEntityId: "task_final_lock",
+          status: "APPLIED",
+        }),
+      ],
+    });
+    let resolveFinalConfirm!: (value: AiProposalDetail) => void;
+    vi.mocked(api.getAiProposal).mockResolvedValue(accepted as never);
+    vi.mocked(api.finalConfirmAiProposal).mockImplementation(
+      () =>
+        new Promise<AiProposalDetail>((resolve) => {
+          resolveFinalConfirm = resolve;
+        }) as never,
+    );
+    const wrapper = mountReview(pinia);
+    await flushPromises();
+
+    const finalConfirmButton = wrapper.find("button.final-confirm-button");
+    await finalConfirmButton.trigger("click");
+
+    expect(api.finalConfirmAiProposal).toHaveBeenCalledTimes(1);
+    expect(useAiStore().saving).toBe(true);
+    expect(wrapper.find(".final-confirm-panel").exists()).toBe(true);
+    expect(wrapper.text()).toContain("写入中…");
+    expect((finalConfirmButton.element as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+
+    await finalConfirmButton.trigger("click");
+    expect(api.finalConfirmAiProposal).toHaveBeenCalledTimes(1);
+
+    resolveFinalConfirm(applied);
+    await flushPromises();
+    expect(wrapper.find(".final-confirm-panel").exists()).toBe(false);
+    expect(wrapper.text()).toContain("已写入");
+  });
+
+  it("H05-FIX05-P1-FINAL-CONFIRM-LOCK-014: final confirmation blocks every other proposal mutation", async () => {
+    const pinia = createContext();
+    const accepted = proposal({
+      operations: [
+        operation({ id: "operation_accepted", ordinal: 1, status: "ACCEPTED" }),
+        operation({
+          id: "operation_pending",
+          ordinal: 2,
+          status: "PENDING",
+        }),
+      ],
+    });
+    const applied = proposal({
+      status: "APPLIED",
+      operations: [
+        operation({
+          id: "operation_accepted",
+          ordinal: 1,
+          resultEntityId: "task_final_lock_2",
+          status: "APPLIED",
+        }),
+        operation({
+          id: "operation_pending",
+          ordinal: 2,
+          status: "PENDING",
+        }),
+      ],
+    });
+    let resolveFinalConfirm!: (value: AiProposalDetail) => void;
+    vi.mocked(api.getAiProposal).mockResolvedValue(accepted as never);
+    vi.mocked(api.finalConfirmAiProposal).mockImplementation(
+      () =>
+        new Promise<AiProposalDetail>((resolve) => {
+          resolveFinalConfirm = resolve;
+        }) as never,
+    );
+    const wrapper = mountReview(pinia);
+    await flushPromises();
+
+    const [acceptedCard, pendingCard] = wrapper.findAll(".operation-card");
+    const pendingTitle = pendingCard!.find('input[type="text"]');
+    await pendingTitle.setValue("待保存的修改");
+    await flushPromises();
+
+    await wrapper.find("button.final-confirm-button").trigger("click");
+    expect(wrapper.find("button.reject-proposal-button").exists()).toBe(true);
+    expect(
+      (
+        wrapper.find("button.reject-proposal-button")
+          .element as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+
+    await pendingCard!.find("button.secondary-button").trigger("click");
+    await pendingCard!.find("button.primary-button").trigger("click");
+    await acceptedCard!.find("button.danger-button").trigger("click");
+    await wrapper.find("button.reject-proposal-button").trigger("click");
+    await wrapper.find("button.final-confirm-button").trigger("click");
+
+    expect(api.editAiOperation).not.toHaveBeenCalled();
+    expect(api.acceptAiOperation).not.toHaveBeenCalled();
+    expect(api.rejectAiOperation).not.toHaveBeenCalled();
+    expect(api.rejectAiProposal).not.toHaveBeenCalled();
+    expect(api.finalConfirmAiProposal).toHaveBeenCalledTimes(1);
+
+    resolveFinalConfirm(applied);
+    await flushPromises();
+  });
+
+  it("H05-FIX05-P1-FINAL-CONFIRM-LOCK-014: an in-flight operation mutation blocks final confirmation", async () => {
+    const pinia = createContext();
+    const initial = proposal({
+      operations: [
+        operation({ id: "operation_accepted", ordinal: 1, status: "ACCEPTED" }),
+        operation({ id: "operation_pending", ordinal: 2, status: "PENDING" }),
+      ],
+    });
+    let resolveSave!: (value: AiProposalDetail) => void;
+    vi.mocked(api.getAiProposal).mockResolvedValue(initial as never);
+    vi.mocked(api.editAiOperation).mockImplementation(
+      () =>
+        new Promise<AiProposalDetail>((resolve) => {
+          resolveSave = resolve;
+        }) as never,
+    );
+    const wrapper = mountReview(pinia);
+    await flushPromises();
+
+    const pendingCard = wrapper.findAll(".operation-card")[1]!;
+    await pendingCard.find('input[type="text"]').setValue("正在保存的修改");
+    await pendingCard.find("button.secondary-button").trigger("click");
+    expect(useAiStore().saving).toBe(true);
+
+    await wrapper.find("button.final-confirm-button").trigger("click");
+    expect(api.finalConfirmAiProposal).not.toHaveBeenCalled();
+
+    resolveSave(initial);
+    await flushPromises();
+  });
+
+  it("H05-FIX05-P1-FINAL-CONFIRM-LOCK-014: failed final confirmation restores the panel and review state", async () => {
+    const pinia = createContext();
+    const accepted = proposal({
+      operations: [operation({ status: "ACCEPTED" })],
+    });
+    vi.mocked(api.getAiProposal).mockResolvedValue(accepted as never);
+    vi.mocked(api.finalConfirmAiProposal).mockRejectedValue(
+      new ApiClientError(503, "REQUEST_FAILED", "最终写入失败"),
+    );
+    const wrapper = mountReview(pinia);
+    await flushPromises();
+
+    await wrapper.find("button.final-confirm-button").trigger("click");
+    await flushPromises();
+
+    expect(wrapper.find(".final-confirm-panel").exists()).toBe(true);
+    expect(
+      (wrapper.find("button.final-confirm-button").element as HTMLButtonElement)
+        .disabled,
+    ).toBe(false);
+    expect(wrapper.text()).toContain("最终写入失败");
+    expect(useAiStore().proposal?.status).toBe("PENDING_REVIEW");
+  });
+
   it("H05-U16: APPLIED state renders safely", async () => {
     const pinia = createContext();
     const applied = proposal({

@@ -40,6 +40,10 @@ const mutationLocked = computed(
     routeTargetMismatch.value ||
     ai.authoritativeRefreshPending ||
     ai.authoritativeRefreshRequired ||
+    saving.value ||
+    confirming.value ||
+    rejectProposalConfirming.value ||
+    Boolean(savingOperationId.value) ||
     !isReviewable.value,
 );
 
@@ -63,13 +67,23 @@ const pendingOperations = computed(() =>
   ),
 );
 
-const canRejectProposal = computed(
-  () => status.value === "PENDING_REVIEW" && !saving.value,
+const canRejectProposal = computed(() => status.value === "PENDING_REVIEW");
+
+const showFinalConfirmPanel = computed(
+  () =>
+    Boolean(proposal.value) &&
+    !routeTargetMismatch.value &&
+    isReviewable.value &&
+    acceptedOperations.value.length > 0,
 );
 
 const canFinalConfirm = computed(
   () =>
-    isReviewable.value && acceptedOperations.value.length > 0 && !saving.value,
+    showFinalConfirmPanel.value &&
+    !loading.value &&
+    !saving.value &&
+    !confirming.value &&
+    !mutationLocked.value,
 );
 
 const proposalStatusLabel = computed(() => {
@@ -284,9 +298,14 @@ async function rejectProposal() {
 async function finalConfirm() {
   const targetProposalId = proposalId.value;
   if (
+    confirming.value ||
+    saving.value ||
+    mutationLocked.value ||
     !proposal.value ||
     proposal.value.id !== targetProposalId ||
-    mutationLocked.value
+    routeTargetMismatch.value ||
+    !showFinalConfirmPanel.value ||
+    acceptedOperations.value.length === 0
   ) {
     return;
   }
@@ -484,7 +503,7 @@ function operationLabel(operation: AiOperation): string {
       </section>
 
       <section
-        v-if="canFinalConfirm"
+        v-if="showFinalConfirmPanel"
         class="final-confirm-panel"
         aria-labelledby="final-confirm-title"
       >
@@ -505,7 +524,7 @@ function operationLabel(operation: AiOperation): string {
         </ul>
         <button
           class="primary-button final-confirm-button"
-          :disabled="confirming || saving || mutationLocked"
+          :disabled="!canFinalConfirm"
           type="button"
           @click="finalConfirm"
         >
