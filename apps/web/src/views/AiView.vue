@@ -40,6 +40,16 @@ const requestTypeLabels: Record<(typeof AI_REQUEST_TYPES)[number], string> = {
   TRANSACTION: "账单",
   TRIP: "行程",
 };
+const requestTypeDescriptions: Record<
+  (typeof AI_REQUEST_TYPES)[number],
+  string
+> = {
+  CALENDAR_EVENT: "安排一个日程",
+  REMINDER: "设置提醒",
+  TASK: "整理待办事项",
+  TRANSACTION: "记录一笔账单",
+  TRIP: "规划一段行程",
+};
 const { allowNavigation } = useUnsavedChanges(
   computed(() => userInput.value.trim().length > 0),
 );
@@ -140,43 +150,80 @@ function isNetworkFailure(error: unknown): boolean {
 <template>
   <SecondaryPageShell
     class="ai-page ai-workspace"
-    title="生成提案"
+    title="AI 助手"
     title-id="ai-title"
-    subtitle="描述需求，先生成可核对的建议"
+    subtitle="单轮输入需求，生成一份待核对的提案"
   >
     <SectionCard
-      title="输入请求"
-      description="系统只生成建议，不会直接写入账单、日程、待办、提醒或行程。"
+      title="说说你想完成什么"
+      description="这是一次单轮需求输入。当前页面不保存聊天历史。"
     >
-      <form class="capture-panel ai-request-form" @submit.prevent="generate">
-        <label class="capture-label">
-          类型
-          <select v-model="requestType">
-            <option v-for="type in AI_REQUEST_TYPES" :key="type" :value="type">
-              {{ requestTypeLabels[type] }}
-            </option>
-          </select>
-        </label>
+      <div class="ai-assistant-prompt" role="note">
+        <span class="ai-assistant-prompt__label">AI 助手</span>
+        <p>选择业务类型并描述需求，我会生成一份可编辑、待确认的建议。</p>
+      </div>
 
-        <label class="capture-label">
-          内容
+      <form class="capture-panel ai-request-form" @submit.prevent="generate">
+        <fieldset class="ai-request-types">
+          <legend>要处理的类型</legend>
+          <div class="ai-request-types__options">
+            <button
+              v-for="type in AI_REQUEST_TYPES"
+              :key="type"
+              :aria-pressed="requestType === type"
+              :class="{ 'is-selected': requestType === type }"
+              :title="requestTypeDescriptions[type]"
+              class="ai-request-type"
+              type="button"
+              @click="requestType = type"
+            >
+              {{ requestTypeLabels[type] }}
+            </button>
+          </div>
+        </fieldset>
+
+        <label class="capture-label ai-message-editor">
+          <span>你的需求</span>
           <textarea
             v-model="userInput"
+            aria-describedby="ai-input-help"
             maxlength="2000"
             placeholder="例如：明天下午三点和产品团队开会"
             rows="4"
           ></textarea>
+          <small id="ai-input-help"
+            >可输入较长内容；生成前不会写入正式数据。</small
+          >
         </label>
 
-        <p v-if="errorMessage" class="form-error" role="alert">
-          {{ errorMessage }}
-        </p>
+        <div aria-live="polite" class="ai-generation-status">
+          <p v-if="generating" class="ai-generation-status__pending">
+            正在生成待审核提案，请稍候…
+          </p>
+          <p v-else-if="errorMessage" class="form-error" role="alert">
+            {{ errorMessage }}
+          </p>
+        </div>
 
         <FormActions>
-          <button class="primary-button" :disabled="!canGenerate" type="submit">
-            {{ generating ? "生成中…" : "生成提案" }}
+          <button
+            class="primary-button ai-generate-button"
+            :disabled="!canGenerate"
+            type="submit"
+          >
+            {{
+              generating
+                ? "正在生成…"
+                : errorMessage
+                  ? "重新生成提案"
+                  : "生成提案"
+            }}
           </button>
         </FormActions>
+
+        <p class="ai-confirmation-note">
+          生成后会进入提案核对页；只有你确认后，才会写入正式数据。
+        </p>
       </form>
     </SectionCard>
   </SecondaryPageShell>

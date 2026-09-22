@@ -13,6 +13,7 @@ import { useAiStore } from "../stores/ai";
 import AiView from "./AiView.vue";
 
 const pushMock = vi.fn();
+let routeLeaveGuard: (() => boolean | Promise<boolean>) | undefined;
 let originalWindowCrypto: Crypto;
 const cryptoState = vi.hoisted(() => {
   let uuidCounter = 0;
@@ -33,11 +34,19 @@ const cryptoState = vi.hoisted(() => {
     },
   };
 });
+const requestAppConfirmMock = vi.hoisted(() => vi.fn());
 
 vi.mock("vue-router", () => ({
   RouterLink: RouterLinkStub,
+  onBeforeRouteLeave: (guard: () => boolean | Promise<boolean>) => {
+    routeLeaveGuard = guard;
+  },
   useRoute: () => ({ params: {} }),
   useRouter: () => ({ push: pushMock }),
+}));
+
+vi.mock("../composables/useAppConfirm", () => ({
+  requestAppConfirm: requestAppConfirmMock,
 }));
 
 function createContext() {
@@ -123,6 +132,8 @@ describe("AiView", () => {
       value: cryptoState.cryptoStub,
     });
     pushMock.mockReset();
+    routeLeaveGuard = undefined;
+    requestAppConfirmMock.mockReset();
     vi.spyOn(api, "createAiProposal");
   });
 
@@ -146,7 +157,7 @@ describe("AiView", () => {
     void store;
 
     await wrapper.find("textarea").setValue("明天下午三点开会");
-    await wrapper.find("select").setValue("CALENDAR_EVENT");
+    await wrapper.get('[title="安排一个日程"]').trigger("click");
     await wrapper.find("form").trigger("submit");
     await flushPromises();
 
@@ -204,13 +215,15 @@ describe("AiView", () => {
     const wrapper = mountAi(pinia);
 
     await wrapper.find("textarea").setValue("明天提醒我交房租");
-    await wrapper.find("select").setValue("REMINDER");
+    await wrapper.get('[title="设置提醒"]').trigger("click");
     await wrapper.find("form").trigger("submit");
     await flushPromises();
 
     expect(wrapper.text()).toContain("provider failed");
     expect(wrapper.find("textarea").element.value).toBe("明天提醒我交房租");
-    expect(wrapper.find("select").element.value).toBe("REMINDER");
+    expect(wrapper.get('[title="设置提醒"]').attributes("aria-pressed")).toBe(
+      "true",
+    );
 
     const firstKey = vi.mocked(api.createAiProposal).mock.calls[0]?.[1];
 
@@ -230,7 +243,7 @@ describe("AiView", () => {
     const wrapper = mountAi(pinia);
 
     await wrapper.find("textarea").setValue("周五前完成周报");
-    await wrapper.find("select").setValue("TASK");
+    await wrapper.get('[title="整理待办事项"]').trigger("click");
     await wrapper.find("form").trigger("submit");
     await flushPromises();
 
@@ -244,6 +257,127 @@ describe("AiView", () => {
     expect(api.createAiProposal).toHaveBeenCalledTimes(2);
     const secondKey = vi.mocked(api.createAiProposal).mock.calls[1]?.[1];
     expect(secondKey).toBe(firstKey);
+  });
+
+  it("renders the single-turn assistant explanation and all five accessible request types", () => {
+    const wrapper = mountAi(createContext());
+
+    expect(wrapper.get("h1").text()).toBe("AI 助手");
+    expect(wrapper.text()).toContain("当前页面不保存聊天历史");
+    expect(wrapper.text()).toContain("只有你确认后，才会写入正式数据");
+    expect(
+      wrapper.findAll(".ai-request-type").map((button) => button.text()),
+    ).toEqual(["账单", "日程", "待办", "提醒", "行程"]);
+    expect(wrapper.find(".ai-request-type.is-selected").text()).toBe("待办");
+  });
+
+  it("changes the request type without submitting", async () => {
+    const wrapper = mountAi(createContext());
+
+    await wrapper.get('[title="规划一段行程"]').trigger("click");
+
+    expect(
+      wrapper.get('[title="规划一段行程"]').attributes("aria-pressed"),
+    ).toBe("true");
+    expect(api.createAiProposal).not.toHaveBeenCalled();
+  });
+
+  it("does not submit an empty request and explains what is needed", async () => {
+    const wrapper = mountAi(createContext());
+
+    expect(
+      wrapper.get(".ai-generate-button").attributes("disabled"),
+    ).toBeDefined();
+    await wrapper.find("form").trigger("submit");
+
+    expect(wrapper.text()).toContain("请输入要生成的请求内容");
+    expect(api.createAiProposal).not.toHaveBeenCalled();
+  });
+
+  it("navigates to the existing proposal review route after a successful generation", async () => {
+    vi.mocked(api.createAiProposal).mockResolvedValue(
+      response("proposal_success") as never,
+    );
+    const wrapper = mountAi(createContext());
+
+    await wrapper.find("textarea").setValue("明天提醒我带合同");
+    await wrapper.find("form").trigger("submit");
+    await flushPromises();
+
+    expect(pushMock).toHaveBeenCalledWith({
+      name: "ai-proposal-review",
+      params: { proposalId: "proposal_success" },
+    });
+  });
+
+  it("uses a new key after the input changes following a network failure", async () => {
+    vi.mocked(api.createAiProposal).mockRejectedValueOnce(
+      new ApiClientError(0, "NETWORK_ERROR", "offline"),
+    );
+    const wrapper = mountAi(createContext());
+
+    await wrapper.find("textarea").setValue("整理周报");
+    await wrapper.find("form").trigger("submit");
+    await flushPromises();
+    const firstKey = vi.mocked(api.createAiProposal).mock.calls[0]?.[1];
+
+    await wrapper.find("textarea").setValue("整理下周周报");
+    vi.mocked(api.createAiProposal).mockResolvedValueOnce(response() as never);
+    await wrapper.find("form").trigger("submit");
+    await flushPromises();
+
+    expect(vi.mocked(api.createAiProposal).mock.calls[1]?.[1]).not.toBe(
+      firstKey,
+    );
+  });
+
+  it("uses a new key after the type changes following a network failure", async () => {
+    vi.mocked(api.createAiProposal).mockRejectedValueOnce(
+      new ApiClientError(0, "NETWORK_ERROR", "offline"),
+    );
+    const wrapper = mountAi(createContext());
+
+    await wrapper.find("textarea").setValue("周五前完成周报");
+    await wrapper.find("form").trigger("submit");
+    await flushPromises();
+    const firstKey = vi.mocked(api.createAiProposal).mock.calls[0]?.[1];
+
+    await wrapper.get('[title="设置提醒"]').trigger("click");
+    vi.mocked(api.createAiProposal).mockResolvedValueOnce(response() as never);
+    await wrapper.find("form").trigger("submit");
+    await flushPromises();
+
+    expect(vi.mocked(api.createAiProposal).mock.calls[1]?.[1]).not.toBe(
+      firstKey,
+    );
+  });
+
+  it("keeps non-empty input behind the existing accept/reject leave guard", async () => {
+    const wrapper = mountAi(createContext());
+    await wrapper.find("textarea").setValue("还没有发送的需求");
+    expect(routeLeaveGuard).toBeDefined();
+
+    requestAppConfirmMock.mockResolvedValueOnce(false);
+    await expect(routeLeaveGuard?.()).resolves.toBe(false);
+    requestAppConfirmMock.mockResolvedValueOnce(true);
+    await expect(routeLeaveGuard?.()).resolves.toBe(true);
+    expect(requestAppConfirmMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not create or read persistent chat history", async () => {
+    vi.mocked(api.createAiProposal).mockResolvedValue(response() as never);
+    const wrapper = mountAi(createContext());
+
+    await wrapper.find("textarea").setValue("生成一项待办");
+    await wrapper.find("form").trigger("submit");
+    await flushPromises();
+
+    expect(api.createAiProposal).toHaveBeenCalledTimes(1);
+    expect(
+      Object.keys(useAiStore().$state).some((key) =>
+        /history|conversation/i.test(key),
+      ),
+    ).toBe(false);
   });
 });
 
