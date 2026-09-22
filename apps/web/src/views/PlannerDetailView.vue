@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { onBeforeRouteUpdate, useRoute } from "vue-router";
 
 import {
   ApiClientError,
@@ -14,6 +14,7 @@ import {
 import DateField from "../components/DateField.vue";
 import DateTimeField from "../components/DateTimeField.vue";
 import ErrorState from "../components/ErrorState.vue";
+import FormActions from "../components/FormActions.vue";
 import LoadingState from "../components/LoadingState.vue";
 import SecondaryPageShell from "../components/SecondaryPageShell.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
@@ -63,6 +64,7 @@ interface ReminderEditForm {
 
 const route = useRoute();
 const planner = usePlannerStore();
+const plannerDetailEditFormId = "planner-detail-edit-form";
 
 const id = computed(() =>
   typeof route.params.id === "string" ? route.params.id : "",
@@ -87,11 +89,15 @@ const loading = ref(false);
 const activeAction = ref<Exclude<DetailAction, "load"> | null>(null);
 const errorMessage = ref("");
 const successMessage = ref("");
+const overlapWarning = ref("");
 const retryAction = ref<DetailAction | null>(null);
 const loadStateKey = ref(0);
 const confirmingDelete = ref(false);
+const confirmingEditCancel = ref(false);
 const editing = ref(false);
 const editSnapshot = ref("");
+const editTitleInput = ref<HTMLInputElement | null>(null);
+const editTrigger = ref<HTMLButtonElement | null>(null);
 let loadSequence = 0;
 
 const taskEditForm = ref<TaskEditForm>({
@@ -126,7 +132,11 @@ const isDirty = computed(
   () => editing.value && editSnapshot.value !== currentEditSnapshot(),
 );
 const isBusy = computed(
-  () => activeAction.value !== null || loading.value || confirmingDelete.value,
+  () =>
+    activeAction.value !== null ||
+    loading.value ||
+    confirmingDelete.value ||
+    confirmingEditCancel.value,
 );
 const canEdit = computed(() => Boolean(item.value && !item.value.deletedAt));
 const showComplete = computed(() => {
@@ -175,6 +185,13 @@ const loadErrorTitle = computed(() => {
 });
 
 useUnsavedChanges(isDirty);
+
+onBeforeRouteUpdate(async () => {
+  if (!isDirty.value) {
+    return true;
+  }
+  return confirmDiscardEdit();
+});
 
 onMounted(() => {
   void load();
@@ -252,7 +269,7 @@ function isCurrentLoad(
   );
 }
 
-function startEdit() {
+async function startEdit() {
   const current = item.value;
   if (!current || current.deletedAt || isBusy.value) {
     return;
@@ -298,10 +315,43 @@ function startEdit() {
   editing.value = true;
   editSnapshot.value = currentEditSnapshot();
   clearActionMessages();
+  await nextTick();
+  editTitleInput.value?.focus();
 }
 
-function cancelEdit() {
+async function cancelEdit() {
+  if (isBusy.value) {
+    return;
+  }
+  if (isDirty.value && !(await confirmDiscardEdit())) {
+    return;
+  }
   resetEditor();
+  clearActionMessages();
+  retryAction.value = null;
+  await restoreEditTriggerFocus();
+}
+
+async function confirmDiscardEdit(): Promise<boolean> {
+  if (confirmingEditCancel.value) {
+    return false;
+  }
+  confirmingEditCancel.value = true;
+  try {
+    return await requestAppConfirm({
+      confirmLabel: "放弃修改",
+      description: `当前${entityLabel.value}还有未保存的编辑内容，确定放弃吗？`,
+      destructive: true,
+      title: "放弃未保存的编辑？",
+    });
+  } finally {
+    confirmingEditCancel.value = false;
+  }
+}
+
+async function restoreEditTriggerFocus() {
+  await nextTick();
+  editTrigger.value?.focus();
 }
 
 async function saveEdit() {
@@ -349,15 +399,15 @@ async function saveEdit() {
         version: calendarEditForm.value.version,
       });
       updated = result.calendarEvent;
-      successMessage.value = result.overlapWarning
-        ? result.overlapWarning.message
-        : "日程已更新";
+      successMessage.value = "日程已更新";
+      overlapWarning.value = result.overlapWarning?.message ?? "";
     }
 
     item.value = updated;
     syncPlannerItem(updated);
     resetEditor();
     retryAction.value = null;
+    await restoreEditTriggerFocus();
   } catch (error) {
     errorMessage.value = messageOf(error, "action");
     retryAction.value = "save";
@@ -561,6 +611,7 @@ function beginAction(action: Exclude<DetailAction, "load">) {
 function clearActionMessages() {
   errorMessage.value = "";
   successMessage.value = "";
+  overlapWarning.value = "";
 }
 
 function resetEditor() {
@@ -894,6 +945,12 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
     if (error.status === 0) {
       return "当前离线，请恢复网络后重试";
     }
+    if (phase === "action" && error.status === 400) {
+      return "提交内容有误，请检查表单后重试";
+    }
+    if (phase === "action" && error.status === 409) {
+      return "记录已被更新，请返回详情刷新后再试";
+    }
     if (error.status >= 500) {
       return phase === "load"
         ? "详情暂时无法加载，请稍后重试"
@@ -944,7 +1001,7 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
         </div>
 
         <div
-          v-if="errorMessage"
+          v-if="errorMessage && !editing"
           class="planner-detail-error planner-detail-feedback"
           role="alert"
         >
@@ -962,144 +1019,244 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
         <p v-if="successMessage" class="planner-detail-success" role="status">
           {{ successMessage }}
         </p>
-
-        <form
-          v-if="editing"
-          class="planner-detail-form"
-          @submit.prevent="saveEdit"
+        <p
+          v-if="overlapWarning"
+          class="planner-detail-overlap-warning"
+          role="status"
         >
-          <template v-if="entity === 'task'">
-            <label class="planner-field">
-              标题
-              <input v-model="taskEditForm.title" maxlength="200" required />
-            </label>
-            <label class="planner-field">
-              优先级
-              <select v-model="taskEditForm.priority">
-                <option value="LOW">低</option>
-                <option value="MEDIUM">中</option>
-                <option value="HIGH">高</option>
-              </select>
-            </label>
-            <label class="planner-field">
-              截止时间（可选）
-              <DateTimeField v-model="taskEditForm.dueAt" />
-            </label>
-          </template>
+          {{ overlapWarning }}
+        </p>
 
-          <template v-else-if="entity === 'calendar-event'">
-            <label class="planner-field">
-              标题
-              <input
-                v-model="calendarEditForm.title"
-                maxlength="200"
-                required
-              />
-            </label>
-            <label class="check-label">
-              <input v-model="calendarEditForm.allDay" type="checkbox" />
-              全天
-            </label>
-            <label v-if="calendarEditForm.allDay" class="planner-field">
-              日期
-              <DateField v-model="calendarEditDay" required />
-            </label>
-            <template v-else>
-              <label class="planner-field">
-                开始
-                <DateTimeField v-model="calendarEditForm.startsAt" required />
-              </label>
-              <label class="planner-field">
-                结束
-                <DateTimeField
-                  v-model="calendarEditForm.endsAt"
-                  :min="calendarEditForm.startsAt"
-                  required
-                />
-              </label>
-            </template>
-          </template>
+        <section
+          v-if="editing"
+          class="planner-detail-editor"
+          aria-labelledby="planner-detail-editor-title"
+        >
+          <header class="planner-detail-editor-head">
+            <p class="eyebrow">编辑{{ entityLabel }}</p>
+            <h3 id="planner-detail-editor-title">更新{{ entityLabel }}信息</h3>
+            <p>修改后保存；带“必填”的项目不能为空。</p>
+          </header>
 
-          <template v-else>
-            <label class="planner-field">
-              标题
-              <input
-                v-model="reminderEditForm.title"
-                maxlength="200"
-                required
-              />
-            </label>
-            <label class="planner-field">
-              备注（可选）
-              <input v-model="reminderEditForm.note" maxlength="500" />
-            </label>
-            <label class="planner-field">
-              重复
-              <select v-model="reminderEditForm.scheduleType">
-                <option value="ONCE">一次性</option>
-                <option value="DAILY">每天</option>
-                <option value="WEEKLY">每周</option>
-                <option value="MONTHLY">每月</option>
-              </select>
-            </label>
-            <label class="planner-field">
-              首次时间
-              <DateTimeField v-model="reminderEditForm.startsAt" required />
-            </label>
-            <template v-if="reminderEditForm.scheduleType !== 'ONCE'">
-              <label class="planner-field">
-                间隔
-                <input
-                  v-model="reminderEditForm.interval"
-                  max="366"
-                  min="1"
-                  type="number"
-                />
-              </label>
-              <fieldset
-                v-if="reminderEditForm.scheduleType === 'WEEKLY'"
-                class="scope-fieldset"
-              >
-                <legend>星期</legend>
-                <label v-for="day in weekdays" :key="day" class="check-label">
-                  <input
-                    :checked="reminderEditForm.weekdays.includes(day)"
-                    type="checkbox"
-                    @change="toggleWeekday(day)"
-                  />
-                  周{{
-                    day === 7
-                      ? "日"
-                      : ["一", "二", "三", "四", "五", "六"][day - 1]
-                  }}
-                </label>
-              </fieldset>
-              <label
-                v-if="reminderEditForm.scheduleType === 'MONTHLY'"
-                class="planner-field"
-              >
-                每月几号
-                <input
-                  v-model="reminderEditForm.dayOfMonth"
-                  max="31"
-                  min="1"
-                  type="number"
-                />
-              </label>
-              <label class="planner-field">
-                截止时间（可选）
-                <DateTimeField
-                  v-model="reminderEditForm.until"
-                  :min="reminderEditForm.startsAt"
-                />
-              </label>
-            </template>
-          </template>
-
-          <div class="planner-actions">
-            <button class="primary-button" :disabled="isBusy" type="submit">
-              {{ activeAction === "save" ? "保存中…" : "保存" }}
+          <div
+            v-if="errorMessage"
+            class="planner-detail-error planner-detail-feedback"
+            role="alert"
+          >
+            <span>{{ errorMessage }}</span>
+            <button
+              v-if="retryAction === 'save'"
+              class="secondary-button"
+              :disabled="isBusy"
+              type="button"
+              @click="retry"
+            >
+              重试
             </button>
+          </div>
+
+          <form
+            :id="plannerDetailEditFormId"
+            class="planner-detail-form"
+            @submit.prevent="saveEdit"
+          >
+            <fieldset class="planner-detail-edit-section">
+              <legend>基本信息</legend>
+              <div class="planner-detail-edit-grid">
+                <template v-if="entity === 'task'">
+                  <label class="planner-field planner-detail-wide-field">
+                    <span>标题（必填）</span>
+                    <input
+                      ref="editTitleInput"
+                      v-model="taskEditForm.title"
+                      maxlength="200"
+                      required
+                    />
+                    <small class="planner-field-help">最多 200 个字符。</small>
+                  </label>
+                </template>
+
+                <template v-else-if="entity === 'calendar-event'">
+                  <label class="planner-field planner-detail-wide-field">
+                    <span>标题（必填）</span>
+                    <input
+                      ref="editTitleInput"
+                      v-model="calendarEditForm.title"
+                      maxlength="200"
+                      required
+                    />
+                    <small class="planner-field-help">最多 200 个字符。</small>
+                  </label>
+                </template>
+
+                <template v-else>
+                  <label class="planner-field planner-detail-wide-field">
+                    <span>标题（必填）</span>
+                    <input
+                      ref="editTitleInput"
+                      v-model="reminderEditForm.title"
+                      maxlength="200"
+                      required
+                    />
+                    <small class="planner-field-help">最多 200 个字符。</small>
+                  </label>
+                  <label class="planner-field planner-detail-wide-field">
+                    <span>备注（可选）</span>
+                    <textarea
+                      v-model="reminderEditForm.note"
+                      maxlength="500"
+                      rows="3"
+                    ></textarea>
+                    <small class="planner-field-help"
+                      >补充提醒背景，最多 500 个字符。</small
+                    >
+                  </label>
+                </template>
+              </div>
+            </fieldset>
+
+            <fieldset class="planner-detail-edit-section">
+              <legend>
+                {{ entity === "task" ? "待办设置" : "时间与重复设置" }}
+              </legend>
+              <div class="planner-detail-edit-grid">
+                <template v-if="entity === 'task'">
+                  <label class="planner-field">
+                    <span>优先级</span>
+                    <select v-model="taskEditForm.priority">
+                      <option value="LOW">低</option>
+                      <option value="MEDIUM">中</option>
+                      <option value="HIGH">高</option>
+                    </select>
+                  </label>
+                  <label class="planner-field">
+                    <span>截止时间（可选）</span>
+                    <DateTimeField v-model="taskEditForm.dueAt" />
+                    <small class="planner-field-help"
+                      >留空表示不设置截止时间。</small
+                    >
+                  </label>
+                </template>
+
+                <template v-else-if="entity === 'calendar-event'">
+                  <label class="check-label planner-detail-toggle">
+                    <input v-model="calendarEditForm.allDay" type="checkbox" />
+                    <span>全天日程</span>
+                  </label>
+                  <label
+                    v-if="calendarEditForm.allDay"
+                    class="planner-field planner-detail-wide-field"
+                  >
+                    <span>日期（必填）</span>
+                    <DateField v-model="calendarEditDay" required />
+                    <small class="planner-field-help"
+                      >按 Asia/Shanghai 当天零点至次日零点保存。</small
+                    >
+                  </label>
+                  <template v-else>
+                    <label class="planner-field">
+                      <span>开始时间（必填）</span>
+                      <DateTimeField
+                        v-model="calendarEditForm.startsAt"
+                        required
+                      />
+                    </label>
+                    <label class="planner-field">
+                      <span>结束时间（必填）</span>
+                      <DateTimeField
+                        v-model="calendarEditForm.endsAt"
+                        :min="calendarEditForm.startsAt"
+                        required
+                      />
+                      <small class="planner-field-help"
+                        >结束时间不能早于开始时间。</small
+                      >
+                    </label>
+                  </template>
+                </template>
+
+                <template v-else>
+                  <label class="planner-field">
+                    <span>重复方式</span>
+                    <select v-model="reminderEditForm.scheduleType">
+                      <option value="ONCE">一次性</option>
+                      <option value="DAILY">每天</option>
+                      <option value="WEEKLY">每周</option>
+                      <option value="MONTHLY">每月</option>
+                    </select>
+                  </label>
+                  <label class="planner-field">
+                    <span>首次时间（必填）</span>
+                    <DateTimeField
+                      v-model="reminderEditForm.startsAt"
+                      required
+                    />
+                  </label>
+                  <template v-if="reminderEditForm.scheduleType !== 'ONCE'">
+                    <label class="planner-field">
+                      <span>重复间隔（必填）</span>
+                      <input
+                        v-model="reminderEditForm.interval"
+                        max="366"
+                        min="1"
+                        required
+                        type="number"
+                      />
+                      <small class="planner-field-help">范围为 1–366。</small>
+                    </label>
+                    <fieldset
+                      v-if="reminderEditForm.scheduleType === 'WEEKLY'"
+                      class="scope-fieldset planner-detail-weekdays"
+                    >
+                      <legend>每周星期</legend>
+                      <label
+                        v-for="day in weekdays"
+                        :key="day"
+                        class="check-label"
+                      >
+                        <input
+                          :checked="reminderEditForm.weekdays.includes(day)"
+                          type="checkbox"
+                          @change="toggleWeekday(day)"
+                        />
+                        周{{
+                          day === 7
+                            ? "日"
+                            : ["一", "二", "三", "四", "五", "六"][day - 1]
+                        }}
+                      </label>
+                    </fieldset>
+                    <label
+                      v-if="reminderEditForm.scheduleType === 'MONTHLY'"
+                      class="planner-field"
+                    >
+                      <span>每月日期（必填）</span>
+                      <input
+                        v-model="reminderEditForm.dayOfMonth"
+                        max="31"
+                        min="1"
+                        required
+                        type="number"
+                      />
+                      <small class="planner-field-help">范围为 1–31。</small>
+                    </label>
+                    <label class="planner-field">
+                      <span>截止时间（可选）</span>
+                      <DateTimeField
+                        v-model="reminderEditForm.until"
+                        :min="reminderEditForm.startsAt"
+                      />
+                      <small class="planner-field-help"
+                        >不得早于首次时间。</small
+                      >
+                    </label>
+                  </template>
+                </template>
+              </div>
+            </fieldset>
+          </form>
+
+          <FormActions class="planner-detail-form-actions">
             <button
               class="secondary-button"
               :disabled="isBusy"
@@ -1108,8 +1265,16 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
             >
               取消编辑
             </button>
-          </div>
-        </form>
+            <button
+              class="primary-button"
+              :disabled="isBusy"
+              :form="plannerDetailEditFormId"
+              type="submit"
+            >
+              {{ activeAction === "save" ? "保存中…" : "保存" }}
+            </button>
+          </FormActions>
+        </section>
 
         <dl v-else class="planner-detail-list">
           <div>
@@ -1176,6 +1341,7 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
           >
             <button
               v-if="canEdit"
+              ref="editTrigger"
               class="secondary-button"
               :disabled="isBusy"
               type="button"
