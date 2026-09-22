@@ -4,6 +4,8 @@ import { RouterLink, useRoute } from "vue-router";
 
 import type { AiOperation, AiProposalDetail } from "../api/client";
 import AiOperationCard from "../components/AiOperationCard.vue";
+import ErrorState from "../components/ErrorState.vue";
+import LoadingState from "../components/LoadingState.vue";
 import SecondaryPageShell from "../components/SecondaryPageShell.vue";
 import { requestAppConfirm } from "../composables/useAppConfirm";
 import { useAiStore, type AiProposalLoadMode } from "../stores/ai";
@@ -37,7 +39,8 @@ const mutationLocked = computed(
   () =>
     routeTargetMismatch.value ||
     ai.authoritativeRefreshPending ||
-    ai.authoritativeRefreshRequired,
+    ai.authoritativeRefreshRequired ||
+    !isReviewable.value,
 );
 
 const reviewableStatuses = ["PENDING_REVIEW", "PARTIALLY_APPLIED"] as const;
@@ -51,6 +54,12 @@ const isReviewable = computed(() =>
 const acceptedOperations = computed(() =>
   (proposal.value?.operations ?? []).filter(
     (operation) => operation.status === "ACCEPTED",
+  ),
+);
+
+const pendingOperations = computed(() =>
+  (proposal.value?.operations ?? []).filter(
+    (operation) => operation.status === "PENDING",
   ),
 );
 
@@ -75,6 +84,39 @@ const proposalStatusLabel = computed(() => {
   return proposal.value
     ? (labels[proposal.value.status] ?? proposal.value.status)
     : "";
+});
+
+const proposalStatusDescription = computed(() => {
+  const descriptions: Record<string, string> = {
+    APPLIED: "全部已完成写入，当前提案不再需要审核。",
+    EXPIRED: "提案已过期，不能继续接受或写入操作。",
+    FAILED: "提案处理失败，当前不能继续写入操作。",
+    PARTIALLY_APPLIED: "部分已写入；可继续处理仍被接受的操作。",
+    PENDING_REVIEW: "请先逐项核对建议，再选择需要写入的操作。",
+    REJECTED: "整个提案已被拒绝，当前不再执行任何操作。",
+  };
+  return proposal.value
+    ? (descriptions[proposal.value.status] ?? "请核对当前提案状态。")
+    : "";
+});
+
+const operationTypesSummary = computed(() => {
+  const labels = Array.from(
+    new Set((proposal.value?.operations ?? []).map(operationLabel)),
+  );
+  return labels.join("、") || "暂无操作";
+});
+
+const reviewProgressSummary = computed(() => {
+  if (!proposal.value) return "";
+  if (!isReviewable.value) return proposalStatusDescription.value;
+  if (pendingOperations.value.length > 0) {
+    return `还有 ${pendingOperations.value.length} 项操作等待核对。`;
+  }
+  if (acceptedOperations.value.length > 0) {
+    return `已有 ${acceptedOperations.value.length} 项操作等待最终确认。`;
+  }
+  return "所有操作均未接受，不会写入任何正式数据。";
 });
 
 watch(
@@ -316,30 +358,59 @@ function operationLabel(operation: AiOperation): string {
       >
     </template>
 
-    <p v-if="errorKind === 'NOT_FOUND'" class="form-error" role="alert">
-      未找到该提案，可能已被删除或不存在。
-    </p>
+    <ErrorState
+      v-if="errorKind === 'NOT_FOUND'"
+      description="未找到该提案，可能已被删除或不存在。"
+      title="提案不存在"
+    />
 
     <template v-else-if="loading && !proposal">
-      <div class="auth-state-card loading-card" aria-busy="true">
-        <span class="spinner" aria-hidden="true"></span>
-        <p class="auth-state-message">正在加载提案…</p>
-      </div>
+      <LoadingState
+        description="正在获取需要审核的提案。"
+        title="正在加载提案"
+      />
     </template>
 
     <template v-else-if="proposal">
-      <div class="proposal-meta">
-        <p class="eyebrow">状态</p>
+      <section
+        class="proposal-status-summary"
+        aria-labelledby="proposal-status-title"
+      >
+        <div class="proposal-status-summary__heading">
+          <p class="eyebrow">当前提案</p>
+          <h2 id="proposal-status-title">{{ proposalStatusLabel }}</h2>
+        </div>
         <span
           class="status-badge"
           :class="`status-${proposal.status.toLowerCase()}`"
         >
-          {{ proposalStatusLabel }}
+          状态：{{ proposalStatusLabel }}
         </span>
+        <p class="proposal-status-summary__description" role="status">
+          {{ proposalStatusDescription }}
+        </p>
+        <p class="proposal-status-summary__progress">
+          {{ reviewProgressSummary }}
+        </p>
         <small v-if="proposal.completedAt" class="draft-time">
           完成于 {{ new Date(proposal.completedAt).toLocaleString("zh-CN") }}
         </small>
-      </div>
+      </section>
+
+      <section
+        class="proposal-request-summary"
+        aria-labelledby="proposal-request-title"
+      >
+        <p class="eyebrow">本次需求概览</p>
+        <h2 id="proposal-request-title">
+          将审核 {{ proposal.operations.length }} 项建议
+        </h2>
+        <p>
+          涉及{{
+            operationTypesSummary
+          }}。原始输入不会在此页面重复保存或伪造展示。
+        </p>
+      </section>
 
       <p v-if="errorMessage" class="form-error" role="alert">
         {{ errorMessage }}
@@ -363,21 +434,45 @@ function operationLabel(operation: AiOperation): string {
         重新加载最新状态
       </button>
 
-      <div class="operation-list">
-        <AiOperationCard
-          v-for="operation in proposal.operations"
-          :key="operation.id"
-          :operation="operation"
-          :proposal-version="proposal.version"
-          :saving="savingOperationId === operation.id"
-          :mutation-locked="mutationLocked"
-          @save="saveOperation"
-          @accept="acceptOperation"
-          @reject="rejectOperation"
-        />
-      </div>
+      <section
+        class="proposal-operation-section"
+        aria-labelledby="proposal-operations-title"
+      >
+        <div class="proposal-operation-section__heading">
+          <div>
+            <p class="eyebrow">逐项审核</p>
+            <h2 id="proposal-operations-title">操作列表</h2>
+          </div>
+          <p class="proposal-operation-section__count" role="status">
+            共 {{ proposal.operations.length }} 项，待核对
+            {{ pendingOperations.length }} 项
+          </p>
+        </div>
 
-      <div v-if="canRejectProposal" class="proposal-actions">
+        <div v-if="proposal.operations.length" class="operation-list">
+          <AiOperationCard
+            v-for="operation in proposal.operations"
+            :key="operation.id"
+            :operation="operation"
+            :proposal-version="proposal.version"
+            :saving="savingOperationId === operation.id"
+            :mutation-locked="mutationLocked"
+            @save="saveOperation"
+            @accept="acceptOperation"
+            @reject="rejectOperation"
+          />
+        </div>
+        <p v-else class="proposal-empty-operations" role="status">
+          此提案没有可审核的操作，不会写入正式数据。
+        </p>
+      </section>
+
+      <section v-if="canRejectProposal" class="proposal-secondary-actions">
+        <div>
+          <p class="eyebrow">不采用此方案</p>
+          <h2>拒绝整个提案</h2>
+          <p>拒绝后不会写入此提案中的任何操作。</p>
+        </div>
         <button
           class="danger-button reject-proposal-button"
           :disabled="rejectProposalConfirming || mutationLocked"
@@ -386,14 +481,20 @@ function operationLabel(operation: AiOperation): string {
         >
           {{ rejectProposalConfirming ? "拒绝中…" : "拒绝整个提案" }}
         </button>
-      </div>
+      </section>
 
       <section
         v-if="canFinalConfirm"
         class="final-confirm-panel"
         aria-labelledby="final-confirm-title"
       >
-        <h2 id="final-confirm-title">最终确认写入</h2>
+        <div class="final-confirm-panel__heading">
+          <p class="eyebrow">最后一步</p>
+          <h2 id="final-confirm-title">最终确认写入</h2>
+        </div>
+        <p class="panel-copy">
+          只有你在上方明确确认的操作会在最终确认后写入；未确认或已拒绝的操作不会被应用。
+        </p>
         <p class="panel-copy">
           即将正式写入 {{ acceptedOperations.length }} 项，写入后无法撤销。
         </p>
@@ -402,9 +503,6 @@ function operationLabel(operation: AiOperation): string {
             {{ operationLabel(operation) }}
           </li>
         </ul>
-        <p class="panel-copy warning-copy">
-          点击下方按钮后才会写入正式业务记录。
-        </p>
         <button
           class="primary-button final-confirm-button"
           :disabled="confirming || saving || mutationLocked"
