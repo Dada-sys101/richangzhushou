@@ -17,6 +17,9 @@ import {
   type TaskSummary,
 } from "../api/client";
 import * as AppConfirm from "../composables/useAppConfirm";
+import DateField from "../components/DateField.vue";
+import DateTimeField from "../components/DateTimeField.vue";
+import FormActions from "../components/FormActions.vue";
 import { usePlannerStore } from "../stores/planner";
 import PlannerDetailView from "./PlannerDetailView.vue";
 
@@ -153,6 +156,16 @@ function findButton(wrapper: ReturnType<typeof mount>, label: string) {
     throw new Error(`button not found: ${label}`);
   }
   return button;
+}
+
+function findLabel(wrapper: ReturnType<typeof mount>, label: string) {
+  const field = wrapper
+    .findAll("label")
+    .find((candidate) => candidate.text().includes(label));
+  if (!field) {
+    throw new Error(`label not found: ${label}`);
+  }
+  return field;
 }
 
 function deferred<T>() {
@@ -733,5 +746,400 @@ describe("PlannerDetailView", () => {
     expect(context.wrapper.find(".planner-detail-form").exists()).toBe(false);
     expect(context.wrapper.text()).toContain("产品评审");
     expect(context.wrapper.text()).not.toContain("未保存的标题");
+  });
+
+  it.each([
+    ["task", "/tasks/task-1", "getTask", task()],
+    [
+      "calendar-event",
+      "/calendar/event-1",
+      "getCalendarEvent",
+      calendarEvent(),
+    ],
+    ["reminder", "/reminders/reminder-1", "getReminder", reminder()],
+  ] as const)(
+    "uses the shared editor skeleton and focuses the title for %s",
+    async (_entity, path, getter, detail) => {
+      vi.spyOn(api, getter).mockResolvedValue(detail as never);
+      const context = await mountDetail(path);
+      const focus = vi.spyOn(HTMLInputElement.prototype, "focus");
+
+      await findButton(context.wrapper, "编辑").trigger("click");
+      await flushPromises();
+
+      const form = context.wrapper.find("#planner-detail-edit-form");
+      const title = form.find<HTMLInputElement>("input[required]");
+      expect(form.exists()).toBe(true);
+      expect(title.exists()).toBe(true);
+      expect(context.wrapper.findAll("fieldset")).toHaveLength(2);
+      expect(context.wrapper.findComponent(FormActions).exists()).toBe(true);
+      expect(
+        context.wrapper
+          .find('.planner-detail-actions[aria-label="事项操作"]')
+          .exists(),
+      ).toBe(false);
+      expect(focus).toHaveBeenCalled();
+      expect(findButton(context.wrapper, "保存").attributes("form")).toBe(
+        "planner-detail-edit-form",
+      );
+    },
+  );
+
+  it("does not offer editing for a deleted entity", async () => {
+    vi.spyOn(api, "getTask").mockResolvedValue(
+      task({ deletedAt: "2026-08-30T03:00:00.000Z" }),
+    );
+    const context = await mountDetail("/tasks/task-1");
+
+    expect(
+      context.wrapper
+        .findAll("button")
+        .some((button) => button.text() === "编辑"),
+    ).toBe(false);
+    expect(context.wrapper.text()).toContain("已删除，可恢复");
+  });
+
+  it("submits task priority and a null due date with the current version", async () => {
+    const initial = task({ dueAt: null, priority: "LOW", version: 7 });
+    const updated = task({ dueAt: null, priority: "HIGH", version: 8 });
+    vi.spyOn(api, "getTask").mockResolvedValue(initial);
+    const context = await mountDetail("/tasks/task-1");
+    const update = vi
+      .spyOn(context.planner, "updateTask")
+      .mockResolvedValue(updated);
+
+    await findButton(context.wrapper, "编辑").trigger("click");
+    await findLabel(context.wrapper, "优先级").find("select").setValue("HIGH");
+    await context.wrapper.find(".planner-detail-form").trigger("submit");
+    await flushPromises();
+
+    expect(update).toHaveBeenCalledWith("task-1", {
+      dueAt: null,
+      priority: "HIGH",
+      title: "整理发票",
+      version: 7,
+    });
+  });
+
+  it("prevents duplicate saves while preserving the submitted task values", async () => {
+    const save = deferred<TaskSummary>();
+    vi.spyOn(api, "getTask").mockResolvedValue(task());
+    const context = await mountDetail("/tasks/task-1");
+    const update = vi
+      .spyOn(context.planner, "updateTask")
+      .mockReturnValue(save.promise);
+
+    await findButton(context.wrapper, "编辑").trigger("click");
+    await findLabel(context.wrapper, "标题")
+      .find("input")
+      .setValue("保存中的待办");
+    const form = context.wrapper.find(".planner-detail-form");
+    await form.trigger("submit");
+    await form.trigger("submit");
+
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(findButton(context.wrapper, "保存中…").attributes("disabled")).toBe(
+      "",
+    );
+    expect(findLabel(context.wrapper, "标题").find("input").element.value).toBe(
+      "保存中的待办",
+    );
+
+    save.resolve(task({ title: "保存中的待办", version: 2 }));
+    await flushPromises();
+    expect(context.wrapper.find(".planner-detail-form").exists()).toBe(false);
+  });
+
+  it("submits an all-day calendar boundary without hidden timed values", async () => {
+    const initial = calendarEvent({
+      allDay: true,
+      endsAt: "2026-08-31T16:00:00.000Z",
+      startsAt: "2026-08-30T16:00:00.000Z",
+      version: 4,
+    });
+    const updated = calendarEvent({ ...initial, version: 5 });
+    vi.spyOn(api, "getCalendarEvent").mockResolvedValue(initial);
+    const context = await mountDetail("/calendar/event-1");
+    const update = vi
+      .spyOn(context.planner, "updateCalendarEvent")
+      .mockResolvedValue({ calendarEvent: updated });
+
+    await findButton(context.wrapper, "编辑").trigger("click");
+    const dateField = context.wrapper.findComponent(DateField);
+    dateField.vm.$emit("update:modelValue", "2026-09-03");
+    await flushPromises();
+    await context.wrapper.find(".planner-detail-form").trigger("submit");
+    await flushPromises();
+
+    expect(update).toHaveBeenCalledWith("event-1", {
+      allDay: true,
+      endsAt: "2026-09-03T16:00:00.000Z",
+      startsAt: "2026-09-02T16:00:00.000Z",
+      status: "SCHEDULED",
+      title: "产品评审",
+      version: 4,
+    });
+  });
+
+  it("switches calendar time fields consistently and reports overlap as a status", async () => {
+    const initial = calendarEvent();
+    const updated = calendarEvent({ version: 2 });
+    vi.spyOn(api, "getCalendarEvent").mockResolvedValue(initial);
+    const context = await mountDetail("/calendar/event-1");
+    vi.spyOn(context.planner, "updateCalendarEvent").mockResolvedValue({
+      calendarEvent: updated,
+      overlapWarning: {
+        code: "OVERLAP_WARNING",
+        conflictingEventId: "event-2",
+        message: "与产品同步会重叠",
+      },
+    });
+
+    await findButton(context.wrapper, "编辑").trigger("click");
+    expect(context.wrapper.findAllComponents(DateTimeField)).toHaveLength(2);
+    await findLabel(context.wrapper, "全天日程")
+      .find('input[type="checkbox"]')
+      .setValue(true);
+    expect(context.wrapper.findComponent(DateField).exists()).toBe(true);
+    expect(context.wrapper.findAllComponents(DateTimeField)).toHaveLength(0);
+    await findLabel(context.wrapper, "全天日程")
+      .find('input[type="checkbox"]')
+      .setValue(false);
+    expect(context.wrapper.findAllComponents(DateTimeField)).toHaveLength(2);
+
+    await context.wrapper.find(".planner-detail-form").trigger("submit");
+    await flushPromises();
+    expect(context.wrapper.text()).toContain("日程已更新");
+    expect(context.wrapper.text()).toContain("与产品同步会重叠");
+    expect(
+      context.wrapper
+        .find(".planner-detail-overlap-warning")
+        .attributes("role"),
+    ).toBe("status");
+  });
+
+  it("submits sorted weekly recurrence and keeps its current version", async () => {
+    const initial = reminder({
+      recurrence: {
+        interval: 2,
+        until: "2026-09-05T02:00:00.000Z",
+        weekdays: [5, 2],
+      },
+      scheduleType: "WEEKLY",
+      version: 9,
+    });
+    const updated = reminder({ ...initial, version: 10 });
+    vi.spyOn(api, "getReminder").mockResolvedValue(initial);
+    const context = await mountDetail("/reminders/reminder-1");
+    const update = vi
+      .spyOn(context.planner, "updateReminder")
+      .mockResolvedValue(updated);
+
+    await findButton(context.wrapper, "编辑").trigger("click");
+    await context.wrapper.find(".planner-detail-form").trigger("submit");
+    await flushPromises();
+
+    expect(update).toHaveBeenCalledWith("reminder-1", {
+      note: null,
+      recurrence: {
+        interval: 2,
+        until: "2026-09-05T02:00:00.000Z",
+        weekdays: [2, 5],
+      },
+      scheduleType: "WEEKLY",
+      startsAt: "2026-08-30T02:00:00.000Z",
+      title: "提交报销",
+      version: 9,
+    });
+  });
+
+  it.each([
+    [
+      "DAILY",
+      { interval: 4, until: "2026-09-05T02:00:00.000Z" },
+      { interval: 4, until: "2026-09-05T02:00:00.000Z" },
+    ],
+    [
+      "MONTHLY",
+      { dayOfMonth: 18, interval: 2 },
+      { dayOfMonth: 18, interval: 2 },
+    ],
+  ] as const)(
+    "submits only the active %s recurrence fields",
+    async (scheduleType, sourceRecurrence, expectedRecurrence) => {
+      const initial = reminder({
+        recurrence: sourceRecurrence,
+        scheduleType,
+        version: 6,
+      });
+      vi.spyOn(api, "getReminder").mockResolvedValue(initial);
+      const context = await mountDetail("/reminders/reminder-1");
+      const update = vi
+        .spyOn(context.planner, "updateReminder")
+        .mockResolvedValue(reminder({ ...initial, version: 7 }));
+
+      await findButton(context.wrapper, "编辑").trigger("click");
+      await context.wrapper.find(".planner-detail-form").trigger("submit");
+      await flushPromises();
+
+      expect(update).toHaveBeenCalledWith(
+        "reminder-1",
+        expect.objectContaining({
+          recurrence: expectedRecurrence,
+          scheduleType,
+          version: 6,
+        }),
+      );
+    },
+  );
+
+  it("keeps conditional reminder drafts but excludes hidden rules from ONCE", async () => {
+    const initial = reminder({
+      recurrence: { dayOfMonth: 18, interval: 3 },
+      scheduleType: "MONTHLY",
+    });
+    vi.spyOn(api, "getReminder").mockResolvedValue(initial);
+    const context = await mountDetail("/reminders/reminder-1");
+    const update = vi
+      .spyOn(context.planner, "updateReminder")
+      .mockResolvedValue(reminder({ version: 2 }));
+
+    await findButton(context.wrapper, "编辑").trigger("click");
+    const schedule = findLabel(context.wrapper, "重复方式").find("select");
+    expect(context.wrapper.text()).toContain("每月日期");
+    await schedule.setValue("DAILY");
+    expect(context.wrapper.text()).not.toContain("每月日期（必填）");
+    expect(
+      findLabel(context.wrapper, "重复间隔").find("input").element.value,
+    ).toBe("3");
+    await schedule.setValue("WEEKLY");
+    expect(context.wrapper.text()).toContain("每周星期");
+    await schedule.setValue("MONTHLY");
+    expect(
+      findLabel(context.wrapper, "每月日期").find("input").element.value,
+    ).toBe("18");
+    await schedule.setValue("ONCE");
+    expect(context.wrapper.text()).not.toContain("重复间隔（必填）");
+    await context.wrapper.find(".planner-detail-form").trigger("submit");
+    await flushPromises();
+
+    expect(update).toHaveBeenCalledWith(
+      "reminder-1",
+      expect.objectContaining({ recurrence: null, scheduleType: "ONCE" }),
+    );
+  });
+
+  it.each([
+    [400, "提交内容有误，请检查表单后重试"],
+    [409, "记录已被更新，请返回详情刷新后再试"],
+    [503, "操作失败，请稍后重试"],
+    [0, "当前离线，请恢复网络后重试"],
+  ])(
+    "keeps current editor values after save status %s and retries them",
+    async (status, message) => {
+      const initial = task();
+      const updated = task({ title: `状态${status}后重试`, version: 2 });
+      vi.spyOn(api, "getTask").mockResolvedValue(initial);
+      const context = await mountDetail("/tasks/task-1");
+      const update = vi
+        .spyOn(context.planner, "updateTask")
+        .mockRejectedValueOnce(
+          new ApiClientError(status, "SERVER_DETAIL", "internal secret"),
+        )
+        .mockResolvedValue(updated);
+
+      await findButton(context.wrapper, "编辑").trigger("click");
+      await findLabel(context.wrapper, "标题")
+        .find("input")
+        .setValue(`状态${status}后重试`);
+      await context.wrapper.find(".planner-detail-form").trigger("submit");
+      await flushPromises();
+
+      expect(context.wrapper.find(".planner-detail-form").exists()).toBe(true);
+      expect(context.wrapper.text()).toContain(message);
+      expect(context.wrapper.text()).not.toContain("internal secret");
+      expect(
+        findLabel(context.wrapper, "标题").find("input").element.value,
+      ).toBe(`状态${status}后重试`);
+
+      await findButton(context.wrapper, "重试").trigger("click");
+      await flushPromises();
+      expect(update).toHaveBeenLastCalledWith(
+        "task-1",
+        expect.objectContaining({ title: `状态${status}后重试` }),
+      );
+      expect(context.wrapper.text()).not.toContain(message);
+      expect(context.wrapper.find(".planner-detail-form").exists()).toBe(false);
+    },
+  );
+
+  it("confirms dirty cancellation, preserves rejected input, and restores focus", async () => {
+    vi.spyOn(api, "getTask").mockResolvedValue(task());
+    const confirm = vi
+      .mocked(AppConfirm.requestAppConfirm)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true);
+    const context = await mountDetail("/tasks/task-1");
+
+    await findButton(context.wrapper, "编辑").trigger("click");
+    await findLabel(context.wrapper, "标题")
+      .find("input")
+      .setValue("尚未保存的待办");
+    await findButton(context.wrapper, "取消编辑").trigger("click");
+    await flushPromises();
+    expect(confirm).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "放弃未保存的编辑？" }),
+    );
+    expect(context.wrapper.find(".planner-detail-form").exists()).toBe(true);
+    expect(findLabel(context.wrapper, "标题").find("input").element.value).toBe(
+      "尚未保存的待办",
+    );
+
+    const focus = vi.spyOn(HTMLButtonElement.prototype, "focus");
+    await findButton(context.wrapper, "取消编辑").trigger("click");
+    await flushPromises();
+    expect(context.wrapper.find(".planner-detail-form").exists()).toBe(false);
+    expect(context.wrapper.text()).toContain("整理发票");
+    expect(focus).toHaveBeenCalled();
+  });
+
+  it("leaves an unchanged editor without confirmation", async () => {
+    vi.spyOn(api, "getTask").mockResolvedValue(task());
+    const context = await mountDetail("/tasks/task-1");
+
+    await findButton(context.wrapper, "编辑").trigger("click");
+    await findButton(context.wrapper, "取消编辑").trigger("click");
+    await flushPromises();
+
+    expect(AppConfirm.requestAppConfirm).not.toHaveBeenCalled();
+    expect(context.wrapper.find(".planner-detail-form").exists()).toBe(false);
+  });
+
+  it("guards route id updates and does not load the target until accepted", async () => {
+    vi.spyOn(api, "getTask").mockImplementation((requestedId) =>
+      Promise.resolve(task({ id: requestedId, title: `待办 ${requestedId}` })),
+    );
+    const confirm = vi
+      .mocked(AppConfirm.requestAppConfirm)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true);
+    const context = await mountDetail("/tasks/task-1");
+
+    await findButton(context.wrapper, "编辑").trigger("click");
+    await findLabel(context.wrapper, "标题")
+      .find("input")
+      .setValue("保留当前输入");
+    await context.router.push("/tasks/task-2");
+    await flushPromises();
+    expect(context.router.currentRoute.value.fullPath).toBe("/tasks/task-1");
+    expect(findLabel(context.wrapper, "标题").find("input").element.value).toBe(
+      "保留当前输入",
+    );
+
+    await context.router.push("/tasks/task-2");
+    await flushPromises();
+    expect(context.router.currentRoute.value.fullPath).toBe("/tasks/task-2");
+    expect(context.wrapper.text()).toContain("待办 task-2");
+    expect(confirm).toHaveBeenCalledTimes(2);
   });
 });

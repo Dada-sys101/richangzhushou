@@ -1,5 +1,14 @@
 # 变更日志（Changelog）
 
+## 2026-09-22 — UIR-08D2 计划详情编辑表单迁移（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 统一 `PlannerDetailView` 中待办、日程和提醒三套编辑器的信息层级：共用标题与说明、基本信息/实体设置分组、稳定表单 ID 和外置 `FormActions`；补齐必填/可选提示、标题自动聚焦、取消后焦点恢复，以及 768 以下移动端底部粘性操作区。
+- 保留既有 payload、version、Planner Store 同步和 Asia/Shanghai 序列化语义；待办继续支持优先级和可空截止时间，日程继续支持全天边界与定时起止时间，提醒继续支持 ONCE/DAILY/WEEKLY/MONTHLY 及原有重复规则。条件字段隐藏时保留编辑草稿，但只提交当前类型适用字段。
+- 取消编辑在无改动时直接返回，有改动时使用现有应用确认框；拒绝离开保留输入，确认放弃重置表单并恢复“编辑”按钮焦点。详情实体或 ID 更新、来源返回和 Browser Back 均继续受现有未保存保护约束；保存中禁止重复提交。
+- `PlannerDetailView` 专项 44/44、Web 全量 52 files / 365 tests、Web lint/typecheck、`npm run quality`、`npm run format:check`、`npm run check:context` 和 `git diff --check` 全部通过。复用项目既有便携 MySQL 与 `daily_assistant_e2e`，navigation-shell、temporal-picker、deletion、web-push 在 375、390、430、768、1440 五个项目共 35/35 通过。
+- 三类表单在五档视口及五档 200% 根字号下均无横向溢出，移动端操作区未遮挡最后一个可编辑控件；全天/定时和四种提醒重复规则的条件字段切换通过。390/1440 受控 400、409、503 均显示安全文案、保留输入并在解除拦截后重试成功；网络中断按既有离线写入与恢复同步语义完成，控制台除开发环境 Service Worker MIME 噪声外仅有上述主动注入请求错误。
+- DEVICE_ACCEPTANCE_PENDING：尚未在真实 iPhone/Android 上复验软键盘、安全区和日期时间选择器。本任务不要求 Fresh Sol，未执行独立 reviewer 或实际模型/runtime metadata 验证；本地变更尚未提交、推送、创建 PR、合并或部署，未开始下一任务。
+
 ## 2026-09-21 — UIR-08D1 计划详情公共展示与操作区迁移（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 迁移共享 `PlannerDetailView` 的 `/tasks/:id`、`/calendar/:id`、`/reminders/:id` 详情层级、加载/错误/无效数据/无 ID/404/503/重试反馈和旧请求防覆盖；保留现有三类编辑表单、路由实体分支、字符串 ID、safe `returnTo`、Browser Back、版本保护、Store 同步、软删除/恢复及操作语义。

@@ -1825,15 +1825,101 @@ html.app-dialog-open body {
   overflow-wrap: anywhere;
 }
 
-.planner-detail-form {
+.planner-detail-overlap-warning {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #fcd34d;
+  border-radius: var(--radius-md);
+  color: #854d0e;
+  background: #fffbeb;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.planner-detail-editor {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
+  gap: 18px;
+  min-width: 0;
   margin-top: 22px;
 }
 
+.planner-detail-editor-head {
+  display: grid;
+  gap: 4px;
+}
+
+.planner-detail-editor-head h3,
+.planner-detail-editor-head p {
+  margin: 0;
+}
+
+.planner-detail-editor-head > p:last-child {
+  color: var(--color-text-secondary);
+}
+
+.planner-detail-form {
+  display: grid;
+  gap: 16px;
+}
+
+.planner-detail-edit-section {
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.planner-detail-edit-section > legend {
+  padding: 0 6px;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.planner-detail-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+}
+
+.planner-detail-wide-field,
+.planner-detail-toggle,
 .planner-detail-form .scope-fieldset {
   grid-column: 1 / -1;
+}
+
+.planner-detail-form textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.planner-field-help {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.planner-detail-toggle {
+  min-height: 44px;
+  padding: 4px 0;
+}
+
+.planner-detail-weekdays {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.planner-detail-form-actions {
+  margin-top: 0;
+}
+
+.planner-detail-form-actions > * {
+  min-width: 112px;
 }
 
 .planner-detail-actions {
@@ -2230,9 +2316,39 @@ html.app-dialog-open body {
     justify-content: flex-start;
   }
 
-  .planner-detail-workspace .planner-detail-form,
+  .planner-detail-workspace .planner-detail-edit-grid,
   .trip-detail-workspace .trip-create {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .planner-detail-workspace .planner-detail-wide-field,
+  .planner-detail-workspace .planner-detail-toggle,
+  .planner-detail-workspace .planner-detail-form .scope-fieldset {
+    grid-column: 1;
+  }
+
+  .planner-detail-workspace .planner-detail-edit-section {
+    padding: 14px;
+  }
+
+  .planner-detail-workspace .planner-detail-form-actions {
+    position: sticky;
+    z-index: 8;
+    bottom: calc(68px + env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-surface) 96%, transparent);
+    box-shadow: var(--shadow-card);
+  }
+
+  .planner-detail-workspace .planner-detail-form-actions > * {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
   }
 
   .planner-detail-workspace .planner-actions,
