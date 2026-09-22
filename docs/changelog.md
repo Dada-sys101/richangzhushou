@@ -1,5 +1,13 @@
 # 变更日志（Changelog）
 
+## 2026-09-22 — UIR-09A2A Proposal 审核页框架与确认区改造（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 将 `ProposalReviewView` 重组为状态摘要、需求概览、逐项审核、整项拒绝和最终确认的清晰顺序；状态文案同时说明可否继续审核及下一步，不只依赖颜色。详情 API 未提供原始用户输入或请求类型，因此概览仅由现有操作数量与类型组成，并明确不重复保存或伪造原始输入。
+- 继续直接复用未修改的 `AiOperationCard`，保留 route `proposalId`、权威刷新、版本/冲突处理、接受/拒绝/编辑、整项拒绝、最终确认、幂等、防重复提交、`returnTo` 与 Browser Back。只有明确接受的操作能在最终确认后写入；终态 Proposal 的操作均锁定，且不展示误导性的最终写入按钮。
+- 移动端最终确认区采用既有安全区粘性模式，桌面端保持内容流；长内容可换行，操作列表和次要/危险操作具有明确层级。未修改 Store、API、Router、后端、数据库或 `AiOperationCard` 内部编辑逻辑。
+- `ProposalReviewView` 专项 50/50、`AiView` 既有专项 12/12、Web 全量 52 files / 379 tests、Web lint/typecheck、`npm run quality`、`npm run format:check`、`npm run check:context` 与 `git diff --check` 均通过。仓库中未发现独立的 `AiOperationCard.test.ts`；既有卡片继续由页面专项与真实 AI Proposal 流程覆盖。
+- 使用项目既有便携 MySQL、`daily_assistant_e2e` 和 Fake Provider 运行 `ai-proposal`：375、390、430、768、1440 五项目共 60/60 通过，覆盖加载、逐项接受/拒绝、最终确认、整项拒绝、Browser Back、权威重载、重复最终确认和响应丢失后的恢复；未调用真实第三方 Provider、生产数据库或密钥。五档以 200% 根字号检查均无横向溢出，移动端最终确认区未遮挡操作。390/1440 的 503 响应丢失/重载恢复走真实浏览器流程；加载 404/503、操作冲突、最终确认失败和权威刷新保护由现有 `ProposalReviewView` 行为测试覆盖。真实设备/系统级文字缩放和真实第三方 Provider 未验证。
+
 ## 2026-09-22 — UIR-09A1 AI 对话式入口改造（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 将 `AiView` 调整为轻量单轮 AI 助手入口：二级页说明、助手引导、五种业务类型快捷选择、长文本编辑器、发送中/失败/重试反馈和“确认后才会写入”提示均在同一页面内完成；页面明确不保存聊天历史，不展示伪造回复或多轮会话。

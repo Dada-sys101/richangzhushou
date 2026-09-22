@@ -2207,23 +2207,98 @@ html.app-dialog-open body {
   box-shadow: var(--shadow-card);
 }
 
-.proposal-review-workspace .proposal-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.proposal-review-workspace .proposal-status-summary,
+.proposal-review-workspace .proposal-request-summary,
+.proposal-review-workspace .proposal-operation-section,
+.proposal-review-workspace .proposal-secondary-actions,
+.proposal-review-workspace .final-confirm-panel {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.proposal-review-workspace .proposal-status-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px 16px;
   margin: 0;
-  padding: 14px 16px;
+  padding: 20px;
   border: 1px solid var(--color-primary-soft);
   border-radius: var(--radius-md);
   background: var(--color-primary-subtle);
 }
 
-.proposal-review-workspace .proposal-meta .eyebrow {
+.proposal-review-workspace .proposal-status-summary__heading,
+.proposal-review-workspace .proposal-request-summary > *,
+.proposal-review-workspace .proposal-operation-section__heading > *,
+.proposal-review-workspace .proposal-secondary-actions > *,
+.proposal-review-workspace .final-confirm-panel__heading > * {
+  min-width: 0;
+}
+
+.proposal-review-workspace .proposal-status-summary .eyebrow,
+.proposal-review-workspace .proposal-request-summary .eyebrow,
+.proposal-review-workspace .proposal-operation-section .eyebrow,
+.proposal-review-workspace .proposal-secondary-actions .eyebrow,
+.proposal-review-workspace .final-confirm-panel .eyebrow {
+  margin: 0 0 4px;
+}
+
+.proposal-review-workspace .proposal-status-summary h2,
+.proposal-review-workspace .proposal-request-summary h2,
+.proposal-review-workspace .proposal-operation-section h2,
+.proposal-review-workspace .proposal-secondary-actions h2,
+.proposal-review-workspace .final-confirm-panel h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.proposal-review-workspace .proposal-status-summary__description,
+.proposal-review-workspace .proposal-status-summary__progress {
+  grid-column: 1 / -1;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.proposal-review-workspace .proposal-status-summary__progress {
+  padding-top: 10px;
+  border-top: 1px solid var(--color-primary-soft);
+  font-weight: 600;
+}
+
+.proposal-review-workspace .proposal-status-summary .draft-time {
+  grid-column: 1 / -1;
   margin: 0;
 }
 
-.proposal-review-workspace .proposal-meta .draft-time {
-  margin-left: auto;
+.proposal-review-workspace .proposal-request-summary {
+  padding: 4px 0 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.proposal-review-workspace .proposal-request-summary p:not(.eyebrow),
+.proposal-review-workspace .proposal-secondary-actions p:not(.eyebrow),
+.proposal-review-workspace .proposal-empty-operations,
+.proposal-review-workspace .proposal-operation-section__count {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.proposal-review-workspace .proposal-operation-section {
+  display: grid;
+  gap: 14px;
+}
+
+.proposal-review-workspace .proposal-operation-section__heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.proposal-review-workspace .proposal-operation-section__count {
+  flex: 0 1 220px;
+  text-align: right;
 }
 
 .proposal-review-workspace .operation-list {
@@ -2231,20 +2306,29 @@ html.app-dialog-open body {
   gap: 16px;
 }
 
-.proposal-review-workspace .proposal-actions {
+.proposal-review-workspace .proposal-secondary-actions {
   display: flex;
-  justify-content: flex-end;
-  padding-top: 16px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 20px;
   border-top: 1px solid var(--color-border);
 }
 
 .proposal-review-workspace .final-confirm-panel {
+  display: grid;
+  gap: 12px;
   margin: 0;
-  padding: 18px;
+  padding: 20px;
   border: 1px solid var(--color-primary-soft);
   border-radius: var(--radius-md);
   background: var(--color-primary-subtle);
   box-shadow: var(--shadow-card);
+}
+
+.proposal-review-workspace .final-confirm-panel .panel-copy {
+  margin: 0;
+  line-height: 1.6;
 }
 
 .proposal-review-workspace .final-confirm-list {
@@ -2254,6 +2338,33 @@ html.app-dialog-open body {
   margin: 14px 0;
   padding: 0;
   list-style: none;
+}
+
+@media (max-width: 768px) {
+  .proposal-review-workspace .proposal-status-summary,
+  .proposal-review-workspace .proposal-operation-section__heading,
+  .proposal-review-workspace .proposal-secondary-actions {
+    grid-template-columns: minmax(0, 1fr);
+    display: grid;
+  }
+
+  .proposal-review-workspace .proposal-status-summary .status-badge,
+  .proposal-review-workspace .proposal-operation-section__count {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .proposal-review-workspace .proposal-secondary-actions > .danger-button {
+    width: 100%;
+  }
+
+  .proposal-review-workspace .final-confirm-panel {
+    position: sticky;
+    z-index: 8;
+    bottom: calc(68px + env(safe-area-inset-bottom));
+    margin-bottom: 12px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
 }
 
 .proposal-review-workspace .final-confirm-list li {
@@ -2513,8 +2624,7 @@ html.app-dialog-open body {
   }
 
   .drafts-workspace .filters,
-  .drafts-workspace .batch-bar,
-  .proposal-review-workspace .proposal-meta {
+  .drafts-workspace .batch-bar {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     width: 100%;
@@ -2522,15 +2632,10 @@ html.app-dialog-open body {
 
   .drafts-workspace .filters > *,
   .drafts-workspace .batch-bar > *,
-  .proposal-review-workspace .proposal-actions > *,
   .proposal-review-workspace .final-confirm-button,
   .ai-workspace .form-actions > * {
     width: 100%;
     min-width: 0;
-  }
-
-  .proposal-review-workspace .proposal-meta .draft-time {
-    margin-left: 0;
   }
 
   .ai-workspace .ai-request-types__options {

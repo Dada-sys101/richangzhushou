@@ -114,9 +114,41 @@ describe("ProposalReviewView", () => {
 
     expect(api.getAiProposal).toHaveBeenCalledWith("proposal_1");
     expect(wrapper.text()).toContain("提案核对");
+    expect(wrapper.text()).toContain("当前提案");
+    expect(wrapper.text()).toContain("状态：待核对");
+    expect(wrapper.text()).toContain("本次需求概览");
+    expect(wrapper.text()).toContain("将审核 1 项建议");
+    expect(wrapper.text()).toContain("操作列表");
     expect(wrapper.text()).toContain("待核对");
+    expect(wrapper.find("article.operation-card").exists()).toBe(true);
     expect(api.editAiOperation).not.toHaveBeenCalled();
     expect(api.finalConfirmAiProposal).not.toHaveBeenCalled();
+  });
+
+  it("renders a truthful request summary and withholds final confirmation before any operation is accepted", async () => {
+    const pinia = createContext();
+    vi.mocked(api.getAiProposal).mockResolvedValue(proposal() as never);
+    const wrapper = mountReview(pinia);
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("涉及待办");
+    expect(wrapper.text()).toContain("原始输入不会在此页面重复保存或伪造展示");
+    expect(wrapper.text()).toContain("还有 1 项操作等待核对");
+    expect(wrapper.find(".final-confirm-panel").exists()).toBe(false);
+    expect(api.finalConfirmAiProposal).not.toHaveBeenCalled();
+  });
+
+  it("renders an empty operation list without offering a final write", async () => {
+    const pinia = createContext();
+    vi.mocked(api.getAiProposal).mockResolvedValue(
+      proposal({ operations: [] }) as never,
+    );
+    const wrapper = mountReview(pinia);
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("此提案没有可审核的操作");
+    expect(wrapper.find("article.operation-card").exists()).toBe(false);
+    expect(wrapper.find(".final-confirm-panel").exists()).toBe(false);
   });
 
   it("H05-U02: clarification / uncertain information is visible", async () => {
@@ -273,7 +305,7 @@ describe("ProposalReviewView", () => {
     });
     expect(wrapper.text()).toContain("已写入");
     expect(wrapper.text()).toContain("task_server");
-    expect(wrapper.find(".final-confirm-panel").exists()).toBe(false);
+    expect(wrapper.find("button.final-confirm-button").exists()).toBe(false);
   });
 
   it("H05-U09: mount / reload invokes GET only", async () => {
@@ -399,7 +431,7 @@ describe("ProposalReviewView", () => {
     expect(wrapper.text()).toContain("操作状态已发生变化，已刷新最新数据");
     expect(wrapper.text()).toContain("已拒绝");
     expect(wrapper.text()).not.toContain("task_server");
-    expect(wrapper.find(".final-confirm-panel").exists()).toBe(false);
+    expect(wrapper.find("button.final-confirm-button").exists()).toBe(false);
     expect(useAiStore().proposal?.status).toBe("REJECTED");
     expect(useAiStore().proposal?.version).toBe(2);
   });
@@ -473,7 +505,7 @@ describe("ProposalReviewView", () => {
     expect(wrapper.text()).toContain("已写入");
     expect(wrapper.text()).toContain("写入结果");
     expect(wrapper.text()).toContain("task_1");
-    expect(wrapper.find(".final-confirm-panel").exists()).toBe(false);
+    expect(wrapper.find("button.final-confirm-button").exists()).toBe(false);
     expect(api.finalConfirmAiProposal).not.toHaveBeenCalled();
   });
 
@@ -684,7 +716,7 @@ describe("ProposalReviewView", () => {
       { version: 1 },
     );
     expect(wrapper.text()).toContain("已拒绝");
-    expect(wrapper.find(".final-confirm-panel").exists()).toBe(false);
+    expect(wrapper.find("button.final-confirm-button").exists()).toBe(false);
   });
 
   it("H05-FIX02-P1-VALIDATION-008: invalid amount stays un-acceptable after Save", async () => {
@@ -1497,7 +1529,7 @@ describe("ProposalReviewView", () => {
     });
   });
 
-  it("terminal proposal has no final-confirm button", async () => {
+  it("terminal proposal exposes its state summary without a misleading final-confirm button", async () => {
     const pinia = createContext();
     vi.mocked(api.getAiProposal).mockResolvedValue(
       proposal({ status: "REJECTED" }) as never,
@@ -1505,7 +1537,36 @@ describe("ProposalReviewView", () => {
     const wrapper = mountReview(pinia);
     await flushPromises();
 
+    expect(wrapper.text()).toContain("整个提案已被拒绝");
     expect(wrapper.find(".final-confirm-panel").exists()).toBe(false);
+    expect(wrapper.find("button.final-confirm-button").exists()).toBe(false);
     expect(api.finalConfirmAiProposal).not.toHaveBeenCalled();
   });
+
+  it.each(["APPLIED", "EXPIRED", "FAILED", "REJECTED"])(
+    "%s proposal status disables operation writes and omits final confirmation",
+    async (terminalStatus) => {
+      const pinia = createContext();
+      vi.mocked(api.getAiProposal).mockResolvedValue(
+        proposal({ status: terminalStatus }) as never,
+      );
+      const wrapper = mountReview(pinia);
+      await flushPromises();
+
+      const operationButtons = wrapper
+        .find("article.operation-card")
+        .findAll("button");
+      expect(operationButtons.length).toBeGreaterThan(0);
+      expect(
+        operationButtons.every(
+          (button) => (button.element as HTMLButtonElement).disabled,
+        ),
+      ).toBe(true);
+      expect(wrapper.find("button.final-confirm-button").exists()).toBe(false);
+      await operationButtons[0]?.trigger("click");
+      expect(api.acceptAiOperation).not.toHaveBeenCalled();
+      expect(api.editAiOperation).not.toHaveBeenCalled();
+      expect(api.finalConfirmAiProposal).not.toHaveBeenCalled();
+    },
+  );
 });
