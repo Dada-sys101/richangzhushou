@@ -27,12 +27,11 @@ test("H05-B01/B02/B03/B05: create, accept, explicit final confirm, reload safety
   await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
   await page.waitForURL("**/account");
 
-  // H05-B01: navigate to /ai and create a TASK proposal.
-  await page.goto("/ai");
-  await expect(page.getByRole("heading", { name: "生成提案" })).toBeVisible();
-  await page.getByLabel("类型").selectOption("TASK");
-  await page.getByLabel("内容").fill(taskTitle);
-  await page.getByRole("button", { name: "生成提案" }).click();
+  // H05-B01: navigate to the single-turn AI entry and create a TASK proposal.
+  await openAiEntry(page);
+  await selectAiRequestType(page, "待办");
+  await aiInput(page).fill(taskTitle);
+  await page.getByRole("button", { name: "生成提案", exact: true }).click();
 
   // Review route visible with the operation card.
   await expect(page).toHaveURL(/\/ai\/proposals\/.+/);
@@ -83,11 +82,10 @@ test("H05-B04: reject path never offers final write and creates no Task", async 
   await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
   await page.waitForURL("**/account");
 
-  await page.goto("/ai");
-  await expect(page.getByRole("heading", { name: "生成提案" })).toBeVisible();
-  await page.getByLabel("类型").selectOption("TASK");
-  await page.getByLabel("内容").fill(taskTitle);
-  await page.getByRole("button", { name: "生成提案" }).click();
+  await openAiEntry(page);
+  await selectAiRequestType(page, "待办");
+  await aiInput(page).fill(taskTitle);
+  await page.getByRole("button", { name: "生成提案", exact: true }).click();
   await expect(page).toHaveURL(/\/ai\/proposals\/.+/);
   await expect(page.getByRole("heading", { name: "提案核对" })).toBeVisible();
 
@@ -509,6 +507,207 @@ test("H05-FINAL-ACCEPTED-REJECT: accepted Operation can be rejected without a fo
   expect(await countTasks(request, username)).toBe(0);
 });
 
+test("UIR-09A1: non-empty AI input is protected on leave and keeps its return target", async ({
+  page,
+  request,
+}) => {
+  const username = uniqueName("qa_ai_leave");
+  const draft = `离开保护-${username}`;
+  await createActiveUserViaApi(request, username);
+  await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
+  await page.waitForURL("**/account");
+
+  await openAiEntry(page, "/account");
+  await aiInput(page).fill(draft);
+  const aiUrl = page.url();
+
+  await page.getByRole("button", { name: "返回我的", exact: true }).click();
+  const leaveDialog = page.getByRole("dialog", {
+    name: "放弃未保存的内容？",
+  });
+  await expect(leaveDialog).toBeVisible();
+  await leaveDialog.getByRole("button", { name: "取消", exact: true }).click();
+  await expect(page).toHaveURL(aiUrl);
+  await expect(page.getByRole("heading", { name: "AI 助手" })).toBeVisible();
+  await expect(aiInput(page)).toHaveValue(draft);
+
+  await page.getByRole("button", { name: "返回我的", exact: true }).click();
+  await expect(leaveDialog).toBeVisible();
+  await leaveDialog.getByRole("button", { name: "离开", exact: true }).click();
+  await expect(page).toHaveURL(/\/account$/);
+});
+
+test("UIR-09A1: pending generation blocks a duplicate submit until the existing Proposal request completes", async ({
+  page,
+  request,
+}) => {
+  const username = uniqueName("qa_ai_pending");
+  const taskTitle = `AI发送中-${username}`;
+  let releaseRequest!: () => void;
+  const requestReleased = new Promise<void>((resolve) => {
+    releaseRequest = resolve;
+  });
+  let createRequests = 0;
+
+  await createActiveUserViaApi(request, username);
+  await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
+  await page.waitForURL("**/account");
+  await openAiEntry(page);
+  await selectAiRequestType(page, "待办");
+  await aiInput(page).fill(taskTitle);
+
+  await page.route("**/api/v1/ai/proposals", async (route) => {
+    if (route.request().method() !== "POST") {
+      await route.continue();
+      return;
+    }
+    createRequests += 1;
+    await requestReleased;
+    await route.continue();
+  });
+
+  try {
+    const generateButton = page.getByRole("button", {
+      name: "生成提案",
+      exact: true,
+    });
+    await generateButton.click();
+    await expect(
+      page.getByText("正在生成待审核提案，请稍候…", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "正在生成…", exact: true }),
+    ).toBeDisabled();
+    expect(createRequests).toBe(1);
+
+    const reviewUrl = page.waitForURL(/\/ai\/proposals\/.+/);
+    releaseRequest();
+    await reviewUrl;
+    await expect(page.getByRole("heading", { name: "提案核对" })).toBeVisible();
+    expect(createRequests).toBe(1);
+  } finally {
+    await page.unroute("**/api/v1/ai/proposals");
+  }
+});
+
+test("UIR-09A1: network retry retains input and reuses the idempotency key", async ({
+  page,
+  request,
+}) => {
+  const username = uniqueName("qa_ai_network_retry");
+  const taskTitle = `AI网络重试-${username}`;
+  const idempotencyKeys: string[] = [];
+  let createRequests = 0;
+
+  await createActiveUserViaApi(request, username);
+  await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
+  await page.waitForURL("**/account");
+  await openAiEntry(page);
+  await selectAiRequestType(page, "待办");
+  await aiInput(page).fill(taskTitle);
+
+  await page.route("**/api/v1/ai/proposals", async (route) => {
+    if (route.request().method() !== "POST") {
+      await route.continue();
+      return;
+    }
+    createRequests += 1;
+    idempotencyKeys.push(route.request().headers()["idempotency-key"] ?? "");
+    if (createRequests === 1) {
+      await route.fulfill({
+        body: JSON.stringify({
+          code: "NETWORK_ERROR",
+          message: "simulated network failure",
+          requestId: "e2e-network-retry",
+        }),
+        contentType: "application/json",
+        status: 503,
+      });
+      return;
+    }
+    await route.continue();
+  });
+
+  try {
+    await page.getByRole("button", { name: "生成提案", exact: true }).click();
+    await expect(page.getByRole("alert")).toContainText("网络异常");
+    await expect(aiInput(page)).toHaveValue(taskTitle);
+    const retryButton = page.getByRole("button", {
+      name: "重新生成提案",
+      exact: true,
+    });
+    await expect(retryButton).toBeVisible();
+    await Promise.all([
+      page.waitForURL(/\/ai\/proposals\/.+/),
+      retryButton.click(),
+    ]);
+    expect(createRequests).toBe(2);
+    expect(idempotencyKeys[0]).toBeTruthy();
+    expect(idempotencyKeys[1]).toBe(idempotencyKeys[0]);
+  } finally {
+    await page.unroute("**/api/v1/ai/proposals");
+  }
+});
+
+test("UIR-09A1: provider retry retains input and starts a new idempotency key", async ({
+  page,
+  request,
+}) => {
+  const username = uniqueName("qa_ai_provider_retry");
+  const taskTitle = `AI服务重试-${username}`;
+  const idempotencyKeys: string[] = [];
+  let createRequests = 0;
+
+  await createActiveUserViaApi(request, username);
+  await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
+  await page.waitForURL("**/account");
+  await openAiEntry(page);
+  await selectAiRequestType(page, "待办");
+  await aiInput(page).fill(taskTitle);
+
+  await page.route("**/api/v1/ai/proposals", async (route) => {
+    if (route.request().method() !== "POST") {
+      await route.continue();
+      return;
+    }
+    createRequests += 1;
+    idempotencyKeys.push(route.request().headers()["idempotency-key"] ?? "");
+    if (createRequests === 1) {
+      await route.fulfill({
+        body: JSON.stringify({
+          code: "AI_PROVIDER_ERROR",
+          message: "simulated provider failure",
+          requestId: "e2e-provider-retry",
+        }),
+        contentType: "application/json",
+        status: 502,
+      });
+      return;
+    }
+    await route.continue();
+  });
+
+  try {
+    await page.getByRole("button", { name: "生成提案", exact: true }).click();
+    await expect(page.getByRole("alert")).toContainText("AI 服务处理失败");
+    await expect(aiInput(page)).toHaveValue(taskTitle);
+    const retryButton = page.getByRole("button", {
+      name: "重新生成提案",
+      exact: true,
+    });
+    await Promise.all([
+      page.waitForURL(/\/ai\/proposals\/.+/),
+      retryButton.click(),
+    ]);
+    expect(createRequests).toBe(2);
+    expect(idempotencyKeys[0]).toBeTruthy();
+    expect(idempotencyKeys[1]).toBeTruthy();
+    expect(idempotencyKeys[1]).not.toBe(idempotencyKeys[0]);
+  } finally {
+    await page.unroute("**/api/v1/ai/proposals");
+  }
+});
+
 interface E2eOperation {
   fields: Record<string, unknown>;
   id: string;
@@ -537,16 +736,53 @@ async function createTaskProposal(
   await createActiveUserViaApi(request, username);
   await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
   await page.waitForURL("**/account");
-  await page.goto("/ai");
-  await expect(page.getByRole("heading", { name: "生成提案" })).toBeVisible();
-  await page.getByLabel("类型").selectOption("TASK");
-  await page.getByLabel("内容").fill(`AI待办-${username}`);
-  await page.getByRole("button", { name: "生成提案" }).click();
+  await openAiEntry(page);
+  await selectAiRequestType(page, "待办");
+  await aiInput(page).fill(`AI待办-${username}`);
+  await page.getByRole("button", { name: "生成提案", exact: true }).click();
   await expect(page).toHaveURL(/\/ai\/proposals\/.+/);
   await expect(page.getByRole("heading", { name: "提案核对" })).toBeVisible();
   const proposalId = new URL(page.url()).pathname.split("/").pop() ?? "";
   expect(proposalId).not.toBe("");
   return { proposalId, username };
+}
+
+async function openAiEntry(
+  page: import("@playwright/test").Page,
+  returnTo?: string,
+): Promise<void> {
+  const target = returnTo
+    ? `/ai?returnTo=${encodeURIComponent(returnTo)}`
+    : "/ai";
+  await page.goto(target);
+  await expect(page.getByRole("heading", { name: "AI 助手" })).toBeVisible();
+  await expect(
+    page.getByText("当前页面不保存聊天历史", { exact: false }),
+  ).toBeVisible();
+  await expect(page.getByRole("group", { name: "要处理的类型" })).toBeVisible();
+  for (const type of ["账单", "日程", "待办", "提醒", "行程"]) {
+    await expect(
+      page.getByRole("button", { name: type, exact: true }),
+    ).toBeVisible();
+  }
+  await expect(
+    page.getByText("生成后会进入提案核对页；只有你确认后，才会写入正式数据。", {
+      exact: true,
+    }),
+  ).toBeVisible();
+}
+
+function aiInput(page: import("@playwright/test").Page) {
+  return page.getByRole("textbox", { name: /你的需求/ });
+}
+
+async function selectAiRequestType(
+  page: import("@playwright/test").Page,
+  type: "账单" | "日程" | "待办" | "提醒" | "行程",
+): Promise<void> {
+  const chip = page.getByRole("button", { name: type, exact: true });
+  await chip.click();
+  await expect(chip).toHaveAttribute("aria-pressed", "true");
 }
 
 async function userAccessToken(

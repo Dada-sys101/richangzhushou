@@ -1,5 +1,12 @@
 # 变更日志（Changelog）
 
+## 2026-09-22 — UIR-09A1 AI 对话式入口改造（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 将 `AiView` 调整为轻量单轮 AI 助手入口：二级页说明、助手引导、五种业务类型快捷选择、长文本编辑器、发送中/失败/重试反馈和“确认后才会写入”提示均在同一页面内完成；页面明确不保存聊天历史，不展示伪造回复或多轮会话。
+- 保留现有 `ai.createProposal`、八字段请求 payload、错误文案、幂等键规则、ProposalReview 跳转、`returnTo` 与未保存离开保护。未新增 Store、API、Router、Provider 或任何持久化逻辑；AI 仍仅生成待审核 Proposal，不能自动写入正式业务数据。
+- `AiView` 专项测试 12/12、Web lint/typecheck、全量 `npm run quality`、Web 全量 52 files / 373 tests、`npm run format:check`、`npm run check:context` 与 `git diff --check` 均通过。
+- 使用项目既有便携 MySQL 与 `daily_assistant_e2e` 的本地 Fake Provider 完成真实浏览器回归：`ai-proposal` E2E 已改用 AI 助手标题、五类 chips、长文本编辑器、发送/失败/重试和确认前写入提示等可访问语义；覆盖 Proposal 创建、审核、拒绝、最终确认、`returnTo`、未保存离开保护及网络/Provider 重试。375、390、430、768、1440 五档共 60/60 通过，CI 同款 Chromium desktop/mobile browser smoke 62/62 通过；专项的阻塞性控制台/网络错误检查未命中。真实第三方 Provider 未调用、仍未验证；未使用生产数据库或密钥。
+
 ## 2026-09-22 — UIR-08D2 计划详情编辑表单迁移（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 统一 `PlannerDetailView` 中待办、日程和提醒三套编辑器的信息层级：共用标题与说明、基本信息/实体设置分组、稳定表单 ID 和外置 `FormActions`；补齐必填/可选提示、标题自动聚焦、取消后焦点恢复，以及 768 以下移动端底部粘性操作区。
