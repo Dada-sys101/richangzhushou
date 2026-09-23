@@ -1078,3 +1078,13 @@
 - 真实本地 E2E 在 375、390、430、768、1440 五档 5/5 通过，覆盖编辑失败后输入保留与重试、长文本、删除确认取消（0 DELETE）、确认删除（恰好 1 次且 204）、删除后详情刷新、恢复失败与重试、Browser Back 未保存保护，以及五档 200% 根字号无横向溢出。专用临时 MySQL schema 在验收后删除；原有 `daily_assistant_e2e` 未清理。
 - 浏览器 pageerror 为 0；控制台记录既有 Service Worker MIME 错误及测试主动注入的 PATCH/restore 503。另观察到一条行程 DELETE 的 `net::ERR_ABORTED` 事件；同轮页面请求计数仍为 1 且收到 204，删除状态刷新成功，原因未能从浏览器事件中确认，作为剩余网络诊断项如实保留。
 - 仅修改 `TripDetailView.vue`、`TripDetailView.test.ts`、`styles.css`、`tests/e2e/trips.spec.ts` 与本记录；未修改 Store、API、Router、数据库或其他行程功能。未提交、未推送、未创建 PR、未合并、未部署；原 stash 与旧分支保持不变。
+
+## 2026-09-23 — UIR-10B2C 行程节点局部改造（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 仅整理 TripDetailView 的行程节点区：区分“新增节点”与“已有节点”，标明五种节点类型、开始/结束时间和地点；保留 DateTimeField、Asia/Shanghai 序列化、原 payload/version、Store/API、超出行程日期范围的二次确认及未保存离开保护。
+- 节点新增、编辑、删除、恢复使用页面内互斥锁；删除经现有确认弹窗，取消不发请求；失败保留输入并可重试；切换行程后丢弃旧节点操作结果。删除成功后详情 GET 会省略软删除节点，页面仅在当前详情内存生命周期保留其临时快照供恢复，恢复后清除快照；因此刷新或离开后无法从此页重新发现该已删除节点，跨刷新恢复需后续 Store/API 能力，本任务未改范围。
+- TripDetailView 专项测试 16/16；`npm run quality` 通过，包含 Web 57 files / 449 tests、API 283 passed / 139 skipped、api-contracts 151、config 8、admin 1，以及格式、Lint、类型、构建、Prisma、OpenAPI、migration 和依赖审计；`npm run format:check`、`npm run check:context`、`git diff --check` 通过。
+- 本地真实浏览器节点流程五档（375、390、430、768、1440）5/5 通过，覆盖新增/编辑失败后重试、超范围确认与取消、删除确认取消（无 DELETE）、删除成功（204）与恢复失败重试（恢复 200）、未保存 Browser Back 拒绝/接受；五档均检查 200% 根字号且无横向溢出。错误注入的 400/503 为预期响应，pageerror 为 0。
+- 浏览器流程使用独立的一次性本地 MySQL 数据目录；E2E 服务、浏览器和临时 MySQL 已停止，临时目录已清理，原便携运行时数据未触碰。
+- 浏览器日志每档观察到对应单次 DELETE 的 `net::ERR_ABORTED` 诊断，但同轮记录到的 DELETE 请求数为 1、响应为 204，页面进入已删除状态且没有用户可见失败；事件原因尚未确认，保留为诊断项。另有开发环境既有 Service Worker MIME 控制台错误及本轮主动注入的 400/503。
+- 仅修改 `TripDetailView.vue`、`TripDetailView.test.ts`、`styles.css`、`tests/e2e/trips.spec.ts` 与本记录；未修改行程本体、行李清单、Store、API、Router 或数据库。未提交、未推送、未创建 PR、未合并、未部署；保留原 stash 与旧分支。

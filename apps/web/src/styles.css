@@ -2225,6 +2225,157 @@ html.app-dialog-open body {
   background: transparent;
 }
 
+.trip-detail-workspace .trip-node-section {
+  display: grid;
+  gap: 18px;
+}
+
+.trip-detail-workspace .trip-node-feedback {
+  margin: 0;
+}
+
+.trip-detail-workspace .trip-node-subsection {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.trip-detail-workspace .trip-node-subsection + .trip-node-subsection {
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.trip-detail-workspace .trip-node-subsection-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+}
+
+.trip-detail-workspace .trip-node-subsection-heading h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.trip-detail-workspace .trip-node-subsection-heading p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.trip-detail-workspace .trip-node-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  padding: 16px;
+  border-color: var(--color-border);
+  background: var(--color-surface-muted);
+}
+
+.trip-detail-workspace .trip-node-form .primary-button {
+  justify-self: start;
+  min-width: min(100%, 160px);
+  min-height: 44px;
+}
+
+.trip-detail-workspace .trip-node-list {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trip-detail-workspace .trip-node-card {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.trip-detail-workspace .trip-node-card.is-deleted {
+  border-style: dashed;
+}
+
+.trip-detail-workspace .trip-node-content,
+.trip-detail-workspace .trip-node-heading {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.trip-detail-workspace .trip-node-heading {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.trip-detail-workspace .trip-node-type {
+  width: fit-content;
+  max-width: 100%;
+  padding: 5px 10px;
+  border: 1px solid var(--color-primary-soft);
+  border-radius: 999px;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-soft);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.trip-detail-workspace .trip-node-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 18px;
+  min-width: 0;
+  margin: 0;
+}
+
+.trip-detail-workspace .trip-node-details > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.trip-detail-workspace .trip-node-details dt {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.trip-detail-workspace .trip-node-details dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.trip-detail-workspace .trip-node-details .trip-node-location {
+  grid-column: 1 / -1;
+}
+
+.trip-detail-workspace .trip-node-actions {
+  justify-content: flex-start;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+.trip-detail-workspace .trip-node-actions .text-button {
+  min-width: 88px;
+  min-height: 44px;
+}
+
+.trip-detail-workspace .trip-node-form select:disabled,
+.trip-detail-workspace .trip-node-form input:disabled,
+.trip-detail-workspace .trip-node-form button:disabled,
+.trip-detail-workspace .trip-node-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .trip-detail-workspace .secondary-page-content,
 .trip-detail-workspace .page-header-main,
 .trip-detail-workspace .page-header h1,
@@ -2714,7 +2865,8 @@ html.app-dialog-open body {
   }
 
   .planner-detail-workspace .planner-detail-edit-grid,
-  .trip-detail-workspace .trip-create {
+  .trip-detail-workspace .trip-create,
+  .trip-detail-workspace .trip-node-form {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -2811,6 +2963,20 @@ html.app-dialog-open body {
     width: 100%;
     padding-top: 9px;
     border-top: 1px solid var(--color-border);
+  }
+
+  .trip-detail-workspace .trip-node-details > div {
+    grid-template-columns: minmax(0, 0.4fr) minmax(0, 1fr);
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .trip-detail-workspace .trip-node-details .trip-node-location {
+    grid-column: auto;
+  }
+
+  .trip-detail-workspace .trip-node-actions {
+    justify-content: flex-start;
   }
 
   .drafts-workspace .filters,
