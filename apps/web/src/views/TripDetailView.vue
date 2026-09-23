@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 
 import {
@@ -11,6 +11,8 @@ import {
 } from "../api/client";
 import DateField from "../components/DateField.vue";
 import DateTimeField from "../components/DateTimeField.vue";
+import ErrorState from "../components/ErrorState.vue";
+import LoadingState from "../components/LoadingState.vue";
 import SecondaryPageShell from "../components/SecondaryPageShell.vue";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
@@ -29,7 +31,40 @@ const tripsStore = useTripsStore();
 const tripId = computed(() =>
   typeof route.params.id === "string" ? route.params.id : "",
 );
-const detail = computed<TripDetailResponse | null>(() => tripsStore.detail);
+const loading = ref(false);
+const loadedDetailId = ref("");
+const loadFailure = ref<{ message: string; status: number | null } | null>(
+  null,
+);
+let loadGeneration = 0;
+const detail = computed<TripDetailResponse | null>(() => {
+  const current = tripsStore.detail;
+  return !loading.value &&
+    loadedDetailId.value === tripId.value &&
+    current?.trip.id === tripId.value
+    ? current
+    : null;
+});
+const loadErrorTitle = computed(() =>
+  loadFailure.value?.status === 404
+    ? "找不到这段行程"
+    : loadFailure.value?.status === 0
+      ? "当前离线，无法加载行程"
+      : loadFailure.value?.status !== null &&
+          loadFailure.value?.status !== undefined &&
+          loadFailure.value.status >= 500
+        ? "行程暂时无法加载"
+        : "行程加载失败",
+);
+const loadErrorDescription = computed(() =>
+  loadFailure.value?.status === 404
+    ? "行程可能已删除，或链接已失效。你可以返回行程列表，或重试加载。"
+    : loadFailure.value?.status === 0
+      ? "本地没有可用的行程详情。联网后可以重试。"
+      : loadFailure.value?.status === 503
+        ? "服务暂时不可用，请稍后重试。"
+        : (loadFailure.value?.message ?? "请检查网络连接后重试。"),
+);
 
 const errorMessage = ref("");
 const successMessage = ref("");
@@ -99,24 +134,69 @@ useUnsavedChanges(
   ),
 );
 
-onMounted(() => {
-  if (auth.isAuthenticated && tripId.value) {
+watch(
+  tripId,
+  () => {
     void load();
-  }
-});
+  },
+  { immediate: true },
+);
 
-watch(tripId, () => {
-  if (tripId.value) {
-    void load();
-  }
-});
+watch(
+  () => tripsStore.detail?.trip.id,
+  (loadedId) => {
+    if (
+      !loading.value &&
+      loadedDetailId.value === tripId.value &&
+      loadedId !== tripId.value
+    ) {
+      void load();
+    }
+  },
+  { flush: "sync" },
+);
 
-async function load() {
+async function load(recoveryAttempt = 0) {
+  const requestedId = tripId.value;
+  const generation = ++loadGeneration;
+  loadedDetailId.value = "";
+  loadFailure.value = null;
   errorMessage.value = "";
+  successMessage.value = "";
+  loading.value = Boolean(requestedId && auth.isAuthenticated);
+  if (!requestedId || !auth.isAuthenticated) {
+    loading.value = false;
+    return;
+  }
+
   try {
-    await tripsStore.loadTrip(tripId.value);
+    await tripsStore.loadTrip(requestedId);
+    if (generation !== loadGeneration || requestedId !== tripId.value) {
+      return;
+    }
+    if (tripsStore.detail?.trip.id !== requestedId) {
+      if (recoveryAttempt === 0) {
+        void load(1);
+      } else {
+        loadFailure.value = {
+          message: "行程详情已变化，请重试加载。",
+          status: null,
+        };
+      }
+      return;
+    }
+    loadedDetailId.value = requestedId;
   } catch (error) {
-    errorMessage.value = messageOf(error);
+    if (generation === loadGeneration && requestedId === tripId.value) {
+      loadFailure.value = {
+        message: messageOf(error),
+        status: error instanceof ApiClientError ? error.status : null,
+      };
+    }
+  } finally {
+    if (generation === loadGeneration) {
+      loading.value = false;
+    }
   }
 }
 
@@ -491,7 +571,47 @@ function percent(value: string | null): string {
       {{ successMessage }}
     </p>
 
-    <template v-if="detail">
+    <LoadingState
+      v-if="loading"
+      title="正在加载行程"
+      description="正在获取这段行程的最新详情。"
+    />
+    <ErrorState
+      v-else-if="loadFailure"
+      :title="loadErrorTitle"
+      :description="loadErrorDescription"
+      action-label="重试"
+      @retry="load"
+    />
+    <template v-else-if="detail">
+      <section class="trip-card" aria-labelledby="trip-expense-title">
+        <h2 id="trip-expense-title" class="trip-detail-summary-title">
+          费用汇总
+        </h2>
+        <div class="today-stat">
+          <span class="stat-label">实际支出</span>
+          <strong class="stat-value"
+            >¥{{ detail.expense.actualExpense }}</strong
+          >
+        </div>
+        <div class="today-stat">
+          <span class="stat-label">预算</span>
+          <strong class="stat-value">
+            {{
+              detail.expense.budgetAmount
+                ? `¥${detail.expense.budgetAmount}`
+                : "未设置"
+            }}
+          </strong>
+        </div>
+        <div class="today-stat">
+          <span class="stat-label">预算进度</span>
+          <strong class="stat-value">{{
+            percent(detail.expense.budgetProgress)
+          }}</strong>
+        </div>
+      </section>
+
       <form
         v-if="editingTrip"
         class="trip-create"
@@ -543,31 +663,6 @@ function percent(value: string | null): string {
           </button>
         </div>
       </form>
-
-      <section class="trip-card" aria-label="费用汇总">
-        <div class="today-stat">
-          <span class="stat-label">实际支出</span>
-          <strong class="stat-value"
-            >¥{{ detail.expense.actualExpense }}</strong
-          >
-        </div>
-        <div class="today-stat">
-          <span class="stat-label">预算</span>
-          <strong class="stat-value">
-            {{
-              detail.expense.budgetAmount
-                ? `¥${detail.expense.budgetAmount}`
-                : "未设置"
-            }}
-          </strong>
-        </div>
-        <div class="today-stat">
-          <span class="stat-label">预算进度</span>
-          <strong class="stat-value">{{
-            percent(detail.expense.budgetProgress)
-          }}</strong>
-        </div>
-      </section>
 
       <div v-if="pendingOutOfRange" class="warning-banner" role="alert">
         <p>节点时间超出行程日期范围，仍要保存吗？</p>
@@ -847,9 +942,11 @@ function percent(value: string | null): string {
       </section>
     </template>
 
-    <p v-else-if="!tripsStore.errorMessage" class="empty-copy">
-      正在加载行程……
-    </p>
+    <ErrorState
+      v-else
+      title="无法打开行程详情"
+      description="请返回行程列表，重新打开一段有效的行程。"
+    />
   </SecondaryPageShell>
 </template>
 

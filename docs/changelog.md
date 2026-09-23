@@ -1,5 +1,13 @@
 # 变更日志（Changelog）
 
+## 2026-09-23 — UIR-10B2A 行程详情展示与加载状态（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 基于 Integration `fcd578bf0895f26388f3c99937d6a097adb7a90b` 新建分支 `codex/uir-10b2a-trip-detail-shell`。详情页保留 `SecondaryPageShell`，按标题/日期、费用汇总、行程节点、行李清单、行程内日历、关联账单整理只读信息；金额继续原样显示，日期仍使用现有 Asia/Shanghai 语义。
+- 修复页面直接信任全局 `tripsStore.detail` 的展示风险：Store 在新请求 pending 或失败时可暂留前一行程。现在只在当前路由 ID、成功加载 ID 和 Store 详情 ID 一致且加载已完成时展示详情及其操作；请求代次隔离过期响应，并在迟到响应覆盖 Store 时重新校准当前路由。加载、404、503/服务错误及重试使用明确反馈；匹配的离线缓存详情仍可按原 Store 语义展示。未修改 Trips Store、API、Router 或既有写操作处理函数/payload。
+- 新增 `TripDetailView` 行为覆盖正常详情、各分区空状态、加载期间隐藏旧详情、404/503 与重试、路由切换/迟到响应隔离及本地缓存读取；页面与 Trips Store 专项共 9/9 通过。`npm run quality`、格式、上下文、lint、typecheck、Web/API 测试与构建均通过；Web 测试 57 files / 439 tests。
+- 新增真实本地浏览器详情加载/故障恢复流程，五档视口 375、390、430、768、1440 共 5/5 通过，覆盖旧详情隔离、注入 503 后重试、长内容/金额换行、200% 根字号与 Browser Back。浏览器观测无 page error 或 failed request；仅有 2 条开发环境 Service Worker `text/html` MIME 控制台警告及测试注入的预期 503 控制台错误。匹配离线缓存路径由页面测试模拟覆盖，未单独运行真实浏览器离线流程；真实设备未验证。
+- 本轮便携 MySQL 及临时 E2E 服务已停止，临时测试库已清理。未提交、推送、创建 PR、合并或部署；行程详情写操作改造与天气功能未开始。
+
 ## 2026-09-23 — UIR-10B1 行程列表与新建表单改造（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 从 Integration `c5d41dc645691a1fe5066aeeafc81d6f3f58a4ab` 建立独立分支 `codex/uir-10b1-trips-list`。行程页按标题/已删除筛选、列表、新建表单排序，复用现有页面头、SectionCard、LoadingState、ErrorState 和 EmptyState；修正异常分隔符与预算货币字符，金额保持原始字符串。

@@ -2213,6 +2213,41 @@ html.app-dialog-open body {
   background: transparent;
 }
 
+.trip-detail-workspace .secondary-page-content,
+.trip-detail-workspace .page-header-main,
+.trip-detail-workspace .page-header h1,
+.trip-detail-workspace .page-header-subtitle,
+.trip-detail-workspace .trip-card,
+.trip-detail-workspace .trip-section,
+.trip-detail-workspace .resource-list > li,
+.trip-detail-workspace .planner-main,
+.trip-detail-workspace .check-label,
+.trip-detail-workspace .transaction-main {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.trip-detail-workspace .trip-detail-summary-title {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.trip-detail-workspace .trip-card .stat-value,
+.trip-detail-workspace .planner-main strong,
+.trip-detail-workspace .check-label span,
+.trip-detail-workspace .transaction-amount {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.trip-detail-workspace .trip-row,
+.trip-detail-workspace .transaction-row {
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+  min-width: 0;
+}
+
 .drafts-workspace .secondary-page-content,
 .proposal-review-workspace .secondary-page-content,
 .ai-workspace .secondary-page-content {
@@ -7648,5 +7683,11 @@ html.app-dialog-open body {
 
   .account-page .account-danger-zone {
     padding: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .trip-detail-workspace .page-header-subtitle {
+    display: block;
   }
 }
