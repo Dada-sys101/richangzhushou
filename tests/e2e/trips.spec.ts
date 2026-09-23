@@ -203,3 +203,159 @@ test("行程列表、新建、筛选、详情和返回", async ({ page, request 
     expect(overflow).toBe(false);
   }
 });
+
+test("切换行程详情时隐藏旧数据并在服务失败后恢复", async ({
+  page,
+  request,
+}) => {
+  const username = uniqueName("qa_trip_detail");
+  const titleA = `${"旧行程长标题".repeat(8)} ${uniqueName("a")}`;
+  const titleB = `${"新行程长标题".repeat(8)} ${uniqueName("b")}`;
+  const destinationB = `${"杭州西湖周边目的地".repeat(8)}`;
+  const packingText = `${"长内容行李说明需要自然换行。".repeat(6)}`;
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  const failedRequests: string[] = [];
+  const httpFailures: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("requestfailed", (requestEvent) => {
+    failedRequests.push(new URL(requestEvent.url()).pathname);
+  });
+  page.on("response", (response) => {
+    if (response.status() >= 400) {
+      httpFailures.push(
+        `${response.status()} ${new URL(response.url()).pathname}`,
+      );
+    }
+  });
+
+  await createActiveUserViaApi(request, username);
+  const login = await request.post("/api/v1/auth/login", {
+    data: { password: E2E_ACTIVE_PASSWORD, username },
+  });
+  expect(login.ok()).toBeTruthy();
+  const accessToken = (await login.json()).accessToken as string;
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  const firstResponse = await request.post("/api/v1/trips", {
+    data: {
+      budgetAmount: "100.00",
+      destination: "上海",
+      endDate: "2026-10-03",
+      startDate: "2026-10-01",
+      title: titleA,
+    },
+    headers,
+  });
+  expect(firstResponse.status()).toBe(201);
+  const secondResponse = await request.post("/api/v1/trips", {
+    data: {
+      budgetAmount: "500.00",
+      destination: destinationB,
+      endDate: "2026-10-05",
+      startDate: "2026-10-01",
+      title: titleB,
+    },
+    headers,
+  });
+  expect(secondResponse.status()).toBe(201);
+  const secondTrip = (await secondResponse.json()) as { id: string };
+  const packingResponse = await request.post(
+    `/api/v1/trips/${secondTrip.id}/packing-items`,
+    { data: { text: packingText }, headers },
+  );
+  expect(packingResponse.status()).toBe(201);
+
+  await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
+  await page.waitForURL("**/account");
+  await page.goto("/trips");
+  const firstTripLink = page.getByRole("link").filter({ hasText: titleA });
+  await expect(firstTripLink).toBeVisible();
+  await firstTripLink.click();
+  await expect(page.getByRole("heading", { name: titleA })).toBeVisible();
+  await page.getByRole("button", { name: "返回行程" }).click();
+  await expect(page).toHaveURL(/\/trips$/);
+
+  let releaseFailure!: () => void;
+  let signalRequest!: () => void;
+  const requestArrived = new Promise<void>((resolve) => {
+    signalRequest = resolve;
+  });
+  const holdFailure = new Promise<void>((resolve) => {
+    releaseFailure = resolve;
+  });
+  let failFirstRequest = true;
+  await page.route(`**/api/v1/trips/${secondTrip.id}`, async (route) => {
+    if (failFirstRequest) {
+      failFirstRequest = false;
+      signalRequest();
+      await holdFailure;
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ message: "暂时不可用" }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+  await page.getByRole("link").filter({ hasText: titleB }).click();
+  await requestArrived;
+  try {
+    await expect(
+      page.getByRole("heading", { name: "正在加载行程" }),
+    ).toBeVisible();
+    await expect(page.getByText(titleA, { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "编辑行程" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "删除" })).toHaveCount(0);
+  } finally {
+    releaseFailure();
+  }
+
+  await expect(
+    page.getByRole("heading", { name: "行程暂时无法加载" }),
+  ).toBeVisible();
+  await expect(page.getByText(titleA, { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "删除" })).toHaveCount(0);
+  await page.getByRole("button", { name: "重试" }).click();
+  await expect(page.getByRole("heading", { name: titleB })).toBeVisible();
+  await expect(page.getByText(destinationB)).toBeVisible();
+  await expect(page.getByText(packingText)).toBeVisible();
+  await expect(page.getByText("¥500.00")).toBeVisible();
+  await expect(page.getByText("¥0.00")).toBeVisible();
+
+  const overflow = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth);
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "32px";
+  });
+  const scaledOverflow = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(scaledOverflow.scrollWidth).toBeLessThanOrEqual(
+    scaledOverflow.clientWidth,
+  );
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/trips$/);
+  await expect(page.getByRole("heading", { name: "我的行程" })).toBeVisible();
+  const browserObservation = {
+    consoleErrorSummaries: consoleErrors.map((message) =>
+      message.replace(/https?:\/\/\S+/g, "<url>").slice(0, 240),
+    ),
+    failedRequestPaths: failedRequests,
+    httpFailures,
+    pageErrorNames: pageErrors.map((error) => error.split(":", 1)[0]),
+  };
+  console.log(`[trip-detail-browser] ${JSON.stringify(browserObservation)}`);
+  await test.info().attach("trip-detail-browser-observations.json", {
+    body: JSON.stringify(browserObservation),
+    contentType: "application/json",
+  });
+});
