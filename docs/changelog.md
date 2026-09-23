@@ -1,5 +1,13 @@
 # 变更日志（Changelog）
 
+## 2026-09-22 — UIR-10A “我的/账户”根页面排版改造（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 将 `/account` 重组为账户概览、真实同步状态、常用设置、财务与数据、应用和高风险操作六个清晰层级；账户状态改为中文文案并保留现有状态事实，账单明细只在常用设置中出现一次。
+- 继续复用真实 `SyncBadge`、现有 PWA 生命周期、认证 Store、路由和高风险账号 API；退出、修改密码、同步冲突、分类/账户/预算入口与关闭账号/申请删除语义保持不变，危险操作默认收起且不会与普通账户操作混在一起。
+- 新增 `AccountView` 行为测试覆盖状态映射、入口去重、PWA 浏览器/安装分支、退出跳转、高风险表单展开、输入保留、重复提交锁和未保存离开保护；`AccountView` 专项 15/15、SyncBadge/App Shell/PWA 相关回归 33/33、Web 全量 54 files / 422 tests、lint/typecheck、`npm run quality`、格式、上下文和差异检查通过。
+- 使用项目既有便携 MySQL 的一次性数据库 `daily_assistant_e2e_uir_10a` 和本地服务完成账户页真实浏览器复核；375、390、430、768、1440 五档及五档 200% 根字号均无横向溢出，真实同步状态、设置入口、浏览器模式、高风险区默认收起/展开、密码与原因字段、键盘焦点均已检查。账户相关 auth/deletion/web-push 流程 40/40 通过；同批 navigation-shell 53/55，仅有 2 个既有 Calendar 缺少“返回计划”失败，未修改范围外代码。
+- 浏览器控制台保留开发环境已有的 Service Worker `text/html` MIME 噪声和密码表单可选用户名提示；账户 API 请求均按预期返回 2xx，未发现本次页面改造引入的网络错误。真实 iPhone/Android 安全区、软键盘和安装提示未验证；本轮未执行 Fresh Sol，未提交、推送、创建 PR、合并或部署，未开始天气功能或下一任务。
+
 ## 2026-09-22 — UIR-09A2B 最终确认双击竞态收尾（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 在保留既有 `AiOperationCard` 改造的基础上，修复 `ProposalReviewView` 最终确认双击竞态：此前 `canFinalConfirm` 同时控制确认区显示和可点击状态，最终确认开始后 `ai.saving` 使确认区从 DOM 移除，移动端双击后续事件可能落到操作卡“拒绝此项”，导致 operation reject 与 final-confirm 并发并返回 409。
