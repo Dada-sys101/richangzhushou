@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
+import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -22,6 +23,24 @@ vi.mock("../composables/useUnsavedChanges", () => ({
 
 const Host = { template: "<RouterView />" };
 const Placeholder = { template: "<div />" };
+const DateTimeFieldStub = defineComponent({
+  name: "DateTimeFieldStub",
+  props: {
+    disabled: Boolean,
+    modelValue: { default: "", type: String },
+  },
+  emits: ["update:modelValue", "change"],
+  setup(props, { emit }) {
+    return () =>
+      h("input", {
+        class: "date-time-field-stub",
+        disabled: props.disabled,
+        value: props.modelValue,
+        onInput: (event: Event) =>
+          emit("update:modelValue", (event.target as HTMLInputElement).value),
+      });
+  },
+});
 
 function tripDetail(id: string, title = `行程 ${id}`): TripDetailResponse {
   const timestamp = "2026-10-01T02:00:00.000Z";
@@ -164,7 +183,7 @@ async function mountTrip(
       plugins: [pinia, router],
       stubs: {
         DateField: { template: '<input class="date-field-stub" />' },
-        DateTimeField: { template: '<input class="date-time-field-stub" />' },
+        DateTimeField: DateTimeFieldStub,
       },
     },
   });
@@ -209,8 +228,25 @@ describe("TripDetailView", () => {
       wrapper.findAll(".secondary-page-content h2").map((node) => node.text()),
     ).toEqual(["费用汇总", "行程节点", "行李清单", "行程内日历", "关联账单"]);
     expect(wrapper.text()).toContain("10/01 10:00");
+    expect(wrapper.get("#trip-node-create-title").text()).toBe("新增节点");
+    expect(wrapper.get("#trip-node-list-title").text()).toBe("已有节点");
+    expect(wrapper.get(".trip-node-type").text()).toBe("活动");
+    expect(wrapper.get(".trip-node-details").text()).toContain("开始时间");
+    expect(wrapper.get(".trip-node-details").text()).toContain("结束时间");
+    expect(wrapper.get(".trip-node-details").text()).toContain(
+      "杭州湖滨步行街附近的详细地点 trip-1",
+    );
+    expect(
+      wrapper.find('form[aria-labelledby="trip-node-create-title"]').exists(),
+    ).toBe(true);
     expect(wrapper.find("button").exists()).toBe(true);
     expect(wrapper.text()).toContain("编辑行程");
+    expect(
+      wrapper
+        .get(".trip-node-form select")
+        .findAll("option")
+        .map((option) => option.element.value),
+    ).toEqual(["TRANSPORT", "STAY", "ACTIVITY", "FOOD", "OTHER"]);
   });
 
   it("shows a separate empty message for every empty detail section", async () => {
@@ -546,5 +582,273 @@ describe("TripDetailView", () => {
     expect(wrapper.get("h1").text()).toBe("当前行程 B");
     expect(wrapper.text()).not.toContain("行程已删除");
     expect(wrapper.find('[role="alert"]').exists()).toBe(false);
+  });
+
+  it("keeps node input after failure, prevents duplicate creation, and retries the Shanghai payload", async () => {
+    const loaded = tripDetail("trip-node-create");
+    vi.spyOn(api, "getTrip").mockResolvedValue(loaded);
+    const { store, wrapper } = await mountTrip("/trips/trip-node-create");
+    const pending = deferred<never>();
+    const create = vi
+      .spyOn(store, "createTripItem")
+      .mockReturnValueOnce(pending.promise)
+      .mockResolvedValue({} as never);
+    await flushPromises();
+
+    const form = wrapper.get('form[aria-labelledby="trip-node-create-title"]');
+    await form.get("select").setValue("TRANSPORT");
+    await form
+      .findAll(".date-time-field-stub")[0]!
+      .setValue("2026-10-02T10:30");
+    await form
+      .findAll(".date-time-field-stub")[1]!
+      .setValue("2026-10-02T11:30");
+    await form.get('input[type="text"]').setValue("杭州东站");
+    await form.trigger("submit");
+    await form.trigger("submit");
+
+    expect(create).toHaveBeenCalledOnce();
+    expect(form.get('button[type="submit"]').text()).toContain("添加中");
+    expect(form.get('button[type="submit"]').element).toHaveProperty(
+      "disabled",
+      true,
+    );
+    expect(form.get("select").element).toHaveProperty("disabled", true);
+    pending.reject(new ApiClientError(503, "UNAVAILABLE", "节点暂时保存失败"));
+    await flushPromises();
+
+    expect(wrapper.get(".trip-node-section [role=alert]").text()).toContain(
+      "节点暂时保存失败",
+    );
+    expect(form.get("select").element).toHaveProperty("value", "TRANSPORT");
+    expect(form.findAll(".date-time-field-stub")[0]!.element).toHaveProperty(
+      "value",
+      "2026-10-02T10:30",
+    );
+    expect(form.get('input[type="text"]').element).toHaveProperty(
+      "value",
+      "杭州东站",
+    );
+
+    await form.trigger("submit");
+    await flushPromises();
+    expect(create).toHaveBeenCalledTimes(2);
+    expect(create).toHaveBeenLastCalledWith("trip-node-create", {
+      endsAt: "2026-10-02T03:30:00.000Z",
+      location: "杭州东站",
+      startsAt: "2026-10-02T02:30:00.000Z",
+      type: "TRANSPORT",
+    });
+    expect(wrapper.get(".trip-node-section [role=status]").text()).toContain(
+      "节点已保存",
+    );
+    expect(form.get("select").element).toHaveProperty("value", "ACTIVITY");
+    expect(form.findAll(".date-time-field-stub")[0]!.element).toHaveProperty(
+      "value",
+      "",
+    );
+  });
+
+  it("keeps edit values through out-of-range cancellation and confirms with the original version", async () => {
+    const loaded = tripDetail("trip-node-range");
+    vi.spyOn(api, "getTrip").mockResolvedValue(loaded);
+    const { store, wrapper } = await mountTrip("/trips/trip-node-range");
+    const rangeError = new ApiClientError(
+      400,
+      "TRIP_ITEM_OUT_OF_RANGE",
+      "节点时间超出行程日期范围",
+    );
+    const update = vi
+      .spyOn(store, "updateTripItem")
+      .mockRejectedValueOnce(rangeError)
+      .mockRejectedValueOnce(rangeError)
+      .mockResolvedValue({} as never);
+    await flushPromises();
+
+    const card = wrapper.get('[data-node-id="item-trip-node-range"]');
+    await card.get("button").trigger("click");
+    const form = card.get("form.trip-node-form");
+    await form.get("select").setValue("STAY");
+    await form
+      .findAll(".date-time-field-stub")[0]!
+      .setValue("2026-10-04T10:00");
+    await form
+      .findAll(".date-time-field-stub")[1]!
+      .setValue("2026-10-04T11:00");
+    await form.get('input[type="text"]').setValue("西湖住宿点");
+    await form.trigger("submit");
+    await flushPromises();
+
+    expect(update).toHaveBeenCalledOnce();
+    expect(wrapper.get(".trip-node-section [role=alert]").text()).toContain(
+      "节点时间超出行程日期范围",
+    );
+    const cancelRange = wrapper
+      .get(".trip-node-section .warning-banner")
+      .get("button.secondary-button");
+    await cancelRange.trigger("click");
+    expect(update).toHaveBeenCalledOnce();
+    expect(wrapper.find(".trip-node-section .warning-banner").exists()).toBe(
+      false,
+    );
+    expect(form.get('input[type="text"]').element).toHaveProperty(
+      "value",
+      "西湖住宿点",
+    );
+
+    await form.trigger("submit");
+    await flushPromises();
+    expect(update).toHaveBeenCalledTimes(2);
+    await wrapper
+      .get(".trip-node-section .warning-banner")
+      .get("button.primary-button")
+      .trigger("click");
+    await flushPromises();
+
+    const expectedPayload = {
+      endsAt: "2026-10-04T03:00:00.000Z",
+      location: "西湖住宿点",
+      startsAt: "2026-10-04T02:00:00.000Z",
+      type: "STAY",
+      version: 1,
+    };
+    expect(update).toHaveBeenNthCalledWith(
+      1,
+      "item-trip-node-range",
+      "trip-node-range",
+      expectedPayload,
+    );
+    expect(update).toHaveBeenNthCalledWith(
+      2,
+      "item-trip-node-range",
+      "trip-node-range",
+      expectedPayload,
+    );
+    expect(update).toHaveBeenNthCalledWith(
+      3,
+      "item-trip-node-range",
+      "trip-node-range",
+      { ...expectedPayload, confirmOutOfRange: true },
+    );
+    expect(wrapper.get(".trip-node-section [role=status]").text()).toContain(
+      "节点已保存",
+    );
+    expect(card.find("form.trip-node-form").exists()).toBe(false);
+  });
+
+  it("confirms node deletion, retries failures, and keeps restore feedback local to the node section", async () => {
+    const loaded = tripDetail("trip-node-delete");
+    const deletedNode = loaded.items[0]!;
+    vi.spyOn(api, "getTrip").mockResolvedValue(loaded);
+    const confirm = vi.spyOn(AppConfirm, "requestAppConfirm");
+    const pendingConfirm = deferred<boolean>();
+    confirm.mockReturnValueOnce(pendingConfirm.promise).mockResolvedValue(true);
+    const { store, wrapper } = await mountTrip("/trips/trip-node-delete");
+    const pendingDelete = deferred<void>();
+    const remove = vi
+      .spyOn(store, "deleteTripItem")
+      .mockRejectedValueOnce(
+        new ApiClientError(503, "UNAVAILABLE", "节点删除暂时失败"),
+      )
+      .mockImplementationOnce(async () => {
+        await pendingDelete.promise;
+        store.detail!.items = [];
+      });
+    const restore = vi
+      .spyOn(store, "restoreTripItem")
+      .mockRejectedValueOnce(
+        new ApiClientError(503, "UNAVAILABLE", "节点恢复暂时失败"),
+      )
+      .mockImplementationOnce(async () => {
+        store.detail!.items = [deletedNode];
+      });
+    await flushPromises();
+
+    const card = wrapper.get('[data-node-id="item-trip-node-delete"]');
+    await card.get("button.danger").trigger("click");
+    expect(confirm).toHaveBeenCalledOnce();
+    expect(confirm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: expect.stringContaining("仅能在当前页面内恢复"),
+      }),
+    );
+    expect(card.get("button.danger").element).toHaveProperty("disabled", true);
+    expect(remove).not.toHaveBeenCalled();
+    pendingConfirm.resolve(false);
+    await flushPromises();
+    expect(remove).not.toHaveBeenCalled();
+    expect(card.findAll("button.danger")).toHaveLength(1);
+
+    await card.get("button.danger").trigger("click");
+    await flushPromises();
+    expect(remove).toHaveBeenCalledOnce();
+    expect(wrapper.get(".trip-node-section [role=alert]").text()).toContain(
+      "节点删除暂时失败",
+    );
+    expect(card.findAll("button.danger")).toHaveLength(1);
+
+    await card.get("button.danger").trigger("click");
+    await flushPromises();
+    expect(remove).toHaveBeenCalledTimes(2);
+    expect(card.get("button.danger").element).toHaveProperty("disabled", true);
+    pendingDelete.resolve();
+    await (remove.mock.results[1]!.value as Promise<void>);
+    await flushPromises();
+    let currentCard = wrapper.get('[data-node-id="item-trip-node-delete"]');
+    expect(currentCard.text()).toContain("已删除");
+    expect(currentCard.findAll("button.danger")).toHaveLength(0);
+    expect(currentCard.get("button").text()).toBe("恢复节点");
+
+    await currentCard.get("button").trigger("click");
+    await flushPromises();
+    expect(wrapper.get(".trip-node-section [role=alert]").text()).toContain(
+      "节点恢复暂时失败",
+    );
+    currentCard = wrapper.get('[data-node-id="item-trip-node-delete"]');
+    expect(currentCard.text()).toContain("已删除");
+    await currentCard.get("button").trigger("click");
+    await flushPromises();
+    expect(restore).toHaveBeenCalledTimes(2);
+    currentCard = wrapper.get('[data-node-id="item-trip-node-delete"]');
+    expect(currentCard.text()).not.toContain("已删除");
+    expect(wrapper.get(".trip-node-section [role=status]").text()).toContain(
+      "节点已恢复",
+    );
+  });
+
+  it("ignores a late node mutation result after switching trips", async () => {
+    const detailA = tripDetail("trip-node-old", "旧行程");
+    const detailB = tripDetail("trip-node-current", "当前行程");
+    vi.spyOn(api, "getTrip").mockImplementation(async (id) =>
+      id === "trip-node-old" ? detailA : detailB,
+    );
+    const { router, store, wrapper } = await mountTrip("/trips/trip-node-old");
+    const pending = deferred<never>();
+    const create = vi
+      .spyOn(store, "createTripItem")
+      .mockReturnValue(pending.promise);
+    await flushPromises();
+
+    const form = wrapper.get('form[aria-labelledby="trip-node-create-title"]');
+    await form
+      .findAll(".date-time-field-stub")[0]!
+      .setValue("2026-10-02T10:30");
+    await form
+      .findAll(".date-time-field-stub")[1]!
+      .setValue("2026-10-02T11:30");
+    await form.get('input[type="text"]').setValue("旧行程节点");
+    await form.trigger("submit");
+    expect(create).toHaveBeenCalledOnce();
+
+    await router.push("/trips/trip-node-current");
+    await flushPromises();
+    pending.resolve({} as never);
+    await flushPromises();
+    expect(wrapper.get("h1").text()).toBe("当前行程");
+    expect(wrapper.text()).not.toContain("旧行程节点");
+    expect(wrapper.text()).not.toContain("节点已保存");
+    expect(wrapper.find(".trip-node-section [role=alert]").exists()).toBe(
+      false,
+    );
   });
 });

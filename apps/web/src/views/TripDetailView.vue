@@ -99,6 +99,34 @@ const itemEditForm = ref({
   version: 1,
 });
 const itemEditSnapshot = ref("");
+const itemErrorMessage = ref("");
+const itemSuccessMessage = ref("");
+const locallyDeletedItems = ref<TripItemSummary[]>([]);
+const nodeItems = computed(() => {
+  const currentItems = detail.value?.items ?? [];
+  const currentIds = new Set(currentItems.map((item) => item.id));
+  const deletedSnapshots = locallyDeletedItems.value.filter(
+    (item) => item.tripId === tripId.value && !currentIds.has(item.id),
+  );
+  return [...currentItems, ...deletedSnapshots];
+});
+
+type ItemMutationKind =
+  "create" | "update" | "delete" | "restore" | "confirm-range";
+interface ItemMutationContext {
+  generation: number;
+  itemId?: string;
+  kind: ItemMutationKind;
+  sequence: number;
+  tripId: string;
+}
+const itemMutation = ref<ItemMutationContext | null>(null);
+const itemControlsDisabled = computed(
+  () =>
+    itemMutation.value !== null || tripMutation.value !== null || saving.value,
+);
+let itemMutationGeneration = 0;
+let itemMutationSequence = 0;
 
 interface ItemCreatePayload {
   endsAt: string;
@@ -144,6 +172,19 @@ watch(
     tripMutation.value = null;
     editingTrip.value = false;
     tripEditSnapshot.value = "";
+    if (itemMutation.value?.kind === "confirm-range") {
+      saving.value = false;
+    }
+    itemMutationGeneration += 1;
+    itemMutation.value = null;
+    itemErrorMessage.value = "";
+    itemSuccessMessage.value = "";
+    locallyDeletedItems.value = [];
+    pendingOutOfRange.value = null;
+    editingItemId.value = "";
+    itemEditSnapshot.value = "";
+    itemForm.value = emptyItemForm();
+    itemEditForm.value = emptyItemEditForm();
     void load();
   },
   { immediate: true },
@@ -377,29 +418,44 @@ function isCurrentTripMutation(requestedId: string, generation: number) {
 }
 
 async function submitItem() {
-  errorMessage.value = "";
+  const context = beginItemMutation("create");
+  if (!context) return;
   pendingOutOfRange.value = null;
-  const payload = {
-    endsAt: toShanghaiIso(itemForm.value.endsAt),
-    location: itemForm.value.location.trim() || null,
-    startsAt: toShanghaiIso(itemForm.value.startsAt),
-    type: itemForm.value.type,
-  };
+  let payload: ItemCreatePayload | null = null;
   try {
-    const result = await tripsStore.createTripItem(tripId.value, payload);
+    payload = itemCreatePayload(itemForm.value);
+    const result = await tripsStore.createTripItem(context.tripId, payload);
+    if (!isCurrentItemMutation(context)) return;
+    pendingOutOfRange.value = null;
     showItemResult(result);
-    itemForm.value = {
-      endsAt: "",
-      location: "",
-      startsAt: "",
-      type: "ACTIVITY",
-    };
+    itemForm.value = emptyItemForm();
   } catch (error) {
-    handleItemError(error, "create", payload);
+    if (isCurrentItemMutation(context)) {
+      if (payload) handleItemError(error, "create", payload);
+      else itemErrorMessage.value = messageOf(error);
+    }
+  } finally {
+    finishItemMutation(context);
   }
 }
 
 function startEditItem(item: TripItemSummary) {
+  const currentDetail = detail.value;
+  if (
+    !currentDetail ||
+    currentDetail.trip.id !== tripId.value ||
+    item.tripId !== tripId.value ||
+    isNodeDeleted(item) ||
+    itemMutation.value ||
+    tripMutation.value ||
+    saving.value ||
+    !currentDetail.items.some((current) => current.id === item.id)
+  ) {
+    return;
+  }
+  itemErrorMessage.value = "";
+  itemSuccessMessage.value = "";
+  pendingOutOfRange.value = null;
   editingItemId.value = item.id;
   itemEditForm.value = {
     endsAt: toLocalDateTimeInput(item.endsAt),
@@ -412,70 +468,89 @@ function startEditItem(item: TripItemSummary) {
 }
 
 async function saveEditItem(item: TripItemSummary) {
-  errorMessage.value = "";
+  const context = beginItemMutation("update", item.id);
+  if (
+    !context ||
+    editingItemId.value !== item.id ||
+    item.tripId !== context.tripId ||
+    item.deletedAt ||
+    !detail.value?.items.some((current) => current.id === item.id)
+  ) {
+    if (context) finishItemMutation(context);
+    return;
+  }
   pendingOutOfRange.value = null;
-  const payload = {
-    endsAt: toShanghaiIso(itemEditForm.value.endsAt),
-    location: itemEditForm.value.location.trim() || null,
-    startsAt: toShanghaiIso(itemEditForm.value.startsAt),
-    type: itemEditForm.value.type,
-    version: itemEditForm.value.version,
-  };
+  let payload: ItemUpdatePayload | null = null;
   try {
+    payload = itemUpdatePayload(itemEditForm.value);
     const result = await tripsStore.updateTripItem(
       item.id,
-      tripId.value,
+      context.tripId,
       payload,
     );
+    if (!isCurrentItemMutation(context)) return;
+    pendingOutOfRange.value = null;
     showItemResult(result);
-    cancelItemEdit();
+    cancelItemEdit(true);
   } catch (error) {
-    handleItemError(error, "update", payload, item.id);
+    if (isCurrentItemMutation(context)) {
+      if (payload) handleItemError(error, "update", payload, item.id);
+      else itemErrorMessage.value = messageOf(error);
+    }
+  } finally {
+    finishItemMutation(context);
   }
 }
 
 async function confirmOutOfRange() {
-  if (!pendingOutOfRange.value) {
-    return;
-  }
   const pending = pendingOutOfRange.value;
-  pendingOutOfRange.value = null;
-  errorMessage.value = "";
+  if (!pending) return;
+  const context = beginItemMutation(
+    "confirm-range",
+    pending.mode === "update" ? pending.itemId : undefined,
+  );
+  if (!context) return;
+  itemErrorMessage.value = "";
   saving.value = true;
   try {
     if (pending.mode === "create") {
-      const result = await tripsStore.createTripItem(tripId.value, {
+      const result = await tripsStore.createTripItem(context.tripId, {
         ...pending.payload,
         confirmOutOfRange: true,
       });
+      if (!isCurrentItemMutation(context)) return;
+      pendingOutOfRange.value = null;
       showItemResult(result);
-      itemForm.value = {
-        endsAt: "",
-        location: "",
-        startsAt: "",
-        type: "ACTIVITY",
-      };
+      itemForm.value = emptyItemForm();
     } else if (pending.itemId) {
       const result = await tripsStore.updateTripItem(
         pending.itemId,
-        tripId.value,
+        context.tripId,
         {
           ...pending.payload,
           confirmOutOfRange: true,
         },
       );
+      if (!isCurrentItemMutation(context)) return;
+      pendingOutOfRange.value = null;
       showItemResult(result);
-      cancelItemEdit();
+      cancelItemEdit(true);
     }
   } catch (error) {
-    errorMessage.value = messageOf(error);
+    if (isCurrentItemMutation(context)) {
+      itemErrorMessage.value = messageOf(error);
+    }
   } finally {
-    saving.value = false;
+    if (context.generation === itemMutationGeneration) {
+      saving.value = false;
+    }
+    finishItemMutation(context);
   }
 }
 
 function showItemResult(result: { outOfRangeWarning?: { message: string } }) {
-  successMessage.value = result.outOfRangeWarning
+  itemErrorMessage.value = "";
+  itemSuccessMessage.value = result.outOfRangeWarning
     ? result.outOfRangeWarning.message
     : "节点已保存";
 }
@@ -491,34 +566,186 @@ function handleItemError(
       mode === "create"
         ? { mode, payload: payload as ItemCreatePayload }
         : { itemId: itemId ?? "", mode, payload: payload as ItemUpdatePayload };
+    itemErrorMessage.value = "";
     return;
   }
-  errorMessage.value = messageOf(error);
+  itemErrorMessage.value = messageOf(error);
 }
 
-function cancelItemEdit() {
+function cancelItemEdit(afterSuccessfulSave = false) {
+  if (itemMutation.value && !afterSuccessfulSave) return;
   editingItemId.value = "";
   itemEditSnapshot.value = "";
+  pendingOutOfRange.value = null;
 }
 
 async function removeItem(item: TripItemSummary) {
-  errorMessage.value = "";
+  const context = beginItemMutation("delete", item.id);
+  if (
+    !context ||
+    item.tripId !== context.tripId ||
+    isNodeDeleted(item) ||
+    !detail.value?.items.some((current) => current.id === item.id)
+  ) {
+    if (context) finishItemMutation(context);
+    return;
+  }
   try {
-    await tripsStore.deleteTripItem(item.id, tripId.value);
-    successMessage.value = "节点已删除";
+    const confirmed = await requestAppConfirm({
+      cancelLabel: "取消",
+      confirmLabel: "删除节点",
+      description: `删除“${itemTypeLabel(item.type)}${item.location ? ` · ${item.location}` : ""}”后仅能在当前页面内恢复；刷新或离开页面后，详情页将无法再显示该节点。`,
+      destructive: true,
+      title: "确认删除这个行程节点？",
+    });
+    if (!confirmed || !isCurrentItemMutation(context)) return;
+    await tripsStore.deleteTripItem(item.id, context.tripId);
+    if (isCurrentItemMutation(context)) {
+      locallyDeletedItems.value = [
+        ...locallyDeletedItems.value.filter(
+          (snapshot) => snapshot.id !== item.id,
+        ),
+        item,
+      ];
+      itemSuccessMessage.value =
+        "节点已删除；如需恢复，请在离开或刷新页面前操作。";
+    }
   } catch (error) {
-    errorMessage.value = messageOf(error);
+    if (isCurrentItemMutation(context)) {
+      itemErrorMessage.value = messageOf(error);
+    }
+  } finally {
+    finishItemMutation(context);
   }
 }
 
 async function restoreItem(item: TripItemSummary) {
-  errorMessage.value = "";
-  try {
-    await tripsStore.restoreTripItem(item.id, tripId.value);
-    successMessage.value = "节点已恢复";
-  } catch (error) {
-    errorMessage.value = messageOf(error);
+  const context = beginItemMutation("restore", item.id);
+  if (
+    !context ||
+    item.tripId !== context.tripId ||
+    !isNodeDeleted(item) ||
+    !nodeItems.value.some(
+      (current) => current.id === item.id && isNodeDeleted(current),
+    )
+  ) {
+    if (context) finishItemMutation(context);
+    return;
   }
+  try {
+    await tripsStore.restoreTripItem(item.id, context.tripId);
+    if (isCurrentItemMutation(context)) {
+      locallyDeletedItems.value = locallyDeletedItems.value.filter(
+        (snapshot) => snapshot.id !== item.id,
+      );
+      itemSuccessMessage.value = "节点已恢复";
+    }
+  } catch (error) {
+    if (isCurrentItemMutation(context)) {
+      itemErrorMessage.value = messageOf(error);
+    }
+  } finally {
+    finishItemMutation(context);
+  }
+}
+
+function beginItemMutation(
+  kind: ItemMutationKind,
+  itemId?: string,
+): ItemMutationContext | null {
+  const requestedId = tripId.value;
+  if (
+    !requestedId ||
+    detail.value?.trip.id !== requestedId ||
+    itemMutation.value ||
+    tripMutation.value ||
+    saving.value
+  ) {
+    return null;
+  }
+  const context = {
+    generation: itemMutationGeneration,
+    itemId,
+    kind,
+    sequence: ++itemMutationSequence,
+    tripId: requestedId,
+  };
+  itemMutation.value = context;
+  itemErrorMessage.value = "";
+  itemSuccessMessage.value = "";
+  return context;
+}
+
+function isCurrentItemMutation(context: ItemMutationContext): boolean {
+  return (
+    context.generation === itemMutationGeneration &&
+    context.tripId === tripId.value &&
+    detail.value?.trip.id === context.tripId &&
+    itemMutation.value?.sequence === context.sequence
+  );
+}
+
+function finishItemMutation(context: ItemMutationContext) {
+  if (
+    context.generation === itemMutationGeneration &&
+    itemMutation.value?.sequence === context.sequence
+  ) {
+    itemMutation.value = null;
+  }
+}
+
+function isNodeDeleted(item: TripItemSummary): boolean {
+  if (item.deletedAt !== null) return true;
+  const serverStillShowsItem = detail.value?.items.some(
+    (current) => current.id === item.id,
+  );
+  return (
+    !serverStillShowsItem &&
+    locallyDeletedItems.value.some((snapshot) => snapshot.id === item.id)
+  );
+}
+
+function itemCreatePayload(value: typeof itemForm.value): ItemCreatePayload {
+  return {
+    endsAt: toShanghaiIso(value.endsAt),
+    location: value.location.trim() || null,
+    startsAt: toShanghaiIso(value.startsAt),
+    type: value.type,
+  };
+}
+
+function itemUpdatePayload(
+  value: typeof itemEditForm.value,
+): ItemUpdatePayload {
+  return {
+    ...itemCreatePayload(value),
+    version: value.version,
+  };
+}
+
+function emptyItemForm() {
+  return {
+    endsAt: "",
+    location: "",
+    startsAt: "",
+    type: "ACTIVITY" as TripItemType,
+  };
+}
+
+function emptyItemEditForm() {
+  return {
+    endsAt: "",
+    location: "",
+    startsAt: "",
+    type: "ACTIVITY" as TripItemType,
+    version: 1,
+  };
+}
+
+function cancelPendingOutOfRange() {
+  if (itemMutation.value) return;
+  pendingOutOfRange.value = null;
+  itemErrorMessage.value = "";
 }
 
 async function submitPacking() {
@@ -790,73 +1017,141 @@ function percent(value: string | null): string {
         </div>
       </form>
 
-      <div v-if="pendingOutOfRange" class="warning-banner" role="alert">
-        <p>节点时间超出行程日期范围，仍要保存吗？</p>
-        <div class="trip-actions">
-          <button
-            class="primary-button"
-            :disabled="saving"
-            type="button"
-            @click="confirmOutOfRange"
-          >
-            仍要保存
-          </button>
-          <button
-            class="secondary-button"
-            type="button"
-            @click="pendingOutOfRange = null"
-          >
-            取消
-          </button>
-        </div>
-      </div>
-
-      <section class="trip-section" aria-labelledby="trip-items-title">
+      <section
+        class="trip-section trip-node-section"
+        aria-labelledby="trip-items-title"
+        :aria-busy="itemMutation !== null"
+      >
         <h2 id="trip-items-title">行程节点</h2>
-        <form class="trip-create" @submit.prevent="submitItem">
-          <label class="trip-field">
-            类型
-            <select v-model="itemForm.type">
-              <option value="TRANSPORT">交通</option>
-              <option value="STAY">住宿</option>
-              <option value="ACTIVITY">活动</option>
-              <option value="FOOD">餐饮</option>
-              <option value="OTHER">其他</option>
-            </select>
-          </label>
-          <label class="trip-field">
-            开始
-            <DateTimeField v-model="itemForm.startsAt" required />
-          </label>
-          <label class="trip-field">
-            结束
-            <DateTimeField
-              v-model="itemForm.endsAt"
-              :min="itemForm.startsAt"
-              required
-            />
-          </label>
-          <label class="trip-field">
-            地点（可选）
-            <input v-model="itemForm.location" maxlength="200" type="text" />
-          </label>
-          <button class="primary-button" type="submit">添加节点</button>
-        </form>
-
-        <p v-if="detail.items.length === 0" class="empty-copy">
-          还没有行程节点。
+        <p
+          v-if="itemErrorMessage"
+          class="planner-feedback planner-feedback-error trip-node-feedback"
+          role="alert"
+        >
+          {{ itemErrorMessage }}
         </p>
-        <ul v-else class="resource-list">
+        <p
+          v-if="itemSuccessMessage"
+          class="planner-feedback planner-feedback-success trip-node-feedback"
+          role="status"
+        >
+          {{ itemSuccessMessage }}
+        </p>
+        <div v-if="pendingOutOfRange" class="warning-banner" role="alert">
+          <p>节点时间超出行程日期范围，仍要保存吗？</p>
+          <div class="trip-actions">
+            <button
+              class="primary-button"
+              :disabled="itemControlsDisabled"
+              type="button"
+              @click="confirmOutOfRange"
+            >
+              {{
+                itemMutation?.kind === "confirm-range" ? "保存中…" : "仍要保存"
+              }}
+            </button>
+            <button
+              class="secondary-button"
+              :disabled="itemControlsDisabled"
+              type="button"
+              @click="cancelPendingOutOfRange"
+            >
+              取消
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="trip-node-subsection"
+          aria-labelledby="trip-node-create-title"
+        >
+          <div class="trip-node-subsection-heading">
+            <h3 id="trip-node-create-title">新增节点</h3>
+            <p>填写类型、起止时间和地点，时间按上海时区保存。</p>
+          </div>
+          <form
+            class="trip-create trip-node-form"
+            aria-labelledby="trip-node-create-title"
+            @submit.prevent="submitItem"
+          >
+            <label class="trip-field">
+              类型
+              <select v-model="itemForm.type" :disabled="itemControlsDisabled">
+                <option value="TRANSPORT">交通</option>
+                <option value="STAY">住宿</option>
+                <option value="ACTIVITY">活动</option>
+                <option value="FOOD">餐饮</option>
+                <option value="OTHER">其他</option>
+              </select>
+            </label>
+            <label class="trip-field">
+              开始时间
+              <DateTimeField
+                v-model="itemForm.startsAt"
+                :disabled="itemControlsDisabled"
+                required
+              />
+            </label>
+            <label class="trip-field">
+              结束时间
+              <DateTimeField
+                v-model="itemForm.endsAt"
+                :disabled="itemControlsDisabled"
+                :min="itemForm.startsAt"
+                required
+              />
+            </label>
+            <label class="trip-field">
+              地点（可选）
+              <input
+                v-model="itemForm.location"
+                :disabled="itemControlsDisabled"
+                maxlength="200"
+                type="text"
+              />
+            </label>
+            <button
+              class="primary-button"
+              :disabled="itemControlsDisabled"
+              type="submit"
+            >
+              {{ itemMutation?.kind === "create" ? "添加中…" : "添加节点" }}
+            </button>
+          </form>
+        </div>
+
+        <div
+          class="trip-node-subsection"
+          aria-labelledby="trip-node-list-title"
+        >
+          <div class="trip-node-subsection-heading">
+            <h3 id="trip-node-list-title">已有节点</h3>
+            <p>{{ nodeItems.length }} 项，按行程记录展示</p>
+          </div>
+          <p v-if="nodeItems.length === 0" class="empty-copy">
+            还没有行程节点。
+          </p>
+        </div>
+        <ul v-if="nodeItems.length > 0" class="trip-node-list">
           <li
-            v-for="item in detail.items"
+            v-for="item in nodeItems"
             :key="item.id"
-            :class="{ 'is-deleted': item.deletedAt !== null }"
+            class="trip-node-card"
+            :data-node-id="item.id"
+            :class="{ 'is-deleted': isNodeDeleted(item) }"
           >
             <template v-if="editingItemId === item.id">
-              <form class="trip-create" @submit.prevent="saveEditItem(item)">
+              <form
+                class="trip-create trip-node-form"
+                :aria-label="`编辑行程节点：${itemTypeLabel(item.type)}`"
+                @submit.prevent="saveEditItem(item)"
+              >
                 <label class="trip-field">
                   类型
-                  <select v-model="itemEditForm.type">
+                  <select
+                    v-model="itemEditForm.type"
+                    :disabled="itemControlsDisabled"
+                  >
                     <option value="TRANSPORT">交通</option>
                     <option value="STAY">住宿</option>
                     <option value="ACTIVITY">活动</option>
@@ -865,13 +1160,18 @@ function percent(value: string | null): string {
                   </select>
                 </label>
                 <label class="trip-field">
-                  开始
-                  <DateTimeField v-model="itemEditForm.startsAt" required />
+                  开始时间
+                  <DateTimeField
+                    v-model="itemEditForm.startsAt"
+                    :disabled="itemControlsDisabled"
+                    required
+                  />
                 </label>
                 <label class="trip-field">
-                  结束
+                  结束时间
                   <DateTimeField
                     v-model="itemEditForm.endsAt"
+                    :disabled="itemControlsDisabled"
                     :min="itemEditForm.startsAt"
                     required
                   />
@@ -880,16 +1180,29 @@ function percent(value: string | null): string {
                   地点
                   <input
                     v-model="itemEditForm.location"
+                    :disabled="itemControlsDisabled"
                     maxlength="200"
                     type="text"
                   />
                 </label>
                 <div class="trip-actions">
-                  <button class="primary-button" type="submit">保存</button>
+                  <button
+                    class="primary-button"
+                    :disabled="itemControlsDisabled"
+                    type="submit"
+                  >
+                    {{
+                      itemMutation?.kind === "update" ||
+                      itemMutation?.kind === "confirm-range"
+                        ? "保存中…"
+                        : "保存"
+                    }}
+                  </button>
                   <button
                     class="secondary-button"
+                    :disabled="itemControlsDisabled"
                     type="button"
-                    @click="cancelItemEdit"
+                    @click="cancelItemEdit()"
                   >
                     取消
                   </button>
@@ -897,41 +1210,79 @@ function percent(value: string | null): string {
               </form>
             </template>
             <template v-else>
-              <div class="planner-main">
-                <strong
-                  >{{ itemTypeLabel(item.type) }} ·
-                  {{ item.location || "未填地点" }}</strong
-                >
-                <small
-                  >{{ formatDateTime(item.startsAt) }} –
-                  {{ formatDateTime(item.endsAt) }}</small
-                >
-                <span v-if="item.deletedAt" class="revoked-mark">已删除</span>
+              <div class="trip-node-content">
+                <div class="trip-node-heading">
+                  <span class="trip-node-type">{{
+                    itemTypeLabel(item.type)
+                  }}</span>
+                  <span
+                    v-if="isNodeDeleted(item)"
+                    class="revoked-mark"
+                    role="status"
+                  >
+                    已删除
+                  </span>
+                </div>
+                <dl class="trip-node-details">
+                  <div>
+                    <dt>开始时间</dt>
+                    <dd>
+                      <time :datetime="item.startsAt">{{
+                        formatDateTime(item.startsAt)
+                      }}</time>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>结束时间</dt>
+                    <dd>
+                      <time :datetime="item.endsAt">{{
+                        formatDateTime(item.endsAt)
+                      }}</time>
+                    </dd>
+                  </div>
+                  <div class="trip-node-location">
+                    <dt>地点</dt>
+                    <dd>{{ item.location || "未填写" }}</dd>
+                  </div>
+                </dl>
               </div>
-              <div class="row-actions">
+              <div class="row-actions trip-node-actions">
                 <button
-                  v-if="!item.deletedAt"
+                  v-if="!isNodeDeleted(item)"
                   class="text-button"
+                  :disabled="itemControlsDisabled"
                   type="button"
                   @click="startEditItem(item)"
                 >
-                  编辑
+                  编辑节点
                 </button>
                 <button
-                  v-if="!item.deletedAt"
+                  v-if="!isNodeDeleted(item)"
                   class="text-button danger"
+                  :disabled="itemControlsDisabled"
                   type="button"
                   @click="removeItem(item)"
                 >
-                  删除
+                  {{
+                    itemMutation?.kind === "delete" &&
+                    itemMutation.itemId === item.id
+                      ? "删除中…"
+                      : "删除节点"
+                  }}
                 </button>
                 <button
-                  v-if="item.deletedAt"
+                  v-if="isNodeDeleted(item)"
                   class="text-button"
+                  :disabled="itemControlsDisabled"
                   type="button"
                   @click="restoreItem(item)"
                 >
-                  恢复
+                  {{
+                    itemMutation?.kind === "restore" &&
+                    itemMutation.itemId === item.id
+                      ? "恢复中…"
+                      : "恢复节点"
+                  }}
                 </button>
               </div>
             </template>
