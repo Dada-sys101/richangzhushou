@@ -359,3 +359,293 @@ test("切换行程详情时隐藏旧数据并在服务失败后恢复", async ({
     contentType: "application/json",
   });
 });
+
+test("行程详情本体编辑、删除确认、恢复和浏览器返回", async ({
+  page,
+  request,
+}) => {
+  const username = uniqueName("qa_trip_actions");
+  const originalTitle = uniqueName("trip_action");
+  const updatedTitle = `行程编辑长标题${"与响应式换行".repeat(10)} ${uniqueName("edited")}`;
+  const longDestination = `杭州目的地${"西湖周边道路与景点".repeat(8)}`;
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  const failedRequests: Array<{
+    error: string | null;
+    method: string;
+    path: string;
+  }> = [];
+  const failedDeleteRequests: Array<{
+    error: string | null;
+    phase: string | null;
+  }> = [];
+  const httpFailures: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("requestfailed", (requestEvent) => {
+    failedRequests.push({
+      error: requestEvent.failure()?.errorText ?? null,
+      method: requestEvent.method(),
+      path: new URL(requestEvent.url()).pathname,
+    });
+  });
+  page.on("response", (response) => {
+    if (response.status() >= 400) {
+      httpFailures.push(
+        `${response.status()} ${new URL(response.url()).pathname}`,
+      );
+    }
+  });
+
+  await createActiveUserViaApi(request, username);
+  const login = await request.post("/api/v1/auth/login", {
+    data: { password: E2E_ACTIVE_PASSWORD, username },
+  });
+  expect(login.ok()).toBeTruthy();
+  const accessToken = (await login.json()).accessToken as string;
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  const created = await request.post("/api/v1/trips", {
+    data: {
+      budgetAmount: "7654321.09",
+      destination: "杭州",
+      endDate: "2026-10-03",
+      startDate: "2026-10-01",
+      title: originalTitle,
+    },
+    headers,
+  });
+  expect(created.status()).toBe(201);
+  const trip = (await created.json()) as { id: string };
+  const detailPath = `/api/v1/trips/${trip.id}`;
+
+  await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
+  await page.waitForURL("**/account");
+  await page.goto("/trips");
+  await page.getByRole("link").filter({ hasText: originalTitle }).click();
+  await expect(
+    page.getByRole("heading", { name: originalTitle }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "编辑行程" }).click();
+  await page.getByLabel("标题").fill(updatedTitle);
+  await page.getByLabel("目的地").fill(longDestination);
+  await page.getByLabel("预算（元，可选）").fill("123456.70");
+
+  let failPatchOnce = true;
+  const detailRoute = `**${detailPath}`;
+  await page.route(detailRoute, async (route) => {
+    if (failPatchOnce && route.request().method() === "PATCH") {
+      failPatchOnce = false;
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({
+          code: "SERVICE_UNAVAILABLE",
+          message: "行程保存暂时失败",
+        }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+  await page.getByRole("button", { name: "保存", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("行程保存暂时失败");
+  await expect(page.getByLabel("标题")).toHaveValue(updatedTitle);
+  await expect(page.getByLabel("目的地")).toHaveValue(longDestination);
+  await page.unroute(detailRoute);
+  await page.getByRole("button", { name: "保存", exact: true }).click();
+  await expect(page.locator(".planner-feedback-success")).toContainText(
+    "行程已更新",
+  );
+  await expect(page.getByRole("heading", { name: updatedTitle })).toBeVisible();
+  await expect(
+    page.getByText("¥123456.70", { exact: true }).first(),
+  ).toBeVisible();
+
+  for (const rootFontSize of [16, 32]) {
+    await page.evaluate((size) => {
+      document.documentElement.style.fontSize = `${size}px`;
+    }, rootFontSize);
+    const overflow = await page.evaluate(
+      () =>
+        Math.max(
+          document.documentElement.scrollWidth,
+          document.body.scrollWidth,
+        ) > window.innerWidth,
+    );
+    expect(overflow).toBe(false);
+  }
+
+  let deleteRequests = 0;
+  let deletePhase = "confirm-cancel";
+  const deleteRequestPhases = new WeakMap<object, string>();
+  const deleteResponseStatuses: number[] = [];
+  page.on("request", (requestEvent) => {
+    if (
+      requestEvent.method() === "DELETE" &&
+      new URL(requestEvent.url()).pathname === detailPath
+    ) {
+      deleteRequests += 1;
+      deleteRequestPhases.set(requestEvent, deletePhase);
+    }
+  });
+  page.on("requestfailed", (requestEvent) => {
+    if (
+      requestEvent.method() === "DELETE" &&
+      new URL(requestEvent.url()).pathname === detailPath
+    ) {
+      failedDeleteRequests.push({
+        error: requestEvent.failure()?.errorText ?? null,
+        phase: deleteRequestPhases.get(requestEvent) ?? null,
+      });
+    }
+  });
+  page.on("response", (response) => {
+    if (
+      response.request().method() === "DELETE" &&
+      new URL(response.url()).pathname === detailPath
+    ) {
+      deleteResponseStatuses.push(response.status());
+    }
+  });
+  await page.getByRole("button", { name: "删除", exact: true }).click();
+  await expect(
+    page.getByRole("dialog", { name: "确认删除这段行程？" }),
+  ).toBeVisible();
+  await page
+    .getByRole("dialog", { name: "确认删除这段行程？" })
+    .getByRole("button", { name: "取消", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(deleteRequests).toBe(0);
+  await expect(
+    page.getByRole("button", { name: "删除", exact: true }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "删除", exact: true }).click();
+  const deleteResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "DELETE" &&
+      new URL(response.url()).pathname === detailPath,
+  );
+  deletePhase = "confirm-accept";
+  await page
+    .getByRole("dialog", { name: "确认删除这段行程？" })
+    .getByRole("button", { name: "删除行程", exact: true })
+    .click();
+  expect((await deleteResponse).status()).toBe(204);
+  expect(deleteRequests).toBe(1);
+  expect(deleteResponseStatuses).toEqual([204]);
+  deletePhase = "after-delete-response";
+  await expect(
+    page.getByText("这段行程已删除，正式数据保留且可以恢复。"),
+  ).toBeVisible();
+  await expect(page.locator(".planner-feedback-success")).toContainText(
+    "行程已删除",
+  );
+  await expect(page.getByRole("button", { name: "编辑行程" })).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "删除", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "恢复", exact: true }),
+  ).toBeVisible();
+
+  const restorePath = `${detailPath}/restore`;
+  let failRestoreOnce = true;
+  await page.route(`**${restorePath}`, async (route) => {
+    if (failRestoreOnce && route.request().method() === "POST") {
+      failRestoreOnce = false;
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({
+          code: "SERVICE_UNAVAILABLE",
+          message: "恢复暂时失败",
+        }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+  await page.getByRole("button", { name: "恢复", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("恢复暂时失败");
+  await expect(page.locator(".trip-detail-deleted-state")).toBeVisible();
+  await expect(page.locator(".planner-feedback-success")).toHaveCount(0);
+  await page.unroute(`**${restorePath}`);
+  const restoreResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      new URL(response.url()).pathname === restorePath,
+  );
+  await page.getByRole("button", { name: "恢复", exact: true }).click();
+  expect((await restoreResponse).status()).toBe(200);
+  await expect(page.locator(".planner-feedback-success")).toContainText(
+    "行程已恢复",
+  );
+  await expect(page.getByRole("button", { name: "编辑行程" })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "删除", exact: true }),
+  ).toBeVisible();
+
+  const scaledOverflow = await page.evaluate(
+    () =>
+      Math.max(
+        document.documentElement.scrollWidth,
+        document.body.scrollWidth,
+      ) > window.innerWidth,
+  );
+  expect(scaledOverflow).toBe(false);
+  await page.getByRole("button", { name: "编辑行程" }).click();
+  const unsavedTitle = `${updatedTitle} 未保存`;
+  await page
+    .getByRole("textbox", { name: "标题", exact: true })
+    .fill(unsavedTitle);
+  const editingOverflow = await page.evaluate(
+    () =>
+      Math.max(
+        document.documentElement.scrollWidth,
+        document.body.scrollWidth,
+      ) > window.innerWidth,
+  );
+  expect(editingOverflow).toBe(false);
+  await page.goBack();
+  const leaveDialog = page.getByRole("dialog", {
+    name: "放弃未保存的内容？",
+  });
+  await expect(leaveDialog).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/trips/${trip.id}(?:\\?.*)?$`));
+  await leaveDialog.getByRole("button", { name: "取消", exact: true }).click();
+  await expect(leaveDialog).toHaveCount(0);
+  await expect(
+    page.getByRole("textbox", { name: "标题", exact: true }),
+  ).toHaveValue(unsavedTitle);
+  await page.goBack();
+  await expect(leaveDialog).toBeVisible();
+  await leaveDialog.getByRole("button", { name: "离开", exact: true }).click();
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "16px";
+  });
+  await expect(page).toHaveURL(/\/trips$/);
+  await expect(page.getByRole("heading", { name: "我的行程" })).toBeVisible();
+  expect(pageErrors).toEqual([]);
+
+  const browserObservation = {
+    consoleErrorSummaries: consoleErrors.map((message) =>
+      message.replace(/https?:\/\/\S+/g, "<url>").slice(0, 240),
+    ),
+    failedRequestPaths: failedRequests,
+    failedDeleteRequests,
+    httpFailures,
+    pageErrorNames: pageErrors.map((error) => error.split(":", 1)[0]),
+  };
+  console.log(
+    `[trip-detail-actions-browser] ${JSON.stringify(browserObservation)}`,
+  );
+  await test.info().attach("trip-detail-actions-browser-observations.json", {
+    body: JSON.stringify(browserObservation),
+    contentType: "application/json",
+  });
+});

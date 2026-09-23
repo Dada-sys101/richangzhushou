@@ -14,6 +14,7 @@ import DateTimeField from "../components/DateTimeField.vue";
 import ErrorState from "../components/ErrorState.vue";
 import LoadingState from "../components/LoadingState.vue";
 import SecondaryPageShell from "../components/SecondaryPageShell.vue";
+import { requestAppConfirm } from "../composables/useAppConfirm";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useTripsStore } from "../stores/trips";
@@ -69,6 +70,8 @@ const loadErrorDescription = computed(() =>
 const errorMessage = ref("");
 const successMessage = ref("");
 const saving = ref(false);
+const tripMutation = ref<"save" | "delete" | "restore" | null>(null);
+let tripMutationGeneration = 0;
 
 const editingTrip = ref(false);
 const tripForm = ref({
@@ -137,6 +140,10 @@ useUnsavedChanges(
 watch(
   tripId,
   () => {
+    tripMutationGeneration += 1;
+    tripMutation.value = null;
+    editingTrip.value = false;
+    tripEditSnapshot.value = "";
     void load();
   },
   { immediate: true },
@@ -156,7 +163,7 @@ watch(
   { flush: "sync" },
 );
 
-async function load(recoveryAttempt = 0) {
+async function load(recoveryAttempt = 0): Promise<boolean> {
   const requestedId = tripId.value;
   const generation = ++loadGeneration;
   loadedDetailId.value = "";
@@ -166,26 +173,27 @@ async function load(recoveryAttempt = 0) {
   loading.value = Boolean(requestedId && auth.isAuthenticated);
   if (!requestedId || !auth.isAuthenticated) {
     loading.value = false;
-    return;
+    return false;
   }
 
   try {
     await tripsStore.loadTrip(requestedId);
     if (generation !== loadGeneration || requestedId !== tripId.value) {
-      return;
+      return false;
     }
     if (tripsStore.detail?.trip.id !== requestedId) {
       if (recoveryAttempt === 0) {
-        void load(1);
+        return await load(1);
       } else {
         loadFailure.value = {
           message: "行程详情已变化，请重试加载。",
           status: null,
         };
       }
-      return;
+      return false;
     }
     loadedDetailId.value = requestedId;
+    return true;
   } catch (error) {
     if (generation === loadGeneration && requestedId === tripId.value) {
       loadFailure.value = {
@@ -193,6 +201,7 @@ async function load(recoveryAttempt = 0) {
         status: error instanceof ApiClientError ? error.status : null,
       };
     }
+    return false;
   } finally {
     if (generation === loadGeneration) {
       loading.value = false;
@@ -202,7 +211,7 @@ async function load(recoveryAttempt = 0) {
 
 function startEditTrip() {
   const trip = detail.value?.trip;
-  if (!trip) {
+  if (!trip || trip.deletedAt || tripMutation.value || saving.value) {
     return;
   }
   editingTrip.value = true;
@@ -218,11 +227,24 @@ function startEditTrip() {
 }
 
 async function saveEditTrip() {
+  const currentDetail = detail.value;
+  const requestedId = tripId.value;
+  const generation = tripMutationGeneration;
+  if (
+    !currentDetail ||
+    currentDetail.trip.id !== requestedId ||
+    currentDetail.trip.deletedAt ||
+    !editingTrip.value ||
+    tripMutation.value ||
+    saving.value
+  ) {
+    return;
+  }
+  tripMutation.value = "save";
   errorMessage.value = "";
   successMessage.value = "";
-  saving.value = true;
   try {
-    await tripsStore.updateTrip(tripId.value, {
+    await tripsStore.updateTrip(requestedId, {
       budgetAmount: tripForm.value.budgetAmount.trim() || null,
       destination: tripForm.value.destination,
       endDate: tripForm.value.endDate,
@@ -230,39 +252,128 @@ async function saveEditTrip() {
       title: tripForm.value.title,
       version: tripForm.value.version,
     });
-    successMessage.value = "行程已更新";
-    cancelTripEdit();
+    if (isCurrentTripMutation(requestedId, generation)) {
+      successMessage.value = "行程已更新";
+      cancelTripEdit(true);
+    }
   } catch (error) {
-    errorMessage.value = messageOf(error);
+    if (isCurrentTripMutation(requestedId, generation)) {
+      errorMessage.value = messageOf(error);
+    }
   } finally {
-    saving.value = false;
+    if (generation === tripMutationGeneration) {
+      tripMutation.value = null;
+    }
   }
 }
 
-function cancelTripEdit() {
+function cancelTripEdit(afterSuccessfulSave = false) {
+  if (tripMutation.value === "save" && !afterSuccessfulSave) {
+    return;
+  }
   editingTrip.value = false;
   tripEditSnapshot.value = "";
 }
 
 async function removeTrip() {
+  const currentDetail = detail.value;
+  const requestedId = tripId.value;
+  const generation = tripMutationGeneration;
+  if (
+    !currentDetail ||
+    currentDetail.trip.id !== requestedId ||
+    currentDetail.trip.deletedAt ||
+    editingTrip.value ||
+    tripMutation.value ||
+    saving.value
+  ) {
+    return;
+  }
+  tripMutation.value = "delete";
   errorMessage.value = "";
+  successMessage.value = "";
   try {
-    await tripsStore.deleteTrip(tripId.value);
-    successMessage.value = "行程已删除";
+    const confirmed = await requestAppConfirm({
+      cancelLabel: "取消",
+      confirmLabel: "删除行程",
+      description: `删除“${currentDetail.trip.title}”后，行程会保留在已删除列表中，并可在此恢复。`,
+      destructive: true,
+      title: "确认删除这段行程？",
+    });
+    if (!confirmed || !isCurrentTripMutation(requestedId, generation)) {
+      return;
+    }
+    await tripsStore.deleteTrip(requestedId);
+    if (!isCurrentTripMutation(requestedId, generation)) {
+      return;
+    }
+    const refreshed = await load();
+    if (!isCurrentTripMutation(requestedId, generation)) {
+      return;
+    }
+    if (refreshed && detail.value?.trip.deletedAt) {
+      successMessage.value = "行程已删除，可随时恢复";
+    } else if (refreshed) {
+      errorMessage.value = "行程已删除，但详情状态尚未更新，请重试加载。";
+    }
   } catch (error) {
-    errorMessage.value = messageOf(error);
+    if (isCurrentTripMutation(requestedId, generation)) {
+      errorMessage.value = messageOf(error);
+    }
+  } finally {
+    if (generation === tripMutationGeneration) {
+      tripMutation.value = null;
+    }
   }
 }
 
 async function restoreTrip() {
-  errorMessage.value = "";
-  try {
-    await tripsStore.restoreTrip(tripId.value);
-    await load();
-    successMessage.value = "行程已恢复";
-  } catch (error) {
-    errorMessage.value = messageOf(error);
+  const currentDetail = detail.value;
+  const requestedId = tripId.value;
+  const generation = tripMutationGeneration;
+  if (
+    !currentDetail ||
+    currentDetail.trip.id !== requestedId ||
+    !currentDetail.trip.deletedAt ||
+    tripMutation.value ||
+    saving.value
+  ) {
+    return;
   }
+  tripMutation.value = "restore";
+  errorMessage.value = "";
+  successMessage.value = "";
+  try {
+    await tripsStore.restoreTrip(requestedId);
+    if (!isCurrentTripMutation(requestedId, generation)) {
+      return;
+    }
+    const refreshed = await load();
+    if (!isCurrentTripMutation(requestedId, generation)) {
+      return;
+    }
+    if (refreshed && !detail.value?.trip.deletedAt) {
+      successMessage.value = "行程已恢复";
+    } else if (refreshed) {
+      errorMessage.value = "行程恢复后状态尚未更新，请重试加载。";
+    }
+  } catch (error) {
+    if (isCurrentTripMutation(requestedId, generation)) {
+      errorMessage.value = messageOf(error);
+    }
+  } finally {
+    if (generation === tripMutationGeneration) {
+      tripMutation.value = null;
+    }
+  }
+}
+
+function isCurrentTripMutation(requestedId: string, generation: number) {
+  return (
+    generation === tripMutationGeneration &&
+    requestedId === tripId.value &&
+    detail.value?.trip.id === requestedId
+  );
 }
 
 async function submitItem() {
@@ -532,14 +643,16 @@ function percent(value: string | null): string {
         <button
           v-if="!editingTrip && !detail.trip.deletedAt"
           class="secondary-button"
+          :disabled="tripMutation !== null || saving"
           type="button"
           @click="startEditTrip"
         >
           编辑行程
         </button>
         <button
-          v-if="!detail.trip.deletedAt"
+          v-if="!editingTrip && !detail.trip.deletedAt"
           class="danger-button"
+          :disabled="tripMutation !== null || saving"
           type="button"
           @click="removeTrip"
         >
@@ -548,10 +661,11 @@ function percent(value: string | null): string {
         <button
           v-if="detail.trip.deletedAt"
           class="secondary-button"
+          :disabled="tripMutation !== null || saving"
           type="button"
           @click="restoreTrip"
         >
-          恢复
+          {{ tripMutation === "restore" ? "恢复中…" : "恢复" }}
         </button>
       </div>
     </template>
@@ -584,6 +698,13 @@ function percent(value: string | null): string {
       @retry="load"
     />
     <template v-else-if="detail">
+      <p
+        v-if="detail.trip.deletedAt"
+        class="trip-detail-deleted-state"
+        role="status"
+      >
+        这段行程已删除，正式数据保留且可以恢复。
+      </p>
       <section class="trip-card" aria-labelledby="trip-expense-title">
         <h2 id="trip-expense-title" class="trip-detail-summary-title">
           费用汇总
@@ -651,13 +772,18 @@ function percent(value: string | null): string {
           />
         </label>
         <div class="trip-actions">
-          <button class="primary-button" :disabled="saving" type="submit">
-            保存
+          <button
+            class="primary-button"
+            :disabled="saving || tripMutation !== null"
+            type="submit"
+          >
+            {{ tripMutation === "save" ? "保存中…" : "保存" }}
           </button>
           <button
             class="secondary-button"
+            :disabled="tripMutation !== null"
             type="button"
-            @click="cancelTripEdit"
+            @click="cancelTripEdit()"
           >
             取消
           </button>

@@ -2164,6 +2164,18 @@ html.app-dialog-open body {
   justify-content: flex-end;
 }
 
+.trip-detail-workspace .trip-detail-deleted-state {
+  margin: 0;
+  padding: 11px 14px;
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-danger, #b91c1c);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
 .trip-detail-workspace .trip-card,
 .trip-detail-workspace .trip-section,
 .trip-detail-workspace > .secondary-page-content > .trip-create {
