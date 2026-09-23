@@ -1950,6 +1950,62 @@ html.app-dialog-open body {
   gap: 10px;
 }
 
+.trip-list-page {
+  display: grid;
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+
+.trip-list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ui-space-3);
+  min-width: 0;
+}
+
+.trip-list-toolbar h2,
+.trip-list-toolbar p {
+  margin: 0;
+}
+
+.trip-list-toolbar p {
+  color: var(--ui-color-text-muted);
+}
+
+.trip-list-page .trip-list-panel,
+.trip-list-page .trip-create-panel,
+.trip-list-page .trip-list li,
+.trip-list-page .trip-main,
+.trip-list-page .trip-main strong,
+.trip-list-page .trip-main small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.trip-list-page .trip-list li {
+  border-color: var(--ui-color-border);
+  background: var(--ui-color-surface);
+}
+
+.trip-list-page .trip-create {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.trip-list-page .trip-create input {
+  min-width: 0;
+  width: 100%;
+}
+
+.trip-list-page .trip-create .primary-button {
+  min-height: 44px;
+}
+
 .trip-list li {
   border: 1px solid #e2e8f0;
   border-radius: 12px;
