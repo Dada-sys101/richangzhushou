@@ -15,6 +15,7 @@ import {
   localTripDetail,
   mergePending,
 } from "../offline/local";
+import { listPendingForUser } from "../offline/sync";
 import type { SyncEntityType } from "../offline/sync";
 import { useAuthStore } from "./auth";
 
@@ -42,12 +43,27 @@ export const useTripsStore = defineStore("trips", {
       try {
         const result = await api.listTrips(params);
         const userId = useAuthStore().userId;
-        this.trips = userId
-          ? mergePending(
-              result.items,
-              (await localList(userId, "TRIP")) as unknown as TripSummary[],
-            )
-          : result.items;
+        if (!userId) {
+          this.trips = result.items;
+          return;
+        }
+        const [localItems, pendingMutations] = await Promise.all([
+          localList(userId, "TRIP"),
+          listPendingForUser(userId),
+        ]);
+        const pendingTripIds = new Set(
+          pendingMutations
+            .filter((mutation) => mutation.entityType === "TRIP")
+            .flatMap((mutation) => [mutation.entityId, mutation.localId])
+            .filter((id): id is string => Boolean(id)),
+        );
+        const pendingTrips = localItems.filter((item) =>
+          pendingTripIds.has(String(item.id)),
+        );
+        this.trips = mergePending(
+          result.items,
+          pendingTrips as unknown as TripSummary[],
+        );
       } catch (error) {
         if (isOfflineError(error)) {
           const userId = useAuthStore().userId;

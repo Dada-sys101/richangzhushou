@@ -1,5 +1,13 @@
 # 变更日志（Changelog）
 
+## 2026-09-23 — UIR-10B1 行程列表与新建表单改造（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 从 Integration `c5d41dc645691a1fe5066aeeafc81d6f3f58a4ab` 建立独立分支 `codex/uir-10b1-trips-list`。行程页按标题/已删除筛选、列表、新建表单排序，复用现有页面头、SectionCard、LoadingState、ErrorState 和 EmptyState；修正异常分隔符与预算货币字符，金额保持原始字符串。
+- 对当前筛选保留独立的可见列表与请求序号；删除、恢复、创建后按当前筛选刷新，加载失败与真正空列表区分，旧列表可用时显示陈旧警告与重试。保留现有 Trips Store/API、DateField、表单 payload、删除恢复语义及未保存离开保护。
+- 新增 TripsView 行为测试 8/8；Web 全量 55 files / 430 tests、lint、typecheck、`npm run quality`、`npm run format:check`、`npm run check:context` 和 `git diff --check` 通过。新增行程真实 E2E 使用本机便携 MySQL 与独立的一次性 `daily_assistant_e2e_uir10b1`，五档 5/5 通过；覆盖新建、详情往返、删除/恢复、筛选、模拟 503 后重试、未保存 Browser Back 拒绝，以及五档 200% 根字号横向溢出。首轮在既有 `daily_assistant_e2e` 的测试用户创建阶段因容量限制 409，未进入页面流程；未改动该既有库。一次性库已删除，MySQL 与本轮 E2E 服务已停止。
+- 真实设备软键盘与系统级 200% 文本缩放未验证；浏览器控制台未做独立逐条审计。未提交、推送、创建 PR、部署，未开始行程详情页或天气功能。
+- 删除后列表残留根因经真实浏览器复现确认：删除接口返回 204，`includeDeleted=true` 返回带 `deletedAt` 的行程，随后默认列表 200 不含该行程；但 IndexedDB 留有 `pending=false` 的已同步活动副本，Trips Store 原先把全部本地缓存与在线结果合并，重新添回被服务端省略的行程。修复仅改 Trips Store 在线合并：只合并具有待处理同步 mutation 的本地行程；离线请求失败时仍使用原本地缓存回退。E2E 注入该旧缓存并验证删除、默认筛选列表和整页刷新不再显示，已删除筛选仍可见且可恢复，恢复后按当前筛选显示。TripsView/Trips Store 专项 11/11、Web 全量 56 files / 433 tests、五档 trips E2E 5/5、CI 同款本地 browser smoke 64/64 及 `npm run quality`、`format:check`、`check:context`、`git diff --check` 均通过；quality 中的 Web lint、typecheck 亦通过。smoke 首轮暴露 E2E 响应监听误收删除前已发出的列表响应，测试已改为等待 DELETE 204 后的列表响应，最终重跑全绿。
+
 ## 2026-09-22 — UIR-10A “我的/账户”根页面排版改造（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 将 `/account` 重组为账户概览、真实同步状态、常用设置、财务与数据、应用和高风险操作六个清晰层级；账户状态改为中文文案并保留现有状态事实，账单明细只在常用设置中出现一次。
