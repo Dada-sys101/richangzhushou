@@ -10,6 +10,7 @@ import {
   OfflineNetworkError,
   type TripDetailResponse,
 } from "../api/client";
+import * as AppConfirm from "../composables/useAppConfirm";
 import { useAuthStore } from "../stores/auth";
 import { useTripsStore } from "../stores/trips";
 import TripDetailView from "./TripDetailView.vue";
@@ -110,6 +111,14 @@ function tripDetail(id: string, title = `行程 ${id}`): TripDetailResponse {
   };
 }
 
+function setTripDeleted(
+  detail: TripDetailResponse,
+  deletedAt = "2026-10-02T02:00:00.000Z",
+) {
+  detail.trip.deletedAt = deletedAt;
+  return detail;
+}
+
 function makeRouter(): Router {
   return createRouter({
     history: createMemoryHistory(),
@@ -164,10 +173,12 @@ async function mountTrip(
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((resolvePromise) => {
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
     resolve = resolvePromise;
+    reject = rejectPromise;
   });
-  return { promise, resolve };
+  return { promise, reject, resolve };
 }
 
 describe("TripDetailView", () => {
@@ -319,5 +330,221 @@ describe("TripDetailView", () => {
       "trip-c",
       "trip-c",
     ]);
+  });
+
+  it("asks before deleting and sends no request when deletion is cancelled", async () => {
+    const detail = tripDetail("trip-delete-cancel", "待取消行程");
+    vi.spyOn(api, "getTrip").mockResolvedValue(detail);
+    const confirm = vi.spyOn(AppConfirm, "requestAppConfirm");
+    const pendingConfirmation = deferred<boolean>();
+    confirm.mockReturnValue(pendingConfirmation.promise);
+    const { store, wrapper } = await mountTrip("/trips/trip-delete-cancel");
+    const remove = vi.spyOn(store, "deleteTrip").mockResolvedValue(undefined);
+    await flushPromises();
+
+    await wrapper.get("button.danger-button").trigger("click");
+    await wrapper.get("button.danger-button").trigger("click");
+    await flushPromises();
+
+    expect(confirm).toHaveBeenCalledWith({
+      cancelLabel: "取消",
+      confirmLabel: "删除行程",
+      description:
+        "删除“待取消行程”后，行程会保留在已删除列表中，并可在此恢复。",
+      destructive: true,
+      title: "确认删除这段行程？",
+    });
+    expect(confirm).toHaveBeenCalledOnce();
+    expect(wrapper.get("button.danger-button").element).toHaveProperty(
+      "disabled",
+      true,
+    );
+    expect(remove).not.toHaveBeenCalled();
+    pendingConfirmation.resolve(false);
+    await flushPromises();
+    expect(remove).not.toHaveBeenCalled();
+    expect(wrapper.text()).toContain("待取消行程");
+    expect(wrapper.text()).not.toContain("行程已删除");
+    expect(wrapper.get(".trip-head-actions").text()).toContain("删除");
+    expect(wrapper.get(".trip-head-actions").text()).not.toContain("恢复");
+  });
+
+  it("refreshes deleted detail and replaces edit/delete actions with restore", async () => {
+    const active = tripDetail("trip-delete", "准备删除的行程");
+    const deleted = setTripDeleted(tripDetail("trip-delete", "准备删除的行程"));
+    const getTrip = vi
+      .spyOn(api, "getTrip")
+      .mockResolvedValueOnce(active)
+      .mockResolvedValueOnce(deleted);
+    vi.spyOn(AppConfirm, "requestAppConfirm").mockResolvedValue(true);
+    const { store, wrapper } = await mountTrip("/trips/trip-delete");
+    const remove = vi.spyOn(store, "deleteTrip").mockResolvedValue(undefined);
+    await flushPromises();
+
+    await wrapper.get("button.danger-button").trigger("click");
+    await flushPromises();
+
+    expect(remove).toHaveBeenCalledOnce();
+    expect(remove).toHaveBeenCalledWith("trip-delete");
+    expect(getTrip).toHaveBeenCalledTimes(2);
+    expect(wrapper.get('[role="status"]').text()).toContain("已删除");
+    expect(wrapper.text()).toContain("行程已删除，可随时恢复");
+    expect(wrapper.get(".trip-head-actions").text()).not.toContain("编辑行程");
+    expect(wrapper.find("button.danger-button").exists()).toBe(false);
+    expect(wrapper.get(".trip-head-actions button").text()).toBe("恢复");
+  });
+
+  it("retains failed trip edits, blocks duplicate saves, and retries unchanged payload", async () => {
+    const detail = tripDetail("trip-save", "编辑前标题");
+    vi.spyOn(api, "getTrip").mockResolvedValue(detail);
+    const { store, wrapper } = await mountTrip("/trips/trip-save");
+    const update = vi
+      .spyOn(store, "updateTrip")
+      .mockRejectedValueOnce(new ApiClientError(503, "UNAVAILABLE", "保存失败"))
+      .mockResolvedValue(detail.trip);
+    await flushPromises();
+    await wrapper.get(".trip-head-actions button").trigger("click");
+
+    const form = wrapper.get("form.trip-create");
+    await form.get("input[required]").setValue("编辑后的标题");
+    await form.get('input[inputmode="decimal"]').setValue("1200.50");
+    await form.trigger("submit");
+    await flushPromises();
+
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(update).toHaveBeenNthCalledWith(1, "trip-save", {
+      budgetAmount: "1200.50",
+      destination: "杭州目的地 trip-save",
+      endDate: "2026-10-03",
+      startDate: "2026-10-01",
+      title: "编辑后的标题",
+      version: 1,
+    });
+    expect(wrapper.get('[role="alert"]').text()).toContain("保存失败");
+    expect(
+      wrapper.get("form.trip-create").get("input[required]").element,
+    ).toHaveProperty("value", "编辑后的标题");
+    expect(wrapper.text()).not.toContain("行程已更新");
+
+    await wrapper.get("form.trip-create").trigger("submit");
+    await flushPromises();
+    expect(update).toHaveBeenCalledTimes(2);
+    expect(update).toHaveBeenNthCalledWith(2, "trip-save", {
+      budgetAmount: "1200.50",
+      destination: "杭州目的地 trip-save",
+      endDate: "2026-10-03",
+      startDate: "2026-10-01",
+      title: "编辑后的标题",
+      version: 1,
+    });
+    expect(wrapper.text()).toContain("行程已更新");
+    expect(
+      wrapper.find(".secondary-page-content > form.trip-create").exists(),
+    ).toBe(false);
+    expect(wrapper.get(".trip-head-actions").text()).toContain("编辑行程");
+  });
+
+  it("locks repeated saves and does not show an old mutation result on a new route", async () => {
+    const detailA = tripDetail("trip-save-a", "行程 A");
+    const detailB = tripDetail("trip-save-b", "行程 B");
+    vi.spyOn(api, "getTrip").mockImplementation(async (id) =>
+      id === "trip-save-a" ? detailA : detailB,
+    );
+    const { router, store, wrapper } = await mountTrip("/trips/trip-save-a");
+    const pending = deferred<TripDetailResponse["trip"]>();
+    const update = vi
+      .spyOn(store, "updateTrip")
+      .mockReturnValue(pending.promise);
+    await flushPromises();
+    await wrapper.get(".trip-head-actions button").trigger("click");
+    const form = wrapper.get("form.trip-create");
+    await form.get("input[required]").setValue("A 的新标题");
+    await form.trigger("submit");
+    await form.trigger("submit");
+    expect(update).toHaveBeenCalledOnce();
+    expect(wrapper.get('button[type="submit"]').text()).toContain("保存中");
+    expect(wrapper.get('button[type="submit"]').element).toHaveProperty(
+      "disabled",
+      true,
+    );
+    expect(
+      wrapper.get("form.trip-create .trip-actions button.secondary-button")
+        .element,
+    ).toHaveProperty("disabled", true);
+
+    await router.push("/trips/trip-save-b");
+    await flushPromises();
+    pending.resolve(detailA.trip);
+    await flushPromises();
+    expect(wrapper.get("h1").text()).toBe("行程 B");
+    expect(wrapper.text()).not.toContain("A 的新标题");
+    expect(wrapper.text()).not.toContain("行程已更新");
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false);
+  });
+
+  it("retries restore after a failure and only then shows the active trip actions", async () => {
+    const deleted = setTripDeleted(tripDetail("trip-restore", "恢复中的行程"));
+    const restored = tripDetail("trip-restore", "恢复中的行程");
+    const getTrip = vi
+      .spyOn(api, "getTrip")
+      .mockResolvedValueOnce(deleted)
+      .mockResolvedValueOnce(restored);
+    const { store, wrapper } = await mountTrip("/trips/trip-restore");
+    const pendingRestore = deferred<void>();
+    const restore = vi
+      .spyOn(store, "restoreTrip")
+      .mockReturnValueOnce(pendingRestore.promise)
+      .mockResolvedValue(undefined);
+    await flushPromises();
+
+    await wrapper.get(".trip-head-actions button").trigger("click");
+    await wrapper.get(".trip-head-actions button").trigger("click");
+    expect(restore).toHaveBeenCalledOnce();
+    expect(wrapper.get(".trip-head-actions button").text()).toContain("恢复中");
+    expect(wrapper.get(".trip-head-actions button").element).toHaveProperty(
+      "disabled",
+      true,
+    );
+    pendingRestore.reject(new ApiClientError(503, "UNAVAILABLE", "恢复失败"));
+    await flushPromises();
+    expect(restore).toHaveBeenCalledTimes(1);
+    expect(wrapper.get('[role="alert"]').text()).toContain("恢复失败");
+    expect(wrapper.text()).not.toContain("行程已恢复");
+    expect(wrapper.text()).toContain("这段行程已删除");
+    expect(wrapper.get(".trip-head-actions button").text()).toBe("恢复");
+
+    await wrapper.get(".trip-head-actions button").trigger("click");
+    await flushPromises();
+    expect(restore).toHaveBeenCalledTimes(2);
+    expect(getTrip).toHaveBeenCalledTimes(2);
+    expect(wrapper.text()).toContain("行程已恢复");
+    expect(wrapper.text()).not.toContain("这段行程已删除");
+    expect(wrapper.get(".trip-head-actions").text()).toContain("编辑行程");
+    expect(wrapper.find("button.danger-button").exists()).toBe(true);
+  });
+
+  it("does not delete or show stale feedback when the route changes during confirmation", async () => {
+    const detailA = tripDetail("trip-confirm-a", "待删行程 A");
+    const detailB = tripDetail("trip-confirm-b", "当前行程 B");
+    vi.spyOn(api, "getTrip").mockImplementation(async (id) =>
+      id === "trip-confirm-a" ? detailA : detailB,
+    );
+    const confirm = vi.spyOn(AppConfirm, "requestAppConfirm");
+    const pendingConfirmation = deferred<boolean>();
+    confirm.mockReturnValue(pendingConfirmation.promise);
+    const { router, store, wrapper } = await mountTrip("/trips/trip-confirm-a");
+    const remove = vi.spyOn(store, "deleteTrip").mockResolvedValue(undefined);
+    await flushPromises();
+
+    await wrapper.get("button.danger-button").trigger("click");
+    await router.push("/trips/trip-confirm-b");
+    await flushPromises();
+    pendingConfirmation.resolve(true);
+    await flushPromises();
+
+    expect(remove).not.toHaveBeenCalled();
+    expect(wrapper.get("h1").text()).toBe("当前行程 B");
+    expect(wrapper.text()).not.toContain("行程已删除");
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false);
   });
 });

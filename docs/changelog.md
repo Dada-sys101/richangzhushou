@@ -1069,3 +1069,12 @@
 - 复用项目既有便携 MySQL 8.4.11 与 `daily_assistant_e2e`，使用既有 E2E 启动脚本顺序执行 `navigation-shell.spec.ts` 与 `temporal-picker.spec.ts`，五个项目（375、390、430、768、1440）共 20/20 通过；Playwright CLI 另在五档宽度启用 200% 根字号检查，均无横向溢出。验收后 MySQL、API、Web、Admin 和浏览器均已停止。
 - 故障注入集中在 390/1440：初始任务 GET 503 均展示 ErrorState，移除注入后点击重试恢复；390 在完成请求成功但列表刷新 GET 503 时保留旧行并显示“刷新失败/上次成功加载”提示，恢复后重试收敛；1440 另检查 COMPLETED、CANCELLED、全部筛选及筛选对应空状态。网络中的 503 均为主动注入，恢复请求为 200；控制台仅见既有开发环境 Service Worker MIME 噪声及主动注入的 503。
 - 实现与本地验收阶段未提交、未推送、未创建 PR；本交付任务仅执行提交、推送和创建 PR，仍不合并、不部署、未开始 UIR-08C。Fresh Sol 审查不是本任务门禁，未将任何审查状态写成 `ship`。
+
+## 2026-09-23 — UIR-10B2B 行程详情本体操作收尾（DONE_LOCAL）
+
+- TripDetailView 保留既有编辑字段、字符串预算、日期、version、Store/API payload、`returnTo` 与未保存离开保护；增加行程本体保存/删除/恢复同步互斥，失败保留编辑输入，路由切换后忽略旧操作结果。
+- 删除改用现有应用确认弹窗；取消不发送请求。删除成功后刷新当前详情，展示明确的已删除状态并仅提供恢复入口；恢复仅在详情刷新确认已恢复后报告成功，刷新或写入失败不显示假成功。
+- TripDetailView 专项测试 12/12；`npm run quality` 通过（Web 57 files / 445 tests；API 34 files / 283 passed、13 skipped / 422 total；其余 workspace、构建、Prisma、OpenAPI、migration 和依赖审计均通过）。
+- 真实本地 E2E 在 375、390、430、768、1440 五档 5/5 通过，覆盖编辑失败后输入保留与重试、长文本、删除确认取消（0 DELETE）、确认删除（恰好 1 次且 204）、删除后详情刷新、恢复失败与重试、Browser Back 未保存保护，以及五档 200% 根字号无横向溢出。专用临时 MySQL schema 在验收后删除；原有 `daily_assistant_e2e` 未清理。
+- 浏览器 pageerror 为 0；控制台记录既有 Service Worker MIME 错误及测试主动注入的 PATCH/restore 503。另观察到一条行程 DELETE 的 `net::ERR_ABORTED` 事件；同轮页面请求计数仍为 1 且收到 204，删除状态刷新成功，原因未能从浏览器事件中确认，作为剩余网络诊断项如实保留。
+- 仅修改 `TripDetailView.vue`、`TripDetailView.test.ts`、`styles.css`、`tests/e2e/trips.spec.ts` 与本记录；未修改 Store、API、Router、数据库或其他行程功能。未提交、未推送、未创建 PR、未合并、未部署；原 stash 与旧分支保持不变。
