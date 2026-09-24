@@ -1024,3 +1024,457 @@ test("行程节点新增、编辑、范围确认、删除恢复和未保存返�
     contentType: "application/json",
   });
 });
+
+test("行李清单新增、编辑、勾选、删除确认、恢复与返回保护", async ({
+  page,
+  request,
+}) => {
+  const username = uniqueName("qa_trip_packing");
+  const title = uniqueName("trip_packing");
+  const longText = `防水外套与备用电池${"·轻装行程所需物品备注".repeat(7)}`;
+  const editedText = `${longText}·已复核`;
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  const failedRequests: string[] = [];
+  const mutationRequests: Array<{
+    method: string;
+    path: string;
+    payload?: unknown;
+  }> = [];
+  const mutationResponses: Array<{
+    method: string;
+    path: string;
+    status: number;
+  }> = [];
+  const httpFailures: Array<{ method: string; path: string; status: number }> =
+    [];
+  const focusedFailureViewport = [390, 1440].includes(
+    page.viewportSize()?.width ?? 0,
+  );
+
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("requestfailed", (requestEvent) => {
+    failedRequests.push(
+      `${requestEvent.method()} ${new URL(requestEvent.url()).pathname} ${requestEvent.failure()?.errorText ?? ""}`,
+    );
+  });
+  page.on("request", (requestEvent) => {
+    const path = new URL(requestEvent.url()).pathname;
+    if (
+      path.includes("/packing-items") &&
+      ["POST", "PATCH", "DELETE"].includes(requestEvent.method())
+    ) {
+      let payload: unknown;
+      try {
+        payload = requestEvent.postDataJSON();
+      } catch {
+        payload = undefined;
+      }
+      mutationRequests.push({
+        method: requestEvent.method(),
+        path,
+        payload,
+      });
+    }
+  });
+  page.on("response", (response) => {
+    const path = new URL(response.url()).pathname;
+    const method = response.request().method();
+    if (
+      path.includes("/packing-items") &&
+      ["POST", "PATCH", "DELETE"].includes(method)
+    ) {
+      mutationResponses.push({ method, path, status: response.status() });
+    }
+    if (response.status() >= 400) {
+      httpFailures.push({ method, path, status: response.status() });
+    }
+  });
+
+  await createActiveUserViaApi(request, username);
+  const login = await request.post("/api/v1/auth/login", {
+    data: { password: E2E_ACTIVE_PASSWORD, username },
+  });
+  expect(login.ok()).toBeTruthy();
+  const accessToken = (await login.json()).accessToken as string;
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  const tripResponse = await request.post("/api/v1/trips", {
+    data: {
+      destination: "杭州",
+      endDate: "2026-10-03",
+      startDate: "2026-10-01",
+      title,
+    },
+    headers,
+  });
+  expect(tripResponse.status()).toBe(201);
+  const tripId = (await tripResponse.json()).id as string;
+  const collectionPath = `/api/v1/trips/${tripId}/packing-items`;
+
+  await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
+  await page.waitForURL("**/account");
+  await page.goto("/trips");
+  await expect(page.getByRole("heading", { name: "我的行程" })).toBeVisible();
+  await page.getByRole("link").filter({ hasText: title }).click();
+  await expect(page.getByRole("heading", { name: title })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "新增行李项" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "清单项目" })).toBeVisible();
+
+  let failCreateOnce = focusedFailureViewport;
+  if (failCreateOnce) {
+    await page.route(`**${collectionPath}`, async (route) => {
+      if (route.request().method() === "POST" && failCreateOnce) {
+        failCreateOnce = false;
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({
+            code: "SERVICE_UNAVAILABLE",
+            message: "行李项新增暂时失败",
+          }),
+        });
+        return;
+      }
+      await route.continue();
+    });
+  }
+  const createForm = page.locator(
+    'form[aria-labelledby="trip-packing-create-title"]',
+  );
+  const createInput = createForm.getByRole("textbox", {
+    name: "物品名称或备注",
+  });
+  await createInput.fill(longText);
+  const createResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      new URL(response.url()).pathname === collectionPath,
+  );
+  await createForm.getByRole("button", { name: "添加行李项" }).click();
+  const firstCreateResponse = await createResponsePromise;
+  if (focusedFailureViewport) {
+    expect(firstCreateResponse.status()).toBe(503);
+    await expect(
+      page.locator(".trip-packing-section").getByRole("alert"),
+    ).toContainText("行李项新增暂时失败");
+    await expect(createInput).toHaveValue(longText);
+    await page.unroute(`**${collectionPath}`);
+    const retryCreateResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname === collectionPath,
+    );
+    await createForm.getByRole("button", { name: "添加行李项" }).click();
+    expect((await retryCreateResponsePromise).status()).toBe(201);
+  } else {
+    expect(firstCreateResponse.status()).toBe(201);
+  }
+
+  let card = page.locator(".trip-packing-list > li").first();
+  await expect(card).toContainText(longText);
+  await expect(card.getByRole("checkbox")).toBeVisible();
+  await expect(card.locator(".trip-packing-state")).toHaveText("待整理");
+  const createPayload = mutationRequests.find(
+    ({ method, path }) => method === "POST" && path === collectionPath,
+  )?.payload as { text?: string } | undefined;
+  expect(createPayload?.text).toBe(longText);
+
+  const itemCollectionAfterCreate = await request.get(
+    `/api/v1/trips/${tripId}`,
+    { headers },
+  );
+  expect(itemCollectionAfterCreate.ok()).toBeTruthy();
+  const packingId = (await itemCollectionAfterCreate.json()).packingItems[0]
+    .id as string;
+  const itemPath = `/api/v1/packing-items/${packingId}`;
+
+  let failEditOnce = focusedFailureViewport;
+  if (failEditOnce) {
+    await page.route(`**${itemPath}`, async (route) => {
+      if (route.request().method() === "PATCH" && failEditOnce) {
+        failEditOnce = false;
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({
+            code: "SERVICE_UNAVAILABLE",
+            message: "行李项编辑暂时失败",
+          }),
+        });
+        return;
+      }
+      await route.continue();
+    });
+  }
+  await card.getByRole("button", { name: "编辑行李项" }).click();
+  const editForm = card.locator("form.trip-packing-edit-form");
+  const editInput = editForm.getByRole("textbox", { name: "物品名称或备注" });
+  await editInput.fill(editedText);
+  const editResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === "PATCH" &&
+      new URL(response.url()).pathname === itemPath,
+  );
+  await editForm.getByRole("button", { name: "保存", exact: true }).click();
+  const firstEditResponse = await editResponsePromise;
+  if (focusedFailureViewport) {
+    expect(firstEditResponse.status()).toBe(503);
+    await expect(
+      page.locator(".trip-packing-section").getByRole("alert"),
+    ).toContainText("行李项编辑暂时失败");
+    await expect(editInput).toHaveValue(editedText);
+    await page.unroute(`**${itemPath}`);
+    const retryEditResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "PATCH" &&
+        new URL(response.url()).pathname === itemPath,
+    );
+    await editForm.getByRole("button", { name: "保存", exact: true }).click();
+    expect((await retryEditResponsePromise).status()).toBe(200);
+  } else {
+    expect(firstEditResponse.status()).toBe(200);
+  }
+  card = page.locator(`[data-packing-id="${packingId}"]`);
+  await expect(card).toContainText(editedText);
+  const editPayload = mutationRequests.find(
+    ({ method, path, payload }) =>
+      method === "PATCH" &&
+      path === itemPath &&
+      (payload as { text?: string } | undefined)?.text === editedText,
+  )?.payload as { text?: string; version?: number } | undefined;
+  expect(editPayload).toMatchObject({ text: editedText, version: 1 });
+
+  let failCheckOnce = focusedFailureViewport;
+  if (failCheckOnce) {
+    await page.route(`**${itemPath}`, async (route) => {
+      if (route.request().method() === "PATCH" && failCheckOnce) {
+        failCheckOnce = false;
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({
+            code: "SERVICE_UNAVAILABLE",
+            message: "行李项状态更新暂时失败",
+          }),
+        });
+        return;
+      }
+      await route.continue();
+    });
+  }
+  const checkbox = card.getByRole("checkbox");
+  const checkResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === "PATCH" &&
+      new URL(response.url()).pathname === itemPath,
+  );
+  await checkbox.click();
+  const firstCheckResponse = await checkResponsePromise;
+  if (focusedFailureViewport) {
+    expect(firstCheckResponse.status()).toBe(503);
+    await expect(
+      page.locator(".trip-packing-section").getByRole("alert"),
+    ).toContainText("行李项状态更新暂时失败");
+    await expect(checkbox).not.toBeChecked();
+    await page.unroute(`**${itemPath}`);
+    const retryCheckResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "PATCH" &&
+        new URL(response.url()).pathname === itemPath,
+    );
+    await checkbox.click();
+    expect((await retryCheckResponsePromise).status()).toBe(200);
+  } else {
+    expect(firstCheckResponse.status()).toBe(200);
+  }
+  await expect(card.getByRole("checkbox")).toBeChecked();
+  await expect(card.locator(".trip-packing-state")).toHaveText("已收纳");
+  const checkPayload = mutationRequests.find(
+    ({ method, path, payload }) =>
+      method === "PATCH" &&
+      path === itemPath &&
+      (payload as { checked?: boolean } | undefined)?.checked === true,
+  )?.payload as { checked?: boolean; version?: number } | undefined;
+  expect(checkPayload).toMatchObject({ checked: true, version: 2 });
+
+  let failDeleteOnce = focusedFailureViewport;
+  if (failDeleteOnce) {
+    await page.route(`**${itemPath}`, async (route) => {
+      if (route.request().method() === "DELETE" && failDeleteOnce) {
+        failDeleteOnce = false;
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({
+            code: "SERVICE_UNAVAILABLE",
+            message: "行李项删除暂时失败",
+          }),
+        });
+        return;
+      }
+      await route.continue();
+    });
+  }
+  const deleteCountBeforeCancel = mutationRequests.filter(
+    ({ method, path }) => method === "DELETE" && path === itemPath,
+  ).length;
+  await card.getByRole("button", { name: "删除行李项" }).click();
+  const deleteDialog = page.getByRole("dialog", {
+    name: "确认删除这个行李项？",
+  });
+  await expect(deleteDialog).toBeVisible();
+  await expect(deleteDialog).toContainText(
+    "刷新或离开后，无法从详情页重新找到",
+  );
+  await deleteDialog.getByRole("button", { name: "取消", exact: true }).click();
+  await expect(deleteDialog).toHaveCount(0);
+  expect(
+    mutationRequests.filter(
+      ({ method, path }) => method === "DELETE" && path === itemPath,
+    ),
+  ).toHaveLength(deleteCountBeforeCancel);
+  await expect(card.getByRole("button", { name: "删除行李项" })).toBeVisible();
+
+  const deleteResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === "DELETE" &&
+      new URL(response.url()).pathname === itemPath,
+  );
+  await card.getByRole("button", { name: "删除行李项" }).click();
+  await page
+    .getByRole("dialog", { name: "确认删除这个行李项？" })
+    .getByRole("button", { name: "删除行李项", exact: true })
+    .click();
+  const firstDeleteResponse = await deleteResponsePromise;
+  if (focusedFailureViewport) {
+    expect(firstDeleteResponse.status()).toBe(503);
+    await expect(
+      page.locator(".trip-packing-section").getByRole("alert"),
+    ).toContainText("行李项删除暂时失败");
+    await expect(
+      card.getByRole("button", { name: "删除行李项" }),
+    ).toBeVisible();
+    await page.unroute(`**${itemPath}`);
+    const retryDeleteResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "DELETE" &&
+        new URL(response.url()).pathname === itemPath,
+    );
+    await card.getByRole("button", { name: "删除行李项" }).click();
+    await page
+      .getByRole("dialog", { name: "确认删除这个行李项？" })
+      .getByRole("button", { name: "删除行李项", exact: true })
+      .click();
+    expect((await retryDeleteResponsePromise).status()).toBe(204);
+  } else {
+    expect(firstDeleteResponse.status()).toBe(204);
+  }
+  card = page.locator(`[data-packing-id="${packingId}"]`);
+  await expect(card).toContainText("已删除 · 本页可恢复");
+  await expect(card.getByRole("button", { name: "编辑行李项" })).toHaveCount(0);
+  await expect(card.getByRole("button", { name: "删除行李项" })).toHaveCount(0);
+  await expect(card.getByRole("button", { name: "恢复行李项" })).toBeVisible();
+  await expect(page.locator(".trip-packing-recovery-note")).toContainText(
+    "详情接口不会返回已删除行李项",
+  );
+
+  const restorePath = `${itemPath}/restore`;
+  let failRestoreOnce = focusedFailureViewport;
+  if (failRestoreOnce) {
+    await page.route(`**${restorePath}`, async (route) => {
+      if (route.request().method() === "POST" && failRestoreOnce) {
+        failRestoreOnce = false;
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({
+            code: "SERVICE_UNAVAILABLE",
+            message: "行李项恢复暂时失败",
+          }),
+        });
+        return;
+      }
+      await route.continue();
+    });
+  }
+  const restoreResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      new URL(response.url()).pathname === restorePath,
+  );
+  await card.getByRole("button", { name: "恢复行李项" }).click();
+  const firstRestoreResponse = await restoreResponsePromise;
+  if (focusedFailureViewport) {
+    expect(firstRestoreResponse.status()).toBe(503);
+    await expect(
+      page.locator(".trip-packing-section").getByRole("alert"),
+    ).toContainText("行李项恢复暂时失败");
+    await expect(card).toContainText("已删除 · 本页可恢复");
+    await page.unroute(`**${restorePath}`);
+    const retryRestoreResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname === restorePath,
+    );
+    await card.getByRole("button", { name: "恢复行李项" }).click();
+    expect((await retryRestoreResponsePromise).status()).toBe(200);
+  } else {
+    expect(firstRestoreResponse.status()).toBe(200);
+  }
+  card = page.locator(`[data-packing-id="${packingId}"]`);
+  await expect(card.getByRole("checkbox")).toBeChecked();
+  await expect(card.getByRole("button", { name: "编辑行李项" })).toBeVisible();
+  await expect(card.getByRole("button", { name: "恢复行李项" })).toHaveCount(0);
+
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "32px";
+  });
+  const overflowAt200Percent = await page.evaluate(
+    () =>
+      Math.max(
+        document.documentElement.scrollWidth,
+        document.body.scrollWidth,
+      ) > window.innerWidth,
+  );
+  expect(overflowAt200Percent).toBe(false);
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "16px";
+  });
+  await page
+    .getByRole("textbox", { name: "物品名称或备注" })
+    .fill("离开保护草稿");
+  await page.goBack();
+  const leaveDialog = page.getByRole("dialog", { name: "放弃未保存的内容？" });
+  await expect(leaveDialog).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/trips/${tripId}(?:\\?.*)?$`));
+  await leaveDialog.getByRole("button", { name: "取消", exact: true }).click();
+  await expect(leaveDialog).toHaveCount(0);
+  await expect(
+    page.getByRole("textbox", { name: "物品名称或备注" }),
+  ).toHaveValue("离开保护草稿");
+  await page.goBack();
+  await expect(leaveDialog).toBeVisible();
+  await leaveDialog.getByRole("button", { name: "离开", exact: true }).click();
+  await expect(page).toHaveURL(/\/trips$/);
+
+  const browserObservation = {
+    consoleErrors: consoleErrors.map((message) =>
+      message.replace(/https?:\/\/\S+/g, "<url>").slice(0, 240),
+    ),
+    failedRequests,
+    httpFailures,
+    mutationRequests,
+    mutationResponses,
+    pageErrors: pageErrors.map((error) => error.split(":", 1)[0]),
+    viewport: page.viewportSize(),
+  };
+  console.log(`[trip-packing-browser] ${JSON.stringify(browserObservation)}`);
+  await test.info().attach("trip-packing-browser-observations.json", {
+    body: JSON.stringify(browserObservation),
+    contentType: "application/json",
+  });
+  expect(pageErrors).toEqual([]);
+});

@@ -1088,3 +1088,13 @@
 - 浏览器流程使用独立的一次性本地 MySQL 数据目录；E2E 服务、浏览器和临时 MySQL 已停止，临时目录已清理，原便携运行时数据未触碰。
 - 浏览器日志每档观察到对应单次 DELETE 的 `net::ERR_ABORTED` 诊断，但同轮记录到的 DELETE 请求数为 1、响应为 204，页面进入已删除状态且没有用户可见失败；事件原因尚未确认，保留为诊断项。另有开发环境既有 Service Worker MIME 控制台错误及本轮主动注入的 400/503。
 - 仅修改 `TripDetailView.vue`、`TripDetailView.test.ts`、`styles.css`、`tests/e2e/trips.spec.ts` 与本记录；未修改行程本体、行李清单、Store、API、Router 或数据库。未提交、未推送、未创建 PR、未合并、未部署；保留原 stash 与旧分支。
+
+## 2026-09-24 — UIR-10B2D 行李清单局部改造（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 基于 Integration `0b9faa53ea98b11b08c3def137ec0e8c1d95201b` 的独立分支 `codex/uir-10b2d-trip-packing-list` 整理 TripDetailView 行李区，分开新增表单与清单项目，明确待整理/已收纳/已删除状态、有效项目数、空状态和局部操作反馈；复用现有设计 Token、Store/API、`text`/`checked`/`version`/`position` 字段和服务端顺序，不增加拖拽排序。
+- 为新增、编辑、勾选、删除确认和恢复增加同步互斥及进行中禁用；失败不显示成功，编辑保留输入，勾选失败立即回到服务端已知状态后可重试。真实浏览器失败注入发现原生 checkbox 在 PATCH 503 后会保留浏览器的临时勾选外观；页面现改为提交前恢复已知值，只有写入及详情刷新成功后才显示新状态，并有单测覆盖。
+- API/既有集成测试确认行程详情只返回未删除的行李项。删除使用应用确认弹窗，取消不发 DELETE；确认成功后仅在当前页面内存保留原项目快照供恢复。提示明确说明：详情接口不返回已删除项，刷新或离开后无法从详情页重新找回；未修改 Store/API。切换行程会取消待确认的旧删除并清除本页恢复快照、草稿及操作反馈。保留未保存离开保护与 Browser Back。
+- TripDetailView 专项测试 21/21；`npm run quality` 通过（Web 57 files / 454 tests；API 283 passed、139 skipped；api-contracts 151、config 8、admin 1；lint、typecheck、build、Prisma、OpenAPI、migration 与依赖审计均通过）。完整质量命令第一次在 OpenAPI 内容已验证后遇到 Windows/libuv 进程断言；单独复核通过，之后完整 `npm run quality` 重跑通过。`npm run format:check`、`npm run check:context`、`git diff --check` 均通过。
+- 真实本地浏览器行李流程在 375、390、430、768、1440 五个 Playwright 项目 5/5 通过；每档覆盖新增、编辑、勾选、删除取消/确认、恢复、长文本、200% 根字号（32px）横向溢出检查及 Browser Back 未保存保护。390 与 1440 各对新增、编辑、勾选、删除和恢复注入 503；输入/状态/删除快照保留，重试分别以 201、200、200、204、200 成功。删除取消期间 DELETE 数为 0；确认删除单次返回 204，恢复返回 200，且 checked 状态保持。
+- 浏览器 pageerror 为 0。控制台有开发环境既有 Service Worker MIME 提示；390/1440 另记录到本轮预期注入的 503。每档还观察到一次 DELETE `net::ERR_ABORTED` 事件，同时该 DELETE 响应为 204、页面显示已删除且没有用户可见失败；该网络事件原因仍未确认。首次共享 `daily_assistant_e2e` 尝试执行了项目 E2E 准备步骤（更新单例测试配置），随后一次性账号创建返回 409、未进入页面流程；未清理或重置共享库用户数据。改用本轮隔离 schema `daily_assistant_e2e_uir_10b2d` 完成验收，该隔离 schema 已删除，本轮 MySQL 与浏览器测试服务已停止。
+- 实现验收阶段仅修改 `TripDetailView.vue`、`TripDetailView.test.ts`、`styles.css`、`tests/e2e/trips.spec.ts` 与本记录；未修改行程本体、节点、Store、API、Router、数据库实现或管理端。实现验收当时停在 DONE_LOCAL；本轮交付的提交、推送、PR 与 CI 状态以实时 GitHub 事实为准，不包含合并、部署或后续切片。

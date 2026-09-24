@@ -260,7 +260,7 @@ describe("TripDetailView", () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain("还没有行程节点。");
-    expect(wrapper.text()).toContain("还没有行李项。");
+    expect(wrapper.text()).toContain("清单还是空的");
     expect(wrapper.text()).toContain("行程日期范围内没有日程。");
     expect(wrapper.text()).toContain(
       "还没有关联账单，记账时选择该行程即可关联。",
@@ -848,6 +848,330 @@ describe("TripDetailView", () => {
     expect(wrapper.text()).not.toContain("旧行程节点");
     expect(wrapper.text()).not.toContain("节点已保存");
     expect(wrapper.find(".trip-node-section [role=alert]").exists()).toBe(
+      false,
+    );
+  });
+
+  it("creates packing items with the original text payload, blocks duplicates, and retries retained input", async () => {
+    const loaded = tripDetail("trip-packing-create");
+    vi.spyOn(api, "getTrip").mockResolvedValue(loaded);
+    const { store, wrapper } = await mountTrip("/trips/trip-packing-create");
+    const pending = deferred<never>();
+    const create = vi
+      .spyOn(store, "createPackingItem")
+      .mockReturnValueOnce(pending.promise)
+      .mockResolvedValueOnce({} as never);
+    await flushPromises();
+
+    const form = wrapper.get(
+      'form[aria-labelledby="trip-packing-create-title"]',
+    );
+    expect(wrapper.get("#trip-packing-create-title").text()).toBe("新增行李项");
+    expect(wrapper.get("#trip-packing-list-title").text()).toBe("清单项目");
+    expect(wrapper.get(".trip-packing-state").text()).toBe("待整理");
+
+    const field = form.get("input[required]");
+    await field.setValue("折叠后的外套与充电器");
+    await form.trigger("submit");
+    await form.trigger("submit");
+    expect(create).toHaveBeenCalledOnce();
+    expect(create).toHaveBeenCalledWith("trip-packing-create", {
+      text: "折叠后的外套与充电器",
+    });
+    expect(form.get('button[type="submit"]').text()).toContain("添加中");
+    expect(form.get('button[type="submit"]').element).toHaveProperty(
+      "disabled",
+      true,
+    );
+
+    pending.reject(new ApiClientError(503, "UNAVAILABLE", "新增暂时失败"));
+    await flushPromises();
+    expect(wrapper.get(".trip-packing-section [role=alert]").text()).toContain(
+      "新增暂时失败",
+    );
+    expect(field.element).toHaveProperty("value", "折叠后的外套与充电器");
+    expect(wrapper.text()).not.toContain("行李项已添加");
+
+    await form.trigger("submit");
+    await flushPromises();
+    expect(create).toHaveBeenCalledTimes(2);
+    expect(wrapper.get(".trip-packing-section [role=status]").text()).toContain(
+      "行李项已添加",
+    );
+    expect(field.element).toHaveProperty("value", "");
+  });
+
+  it("keeps packing edit text on failure and preserves version and checked payloads", async () => {
+    const loaded = tripDetail("trip-packing-update");
+    vi.spyOn(api, "getTrip").mockResolvedValue(loaded);
+    const { store, wrapper } = await mountTrip("/trips/trip-packing-update");
+    const pending = deferred<never>();
+    const pendingCheck = deferred<never>();
+    let failCheckOnce = true;
+    const update = vi
+      .spyOn(store, "updatePackingItem")
+      .mockReturnValueOnce(pending.promise)
+      .mockImplementation(async (id, tripId, input) => {
+        if ("checked" in input && failCheckOnce) {
+          failCheckOnce = false;
+          await pendingCheck.promise;
+        }
+        const current = store.detail!.packingItems.find(
+          (item) => item.id === id,
+        )!;
+        store.detail!.packingItems = [
+          {
+            ...current,
+            ...input,
+            version: current.version + 1,
+          },
+        ];
+        return store.detail!.packingItems[0]!;
+      });
+    await flushPromises();
+
+    const card = wrapper.get('[data-packing-id="packing-trip-packing-update"]');
+    await card.get("button").trigger("click");
+    const editForm = card.get("form.trip-packing-edit-form");
+    const input = editForm.get("input[required]");
+    await input.setValue("编辑后的长行李备注");
+    await editForm.trigger("submit");
+    await editForm.trigger("submit");
+    expect(update).toHaveBeenCalledOnce();
+    expect(editForm.get('button[type="submit"]').element).toHaveProperty(
+      "disabled",
+      true,
+    );
+    expect(update).toHaveBeenCalledOnce();
+    pending.reject(new ApiClientError(503, "UNAVAILABLE", "编辑暂时失败"));
+    await flushPromises();
+
+    expect(wrapper.get(".trip-packing-section [role=alert]").text()).toContain(
+      "编辑暂时失败",
+    );
+    expect(input.element).toHaveProperty("value", "编辑后的长行李备注");
+    expect(wrapper.text()).not.toContain("行李项已更新");
+
+    await editForm.trigger("submit");
+    await flushPromises();
+    expect(update).toHaveBeenNthCalledWith(
+      2,
+      "packing-trip-packing-update",
+      "trip-packing-update",
+      { text: "编辑后的长行李备注", version: 1 },
+    );
+    expect(wrapper.get(".trip-packing-section [role=status]").text()).toContain(
+      "行李项已更新",
+    );
+    expect(wrapper.find(".trip-packing-edit-form").exists()).toBe(false);
+
+    const checkbox = wrapper.get(
+      '[data-packing-id="packing-trip-packing-update"] input[type="checkbox"]',
+    );
+    await checkbox.setValue(true);
+    await checkbox.trigger("change");
+    expect(update).toHaveBeenCalledTimes(3);
+    expect(checkbox.element).toHaveProperty("checked", false);
+    pendingCheck.reject(
+      new ApiClientError(503, "UNAVAILABLE", "状态更新暂时失败"),
+    );
+    await flushPromises();
+    expect(wrapper.get(".trip-packing-section [role=alert]").text()).toContain(
+      "状态更新暂时失败",
+    );
+    await checkbox.setValue(true);
+    await flushPromises();
+    expect(update).toHaveBeenLastCalledWith(
+      "packing-trip-packing-update",
+      "trip-packing-update",
+      { checked: true, version: 2 },
+    );
+    expect(wrapper.get(".trip-packing-section [role=status]").text()).toContain(
+      "已标记为已收纳",
+    );
+  });
+
+  it("requires delete confirmation, keeps a current-page snapshot, and retries restore", async () => {
+    const loaded = tripDetail("trip-packing-delete");
+    const packingItem = loaded.packingItems[0]!;
+    vi.spyOn(api, "getTrip").mockResolvedValue(loaded);
+    const confirm = vi.spyOn(AppConfirm, "requestAppConfirm");
+    const pendingConfirmation = deferred<boolean>();
+    confirm
+      .mockReturnValueOnce(pendingConfirmation.promise)
+      .mockResolvedValue(true);
+    const { store, wrapper } = await mountTrip("/trips/trip-packing-delete");
+    const pendingDelete = deferred<void>();
+    const remove = vi
+      .spyOn(store, "deletePackingItem")
+      .mockRejectedValueOnce(
+        new ApiClientError(503, "UNAVAILABLE", "删除暂时失败"),
+      )
+      .mockImplementationOnce(async () => {
+        await pendingDelete.promise;
+        store.detail!.packingItems = [];
+      });
+    const restore = vi
+      .spyOn(store, "restorePackingItem")
+      .mockRejectedValueOnce(
+        new ApiClientError(503, "UNAVAILABLE", "恢复暂时失败"),
+      )
+      .mockImplementationOnce(async () => {
+        store.detail!.packingItems = [packingItem];
+      });
+    await flushPromises();
+
+    const card = wrapper.get('[data-packing-id="packing-trip-packing-delete"]');
+    await card.get("button.danger").trigger("click");
+    expect(confirm).toHaveBeenCalledOnce();
+    expect(confirm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        confirmLabel: "删除行李项",
+        description: expect.stringContaining("详情接口不会返回已删除行李项"),
+        title: "确认删除这个行李项？",
+      }),
+    );
+    expect(remove).not.toHaveBeenCalled();
+    expect(card.get("button.danger").element).toHaveProperty("disabled", true);
+    await card.get("button.danger").trigger("click");
+    expect(confirm).toHaveBeenCalledOnce();
+    pendingConfirmation.resolve(false);
+    await flushPromises();
+    expect(remove).not.toHaveBeenCalled();
+    expect(wrapper.find(".trip-packing-recovery-note").exists()).toBe(false);
+
+    await card.get("button.danger").trigger("click");
+    await flushPromises();
+    expect(remove).toHaveBeenCalledOnce();
+    expect(wrapper.get(".trip-packing-section [role=alert]").text()).toContain(
+      "删除暂时失败",
+    );
+    expect(wrapper.text()).not.toContain("行李项已删除");
+    expect(card.find("button.danger").exists()).toBe(true);
+
+    await card.get("button.danger").trigger("click");
+    await flushPromises();
+    expect(remove).toHaveBeenCalledTimes(2);
+    expect(card.get("button.danger").element).toHaveProperty("disabled", true);
+    await card.get("button.danger").trigger("click");
+    expect(remove).toHaveBeenCalledTimes(2);
+    pendingDelete.resolve();
+    await flushPromises();
+
+    const deletedCard = wrapper.get(
+      '[data-packing-id="packing-trip-packing-delete"]',
+    );
+    expect(deletedCard.text()).toContain("已删除 · 本页可恢复");
+    expect(deletedCard.find('input[type="checkbox"]').exists()).toBe(false);
+    expect(deletedCard.find("button").text()).toBe("恢复行李项");
+    expect(wrapper.get(".trip-packing-recovery-note").text()).toContain(
+      "刷新或离开后无法从行程详情重新找回",
+    );
+
+    await deletedCard.get("button").trigger("click");
+    await flushPromises();
+    expect(restore).toHaveBeenCalledOnce();
+    expect(wrapper.get(".trip-packing-section [role=alert]").text()).toContain(
+      "恢复暂时失败",
+    );
+    expect(
+      wrapper.get('[data-packing-id="packing-trip-packing-delete"]').text(),
+    ).toContain("已删除 · 本页可恢复");
+
+    const pendingRestore = deferred<void>();
+    restore.mockImplementationOnce(async () => {
+      await pendingRestore.promise;
+      store.detail!.packingItems = [packingItem];
+    });
+    const restoreButton = wrapper.get(
+      '[data-packing-id="packing-trip-packing-delete"] button',
+    );
+    await restoreButton.trigger("click");
+    await restoreButton.trigger("click");
+    expect(restore).toHaveBeenCalledTimes(2);
+    expect(restoreButton.text()).toContain("恢复中");
+    expect(restoreButton.element).toHaveProperty("disabled", true);
+    await restoreButton.trigger("click");
+    expect(restore).toHaveBeenCalledTimes(2);
+    pendingRestore.resolve();
+    await flushPromises();
+    expect(
+      wrapper.get('[data-packing-id="packing-trip-packing-delete"]').text(),
+    ).not.toContain("已删除 · 本页可恢复");
+    expect(wrapper.get(".trip-packing-section [role=status]").text()).toContain(
+      "行李项已恢复",
+    );
+  });
+
+  it("drops packing drafts, snapshots, and late feedback when switching trips", async () => {
+    const detailA = tripDetail("trip-packing-old", "旧行程");
+    const detailB = tripDetail("trip-packing-current", "当前行程");
+    vi.spyOn(api, "getTrip").mockImplementation(async (id) =>
+      id === "trip-packing-old" ? detailA : detailB,
+    );
+    const { router, store, wrapper } = await mountTrip(
+      "/trips/trip-packing-old",
+    );
+    const pending = deferred<never>();
+    const create = vi
+      .spyOn(store, "createPackingItem")
+      .mockReturnValue(pending.promise);
+    await flushPromises();
+
+    const form = wrapper.get(
+      'form[aria-labelledby="trip-packing-create-title"]',
+    );
+    await form.get("input[required]").setValue("旧行程的未保存行李项");
+    const unsaved = unsavedMock.mock.calls.at(-1)?.[0] as
+      { value: boolean } | undefined;
+    expect(unsaved?.value).toBe(true);
+    await form.trigger("submit");
+    expect(create).toHaveBeenCalledOnce();
+
+    await router.push("/trips/trip-packing-current");
+    await flushPromises();
+    pending.resolve({} as never);
+    await flushPromises();
+
+    expect(wrapper.get("h1").text()).toBe("当前行程");
+    expect(wrapper.text()).not.toContain("旧行程的未保存行李项");
+    expect(wrapper.text()).not.toContain("行李项已添加");
+    expect(wrapper.find(".trip-packing-section [role=alert]").exists()).toBe(
+      false,
+    );
+  });
+
+  it("does not delete an old trip item when navigation wins over confirmation", async () => {
+    const detailA = tripDetail("trip-packing-confirm-old", "待删行程");
+    const detailB = tripDetail("trip-packing-confirm-new", "当前行程");
+    vi.spyOn(api, "getTrip").mockImplementation(async (id) =>
+      id === "trip-packing-confirm-old" ? detailA : detailB,
+    );
+    const confirm = vi.spyOn(AppConfirm, "requestAppConfirm");
+    const pendingConfirmation = deferred<boolean>();
+    confirm.mockReturnValue(pendingConfirmation.promise);
+    const { router, store, wrapper } = await mountTrip(
+      "/trips/trip-packing-confirm-old",
+    );
+    const remove = vi.spyOn(store, "deletePackingItem").mockResolvedValue();
+    await flushPromises();
+
+    await wrapper
+      .get('[data-packing-id="packing-trip-packing-confirm-old"] button.danger')
+      .trigger("click");
+    expect(confirm).toHaveBeenCalledOnce();
+    await router.push("/trips/trip-packing-confirm-new");
+    await flushPromises();
+    pendingConfirmation.resolve(true);
+    await flushPromises();
+
+    expect(remove).not.toHaveBeenCalled();
+    expect(wrapper.get("h1").text()).toBe("当前行程");
+    expect(wrapper.text()).not.toContain(
+      "需要正常换行的长行李说明 trip-packing-confirm-old",
+    );
+    expect(wrapper.text()).not.toContain("行李项已删除");
+    expect(wrapper.find(".trip-packing-section [role=alert]").exists()).toBe(
       false,
     );
   });
