@@ -281,6 +281,109 @@ describeWithDb(
       expect(restored.body.text).toBe("相机");
     });
 
+    it("trip detail optionally returns only deleted child items without changing other aggregates", async () => {
+      const token = await loginNewUser();
+      const trip = await createTrip(token, {
+        budgetAmount: "300.00",
+        destination: "杭州",
+        endDate: "2026-08-12",
+        startDate: "2026-08-10",
+        title: "可恢复行程",
+      });
+      const tripId = trip.body.id as string;
+      const node = await createTripItem(token, tripId, {
+        endsAt: "2026-08-10T04:00:00.000Z",
+        startsAt: "2026-08-10T01:00:00.000Z",
+        type: "ACTIVITY",
+      });
+      const nodeId = node.body.tripItem.id as string;
+      const packing = await createPackingItem(token, tripId, {
+        text: "可恢复行李",
+      });
+      const packingId = packing.body.id as string;
+      const transaction = await createTransaction(token, {
+        amount: "25.00",
+        tripId,
+        type: "EXPENSE",
+      });
+      expect(transaction.status).toBe(201);
+      const calendar = await request(app.getHttpServer())
+        .post("/api/v1/calendar-events")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          endsAt: "2026-08-11T04:00:00.000Z",
+          startsAt: "2026-08-11T01:00:00.000Z",
+          title: "行程日历不受查询影响",
+        });
+      expect(calendar.status).toBe(201);
+
+      await request(app.getHttpServer())
+        .delete(`/api/v1/trip-items/${nodeId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(204);
+      await request(app.getHttpServer())
+        .delete(`/api/v1/packing-items/${packingId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(204);
+
+      const defaultDetail = await request(app.getHttpServer())
+        .get(`/api/v1/trips/${tripId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+      expect(defaultDetail.body.items).toEqual([]);
+      expect(defaultDetail.body.packingItems).toEqual([]);
+
+      const includedDetail = await request(app.getHttpServer())
+        .get(`/api/v1/trips/${tripId}?includeDeletedChildren=true`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+      expect(includedDetail.body.items).toHaveLength(1);
+      expect(includedDetail.body.items[0]).toMatchObject({
+        deletedAt: expect.any(String),
+        id: nodeId,
+      });
+      expect(includedDetail.body.packingItems).toHaveLength(1);
+      expect(includedDetail.body.packingItems[0]).toMatchObject({
+        deletedAt: expect.any(String),
+        id: packingId,
+      });
+      expect(includedDetail.body.expense).toEqual(defaultDetail.body.expense);
+      expect(includedDetail.body.linkedTransactions).toEqual(
+        defaultDetail.body.linkedTransactions,
+      );
+      expect(includedDetail.body.calendarEvents).toEqual(
+        defaultDetail.body.calendarEvents,
+      );
+
+      const explicitlyFiltered = await request(app.getHttpServer())
+        .get(`/api/v1/trips/${tripId}?includeDeletedChildren=false`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+      expect(explicitlyFiltered.body.items).toEqual([]);
+      expect(explicitlyFiltered.body.packingItems).toEqual([]);
+      await request(app.getHttpServer())
+        .get(`/api/v1/trips/${tripId}?includeDeletedChildren=invalid`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .post(`/api/v1/trip-items/${nodeId}/restore`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+      await request(app.getHttpServer())
+        .post(`/api/v1/packing-items/${packingId}/restore`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+      const afterRestore = await request(app.getHttpServer())
+        .get(`/api/v1/trips/${tripId}?includeDeletedChildren=true`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+      expect(afterRestore.body.items).toHaveLength(1);
+      expect(afterRestore.body.items[0].deletedAt).toBeNull();
+      expect(afterRestore.body.packingItems).toHaveLength(1);
+      expect(afterRestore.body.packingItems[0].deletedAt).toBeNull();
+    });
+
     it("QA-TRIP-001: trip expense summary aggregates confirmed linked transactions only", async () => {
       const token = await loginNewUser();
       const trip = await createTrip(token, {
@@ -429,6 +532,10 @@ describeWithDb(
         path: string;
       }> = [
         { method: "GET", path: `/api/v1/trips/${tripId}` },
+        {
+          method: "GET",
+          path: `/api/v1/trips/${tripId}?includeDeletedChildren=true`,
+        },
         {
           method: "PATCH",
           path: `/api/v1/trips/${tripId}`,

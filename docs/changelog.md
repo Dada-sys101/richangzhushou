@@ -1,5 +1,12 @@
 # 变更日志（Changelog）
 
+## 2026-09-24 — 行程节点与行李项跨刷新恢复（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 从实时 Integration `04b67296ef88c687879ef34b6309d39340751dcb` 建立独立分支 `codex/trip-child-restore`。为 `GET /trips/:id` 增加可选 `includeDeletedChildren`：省略或 `false` 保持既有过滤；`true` 只让当前用户所属行程的节点与行李数组包含软删除项。费用汇总、关联账单和日历事件不受影响；复用既有 `deletedAt` 与恢复接口，没有数据库迁移，写入 payload/version 未改变。
+- API DTO、OpenAPI、共享客户端类型与 Trips Store 同步；详情页显式请求包含已删除子项，离线请求仍按原本地缓存回退。重新进入后软删除行继续以原 ID 显示恢复操作，不提供编辑/删除或行李勾选，恢复后原行更新而不重复。
+- 验证：隔离 schema `daily_assistant_e2e_trip_child_restore_20260924` 上 API 集成 18 files / 162 tests 通过，覆盖默认/false/true、其他聚合不变、无权跨用户访问、两类子项恢复；Trips Store + TripDetailView 专项 2 files / 26 tests；完整 `npm run quality` 通过（Web 61 files / 489 tests，API 默认套件 34 files / 283 passed、13 files / 140 skipped；API 集成另行使用上述隔离 schema 执行）。`trips.spec.ts` 五档 375/390/430/768/1440 共 30/30 通过，包含节点离开详情后重进、行李项刷新后恢复、恢复失败重试、长内容和 200% 根字号无横向溢出。格式、上下文、OpenAPI、lint、typecheck、构建及 `git diff --check` 均通过。
+- 浏览器未见 `pageerror`；控制台仍有开发环境 Service Worker `text/html` MIME 警告，400/503 为既有故障注入用例的预期响应。恢复验收中观测到 DELETE `net::ERR_ABORTED` 事件，同时 Playwright 收到并断言成功响应 204；原因仍未确认。真实离线网络由 Store/View 测试覆盖，未单独执行断网浏览器流程。未提交、推送、创建 PR、合并或部署；共享测试库未清理，独立测试 schema 保留。
+
 ## 2026-09-24 — UIR-10C5 用户端 404 页收尾（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 从 PR #75 已合并、Integration CI `35990081872` 三项成功的 `b2c25ab80e0cfe08638d7ada76e99a68af776332` 建立独立分支 `codex/uir-10c5-not-found`。404 页移除过时的“WP1 工程空壳”文案，说明页面不存在或地址有误，并提供清晰、可聚焦的“返回首页”链接；沿用语义 Token 与现有页面宽度。通配路由、认证守卫、首页导航语义未修改。

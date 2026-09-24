@@ -649,7 +649,7 @@ async function removeItem(item: TripItemSummary) {
     const confirmed = await requestAppConfirm({
       cancelLabel: "取消",
       confirmLabel: "删除节点",
-      description: `删除“${itemTypeLabel(item.type)}${item.location ? ` · ${item.location}` : ""}”后仅能在当前页面内恢复；刷新或离开页面后，详情页将无法再显示该节点。`,
+      description: `删除“${itemTypeLabel(item.type)}${item.location ? ` · ${item.location}` : ""}”后会保留在已删除项目中，刷新或重新进入行程后仍可恢复。`,
       destructive: true,
       title: "确认删除这个行程节点？",
     });
@@ -662,8 +662,7 @@ async function removeItem(item: TripItemSummary) {
         ),
         item,
       ];
-      itemSuccessMessage.value =
-        "节点已删除；如需恢复，请在离开或刷新页面前操作。";
+      itemSuccessMessage.value = "节点已删除，可随时恢复。";
     }
   } catch (error) {
     if (isCurrentItemMutation(context)) {
@@ -947,7 +946,7 @@ async function removePacking(item: PackingItemSummary) {
     const confirmed = await requestAppConfirm({
       cancelLabel: "取消",
       confirmLabel: "删除行李项",
-      description: `删除“${item.text}”后仅能在当前页面内恢复。行程详情接口不会返回已删除行李项；刷新或离开后，无法从详情页重新找到它。`,
+      description: `删除“${item.text}”后会保留在已删除项目中，刷新或重新进入行程后仍可恢复。`,
       destructive: true,
       title: "确认删除这个行李项？",
     });
@@ -960,8 +959,7 @@ async function removePacking(item: PackingItemSummary) {
         ),
         item,
       ];
-      packingSuccessMessage.value =
-        "行李项已删除；仅当前页面可恢复，刷新或离开后无法从详情页重新找回。";
+      packingSuccessMessage.value = "行李项已删除，可随时恢复。";
     }
   } catch (error) {
     if (isCurrentPackingMutation(context)) {
@@ -1571,15 +1569,15 @@ function percent(value: string | null): string {
           <p v-if="activePackingItemCount === 0" class="empty-copy">
             {{
               packingItems.length > 0
-                ? "当前清单没有有效项目；已删除项目仅可在本页恢复。"
+                ? "当前清单没有有效项目；可以恢复已删除项目。"
                 : "清单还是空的，添加第一件需要带上的物品。"
             }}
           </p>
           <p
-            v-if="locallyDeletedPackingItems.length > 0"
+            v-if="packingItems.some(isPackingDeleted)"
             class="trip-packing-recovery-note"
           >
-            删除项仅在本次页面打开期间保留以便恢复；详情接口不会返回已删除行李项，刷新或离开后无法从行程详情重新找回。
+            已删除行李项仍保留在清单中，可在刷新或重新进入行程后继续恢复。
           </p>
         </div>
 
@@ -1673,7 +1671,7 @@ function percent(value: string | null): string {
                 >
                   {{
                     isPackingDeleted(item)
-                      ? "已删除 · 本页可恢复"
+                      ? "已删除 · 可恢复"
                       : item.checked
                         ? "已收纳"
                         : "待整理"

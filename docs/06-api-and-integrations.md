@@ -143,7 +143,9 @@ WP6 契约要点：
   结束日期不得早于开始日期；`budgetAmount` 为可选定点金额。
 - `GET /trips/:id` 返回行程详情聚合：行程、节点、行李、服务端费用汇总
   （`TripExpenseSummary`：实际支出=已确认未删除支出−退款，预算与进度）、关联账单
-  与行程日期范围内重叠的日历事件。
+  与行程日期范围内重叠的日历事件。可选 `includeDeletedChildren=true` 仅让节点与
+  行李数组包含该行程已软删除子项；省略或为 `false` 时保持原先过滤行为，不影响
+  费用汇总、关联账单或日历事件。父行程先按当前用户校验，子项按该行程 ID 查询。
 - 节点 `startsAt`/`endsAt` 为 ISO 8601；超出行程日期范围时，未传
   `confirmOutOfRange=true` 返回 `VALIDATION_ERROR`（不保存），确认后保存并返回
   `outOfRangeWarning`（`TRIP_ITEM_OUT_OF_RANGE`）；`position` 管理节点/行李顺序。

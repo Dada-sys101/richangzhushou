@@ -269,9 +269,12 @@ describe("TripDetailView", () => {
 
   it("keeps a matching locally cached detail when the store resolves offline", async () => {
     const cached = tripDetail("trip-offline", "离线缓存行程");
-    vi.spyOn(api, "getTrip").mockRejectedValue(
-      new OfflineNetworkError("GET", "/trips/trip-offline"),
-    );
+    const deletedAt = "2026-10-02T02:00:00.000Z";
+    cached.items[0]!.deletedAt = deletedAt;
+    cached.packingItems[0]!.deletedAt = deletedAt;
+    const getTrip = vi
+      .spyOn(api, "getTrip")
+      .mockRejectedValue(new OfflineNetworkError("GET", "/trips/trip-offline"));
     const { store, wrapper } = await mountTrip(
       "/trips/trip-offline",
       undefined,
@@ -285,8 +288,22 @@ describe("TripDetailView", () => {
       "user-1",
       "trip-offline",
     );
+    expect(getTrip).toHaveBeenCalledWith("trip-offline", {
+      includeDeletedChildren: true,
+    });
     expect(wrapper.get("h1").text()).toBe("离线缓存行程");
     expect(wrapper.text()).toContain("¥123456789012.30");
+    expect(wrapper.get('[data-node-id="item-trip-offline"]').text()).toContain(
+      "已删除",
+    );
+    expect(
+      wrapper.get('[data-packing-id="packing-trip-offline"]').text(),
+    ).toContain("已删除 · 可恢复");
+    expect(
+      wrapper
+        .find('[data-packing-id="packing-trip-offline"] input[type="checkbox"]')
+        .exists(),
+    ).toBe(false);
     expect(wrapper.text()).not.toContain("无法加载");
   });
 
@@ -769,7 +786,7 @@ describe("TripDetailView", () => {
     expect(confirm).toHaveBeenCalledOnce();
     expect(confirm).toHaveBeenCalledWith(
       expect.objectContaining({
-        description: expect.stringContaining("仅能在当前页面内恢复"),
+        description: expect.stringContaining("刷新或重新进入行程后仍可恢复"),
       }),
     );
     expect(card.get("button.danger").element).toHaveProperty("disabled", true);
@@ -991,7 +1008,7 @@ describe("TripDetailView", () => {
     );
   });
 
-  it("requires delete confirmation, keeps a current-page snapshot, and retries restore", async () => {
+  it("requires delete confirmation, keeps a deleted row visible, and retries restore", async () => {
     const loaded = tripDetail("trip-packing-delete");
     const packingItem = loaded.packingItems[0]!;
     vi.spyOn(api, "getTrip").mockResolvedValue(loaded);
@@ -1027,7 +1044,7 @@ describe("TripDetailView", () => {
     expect(confirm).toHaveBeenCalledWith(
       expect.objectContaining({
         confirmLabel: "删除行李项",
-        description: expect.stringContaining("详情接口不会返回已删除行李项"),
+        description: expect.stringContaining("刷新或重新进入行程后仍可恢复"),
         title: "确认删除这个行李项？",
       }),
     );
@@ -1061,11 +1078,11 @@ describe("TripDetailView", () => {
     const deletedCard = wrapper.get(
       '[data-packing-id="packing-trip-packing-delete"]',
     );
-    expect(deletedCard.text()).toContain("已删除 · 本页可恢复");
+    expect(deletedCard.text()).toContain("已删除 · 可恢复");
     expect(deletedCard.find('input[type="checkbox"]').exists()).toBe(false);
     expect(deletedCard.find("button").text()).toBe("恢复行李项");
     expect(wrapper.get(".trip-packing-recovery-note").text()).toContain(
-      "刷新或离开后无法从行程详情重新找回",
+      "刷新或重新进入行程后继续恢复",
     );
 
     await deletedCard.get("button").trigger("click");
@@ -1076,7 +1093,7 @@ describe("TripDetailView", () => {
     );
     expect(
       wrapper.get('[data-packing-id="packing-trip-packing-delete"]').text(),
-    ).toContain("已删除 · 本页可恢复");
+    ).toContain("已删除 · 可恢复");
 
     const pendingRestore = deferred<void>();
     restore.mockImplementationOnce(async () => {
@@ -1097,7 +1114,7 @@ describe("TripDetailView", () => {
     await flushPromises();
     expect(
       wrapper.get('[data-packing-id="packing-trip-packing-delete"]').text(),
-    ).not.toContain("已删除 · 本页可恢复");
+    ).not.toContain("已删除 · 可恢复");
     expect(wrapper.get(".trip-packing-section [role=status]").text()).toContain(
       "行李项已恢复",
     );

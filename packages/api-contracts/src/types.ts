@@ -563,6 +563,11 @@ export interface TripDetailResponse {
   calendarEvents: CalendarEventSummary[];
 }
 
+export interface TripDetailQuery {
+  /** Include soft-deleted itinerary and packing items in this trip detail. */
+  includeDeletedChildren?: boolean;
+}
+
 export interface TransactionDraftPayload {
   type: TransactionType;
   amount: Money;

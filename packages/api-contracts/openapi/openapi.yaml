@@ -1201,11 +1201,15 @@ paths:
       operationId: getTrip
       summary: Get a trip detail in the current user scope
       tags: [Trips]
-      parameters: [{ $ref: "#/components/parameters/ResourceId" }]
+      parameters:
+        - { $ref: "#/components/parameters/ResourceId" }
+        - { $ref: "#/components/parameters/IncludeDeletedTripChildren" }
       description: >-
         Returns the trip with its itinerary items, packing items, server-side
         expense summary, linked transactions, and calendar events that overlap
-        the trip date range.
+        the trip date range. The optional includeDeletedChildren query includes
+        soft-deleted itinerary and packing items only; it does not change the
+        expense summary, linked transactions, or calendar events.
       responses:
         "200":
           description: Trip detail
@@ -2062,6 +2066,12 @@ components:
       name: includeDeleted
       in: query
       required: false
+      schema: { type: boolean, default: false }
+    IncludeDeletedTripChildren:
+      name: includeDeletedChildren
+      in: query
+      required: false
+      description: Include soft-deleted itinerary and packing items in this trip detail only.
       schema: { type: boolean, default: false }
     IncludeArchived:
       name: includeArchived

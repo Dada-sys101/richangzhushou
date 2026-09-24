@@ -29,6 +29,7 @@ import type {
   CreateTripDto,
   CreateTripItemDto,
   ListTripsQueryDto,
+  TripDetailQueryDto,
   UpdatePackingItemDto,
   UpdateTripDto,
   UpdateTripItemDto,
@@ -87,7 +88,11 @@ export class TripsService {
     };
   }
 
-  async get(userId: string, id: string): Promise<TripDetailResponse> {
+  async get(
+    userId: string,
+    id: string,
+    query: TripDetailQueryDto = {},
+  ): Promise<TripDetailResponse> {
     const trip = await this.prisma.trip.findFirst({
       where: { id, userId },
     });
@@ -98,11 +103,17 @@ export class TripsService {
       await Promise.all([
         this.prisma.tripItem.findMany({
           orderBy: [{ position: "asc" }, { id: "asc" }],
-          where: { deletedAt: null, tripId: id },
+          where: {
+            deletedAt: query.includeDeletedChildren ? undefined : null,
+            tripId: id,
+          },
         }),
         this.prisma.packingItem.findMany({
           orderBy: [{ position: "asc" }, { id: "asc" }],
-          where: { deletedAt: null, tripId: id },
+          where: {
+            deletedAt: query.includeDeletedChildren ? undefined : null,
+            tripId: id,
+          },
         }),
         this.prisma.transaction.findMany({
           orderBy: [{ occurredAt: "desc" }, { id: "desc" }],
