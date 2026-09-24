@@ -1,5 +1,11 @@
 # 变更日志（Changelog）
 
+## 2026-09-24 — UIR-10C5 用户端 404 页收尾（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 从 PR #75 已合并、Integration CI `35990081872` 三项成功的 `b2c25ab80e0cfe08638d7ada76e99a68af776332` 建立独立分支 `codex/uir-10c5-not-found`。404 页移除过时的“WP1 工程空壳”文案，说明页面不存在或地址有误，并提供清晰、可聚焦的“返回首页”链接；沿用语义 Token 与现有页面宽度。通配路由、认证守卫、首页导航语义未修改。
+- `NotFoundView` 专项 2/2；Web 全量 61 files / 487 tests。使用本地真实 API 与独立 schema `daily_assistant_e2e_uir10c5_20260924`，五档 375/390/430/768/1440 浏览器定向流程 5/5 通过：未登录直达未知地址先进入登录页，登录后显示 404，键盘焦点与 Enter 返回首页，Browser Back 返回 404；五档 200% 根字号无横向溢出，未捕获页面脚本错误。站内 RouterLink 导航另由页面测试覆盖。交付前 390/1440 专项日志检查：未登录认证刷新返回预期 401，控制台对应认证提示及开发环境 Service Worker MIME 噪声；无其他 console error、pageerror 或失败请求，未见本页新增错误。未做实体设备、读屏器或人工截图逐项验收。
+- `npm run quality`（含格式、上下文、lint、typecheck、测试、构建及契约检查）通过；本地阶段未提交、推送、创建 PR、合并或部署。原 stash、旧分支及既有 UIR-10C3 隔离 schema 保留；本轮另建的独立测试 schema 与共享测试库分离。
+
 ## 2026-09-24 — UIR-10C4 用户端登录页 UI 与交互收尾（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 从 PR #74 已合并且 Integration CI 三项成功的 `740c3fdf0171307eb3d288995fe87edcc64ab322` 建立独立分支 `codex/uir-10c4-login-ui`。登录页明确账号、密码、管理员创建账号说明、提交进度和安全错误反馈；继续使用原生账号/密码约束及 Auth Store，保留强制改密优先、redirect 与默认 `/account` 跳转。提交入口同步防重复；失败保留输入可修改重试，未新增注册、找回密码或认证接口。

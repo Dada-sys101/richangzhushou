@@ -271,6 +271,30 @@ h1 {
   font-weight: 700;
 }
 
+.not-found-page {
+  width: min(100%, var(--secondary-content-max));
+  margin-inline: auto;
+  padding-block: clamp(40px, 10vh, 120px);
+}
+
+.not-found-page h1 {
+  font-size: clamp(2rem, 6vw, 3rem);
+  overflow-wrap: anywhere;
+}
+
+.not-found-page .lede {
+  color: var(--color-text-secondary);
+}
+
+.not-found-home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 12px;
+  text-decoration: none;
+}
+
 .site-nav {
   display: flex;
   gap: 6px;

@@ -9,6 +9,95 @@ import {
   uniqueName,
 } from "./helpers/e2e";
 
+test("UIR-10C5 unknown route preserves auth guard, home link and browser back", async ({
+  page,
+  request,
+}) => {
+  const username = uniqueName("qa_not_found");
+  await createActiveUserViaApi(request, username);
+  const pageErrors: string[] = [];
+  const consoleErrors: string[] = [];
+  const failedRequests: string[] = [];
+  const errorResponses: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  page.on("requestfailed", (request) => {
+    failedRequests.push(
+      `${new URL(request.url()).pathname}: ${request.failure()?.errorText}`,
+    );
+  });
+  page.on("response", (response) => {
+    if (response.status() >= 400) {
+      errorResponses.push(
+        `${response.status()} ${new URL(response.url()).pathname}`,
+      );
+    }
+  });
+
+  await page.goto("/a-page-that-does-not-exist");
+  await expect(page).toHaveURL(/\/login\?redirect=/);
+  await expect(
+    page.getByRole("heading", { name: "登录日常助手" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "找不到这个页面" }),
+  ).toHaveCount(0);
+
+  await page.getByLabel("账号").fill(username);
+  await page.getByLabel("密码").fill(E2E_ACTIVE_PASSWORD);
+  await page.getByRole("button", { name: "登录", exact: true }).click();
+  await expect(page).toHaveURL(/\/a-page-that-does-not-exist$/);
+  await expect(
+    page.getByRole("heading", { name: "找不到这个页面" }),
+  ).toBeVisible();
+  await expect(page.getByText("地址输入有误")).toBeVisible();
+  const home = page.getByRole("link", { name: "返回首页" });
+  await expect(home).toHaveAttribute("href", "/");
+  await home.focus();
+  await expect(home).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator("#home-title")).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/a-page-that-does-not-exist$/);
+  await expect(
+    page.getByRole("heading", { name: "找不到这个页面" }),
+  ).toBeVisible();
+  for (const size of [16, 32]) {
+    await page.evaluate((fontSize) => {
+      document.documentElement.style.fontSize = `${fontSize}px`;
+    }, size);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth,
+    );
+    expect(overflow).toBe(false);
+  }
+  expect(pageErrors).toEqual([]);
+  const consoleCategories = consoleErrors.map((message) =>
+    /ServiceWorker|service worker|MIME/i.test(message)
+      ? "dev-service-worker"
+      : /401|Unauthorized/i.test(message)
+        ? "auth-response"
+        : "other-error",
+  );
+  expect(consoleCategories).not.toContain("other-error");
+  expect(errorResponses).toEqual(["401 /api/v1/auth/refresh"]);
+  expect(failedRequests).toEqual([]);
+  if (process.env.E2E_NOT_FOUND_AUDIT === "1") {
+    console.log(
+      "UIR-10C5 diagnostics",
+      JSON.stringify({
+        consoleErrors: consoleCategories,
+        errorResponses,
+        failedRequests,
+        pageErrors: pageErrors.length,
+      }),
+    );
+  }
+});
+
 test("MOBILE-A root tabs do not accumulate history before list and detail navigation", async ({
   page,
   request,
