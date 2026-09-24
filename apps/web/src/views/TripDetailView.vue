@@ -14,7 +14,10 @@ import DateTimeField from "../components/DateTimeField.vue";
 import ErrorState from "../components/ErrorState.vue";
 import LoadingState from "../components/LoadingState.vue";
 import SecondaryPageShell from "../components/SecondaryPageShell.vue";
-import { requestAppConfirm } from "../composables/useAppConfirm";
+import {
+  requestAppConfirm,
+  resolveAppConfirm,
+} from "../composables/useAppConfirm";
 import { useUnsavedChanges } from "../composables/useUnsavedChanges";
 import { useAuthStore } from "../stores/auth";
 import { useTripsStore } from "../stores/trips";
@@ -149,6 +152,46 @@ const packingText = ref("");
 const editingPackingId = ref("");
 const packingEditText = ref("");
 const packingEditSnapshot = ref("");
+const packingErrorMessage = ref("");
+const packingSuccessMessage = ref("");
+const locallyDeletedPackingItems = ref<PackingItemSummary[]>([]);
+
+type PackingMutationKind = "create" | "update" | "check" | "delete" | "restore";
+interface PackingMutationContext {
+  generation: number;
+  itemId?: string;
+  kind: PackingMutationKind;
+  sequence: number;
+  tripId: string;
+}
+const packingMutation = ref<PackingMutationContext | null>(null);
+let packingMutationGeneration = 0;
+let packingMutationSequence = 0;
+const packingControlsDisabled = computed(
+  () =>
+    packingMutation.value !== null ||
+    itemMutation.value !== null ||
+    tripMutation.value !== null ||
+    saving.value,
+);
+const packingItems = computed(() => {
+  const snapshots = locallyDeletedPackingItems.value.filter(
+    (item) => item.tripId === tripId.value,
+  );
+  const snapshotIds = new Set(snapshots.map((item) => item.id));
+  return [
+    ...(detail.value?.packingItems ?? []).filter(
+      (item) => !snapshotIds.has(item.id),
+    ),
+    ...snapshots,
+  ].sort(
+    (left, right) =>
+      left.position - right.position || left.id.localeCompare(right.id),
+  );
+});
+const activePackingItemCount = computed(
+  () => packingItems.value.filter((item) => !isPackingDeleted(item)).length,
+);
 useUnsavedChanges(
   computed(
     () =>
@@ -168,6 +211,9 @@ useUnsavedChanges(
 watch(
   tripId,
   () => {
+    if (packingMutation.value?.kind === "delete") {
+      resolveAppConfirm(false);
+    }
     tripMutationGeneration += 1;
     tripMutation.value = null;
     editingTrip.value = false;
@@ -185,6 +231,15 @@ watch(
     itemEditSnapshot.value = "";
     itemForm.value = emptyItemForm();
     itemEditForm.value = emptyItemEditForm();
+    packingMutationGeneration += 1;
+    packingMutation.value = null;
+    locallyDeletedPackingItems.value = [];
+    packingText.value = "";
+    editingPackingId.value = "";
+    packingEditText.value = "";
+    packingEditSnapshot.value = "";
+    packingErrorMessage.value = "";
+    packingSuccessMessage.value = "";
     void load();
   },
   { immediate: true },
@@ -658,6 +713,7 @@ function beginItemMutation(
     !requestedId ||
     detail.value?.trip.id !== requestedId ||
     itemMutation.value ||
+    packingMutation.value ||
     tripMutation.value ||
     saving.value
   ) {
@@ -749,39 +805,75 @@ function cancelPendingOutOfRange() {
 }
 
 async function submitPacking() {
-  errorMessage.value = "";
+  const context = beginPackingMutation("create");
+  if (!context) return;
   try {
-    await tripsStore.createPackingItem(tripId.value, {
+    await tripsStore.createPackingItem(context.tripId, {
       text: packingText.value.trim(),
     });
+    if (!isCurrentPackingMutation(context)) return;
     packingText.value = "";
-    successMessage.value = "行李项已添加";
+    packingSuccessMessage.value = "行李项已添加";
   } catch (error) {
-    errorMessage.value = messageOf(error);
+    if (isCurrentPackingMutation(context)) {
+      packingErrorMessage.value = messageOf(error);
+    }
+  } finally {
+    finishPackingMutation(context);
   }
 }
 
 function startEditPacking(item: PackingItemSummary) {
+  if (
+    packingControlsDisabled.value ||
+    item.tripId !== tripId.value ||
+    isPackingDeleted(item) ||
+    !detail.value?.packingItems.some((current) => current.id === item.id)
+  ) {
+    return;
+  }
+  packingErrorMessage.value = "";
+  packingSuccessMessage.value = "";
   editingPackingId.value = item.id;
   packingEditText.value = item.text;
   packingEditSnapshot.value = item.text;
 }
 
 async function saveEditPacking(item: PackingItemSummary) {
-  errorMessage.value = "";
+  const context = beginPackingMutation("update", item.id);
+  if (
+    !context ||
+    editingPackingId.value !== item.id ||
+    item.tripId !== context.tripId ||
+    isPackingDeleted(item) ||
+    !detail.value?.packingItems.some((current) => current.id === item.id)
+  ) {
+    if (context) finishPackingMutation(context);
+    return;
+  }
   try {
-    await tripsStore.updatePackingItem(item.id, tripId.value, {
+    await tripsStore.updatePackingItem(item.id, context.tripId, {
       text: packingEditText.value.trim(),
       version: item.version,
     });
-    cancelPackingEdit();
-    successMessage.value = "行李项已更新";
+    if (!isCurrentPackingMutation(context)) return;
+    clearPackingEdit();
+    packingSuccessMessage.value = "行李项已更新";
   } catch (error) {
-    errorMessage.value = messageOf(error);
+    if (isCurrentPackingMutation(context)) {
+      packingErrorMessage.value = messageOf(error);
+    }
+  } finally {
+    finishPackingMutation(context);
   }
 }
 
 function cancelPackingEdit() {
+  if (packingMutation.value) return;
+  clearPackingEdit();
+}
+
+function clearPackingEdit() {
   editingPackingId.value = "";
   packingEditText.value = "";
   packingEditSnapshot.value = "";
@@ -806,36 +898,164 @@ function itemEditFormSnapshot(): string {
   });
 }
 
-async function togglePacking(item: PackingItemSummary) {
-  errorMessage.value = "";
+async function togglePacking(item: PackingItemSummary, event: Event) {
+  const checkbox = event.currentTarget;
+  if (checkbox instanceof HTMLInputElement) {
+    checkbox.checked = item.checked;
+  }
+  const context = beginPackingMutation("check", item.id);
+  if (
+    !context ||
+    item.tripId !== context.tripId ||
+    isPackingDeleted(item) ||
+    !detail.value?.packingItems.some((current) => current.id === item.id)
+  ) {
+    if (context) finishPackingMutation(context);
+    return;
+  }
   try {
-    await tripsStore.updatePackingItem(item.id, tripId.value, {
+    await tripsStore.updatePackingItem(item.id, context.tripId, {
       checked: !item.checked,
       version: item.version,
     });
+    if (isCurrentPackingMutation(context)) {
+      packingSuccessMessage.value = !item.checked
+        ? "已标记为已收纳"
+        : "已取消收纳标记";
+    }
   } catch (error) {
-    errorMessage.value = messageOf(error);
+    if (isCurrentPackingMutation(context)) {
+      packingErrorMessage.value = messageOf(error);
+    }
+  } finally {
+    finishPackingMutation(context);
   }
 }
 
 async function removePacking(item: PackingItemSummary) {
-  errorMessage.value = "";
+  const context = beginPackingMutation("delete", item.id);
+  if (
+    !context ||
+    item.tripId !== context.tripId ||
+    isPackingDeleted(item) ||
+    !detail.value?.packingItems.some((current) => current.id === item.id)
+  ) {
+    if (context) finishPackingMutation(context);
+    return;
+  }
   try {
-    await tripsStore.deletePackingItem(item.id, tripId.value);
-    successMessage.value = "行李项已删除";
+    const confirmed = await requestAppConfirm({
+      cancelLabel: "取消",
+      confirmLabel: "删除行李项",
+      description: `删除“${item.text}”后仅能在当前页面内恢复。行程详情接口不会返回已删除行李项；刷新或离开后，无法从详情页重新找到它。`,
+      destructive: true,
+      title: "确认删除这个行李项？",
+    });
+    if (!confirmed || !isCurrentPackingMutation(context)) return;
+    await tripsStore.deletePackingItem(item.id, context.tripId);
+    if (isCurrentPackingMutation(context)) {
+      locallyDeletedPackingItems.value = [
+        ...locallyDeletedPackingItems.value.filter(
+          (snapshot) => snapshot.id !== item.id,
+        ),
+        item,
+      ];
+      packingSuccessMessage.value =
+        "行李项已删除；仅当前页面可恢复，刷新或离开后无法从详情页重新找回。";
+    }
   } catch (error) {
-    errorMessage.value = messageOf(error);
+    if (isCurrentPackingMutation(context)) {
+      packingErrorMessage.value = messageOf(error);
+    }
+  } finally {
+    finishPackingMutation(context);
   }
 }
 
 async function restorePacking(item: PackingItemSummary) {
-  errorMessage.value = "";
-  try {
-    await tripsStore.restorePackingItem(item.id, tripId.value);
-    successMessage.value = "行李项已恢复";
-  } catch (error) {
-    errorMessage.value = messageOf(error);
+  const context = beginPackingMutation("restore", item.id);
+  if (
+    !context ||
+    item.tripId !== context.tripId ||
+    !isPackingDeleted(item) ||
+    !packingItems.value.some(
+      (current) => current.id === item.id && isPackingDeleted(current),
+    )
+  ) {
+    if (context) finishPackingMutation(context);
+    return;
   }
+  try {
+    await tripsStore.restorePackingItem(item.id, context.tripId);
+    if (isCurrentPackingMutation(context)) {
+      locallyDeletedPackingItems.value =
+        locallyDeletedPackingItems.value.filter(
+          (snapshot) => snapshot.id !== item.id,
+        );
+      packingSuccessMessage.value = "行李项已恢复";
+    }
+  } catch (error) {
+    if (isCurrentPackingMutation(context)) {
+      packingErrorMessage.value = messageOf(error);
+    }
+  } finally {
+    finishPackingMutation(context);
+  }
+}
+
+function beginPackingMutation(
+  kind: PackingMutationKind,
+  itemId?: string,
+): PackingMutationContext | null {
+  const requestedId = tripId.value;
+  if (
+    !requestedId ||
+    detail.value?.trip.id !== requestedId ||
+    packingMutation.value ||
+    itemMutation.value ||
+    tripMutation.value ||
+    saving.value
+  ) {
+    return null;
+  }
+  const context = {
+    generation: packingMutationGeneration,
+    itemId,
+    kind,
+    sequence: ++packingMutationSequence,
+    tripId: requestedId,
+  };
+  packingMutation.value = context;
+  packingErrorMessage.value = "";
+  packingSuccessMessage.value = "";
+  return context;
+}
+
+function isCurrentPackingMutation(context: PackingMutationContext): boolean {
+  return (
+    context.generation === packingMutationGeneration &&
+    context.tripId === tripId.value &&
+    detail.value?.trip.id === context.tripId &&
+    packingMutation.value?.sequence === context.sequence
+  );
+}
+
+function finishPackingMutation(context: PackingMutationContext) {
+  if (
+    context.generation === packingMutationGeneration &&
+    packingMutation.value?.sequence === context.sequence
+  ) {
+    packingMutation.value = null;
+  }
+}
+
+function isPackingDeleted(item: PackingItemSummary): boolean {
+  return (
+    item.deletedAt !== null ||
+    locallyDeletedPackingItems.value.some(
+      (snapshot) => snapshot.id === item.id && snapshot.tripId === tripId.value,
+    )
+  );
 }
 
 function messageOf(error: unknown): string {
@@ -1290,39 +1510,122 @@ function percent(value: string | null): string {
         </ul>
       </section>
 
-      <section class="trip-section" aria-labelledby="packing-title">
+      <section
+        class="trip-section trip-packing-section"
+        aria-labelledby="packing-title"
+        :aria-busy="packingMutation !== null"
+      >
         <h2 id="packing-title">行李清单</h2>
-        <form class="trip-create" @submit.prevent="submitPacking">
-          <label class="trip-field">
-            行李项
-            <input v-model="packingText" maxlength="200" required type="text" />
-          </label>
-          <button class="primary-button" type="submit">添加</button>
-        </form>
-        <p v-if="detail.packingItems.length === 0" class="empty-copy">
-          还没有行李项。
+        <p
+          v-if="packingErrorMessage"
+          class="planner-feedback planner-feedback-error trip-packing-feedback"
+          role="alert"
+        >
+          {{ packingErrorMessage }}
         </p>
-        <ul v-else class="resource-list">
+        <p
+          v-if="packingSuccessMessage"
+          class="planner-feedback planner-feedback-success trip-packing-feedback"
+          role="status"
+        >
+          {{ packingSuccessMessage }}
+        </p>
+
+        <div class="trip-packing-subsection">
+          <div class="trip-packing-subsection-heading">
+            <h3 id="trip-packing-create-title">新增行李项</h3>
+            <p>勾选后会明确标记为已收纳。</p>
+          </div>
+          <form
+            class="trip-create trip-packing-form"
+            aria-labelledby="trip-packing-create-title"
+            @submit.prevent="submitPacking"
+          >
+            <label class="trip-field">
+              物品名称或备注
+              <input
+                v-model="packingText"
+                :disabled="packingControlsDisabled"
+                maxlength="200"
+                required
+                type="text"
+              />
+            </label>
+            <button
+              class="primary-button"
+              :disabled="packingControlsDisabled"
+              type="submit"
+            >
+              {{
+                packingMutation?.kind === "create" ? "添加中…" : "添加行李项"
+              }}
+            </button>
+          </form>
+        </div>
+
+        <div class="trip-packing-subsection">
+          <div class="trip-packing-subsection-heading">
+            <h3 id="trip-packing-list-title">清单项目</h3>
+            <p>{{ activePackingItemCount }} 件有效行李项</p>
+          </div>
+          <p v-if="activePackingItemCount === 0" class="empty-copy">
+            {{
+              packingItems.length > 0
+                ? "当前清单没有有效项目；已删除项目仅可在本页恢复。"
+                : "清单还是空的，添加第一件需要带上的物品。"
+            }}
+          </p>
+          <p
+            v-if="locallyDeletedPackingItems.length > 0"
+            class="trip-packing-recovery-note"
+          >
+            删除项仅在本次页面打开期间保留以便恢复；详情接口不会返回已删除行李项，刷新或离开后无法从行程详情重新找回。
+          </p>
+        </div>
+
+        <ul v-if="packingItems.length > 0" class="trip-packing-list">
           <li
-            v-for="item in detail.packingItems"
+            v-for="item in packingItems"
             :key="item.id"
-            :class="{ 'is-deleted': item.deletedAt !== null }"
+            class="trip-packing-card"
+            :data-packing-id="item.id"
+            :class="{
+              'is-checked': item.checked && !isPackingDeleted(item),
+              'is-deleted': isPackingDeleted(item),
+            }"
           >
             <template v-if="editingPackingId === item.id">
-              <form class="trip-create" @submit.prevent="saveEditPacking(item)">
+              <form
+                class="trip-create trip-packing-form trip-packing-edit-form"
+                :aria-label="`编辑行李项：${item.text}`"
+                @submit.prevent="saveEditPacking(item)"
+              >
                 <label class="trip-field">
-                  行李项
+                  物品名称或备注
                   <input
                     v-model="packingEditText"
+                    :disabled="packingControlsDisabled"
                     maxlength="200"
                     required
                     type="text"
                   />
                 </label>
                 <div class="trip-actions">
-                  <button class="primary-button" type="submit">保存</button>
+                  <button
+                    class="primary-button"
+                    :disabled="packingControlsDisabled"
+                    type="submit"
+                  >
+                    {{
+                      packingMutation?.kind === "update" &&
+                      packingMutation.itemId === item.id
+                        ? "保存中…"
+                        : "保存"
+                    }}
+                  </button>
                   <button
                     class="secondary-button"
+                    :disabled="packingControlsDisabled"
                     type="button"
                     @click="cancelPackingEdit"
                   >
@@ -1332,41 +1635,88 @@ function percent(value: string | null): string {
               </form>
             </template>
             <template v-else>
-              <label class="check-label">
-                <input
-                  :checked="item.checked"
-                  :disabled="item.deletedAt !== null"
-                  type="checkbox"
-                  @change="togglePacking(item)"
-                />
-                <span :class="{ 'packing-done': item.checked }">{{
-                  item.text
-                }}</span>
-              </label>
-              <div class="row-actions">
+              <div class="trip-packing-item-main">
+                <label
+                  v-if="!isPackingDeleted(item)"
+                  class="trip-packing-toggle"
+                >
+                  <input
+                    :aria-label="`${item.checked ? '取消已收纳标记' : '标记为已收纳'}：${item.text}`"
+                    :checked="item.checked"
+                    :disabled="
+                      packingControlsDisabled || isPackingDeleted(item)
+                    "
+                    type="checkbox"
+                    @change="togglePacking(item, $event)"
+                  />
+                  <span aria-hidden="true"></span>
+                </label>
+                <span
+                  v-else
+                  class="trip-packing-toggle-placeholder"
+                  aria-hidden="true"
+                ></span>
+                <p
+                  class="trip-packing-text"
+                  :class="{
+                    'packing-done': item.checked && !isPackingDeleted(item),
+                  }"
+                >
+                  {{ item.text }}
+                </p>
+                <span
+                  class="trip-packing-state"
+                  :class="{
+                    'is-checked': item.checked && !isPackingDeleted(item),
+                    'is-deleted': isPackingDeleted(item),
+                  }"
+                >
+                  {{
+                    isPackingDeleted(item)
+                      ? "已删除 · 本页可恢复"
+                      : item.checked
+                        ? "已收纳"
+                        : "待整理"
+                  }}
+                </span>
+              </div>
+              <div class="row-actions trip-packing-actions">
                 <button
-                  v-if="!item.deletedAt"
+                  v-if="!isPackingDeleted(item)"
                   class="text-button"
+                  :disabled="packingControlsDisabled"
                   type="button"
                   @click="startEditPacking(item)"
                 >
-                  编辑
+                  编辑行李项
                 </button>
                 <button
-                  v-if="!item.deletedAt"
+                  v-if="!isPackingDeleted(item)"
                   class="text-button danger"
+                  :disabled="packingControlsDisabled"
                   type="button"
                   @click="removePacking(item)"
                 >
-                  删除
+                  {{
+                    packingMutation?.kind === "delete" &&
+                    packingMutation.itemId === item.id
+                      ? "删除中…"
+                      : "删除行李项"
+                  }}
                 </button>
                 <button
-                  v-if="item.deletedAt"
+                  v-if="isPackingDeleted(item)"
                   class="text-button"
+                  :disabled="packingControlsDisabled"
                   type="button"
                   @click="restorePacking(item)"
                 >
-                  恢复
+                  {{
+                    packingMutation?.kind === "restore" &&
+                    packingMutation.itemId === item.id
+                      ? "恢复中…"
+                      : "恢复行李项"
+                  }}
                 </button>
               </div>
             </template>
