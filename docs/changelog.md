@@ -1,5 +1,12 @@
 # 变更日志（Changelog）
 
+## 2026-09-24 — UIR-10C3 快速记录页 UI 与交互收尾（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 从已合并 PR #73 的 Integration `c2de666bbdb96e9623cf7905944da9b7fab57cc9` 建立 `codex/uir-10c3-quick-capture`。页面按一句话输入、生成待确认财务草稿、前往草稿中心核对组织；初始与失败状态不出现成功勾选或正式入账暗示。日程、待办、提醒仍只链接到既有页面。
+- 保留 `createTextDraft`、原文本 payload、2000 字限制及 query 预填、`returnTo`、未保存离开保护。提交函数入口同步防重复；失败时保留原文并允许重试，成功后才清空输入并显示草稿中心入口。未修改 Store、API、Router、DraftsView、解析服务或数据库，未增加 AI/跨实体解析或自动写入账单。
+- `QuickCaptureView` 专项 5/5、Web 全量 60 files / 479 tests，`npm run quality`（包括 lint、typecheck、构建）、`format:check`、`check:context` 和 `git diff --check` 通过。Chromium mock API 五档 375/390/430/768/1440 流程 5/5，通过失败重试、提交锁、成功入口、来源返回和未保存取消/离开；五档 200% 根字号无横向溢出。/capture 主流程无未预期 page error 或 request failure；预期注入的 503 会生成控制台错误。来源 `/records` 的通用数据接口未在该 mock 用例完整模拟，不能把该页的错误视为 /capture 结果。
+- 交付前使用便携 MySQL 的本轮隔离 schema `daily_assistant_e2e_uir10c3_20260924` 和真实本地 API 复跑既有草稿解析→草稿中心修改/确认→正式账单流程；390 与 1440 两档 2/2 通过，确认前正式账单为零、确认后仅一条。另在两档以真实浏览器原生 Back 验证未保存内容的拒绝/接受离开 2/2，通过 URL、页面和输入一致性断言。首次真实 E2E 因新 mock 用例在 describe 内设置不被 Playwright 支持的 `test.use` 而在加载阶段失败，移除该配置后真实流程和 Back 定向复跑通过；未以该配置错误掩盖业务失败。隔离 schema 不属于共享测试库，未清理或重置 `daily_assistant_e2e` 的数据。实体设备与系统级文字缩放仍未验证。交付前本地阶段未提交、推送、创建 PR、合并或部署，stash 与旧分支未动；后续交付状态以实际 GitHub/CI 为准。
+
 ## 2026-09-24 — UIR-10C2 同步冲突页 UI 与交互收尾（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 从 Integration `6c0a0ec2fb621fb8118718bc1f614ba6d9989806` 建立 `codex/uir-10c2-sync-conflicts-ui`。冲突页按概览、本地/服务端内容对照、明确选择整理；长合成正文可换行，沿用页面壳、语义 Token 与应用确认弹窗。初始化未完成、空列表、离线、同步失败/重试、处理中、成功和操作失败分开反馈；仅显示当前 userId 的冲突，切换账户后不显示旧反馈。
