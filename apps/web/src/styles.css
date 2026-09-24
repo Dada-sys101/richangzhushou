@@ -6609,6 +6609,101 @@ html.app-dialog-open body {
   line-height: 1.45;
 }
 
+.capture-workspace {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 760px);
+  margin-inline: auto;
+}
+
+.capture-workspace > * {
+  min-width: 0;
+}
+
+.capture-workspace .capture-panel {
+  margin: 0;
+  border-color: var(--v2-border);
+  border-radius: var(--v2-radius);
+  box-shadow: none;
+}
+
+.capture-step-heading {
+  display: flex;
+  gap: 14px;
+  min-width: 0;
+}
+
+.capture-step-heading > span {
+  flex: none;
+  color: var(--v2-purple);
+  font-weight: 800;
+}
+
+.capture-step-heading > div {
+  min-width: 0;
+}
+
+.capture-step-heading h2,
+.capture-other h2 {
+  margin: 0 0 5px;
+  font-size: 1.1rem;
+}
+
+.capture-entry textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  overflow-wrap: anywhere;
+}
+
+.capture-entry-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.capture-entry-footer small {
+  color: var(--v2-secondary);
+}
+
+.capture-progress {
+  margin: 0;
+  color: var(--v2-secondary);
+}
+
+.capture-result {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--v2-border);
+  border-radius: var(--v2-radius);
+  background: var(--v2-lavender);
+}
+
+.capture-result .secondary-button {
+  justify-self: start;
+}
+
+.capture-other .capture-type-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 430px) {
+  .capture-entry-footer .primary-button,
+  .capture-result .secondary-button {
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+  }
+}
+
 .account-page {
   max-width: 420px;
   padding-top: 20px;
