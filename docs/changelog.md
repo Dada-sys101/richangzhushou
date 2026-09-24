@@ -1,5 +1,13 @@
 # 变更日志（Changelog）
 
+## 2026-09-24 — UIR-10C1 快捷指令页面 UI 与交互收尾（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 基于 Integration `e9dbc9cb2bc479cb79f59354aedbe06a45506271` 建立独立分支 `codex/uir-10c1-shortcuts-ui`。快捷指令页按用途与安全提示、创建设备凭证、一次性令牌、已创建凭证组织；权限展示用户易懂名称及原技术 scope，凭证列表明确有效/已撤销、权限和最近使用时间。
+- 保留原创建 payload、权限枚举、令牌 API 响应、撤销即时失效和写入幂等要求。创建与撤销互斥并防重复；撤销复用应用确认弹窗，取消不请求 API；加载、空列表、首次失败/重试、列表刷新失败、创建/撤销失败和操作成功均有反馈。令牌仅存在页面组件内存并在离页时清除，复制结果明确反馈；本轮未改 API、Store、Router、数据库或其他页面，也未增加快捷指令模板、权限或后端能力。
+- `ShortcutsView` 专项测试 10/10；Web 全量 58 files / 464 tests。完整 `npm run quality`（含 workspace lint/typecheck、测试、构建、Prisma、OpenAPI、migration 和依赖审计）、`npm run format:check`、`npm run check:context` 与 `git diff --check` 通过；首轮依赖审计曾超时，单项审计和完整 quality 重跑均通过。Chromium 五档真实浏览器流程 5/5（375、390、430、768、1440），覆盖校验、键盘焦点、失败保留输入/重试、重复提交锁、一次性令牌与复制成功/失败、撤销确认/取消/失败重试、返回和撤销后刷新状态。五档 200% 根字号均无横向溢出。浏览器端 API 全部由 Playwright route mock 提供，没有连接 API 服务、MySQL 或真实账号；截图、视频和 trace 产物已对该用例关闭，以免保留一次性令牌内容。
+- 控制台观测到开发 Vite 环境的 2 条 Service Worker `text/html` MIME 提示和 3 条本用例故意注入 503 产生的错误日志；未发现其他 console/page error。mock DELETE 返回 204 且页面刷新为已撤销、没有用户可见失败；浏览器随后记录到一次该 DELETE 的 `net::ERR_ABORTED`，发生在已观察到 204 响应之后，来源尚未确认，不能据此证明真实服务网络行为。真实 API、设备剪贴板权限/系统交互及真实设备布局未验证。
+- 本轮未提交、推送、创建 PR、合并或部署；stash 与旧分支保持原样，未开始下一任务。
+
 ## 2026-09-23 — UIR-10B2A 行程详情展示与加载状态（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 基于 Integration `fcd578bf0895f26388f3c99937d6a097adb7a90b` 新建分支 `codex/uir-10b2a-trip-detail-shell`。详情页保留 `SecondaryPageShell`，按标题/日期、费用汇总、行程节点、行李清单、行程内日历、关联账单整理只读信息；金额继续原样显示，日期仍使用现有 Asia/Shanghai 语义。

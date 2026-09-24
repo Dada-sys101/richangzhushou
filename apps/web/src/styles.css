@@ -1742,6 +1742,15 @@ html.app-dialog-open body {
   padding: clamp(24px, 4vw, 48px) 0 72px;
 }
 
+.shortcuts-page {
+  display: grid;
+  gap: var(--ui-space-4, 16px);
+  width: min(100%, 920px);
+  min-width: 0;
+  margin-inline: auto;
+  padding: 0 0 calc(var(--ui-space-7, 32px) + var(--ui-safe-area-bottom, 0px));
+}
+
 .planner-detail-page {
   max-width: 780px;
 }
@@ -3326,93 +3335,459 @@ html.app-dialog-open body {
   font-weight: 650;
 }
 
-.guide-section {
-  margin-top: 28px;
-  padding: 18px;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  background: #ffffff;
+.shortcuts-intro,
+.shortcuts-panel {
+  display: grid;
+  gap: var(--ui-space-4, 16px);
+  min-width: 0;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid var(--ui-color-border, #e7e1f3);
+  border-radius: var(--ui-radius-lg, 16px);
+  color: var(--ui-color-text, #2b243d);
+  background: var(--ui-color-surface, #ffffff);
+  box-shadow: var(--ui-shadow-low, 0 1px 2px rgb(64 45 31 / 4%));
 }
 
-.guide-steps {
-  margin: 12px 0 0;
-  padding-left: 22px;
-  color: #334155;
-  line-height: 1.9;
+.shortcuts-intro {
+  border-color: var(--ui-color-primary-soft, #eee9ff);
+  background: var(--ui-color-primary-subtle, #f7f4ff);
 }
 
-.guide-steps code,
-.token-code {
-  padding: 2px 6px;
-  border-radius: 6px;
-  color: #1e40af;
-  background: #eff6ff;
-  font-size: 0.9em;
-  word-break: break-all;
+.shortcuts-eyebrow {
+  margin: 0 0 var(--ui-space-2, 8px);
+  color: var(--ui-color-primary-strong, #6244d8);
+  font-size: var(--ui-font-size-12, 12px);
+  font-weight: var(--ui-font-weight-semibold, 600);
+  letter-spacing: 0.04em;
+}
+
+.shortcuts-intro h2,
+.shortcuts-panel-heading h2,
+.token-once h2 {
+  margin: 0;
+  color: var(--ui-color-text, #2b243d);
+  font-size: var(--ui-font-size-20, 20px);
+  line-height: var(--ui-line-height-heading, 1.3);
+  overflow-wrap: anywhere;
+}
+
+.shortcuts-intro-copy,
+.shortcuts-panel-heading p,
+.token-once-heading p {
+  margin: var(--ui-space-2, 8px) 0 0;
+  color: var(--ui-color-text-muted, #625b7c);
+  line-height: var(--ui-line-height-body, 1.55);
+  overflow-wrap: anywhere;
+}
+
+.shortcuts-safety-list {
+  display: grid;
+  gap: var(--ui-space-2, 8px);
+  margin: 0;
+  padding: var(--ui-space-4, 16px);
+  border: 1px solid var(--ui-color-warning, #a16207);
+  border-radius: var(--ui-radius-md, 12px);
+  color: var(--ui-color-warning-strong, #7a4b00);
+  background: var(--ui-color-warning-soft, #fff7df);
+  line-height: var(--ui-line-height-body, 1.55);
+  list-style-position: inside;
+}
+
+.shortcuts-use-cases {
+  display: grid;
+  gap: var(--ui-space-2, 8px);
+  min-width: 0;
+}
+
+.shortcuts-use-cases p {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  line-height: var(--ui-line-height-body, 1.55);
+}
+
+.shortcuts-use-cases p > span {
+  color: var(--ui-color-text-muted, #625b7c);
+  overflow-wrap: anywhere;
+}
+
+.shortcuts-use-cases code,
+.scope-option code,
+.credential-scope {
+  max-width: 100%;
+  color: var(--ui-color-primary-strong, #6244d8);
+  font-family: var(--ui-font-family-mono, ui-monospace, monospace);
+  font-size: var(--ui-font-size-12, 12px);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.shortcuts-idempotency-note {
+  padding-top: var(--ui-space-2, 8px);
+  border-top: 1px solid var(--ui-color-border, #e7e1f3);
+}
+
+.shortcuts-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ui-space-4, 16px);
+  min-width: 0;
+}
+
+.shortcuts-create-form,
+.shortcuts-field {
+  display: grid;
+  gap: var(--ui-space-3, 12px);
+  min-width: 0;
+}
+
+.shortcuts-field > label,
+.scope-fieldset legend {
+  color: var(--ui-color-text, #2b243d);
+  font-size: var(--ui-font-size-14, 14px);
+  font-weight: var(--ui-font-weight-semibold, 600);
+}
+
+.shortcuts-field > input {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ui-control-height, 48px);
+  padding: var(--ui-space-3, 12px);
+  border: 1px solid var(--ui-color-border-strong, #d7cfeb);
+  border-radius: var(--ui-radius-sm, 8px);
+  color: var(--ui-color-text, #2b243d);
+  background: var(--ui-color-surface, #ffffff);
+  font: inherit;
+}
+
+.shortcuts-field > input:focus-visible,
+.scope-fieldset:focus-visible,
+.scope-option:focus-within,
+.token-code:focus-visible,
+.shortcuts-page button:focus-visible {
+  outline: 3px solid var(--ui-color-focus-ring, #6244d8);
+  outline-offset: 2px;
+}
+
+.shortcuts-field-help,
+.shortcuts-field-error {
+  margin: 0;
+  font-size: var(--ui-font-size-14, 14px);
+  line-height: var(--ui-line-height-body, 1.55);
+  overflow-wrap: anywhere;
+}
+
+.shortcuts-field-help {
+  color: var(--ui-color-text-muted, #756e83);
+}
+
+.shortcuts-field-error,
+.shortcuts-inline-error {
+  color: var(--ui-color-danger, #b91c1c);
 }
 
 .scope-fieldset {
   display: grid;
-  gap: 10px;
+  gap: var(--ui-space-3, 12px);
+  min-width: 0;
   margin: 0;
-  padding: 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  padding: var(--ui-space-4, 16px);
+  border: 1px solid var(--ui-color-border, #e7e1f3);
+  border-radius: var(--ui-radius-md, 12px);
 }
 
 .scope-fieldset legend {
-  padding: 0 6px;
-  color: #334155;
-  font-weight: 700;
+  padding-inline: var(--ui-space-2, 8px);
+}
+
+.scope-option {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--ui-space-3, 12px);
+  min-width: 0;
+  min-height: var(--ui-control-height, 48px);
+  padding: var(--ui-space-3, 12px);
+  border: 1px solid var(--ui-color-border, #e7e1f3);
+  border-radius: var(--ui-radius-sm, 8px);
+  background: var(--ui-color-surface-muted, #f7f5fb);
+  cursor: pointer;
+}
+
+.scope-option input {
+  width: 20px;
+  height: 20px;
+  margin: 2px;
+  accent-color: var(--ui-color-primary, #7c5cfa);
+}
+
+.scope-option-copy {
+  display: grid;
+  gap: var(--ui-space-1, 4px);
+  min-width: 0;
+}
+
+.scope-option-title {
+  color: var(--ui-color-text, #2b243d);
+  font-weight: var(--ui-font-weight-semibold, 600);
+}
+
+.scope-option-description {
+  color: var(--ui-color-text-muted, #756e83);
+  font-size: var(--ui-font-size-14, 14px);
+  line-height: var(--ui-line-height-body, 1.55);
+}
+
+.shortcuts-create-button,
+.shortcuts-refresh-button,
+.credential-revoke-button,
+.token-once-actions .secondary-button {
+  min-height: var(--ui-control-height, 48px);
+}
+
+.shortcuts-create-button {
+  width: 100%;
 }
 
 .token-once {
   display: grid;
-  gap: 12px;
-  margin-top: 20px;
-  padding: 16px;
-  border: 1px solid #f59e0b;
-  border-radius: 12px;
-  background: #fef3c7;
+  gap: var(--ui-space-4, 16px);
+  min-width: 0;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid var(--ui-color-warning, #a16207);
+  border-radius: var(--ui-radius-lg, 16px);
+  color: var(--ui-color-text, #2b243d);
+  background: var(--ui-color-warning-soft, #fff7df);
 }
 
-.token-once h3 {
-  margin: 0;
-  color: #92400e;
-}
-
-.credential-list {
-  margin: 12px 0 0;
-  padding: 0;
-  list-style: none;
+.token-once-heading {
   display: grid;
-  gap: 10px;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--ui-space-3, 12px);
 }
 
-.credential-list li {
+.token-once-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  color: var(--ui-color-warning-strong, #7a4b00);
+  font-weight: 800;
+}
+
+.token-code {
+  display: block;
+  min-width: 0;
+  padding: var(--ui-space-3, 12px);
+  border: 1px solid var(--ui-color-border-strong, #d7cfeb);
+  border-radius: var(--ui-radius-sm, 8px);
+  color: var(--ui-color-text, #2b243d);
+  background: var(--ui-color-surface, #ffffff);
+  font-family: var(--ui-font-family-mono, ui-monospace, monospace);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  user-select: all;
+}
+
+.token-once-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ui-space-3, 12px);
+  min-width: 0;
+}
+
+.clipboard-feedback {
+  flex: 1 1 220px;
+  min-width: 0;
+  margin: 0;
+  line-height: var(--ui-line-height-body, 1.55);
+  overflow-wrap: anywhere;
+}
+
+.clipboard-feedback.is-success {
+  color: var(--ui-color-success, #15803d);
+}
+
+.clipboard-feedback.is-error {
+  color: var(--ui-color-danger, #b91c1c);
+}
+
+.shortcuts-list-heading {
+  align-items: center;
+}
+
+.shortcuts-list-content {
+  display: grid;
+  gap: var(--ui-space-3, 12px);
+  min-width: 0;
+}
+
+.shortcuts-refresh-status,
+.shortcuts-empty-state {
+  margin: 0;
+  padding: var(--ui-space-4, 16px);
+  border: 1px dashed var(--ui-color-border-strong, #d7cfeb);
+  border-radius: var(--ui-radius-md, 12px);
+  color: var(--ui-color-text-muted, #756e83);
+  background: var(--ui-color-surface-muted, #f7f5fb);
+  line-height: var(--ui-line-height-body, 1.55);
+  overflow-wrap: anywhere;
+}
+
+.shortcuts-inline-error {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
   flex-wrap: wrap;
+  gap: var(--ui-space-3, 12px);
+  padding: var(--ui-space-3, 12px);
+  border: 1px solid var(--ui-color-danger, #b91c1c);
+  border-radius: var(--ui-radius-sm, 8px);
+  background: var(--ui-color-danger-soft, #fff0f0);
+}
+
+.shortcuts-inline-error p {
+  min-width: 0;
+  margin: 0;
+  line-height: var(--ui-line-height-body, 1.55);
+  overflow-wrap: anywhere;
+}
+
+.credential-list {
+  display: grid;
+  gap: var(--ui-space-3, 12px);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.credential-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ui-space-4, 16px);
+  min-width: 0;
+  padding: var(--ui-space-4, 16px);
+  border: 1px solid var(--ui-color-border, #e7e1f3);
+  border-radius: var(--ui-radius-md, 12px);
+  background: var(--ui-color-surface, #ffffff);
 }
 
 .credential-main {
   display: grid;
-  gap: 4px;
+  gap: var(--ui-space-2, 8px);
   min-width: 0;
 }
 
-.credential-main small {
-  color: #64748b;
+.credential-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ui-space-2, 8px);
+  min-width: 0;
 }
 
-.revoked-mark {
-  color: #b91c1c;
-  font-weight: 700;
+.credential-title-row strong {
+  min-width: 0;
+  color: var(--ui-color-text, #2b243d);
+  overflow-wrap: anywhere;
+}
+
+.credential-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 2px var(--ui-space-2, 8px);
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: var(--ui-font-size-12, 12px);
+  font-weight: var(--ui-font-weight-semibold, 600);
+}
+
+.credential-status.is-active {
+  color: var(--ui-color-success, #15803d);
+  background: var(--ui-color-success-soft, #eaf7ee);
+}
+
+.credential-status.is-revoked {
+  color: var(--ui-color-danger, #b91c1c);
+  background: var(--ui-color-danger-soft, #fff0f0);
+}
+
+.credential-prefix,
+.credential-last-used {
+  min-width: 0;
+  margin: 0;
+  color: var(--ui-color-text-muted, #756e83);
+  font-size: var(--ui-font-size-14, 14px);
+  line-height: var(--ui-line-height-body, 1.55);
+  overflow-wrap: anywhere;
+}
+
+.credential-scopes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-space-2, 8px);
+  min-width: 0;
+}
+
+.credential-scope {
+  display: inline-block;
+  padding: var(--ui-space-2, 8px);
+  border: 1px solid var(--ui-color-border, #e7e1f3);
+  border-radius: var(--ui-radius-sm, 8px);
+  color: var(--ui-color-text, #2b243d);
+  background: var(--ui-color-surface-muted, #f7f5fb);
+  font-family: inherit;
+  line-height: var(--ui-line-height-body, 1.55);
+  overflow-wrap: anywhere;
+}
+
+.credential-revoke-button {
+  align-self: center;
+}
+
+@media (max-width: 600px) {
+  .credential-row {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .credential-revoke-button {
+    width: 100%;
+  }
+
+  .shortcuts-list-heading {
+    align-items: stretch;
+  }
+
+  .shortcuts-refresh-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .shortcuts-intro,
+  .shortcuts-panel,
+  .token-once {
+    padding: var(--ui-space-4, 16px);
+  }
+
+  .shortcuts-inline-error {
+    align-items: stretch;
+  }
+
+  .shortcuts-inline-error .secondary-button {
+    width: 100%;
+  }
 }
 
 .batch-bar {
