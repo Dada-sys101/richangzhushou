@@ -1,5 +1,12 @@
 # 变更日志（Changelog）
 
+## 2026-09-24 — UIR-10C2 同步冲突页 UI 与交互收尾（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 从 Integration `6c0a0ec2fb621fb8118718bc1f614ba6d9989806` 建立 `codex/uir-10c2-sync-conflicts-ui`。冲突页按概览、本地/服务端内容对照、明确选择整理；长合成正文可换行，沿用页面壳、语义 Token 与应用确认弹窗。初始化未完成、空列表、离线、同步失败/重试、处理中、成功和操作失败分开反馈；仅显示当前 userId 的冲突，切换账户后不显示旧反馈。
+- 确认现有 `resolveConflict` 对 `IDEMPOTENCY_CONFLICT` 即使选择 `local` 也会删除本地待处理 mutation，因此页面对此类冲突不提供“保留本地”，只允许经确认后使用服务端内容，并明确说明不可通过此处保留本地。普通冲突的本地重提保留原 Store/API payload、version、同步算法和离线队列；取消不调用 resolve、处理中锁定其他选择、失败保留冲突可重试，不自动合并版本或宣称已同步。
+- `SyncConflictsView` 专项测试 10/10，覆盖初始化/用户隔离、两侧展示、两种选择与取消、幂等冲突、并发锁、失败保留/重试、离线与同步失败、Browser Back；Web 全量 59 files / 474 tests，完整 `npm run quality`、`npm run format:check`、`npm run check:context` 和 `git diff --check` 均通过。Chromium 合成冲突五档 E2E 375/390/430/768/1440 为 5/5，五档 200% 根字号无横向溢出。浏览器仅使用 mock API 与合成 IndexedDB 内容，未连接真实同步 API 或真实用户数据；截图、trace、视频均关闭。控制台除开发环境 Service Worker MIME 提示外未见新增错误，未见非预期网络失败。实体设备和真实离线队列端到端同步仍未验证。
+- 本地验收阶段未提交、推送、创建 PR、合并或部署；stash 与旧分支保留，未开始下一任务。后续交付状态以实际 GitHub 提交、PR 和 CI 为准。
+
 ## 2026-09-24 — UIR-10C1 快捷指令页面 UI 与交互收尾（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 基于 Integration `e9dbc9cb2bc479cb79f59354aedbe06a45506271` 建立独立分支 `codex/uir-10c1-shortcuts-ui`。快捷指令页按用途与安全提示、创建设备凭证、一次性令牌、已创建凭证组织；权限展示用户易懂名称及原技术 scope，凭证列表明确有效/已撤销、权限和最近使用时间。
