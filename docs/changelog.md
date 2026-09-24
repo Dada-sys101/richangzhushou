@@ -1,5 +1,11 @@
 # 变更日志（Changelog）
 
+## 2026-09-24 — UIR-10C4 用户端登录页 UI 与交互收尾（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 从 PR #74 已合并且 Integration CI 三项成功的 `740c3fdf0171307eb3d288995fe87edcc64ab322` 建立独立分支 `codex/uir-10c4-login-ui`。登录页明确账号、密码、管理员创建账号说明、提交进度和安全错误反馈；继续使用原生账号/密码约束及 Auth Store，保留强制改密优先、redirect 与默认 `/account` 跳转。提交入口同步防重复；失败保留输入可修改重试，未新增注册、找回密码或认证接口。
+- `LoginView` 专项测试 7/7；五档 Chromium 375/390/430/768/1440 使用本地真实 API 与本轮独立 MySQL 测试 schema `daily_assistant_e2e_uir10c4_20260924`，真实错误密码、成功登录、强制改密和注入限流的表单流程 20/20 通过。五档 200% 根字号下按钮可滚动到可见位置、无横向溢出。首轮 18/20：两档窄屏因测试误要求放大后的按钮无滚动直接位于视口内而失败，改为检查滚动后可见，复跑 20/20；未通过固定等待掩盖。限流为浏览器 mock 响应，其他三项为真实本地 API/测试库。真实设备软键盘、系统级文字缩放和生产认证服务未验证；原有 redirect 路由策略未在此 UI 任务中修改。
+- `npm run quality`（Web 60 files / 485 tests，含 lint、typecheck、构建及契约检查）、`format:check`、`check:context` 通过。本地阶段未提交、推送、创建 PR、合并或部署；原 stash、旧分支和 UIR-10C3 隔离 schema 保留。没有对控制台逐条进行独立审计；浏览器用例的 429/401 属于预期请求，真实设备及生产环境未验证。
+
 ## 2026-09-24 — UIR-10C3 快速记录页 UI 与交互收尾（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 从已合并 PR #73 的 Integration `c2de666bbdb96e9623cf7905944da9b7fab57cc9` 建立 `codex/uir-10c3-quick-capture`。页面按一句话输入、生成待确认财务草稿、前往草稿中心核对组织；初始与失败状态不出现成功勾选或正式入账暗示。日程、待办、提醒仍只链接到既有页面。

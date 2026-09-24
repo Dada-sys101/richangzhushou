@@ -11,6 +11,58 @@ import {
   uniqueName,
 } from "./helpers/e2e";
 
+// Login fixtures contain synthetic passwords; never retain browser media or traces.
+test.use({ screenshot: "off", trace: "off", video: "off" });
+
+test("登录表单在窄屏和放大文字下保持可操作，限流后保留输入", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  const username = page.getByLabel("账号");
+  const password = page.getByLabel("密码");
+  const submit = page.getByRole("button", { name: "登录", exact: true });
+  await expect(
+    page.getByRole("heading", { name: "登录日常助手" }),
+  ).toBeVisible();
+  await expect(page.getByText("账号由管理员创建")).toBeVisible();
+  await submit.click();
+  await expect(username).toBeFocused();
+  await username.fill("Invalid Name");
+  await password.fill("SyntheticPassword123!");
+  await submit.click();
+  await expect(username).toBeFocused();
+  await username.fill("synthetic_user");
+  await page.route("**/api/v1/auth/login", async (route) => {
+    await route.fulfill({
+      status: 429,
+      contentType: "application/json",
+      body: JSON.stringify({
+        code: "RATE_LIMITED",
+        message: "rate limited",
+        requestId: "synthetic",
+      }),
+    });
+  });
+  await password.press("Tab");
+  await expect(submit).toBeFocused();
+  await submit.press("Enter");
+  await expect(page.getByRole("alert")).toContainText("操作过于频繁");
+  await expect(username).toHaveValue("synthetic_user");
+  await expect(password).toHaveValue("SyntheticPassword123!");
+  await expect(submit).toBeEnabled();
+  for (const size of [16, 32]) {
+    await page.evaluate((fontSize) => {
+      document.documentElement.style.fontSize = `${fontSize}px`;
+    }, size);
+    await submit.scrollIntoViewIfNeeded();
+    await expect(submit).toBeInViewport();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth,
+    );
+    expect(overflow).toBe(false);
+  }
+});
+
 test.describe("用户端认证", () => {
   test("未登录访问首页显示友好登录状态且不出现技术错误", async ({ page }) => {
     await page.goto("/");
