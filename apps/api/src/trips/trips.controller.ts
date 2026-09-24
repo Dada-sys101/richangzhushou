@@ -21,6 +21,7 @@ import {
   CreateTripDto,
   CreateTripItemDto,
   ListTripsQueryDto,
+  TripDetailQueryDto,
   UpdatePackingItemDto,
   UpdateTripDto,
   UpdateTripItemDto,
@@ -47,8 +48,12 @@ export class TripsController {
   }
 
   @Get("trips/:id")
-  get(@Req() request: AuthenticatedRequest, @Param("id") id: string) {
-    return this.tripsService.get(this.userId(request), id);
+  get(
+    @Req() request: AuthenticatedRequest,
+    @Param("id") id: string,
+    @Query() query: TripDetailQueryDto,
+  ) {
+    return this.tripsService.get(this.userId(request), id, query);
   }
 
   @Patch("trips/:id")

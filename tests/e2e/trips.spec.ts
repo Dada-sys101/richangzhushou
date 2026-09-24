@@ -323,20 +323,24 @@ test("切换行程详情时隐藏旧数据并在服务失败后恢复", async ({
     releaseFailure = resolve;
   });
   let failFirstRequest = true;
-  await page.route(`**/api/v1/trips/${secondTrip.id}`, async (route) => {
-    if (failFirstRequest) {
-      failFirstRequest = false;
-      signalRequest();
-      await holdFailure;
-      await route.fulfill({
-        status: 503,
-        contentType: "application/json",
-        body: JSON.stringify({ message: "暂时不可用" }),
-      });
-      return;
-    }
-    await route.continue();
-  });
+  const secondDetailPath = `/api/v1/trips/${secondTrip.id}`;
+  await page.route(
+    (url) => url.pathname === secondDetailPath,
+    async (route) => {
+      if (failFirstRequest) {
+        failFirstRequest = false;
+        signalRequest();
+        await holdFailure;
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "暂时不可用" }),
+        });
+        return;
+      }
+      await route.continue();
+    },
+  );
   await page.getByRole("link").filter({ hasText: titleB }).click();
   await requestArrived;
   try {
@@ -913,7 +917,7 @@ test("行程节点新增、编辑、范围确认、删除恢复和未保存返�
     name: "确认删除这个行程节点？",
   });
   await expect(deleteDialog).toBeVisible();
-  await expect(deleteDialog).toContainText("刷新或离开页面后");
+  await expect(deleteDialog).toContainText("刷新或重新进入行程后仍可恢复");
   await deleteDialog.getByRole("button", { name: "取消", exact: true }).click();
   await expect(deleteDialog).toHaveCount(0);
   expect(
@@ -1326,9 +1330,7 @@ test("行李清单新增、编辑、勾选、删除确认、恢复与返回保�
     name: "确认删除这个行李项？",
   });
   await expect(deleteDialog).toBeVisible();
-  await expect(deleteDialog).toContainText(
-    "刷新或离开后，无法从详情页重新找到",
-  );
+  await expect(deleteDialog).toContainText("刷新或重新进入行程后仍可恢复");
   await deleteDialog.getByRole("button", { name: "取消", exact: true }).click();
   await expect(deleteDialog).toHaveCount(0);
   expect(
@@ -1373,12 +1375,12 @@ test("行李清单新增、编辑、勾选、删除确认、恢复与返回保�
     expect(firstDeleteResponse.status()).toBe(204);
   }
   card = page.locator(`[data-packing-id="${packingId}"]`);
-  await expect(card).toContainText("已删除 · 本页可恢复");
+  await expect(card).toContainText("已删除 · 可恢复");
   await expect(card.getByRole("button", { name: "编辑行李项" })).toHaveCount(0);
   await expect(card.getByRole("button", { name: "删除行李项" })).toHaveCount(0);
   await expect(card.getByRole("button", { name: "恢复行李项" })).toBeVisible();
   await expect(page.locator(".trip-packing-recovery-note")).toContainText(
-    "详情接口不会返回已删除行李项",
+    "刷新或重新进入行程后继续恢复",
   );
 
   const restorePath = `${itemPath}/restore`;
@@ -1412,7 +1414,7 @@ test("行李清单新增、编辑、勾选、删除确认、恢复与返回保�
     await expect(
       page.locator(".trip-packing-section").getByRole("alert"),
     ).toContainText("行李项恢复暂时失败");
-    await expect(card).toContainText("已删除 · 本页可恢复");
+    await expect(card).toContainText("已删除 · 可恢复");
     await page.unroute(`**${restorePath}`);
     const retryRestoreResponsePromise = page.waitForResponse(
       (response) =>
@@ -1477,4 +1479,220 @@ test("行李清单新增、编辑、勾选、删除确认、恢复与返回保�
     contentType: "application/json",
   });
   expect(pageErrors).toEqual([]);
+});
+
+test("删除的行程节点和行李项跨刷新仍可恢复", async ({ page, request }) => {
+  const username = uniqueName("qa_trip_child_restore");
+  const title = uniqueName("子项恢复行程");
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  const failedRequests: Array<{
+    error: string | null;
+    method: string;
+    path: string;
+  }> = [];
+  const detailQueries: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("requestfailed", (requestEvent) => {
+    failedRequests.push({
+      error: requestEvent.failure()?.errorText ?? null,
+      method: requestEvent.method(),
+      path: new URL(requestEvent.url()).pathname,
+    });
+  });
+
+  await createActiveUserViaApi(request, username);
+  const login = await request.post("/api/v1/auth/login", {
+    data: { password: E2E_ACTIVE_PASSWORD, username },
+  });
+  expect(login.ok()).toBeTruthy();
+  const accessToken = (await login.json()).accessToken as string;
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  const tripResponse = await request.post("/api/v1/trips", {
+    data: {
+      destination: "杭州",
+      endDate: "2026-10-03",
+      startDate: "2026-10-01",
+      title,
+    },
+    headers,
+  });
+  expect(tripResponse.status()).toBe(201);
+  const tripId = (await tripResponse.json()).id as string;
+  const nodeResponse = await request.post(`/api/v1/trips/${tripId}/items`, {
+    data: {
+      endsAt: "2026-10-01T03:00:00.000Z",
+      location: "湖滨步行街",
+      startsAt: "2026-10-01T02:00:00.000Z",
+      type: "ACTIVITY",
+    },
+    headers,
+  });
+  expect(nodeResponse.status()).toBe(201);
+  const nodeId = (await nodeResponse.json()).tripItem.id as string;
+  const packingResponse = await request.post(
+    `/api/v1/trips/${tripId}/packing-items`,
+    { data: { text: "需要跨刷新恢复的行李" }, headers },
+  );
+  expect(packingResponse.status()).toBe(201);
+  const packingId = (await packingResponse.json()).id as string;
+
+  const detailPath = `/api/v1/trips/${tripId}`;
+  page.on("request", (requestEvent) => {
+    const url = new URL(requestEvent.url());
+    if (requestEvent.method() === "GET" && url.pathname === detailPath) {
+      detailQueries.push(url.searchParams.get("includeDeletedChildren") ?? "");
+    }
+  });
+  await loginViaUi(page, username, E2E_ACTIVE_PASSWORD);
+  await page.waitForURL("**/account");
+  const initialDetail = page.waitForResponse(
+    (response) =>
+      response.request().method() === "GET" &&
+      new URL(response.url()).pathname === detailPath,
+  );
+  await page.goto(`/trips/${tripId}`);
+  expect((await initialDetail).status()).toBe(200);
+  expect(detailQueries.at(-1)).toBe("true");
+
+  const nodeCard = page.locator(`[data-node-id="${nodeId}"]`);
+  await expect(
+    nodeCard.getByRole("button", { name: "编辑节点" }),
+  ).toBeVisible();
+  const deleteNodeResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "DELETE" &&
+      new URL(response.url()).pathname === `/api/v1/trip-items/${nodeId}`,
+  );
+  await nodeCard.getByRole("button", { name: "删除节点" }).click();
+  const nodeDialog = page.getByRole("dialog", {
+    name: "确认删除这个行程节点？",
+  });
+  await nodeDialog
+    .getByRole("button", { name: "删除节点", exact: true })
+    .click();
+  expect((await deleteNodeResponse).status()).toBe(204);
+  await expect(nodeCard).toContainText("已删除");
+  await expect(nodeCard.getByRole("button", { name: "编辑节点" })).toHaveCount(
+    0,
+  );
+  await expect(nodeCard.getByRole("button", { name: "删除节点" })).toHaveCount(
+    0,
+  );
+  await expect(
+    nodeCard.getByRole("button", { name: "恢复节点" }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "返回行程" }).click();
+  await expect(page).toHaveURL(/\/trips$/);
+  const afterNodeReentry = page.waitForResponse(
+    (response) =>
+      response.request().method() === "GET" &&
+      new URL(response.url()).pathname === detailPath &&
+      new URL(response.url()).searchParams.get("includeDeletedChildren") ===
+        "true",
+  );
+  await page.getByRole("link").filter({ hasText: title }).click();
+  expect((await afterNodeReentry).status()).toBe(200);
+  expect(detailQueries.at(-1)).toBe("true");
+  const reloadedNode = page.locator(`[data-node-id="${nodeId}"]`);
+  await expect(reloadedNode).toContainText("已删除");
+  await expect(
+    reloadedNode.getByRole("button", { name: "编辑节点" }),
+  ).toHaveCount(0);
+  await expect(
+    reloadedNode.getByRole("button", { name: "删除节点" }),
+  ).toHaveCount(0);
+  const restoreNodeResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      new URL(response.url()).pathname ===
+        `/api/v1/trip-items/${nodeId}/restore`,
+  );
+  await reloadedNode.getByRole("button", { name: "恢复节点" }).click();
+  expect((await restoreNodeResponse).status()).toBe(200);
+  await expect(page.locator(`[data-node-id="${nodeId}"]`)).toHaveCount(1);
+  await expect(page.locator(`[data-node-id="${nodeId}"]`)).not.toContainText(
+    "已删除",
+  );
+  await expect(
+    page.locator(`[data-node-id="${nodeId}"]`).getByRole("button", {
+      name: "编辑节点",
+    }),
+  ).toBeVisible();
+
+  const packingCard = page.locator(`[data-packing-id="${packingId}"]`);
+  await expect(packingCard.getByRole("checkbox")).toBeVisible();
+  const deletePackingResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "DELETE" &&
+      new URL(response.url()).pathname === `/api/v1/packing-items/${packingId}`,
+  );
+  await packingCard.getByRole("button", { name: "删除行李项" }).click();
+  const packingDialog = page.getByRole("dialog", {
+    name: "确认删除这个行李项？",
+  });
+  await packingDialog
+    .getByRole("button", { name: "删除行李项", exact: true })
+    .click();
+  expect((await deletePackingResponse).status()).toBe(204);
+  await expect(packingCard).toContainText("已删除 · 可恢复");
+  await expect(packingCard.getByRole("checkbox")).toHaveCount(0);
+  await expect(
+    packingCard.getByRole("button", { name: "编辑行李项" }),
+  ).toHaveCount(0);
+  await expect(
+    packingCard.getByRole("button", { name: "删除行李项" }),
+  ).toHaveCount(0);
+
+  const afterPackingReload = page.waitForResponse(
+    (response) =>
+      response.request().method() === "GET" &&
+      new URL(response.url()).pathname === detailPath,
+  );
+  await page.reload();
+  expect((await afterPackingReload).status()).toBe(200);
+  expect(detailQueries.at(-1)).toBe("true");
+  const reloadedPacking = page.locator(`[data-packing-id="${packingId}"]`);
+  await expect(reloadedPacking).toContainText("已删除 · 可恢复");
+  await expect(reloadedPacking.getByRole("checkbox")).toHaveCount(0);
+  const restorePackingResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      new URL(response.url()).pathname ===
+        `/api/v1/packing-items/${packingId}/restore`,
+  );
+  await reloadedPacking.getByRole("button", { name: "恢复行李项" }).click();
+  expect((await restorePackingResponse).status()).toBe(200);
+  await expect(page.locator(`[data-packing-id="${packingId}"]`)).toHaveCount(1);
+  await expect(
+    page.locator(`[data-packing-id="${packingId}"]`),
+  ).not.toContainText("已删除 · 可恢复");
+  await expect(
+    page.locator(`[data-packing-id="${packingId}"]`).getByRole("checkbox"),
+  ).toBeVisible();
+
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "32px";
+  });
+  const layout = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth);
+  expect(pageErrors).toEqual([]);
+  console.log(
+    `[trip-child-restore-browser] ${JSON.stringify({
+      consoleErrors: consoleErrors.map((message) =>
+        message.replace(/https?:\/\/\S+/g, "<url>").slice(0, 200),
+      ),
+      detailQueries,
+      failedRequests,
+      pageErrors: pageErrors.map((error) => error.split(":", 1)[0]),
+      viewport: page.viewportSize(),
+    })}`,
+  );
 });

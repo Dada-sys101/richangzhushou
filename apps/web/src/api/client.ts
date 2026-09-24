@@ -1,3 +1,5 @@
+import type { TripDetailQuery } from "@daily-assistant/api-contracts";
+
 import {
   API_BASE_URL,
   getAccessToken,
@@ -964,8 +966,17 @@ export const api = {
   getTask(id: string) {
     return http<TaskSummary>(`/tasks/${id}`);
   },
-  getTrip(id: string) {
-    return http<TripDetailResponse>(`/trips/${id}`);
+  getTrip(id: string, query?: TripDetailQuery) {
+    const params = new URLSearchParams();
+    if (query?.includeDeletedChildren !== undefined) {
+      params.set(
+        "includeDeletedChildren",
+        String(query.includeDeletedChildren),
+      );
+    }
+    const queryString = params.toString();
+    const suffix = queryString ? `?${queryString}` : "";
+    return http<TripDetailResponse>(`/trips/${id}${suffix}`);
   },
   getTripItem(id: string) {
     return http<TripItemSummary>(`/trip-items/${id}`);

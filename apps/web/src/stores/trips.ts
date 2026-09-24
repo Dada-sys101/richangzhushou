@@ -80,7 +80,7 @@ export const useTripsStore = defineStore("trips", {
       this.errorMessage = null;
       this.errorKind = null;
       try {
-        this.detail = await api.getTrip(id);
+        this.detail = await api.getTrip(id, { includeDeletedChildren: true });
       } catch (error) {
         if (isOfflineError(error)) {
           const userId = useAuthStore().userId;
