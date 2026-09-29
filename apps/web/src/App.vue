@@ -17,7 +17,7 @@ const isRootNavigationSurface = computed(
   () => classifyRoute(router.currentRoute.value) === "ROOT_TAB",
 );
 const showBottomNav = computed(
-  () => auth.isAuthenticated && isRootNavigationSurface.value,
+  () => auth.isAuthenticated && !router.currentRoute.value.meta.public,
 );
 const removeRouteHook = router.afterEach(() => {
   void sync.requestSync("route");

@@ -2786,7 +2786,7 @@ html.app-dialog-open body {
   .proposal-review-workspace .final-confirm-panel {
     position: sticky;
     z-index: 8;
-    bottom: calc(68px + env(safe-area-inset-bottom));
+    bottom: calc(96px + env(safe-area-inset-bottom));
     margin-bottom: 12px;
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
   }
@@ -2967,7 +2967,7 @@ html.app-dialog-open body {
   .planner-detail-workspace .planner-detail-form-actions {
     position: sticky;
     z-index: 8;
-    bottom: calc(68px + env(safe-area-inset-bottom));
+    bottom: calc(96px + env(safe-area-inset-bottom));
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
@@ -5767,7 +5767,7 @@ html.app-dialog-open body {
 
 @media (max-width: 768px) {
   .app-main.has-bottom-nav {
-    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
   }
   .finance-page .page-header {
     display: grid;
@@ -5820,10 +5820,19 @@ html.app-dialog-open body {
   .transaction-wide-field {
     grid-column: 1;
   }
+  .transaction-form-page > .ui-page-frame__action {
+    position: sticky;
+    z-index: 8;
+    bottom: calc(96px + env(safe-area-inset-bottom));
+  }
   .transaction-form-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
   }
   .transaction-form-actions > * {
     width: 100%;

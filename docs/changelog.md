@@ -1,5 +1,12 @@
 # 变更日志（Changelog）
 
+## 2026-09-29 — 用户端手机页面一键返回首页（DONE_LOCAL / READY_FOR_DELIVERY）
+
+- 从实时 Integration `d3db83b19eb6a9f0b751bd13f2020d2519364fb7` 建立独立本地分支 `codex/mobile-home-navigation`；原 checkout 的未提交私有预览记录保持不动。`App.vue` 在已登录的根页、二级页、详情页和编辑页持续挂载现有 `BottomNav`，公开登录页及未登录状态不挂载；根标签切换仍走原导航策略，顶部返回和桌面顶部导航未修改。
+- 移动端页面末尾预留底部导航、安全区及凸起快捷新增按钮所需空间；上移既有 Proposal 确认区、计划详情编辑操作区，并让记账编辑页的现有操作区在导航上方停靠。未修改 Router、Store、API、数据库或其他页面组件。
+- `App` 与 `BottomNav` 聚焦测试 15/15，覆盖各层级可见性、公开页隐藏、详情返回首页、根标签历史语义，以及未保存编辑点击首页时拒绝离开后 URL/输入保持、接受后正常离开。完整 `npm run quality` 通过：Web 61 files / 493 tests，含 lint、typecheck、构建、格式、上下文与契约检查；`git diff --check` 通过。首次全量测试曾在未修改的 `TransactionFormView.test.ts:324` 跨分钟时出现期望 10:36、实际 10:35；该文件定向复跑 11/11，随后完整 quality 全绿，未修改该测试。
+- Chromium 使用合成登录会话和 mock API 完成 375、390、430、768、1440 五档“首页→计划/待办→详情→首页”、编辑页未保存拒绝/接受离开与保存按钮可点击检查；五档 200% 根字号无横向溢出。浏览器未见 pageerror、失败请求或非预期 HTTP 失败；各档仅见开发环境 Service Worker MIME 控制台噪声。真实 API/数据库链路、实体设备软键盘、安全区和系统级文字缩放未在本轮验证。未提交、推送、创建 PR、合并或部署。
+
 ## 2026-09-24 — 行程节点与行李项跨刷新恢复（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 从实时 Integration `04b67296ef88c687879ef34b6309d39340751dcb` 建立独立分支 `codex/trip-child-restore`。为 `GET /trips/:id` 增加可选 `includeDeletedChildren`：省略或 `false` 保持既有过滤；`true` 只让当前用户所属行程的节点与行李数组包含软删除项。费用汇总、关联账单和日历事件不受影响；复用既有 `deletedAt` 与恢复接口，没有数据库迁移，写入 payload/version 未改变。
