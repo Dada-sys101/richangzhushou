@@ -49,9 +49,14 @@ vi.mock("./router", async () => {
         meta: { navigationKind: "DETAIL_PAGE" },
       },
       {
-        path: "/login",
+        path: "/transactions/:id/edit",
         component: Placeholder,
         meta: { navigationKind: "FLOW_PAGE" },
+      },
+      {
+        path: "/login",
+        component: Placeholder,
+        meta: { navigationKind: "FLOW_PAGE", public: true },
       },
     ],
   });
@@ -143,14 +148,19 @@ describe("App shell bottom navigation visibility", () => {
     ["/capture", "flow"],
     ["/transactions", "stack"],
     ["/calendar/event-1", "detail"],
-    ["/login", "login"],
-  ])("hides BottomNav for %s (%s)", async (path) => {
+    ["/transactions/entry-1/edit", "edit"],
+  ])("shows BottomNav for authenticated %s (%s)", async (path) => {
     const app = mountApp(true);
     await visit(path);
 
-    expect(app.find('[data-testid="bottom-nav"]').exists()).toBe(false);
-    expect(app.get(".app-shell").classes()).not.toContain("bottom-nav-visible");
-    expect(app.get(".app-main").classes()).not.toContain("has-bottom-nav");
+    expectBottomNavigation(app, true, false);
+  });
+
+  it("hides BottomNav on the public login route even with an authenticated store", async () => {
+    const app = mountApp(true);
+    await visit("/login");
+
+    expectBottomNavigation(app, false, false);
   });
 
   it("hides BottomNav for an unauthenticated root route", () => {
@@ -159,12 +169,25 @@ describe("App shell bottom navigation visibility", () => {
     expectBottomNavigation(app, false, true);
   });
 
-  it("hides navigation after entering a secondary route and restores it on return", async () => {
+  it("hides BottomNav for an unauthenticated secondary route", async () => {
+    const app = mountApp(false);
+    await visit("/transactions");
+
+    expectBottomNavigation(app, false, false);
+  });
+
+  it("keeps navigation available across root, secondary, detail and edit routes", async () => {
     const app = mountApp(true);
     expectBottomNavigation(app, true, true);
 
     await visit("/transactions");
-    expectBottomNavigation(app, false, false);
+    expectBottomNavigation(app, true, false);
+
+    await visit("/calendar/event-1");
+    expectBottomNavigation(app, true, false);
+
+    await visit("/transactions/entry-1/edit");
+    expectBottomNavigation(app, true, false);
 
     await visit("/");
     expectBottomNavigation(app, true, true);
