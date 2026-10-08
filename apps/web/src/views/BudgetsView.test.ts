@@ -2,7 +2,7 @@
 
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   ApiClientError,
@@ -157,7 +157,14 @@ async function mountBudgets(
   };
 }
 
+beforeEach(() => {
+  // Keep the current month aligned with the September budget fixtures.
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-09-15T04:00:00.000Z"));
+});
+
 afterEach(() => {
+  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
@@ -183,12 +190,8 @@ describe("BudgetsView", () => {
   it("loads the current month budget, summary, and categories", async () => {
     const { loadBudgets, loadCategories, loadSummary } = await mountBudgets();
 
-    expect(loadBudgets).toHaveBeenCalledWith(
-      expect.stringMatching(/^\d{4}-\d{2}$/),
-    );
-    expect(loadSummary).toHaveBeenCalledWith(
-      expect.stringMatching(/^\d{4}-\d{2}$/),
-    );
+    expect(loadBudgets).toHaveBeenCalledWith("2026-09");
+    expect(loadSummary).toHaveBeenCalledWith("2026-09");
     expect(loadCategories).toHaveBeenCalledWith(true);
   });
 
