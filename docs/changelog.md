@@ -1,5 +1,12 @@
 # 变更日志（Changelog）
 
+## 2026-10-08 — BudgetsView 日期 fixture 云端修复（BUDGET_MONTH_FIXTURE_CLOUD_READY）
+
+- 任务 `V15-BUDGET-MONTH-FIXTURE-CLOUD-004`，基线 `c19df9e4eac78ad8841b7e5386b4ca00f79b797b`，独立分支 `codex/budget-month-fixture-cloud-004`；未使用历史本地修复 SHA。
+- 九月预算 fixture 与真实当前月不一致导致 3 项测试失败。测试仅模拟 Date 并固定在九月中旬，`afterEach` 恢复真实时间；加载预算/摘要的断言明确为 `2026-09`。业务逻辑和依赖保持原样。
+- Node `24.19.0` / npm `11.18.0` 受控安装与共享包构建通过；BudgetsView `11/11`、Web `61 files / 493 tests`、Web lint/typecheck/build、共享 config/contracts lint/typecheck/build/test（`8/8`、`151/151`）、修改文件格式及 `git diff --check` 均通过。
+- 变更保留为未暂存工作区修改，未创建提交、推送、PR、合并或部署。未运行全仓 quality、audit 或数据库/真实 Provider 验证；本次不处理基线依赖安全问题。
+
 ## 2026-09-29 — 用户端手机页面一键返回首页（DONE_LOCAL / READY_FOR_DELIVERY）
 
 - 从实时 Integration `d3db83b19eb6a9f0b751bd13f2020d2519364fb7` 建立独立本地分支 `codex/mobile-home-navigation`；原 checkout 的未提交私有预览记录保持不动。`App.vue` 在已登录的根页、二级页、详情页和编辑页持续挂载现有 `BottomNav`，公开登录页及未登录状态不挂载；根标签切换仍走原导航策略，顶部返回和桌面顶部导航未修改。
