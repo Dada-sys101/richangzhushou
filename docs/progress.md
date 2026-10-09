@@ -1,5 +1,13 @@
 # 项目进度（派生摘要）
 
+## 2026-10-08 — V15-BUDGET-MONTH-FIXTURE-CLOUD-004（BUDGET_MONTH_FIXTURE_CLOUD_READY）
+
+- Cloud 初始工作区干净；显式 fetch 并核对远端 Integration HEAD 为 `c19df9e4eac78ad8841b7e5386b4ca00f79b797b`，从该基线创建 `codex/budget-month-fixture-cloud-004`。
+- Node `24.19.0`、隔离 npm `11.18.0` 执行 `install:locked`，安装脚本策略检查和 rebuild 通过；完成 config/contracts 共享包构建。
+- BudgetsView 测试复现 `8 passed / 3 failed`：实际月份为十月，九月 fixture 被当前月筛选隐藏。仅在测试中固定 Date 为 `2026-09-15T04:00:00.000Z`，每项测试后恢复真实时间，并明确断言加载 `2026-09`。
+- 验证通过：BudgetsView `11/11`；Web 全量 `61 files / 493 tests`；Web lint、typecheck、build；共享 config/contracts lint、typecheck、build 和测试（`8/8`、`151/151`）；修改文件格式检查与 `git diff --check`。
+- 仅修改测试及两份进度文档；未修改生产代码、依赖、锁文件、AGENTS.md 或 Cloud setup script。未执行 audit，基线既有安全问题留给独立依赖修复；未连接真实数据库/AI Provider，未修改 Preview；未 commit、push、PR、merge、rebase 或部署。
+
 ## 2026-09-15 — UIR-02 私有预览候选（DEVICE_ACCEPTANCE_PASS）
 
 - Luna 完成限定范围实现，候选提交 `05e4d696` 已推送至 PR #41；push/PR 两组 CI 的 quality、db-validation、browser-qa 全绿。
