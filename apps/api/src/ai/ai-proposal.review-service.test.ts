@@ -1,7 +1,10 @@
 import "reflect-metadata";
 
-import { describe, expect, it, vi } from "vitest";
-import type { AiProposalCreateRequest } from "@daily-assistant/api-contracts";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type {
+  AiOperationType,
+  AiProposalCreateRequest,
+} from "@daily-assistant/api-contracts";
 
 import type { PrismaService } from "../prisma/prisma.service.js";
 import { AiCircuitBreaker } from "./ai-circuit-breaker.js";
@@ -18,6 +21,10 @@ import {
   type AiProposalRuntimeOptions,
 } from "./ai-proposal.review-service.js";
 import { FakeAiProvider } from "./fake-provider/fake-ai-provider.js";
+import type {
+  FakeAiOperationCandidate,
+  FakeAiProviderResult,
+} from "./fake-provider/fake-ai-provider.types.js";
 
 const INPUT: AiProposalCreateRequest = {
   userInput: "明天下午三点开会",
@@ -785,6 +792,352 @@ describe("PR18 H03 proposal review service", () => {
     expect(factory.create).not.toHaveBeenCalled();
   });
 });
+
+const FIELD_WHITELIST_CASES: ReadonlyArray<{
+  operationType: AiOperationType;
+  partial: Record<string, unknown>;
+  invalid: Record<string, unknown>;
+  complete: Record<string, unknown>;
+}> = [
+  {
+    operationType: "TRANSACTION",
+    partial: { amount: "12.50" },
+    invalid: { amount: 12.5 },
+    complete: { amount: "12.50", source: "TEXT", type: "EXPENSE" },
+  },
+  {
+    operationType: "CALENDAR_EVENT",
+    partial: { title: "合成会议" },
+    invalid: { allDay: "yes" },
+    complete: {
+      endsAt: "2099-09-01T02:00:00.000Z",
+      startsAt: "2099-09-01T01:00:00.000Z",
+      title: "合成会议",
+    },
+  },
+  {
+    operationType: "TASK",
+    partial: { priority: "HIGH" },
+    invalid: { priority: "INVALID" },
+    complete: { title: "合成待办" },
+  },
+  {
+    operationType: "REMINDER",
+    partial: { note: "合成备注", recurrence: { interval: 2 } },
+    invalid: { recurrence: { interval: 0 } },
+    complete: {
+      scheduleType: "ONCE",
+      startsAt: "2099-09-01T01:00:00.000Z",
+      title: "合成提醒",
+    },
+  },
+  {
+    operationType: "TRIP",
+    partial: { destination: "上海" },
+    invalid: { budgetAmount: 100 },
+    complete: {
+      destination: "上海",
+      endDate: "2099-09-03",
+      startDate: "2099-09-01",
+      title: "合成行程",
+    },
+  },
+];
+
+describe.each(["fake", "deepseek", "openai"] as const)(
+  "H7 proposal field whitelist via %s",
+  (provider) => {
+    beforeEach(() => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(() => {
+          throw new Error("Native network access is forbidden in this test");
+        }),
+      );
+    });
+
+    afterEach(() => {
+      const nativeFetch = fetch;
+      vi.unstubAllGlobals();
+      expect(nativeFetch).not.toHaveBeenCalled();
+    });
+
+    describe.each(FIELD_WHITELIST_CASES)(
+      "$operationType",
+      ({ operationType, partial, invalid, complete }) => {
+        it.each(["userId", "token"])(
+          "rejects zero-confidence unknown field %s before persistence",
+          async (key) => {
+            const harness = fieldWhitelistHarness(provider, operationType);
+            await expectFieldFailure(harness, [
+              candidate(operationType, { ...partial, [key]: "synthetic-only" }),
+            ]);
+          },
+        );
+
+        it.each(["clientMutationId", "sourceFingerprint"])(
+          "rejects zero-confidence server-owned field %s before persistence",
+          async (key) => {
+            const harness = fieldWhitelistHarness(provider, operationType);
+            await expectFieldFailure(harness, [
+              candidate(operationType, { ...partial, [key]: null }),
+            ]);
+          },
+        );
+
+        it.each(["__proto__", "constructor"])(
+          "rejects field %s even when DTO transformation would discard it",
+          async (key) => {
+            const harness = fieldWhitelistHarness(provider, operationType);
+            await expectFieldFailure(harness, [
+              candidate(operationType, { ...partial, [key]: "synthetic-only" }),
+            ]);
+          },
+        );
+
+        it("preserves legal partial fields and clarification without requiring missing fields", async () => {
+          const harness = fieldWhitelistHarness(provider, operationType);
+          const result = await harness.create([
+            candidate(operationType, partial),
+          ]);
+          expect(result.proposal.operations[0]).toMatchObject({
+            clarification: "请补充缺失信息",
+            confidence: "0.0000",
+            fields: partial,
+            operationType,
+            status: "PENDING",
+          });
+          expectSuccessfulFields(harness, [partial]);
+        });
+
+        it("rejects invalid supplied partial values using the existing DTO contract", async () => {
+          const harness = fieldWhitelistHarness(provider, operationType);
+          await expectFieldFailure(harness, [
+            candidate(operationType, invalid),
+          ]);
+        });
+
+        it("keeps legal UNCERTAIN as an empty-fields clarification proposal", async () => {
+          const harness = fieldWhitelistHarness(provider, operationType);
+          const result = await harness.create([], "UNCERTAIN");
+          expect(result.proposal.operations[0]).toMatchObject({
+            clarification: "请补充缺失信息 缺少字段：title",
+            confidence: "0.0000",
+            fields: {},
+            operationType,
+            status: "PENDING",
+          });
+          expectSuccessfulFields(harness, [{}]);
+        });
+
+        it("preserves normal SUCCESS fields and full validation", async () => {
+          const harness = fieldWhitelistHarness(provider, operationType);
+          const result = await harness.create([
+            {
+              ...candidate(operationType, complete),
+              clarification: null,
+              confidence: "0.9000",
+            },
+          ]);
+          expect(result.proposal.operations[0]).toMatchObject({
+            clarification: null,
+            confidence: "0.9000",
+            fields: complete,
+          });
+          expectSuccessfulFields(harness, [complete]);
+        });
+
+        it("still rejects missing required fields outside the clarification path", async () => {
+          const harness = fieldWhitelistHarness(provider, operationType);
+          await expectFieldFailure(harness, [
+            { ...candidate(operationType, {}), clarification: null },
+          ]);
+        });
+
+        it("rejects normal-confidence unknown fields without retry", async () => {
+          const harness = fieldWhitelistHarness(provider, operationType);
+          await expectFieldFailure(harness, [
+            {
+              ...candidate(operationType, {
+                ...complete,
+                token: "synthetic-only",
+              }),
+              confidence: "0.9000",
+              clarification: null,
+            },
+          ]);
+        });
+
+        it("validates every operation before any proposal persistence", async () => {
+          const harness = fieldWhitelistHarness(provider, operationType);
+          await expectFieldFailure(harness, [
+            candidate(operationType, partial),
+            candidate(operationType, { ...partial, userId: "synthetic-only" }),
+          ]);
+        });
+      },
+    );
+
+    it.each(["token", "__proto__", "constructor"])(
+      "rejects nested reminder recurrence field %s before persistence",
+      async (key) => {
+        const harness = fieldWhitelistHarness(provider, "REMINDER");
+        await expectFieldFailure(harness, [
+          candidate("REMINDER", {
+            recurrence: { interval: 2, [key]: "synthetic-only" },
+          }),
+        ]);
+      },
+    );
+
+    it("keeps transaction source restricted to TEXT during clarification", async () => {
+      const harness = fieldWhitelistHarness(provider, "TRANSACTION");
+      await expectFieldFailure(harness, [
+        candidate("TRANSACTION", { source: "MANUAL" }),
+      ]);
+    });
+  },
+);
+
+function candidate(
+  operationType: AiOperationType,
+  fields: Record<string, unknown>,
+): FakeAiOperationCandidate {
+  return {
+    clarification: "请补充缺失信息",
+    confidence: "0.0000",
+    fields,
+    operationType,
+    status: "PENDING",
+  };
+}
+
+function fieldWhitelistHarness(
+  provider: "fake" | "deepseek" | "openai",
+  operationType: AiOperationType,
+) {
+  const harness = buildCreateHarness();
+  const input = { ...INPUT, requestType: operationType };
+  const providerId = provider === "fake" ? "fake-provider" : provider;
+  const modelId = provider === "fake" ? "fake-model" : `${provider}-test`;
+  let result: FakeAiProviderResult;
+  const generate = vi.fn(() => result);
+  const post = vi.fn(async () => ({
+    json: async () =>
+      provider === "deepseek"
+        ? {
+            choices: [
+              {
+                finish_reason: "stop",
+                message: { content: JSON.stringify(result) },
+              },
+            ],
+          }
+        : {
+            status: "completed",
+            output: [
+              {
+                type: "message",
+                content: [
+                  { type: "output_text", text: JSON.stringify(result) },
+                ],
+              },
+            ],
+          },
+    status: 200,
+  }));
+  const sleep = vi.fn(async () => {});
+  const service = createService(
+    harness.prisma,
+    providerFactoryWithGenerate(generate),
+    AiFeatureGate.forTesting({
+      fakeProvider: provider === "fake",
+      liveProvider: provider !== "fake",
+      proposal: true,
+    }),
+    {
+      deepSeekTransport: { post },
+      openAiTransport: { post },
+      providerEnvironment: {
+        AI_PROVIDER: provider,
+        DEEPSEEK_API_KEY: "synthetic-transport-only",
+        DEEPSEEK_MODEL: modelId,
+        OPENAI_API_KEY: "synthetic-transport-only",
+        OPENAI_MODEL: modelId,
+      },
+      sleep,
+    },
+  );
+  return {
+    ...harness,
+    input,
+    providerId,
+    sleep,
+    calls: provider === "fake" ? generate : post,
+    unusedCalls: provider === "fake" ? post : generate,
+    create(
+      operations: FakeAiOperationCandidate[],
+      resultType: "SUCCESS" | "UNCERTAIN" = "SUCCESS",
+    ) {
+      result = {
+        clarification: "请补充缺失信息",
+        missingFields: ["title"],
+        modelId,
+        operations,
+        providerId,
+        resultType,
+      };
+      return service.create("user_1", "k".repeat(16), input);
+    },
+  };
+}
+
+async function expectFieldFailure(
+  harness: ReturnType<typeof fieldWhitelistHarness>,
+  operations: FakeAiOperationCandidate[],
+) {
+  await expect(harness.create(operations)).rejects.toMatchObject({
+    code: "AI_DOMAIN_VALIDATION_ERROR",
+    statusCode: 502,
+  });
+  expect(harness.proposalCreate).not.toHaveBeenCalled();
+  expect(harness.request).toMatchObject({
+    failureCategory: "DOMAIN_INVALID",
+    failureCode: "AI_DOMAIN_VALIDATION_ERROR",
+    originalUserInput: harness.input.userInput,
+    proposalId: null,
+    status: "FAILED",
+  });
+  expect(harness.request.originalInputExpiresAt).toBeInstanceOf(Date);
+  expect(harness.attempts).toHaveLength(1);
+  expect(harness.attempt).toMatchObject({
+    attemptNo: 1,
+    failureCategory: "DOMAIN_INVALID",
+    providerId: harness.providerId,
+    status: "FAILED",
+  });
+  expect(harness.calls).toHaveBeenCalledOnce();
+  expect(harness.unusedCalls).not.toHaveBeenCalled();
+  expect(harness.sleep).not.toHaveBeenCalled();
+}
+
+function expectSuccessfulFields(
+  harness: ReturnType<typeof fieldWhitelistHarness>,
+  fields: Record<string, unknown>[],
+) {
+  expect(harness.proposalCreate).toHaveBeenCalledOnce();
+  expect(
+    harness.proposalCreate.mock.calls[0]?.[0].data.operations.create.map(
+      (operation) => operation.fieldsJson,
+    ),
+  ).toEqual(fields);
+  expect(harness.request.status).toBe("SUCCEEDED");
+  expect(harness.attempts).toHaveLength(1);
+  expect(harness.attempt.status).toBe("SUCCEEDED");
+  expect(harness.calls).toHaveBeenCalledOnce();
+  expect(harness.unusedCalls).not.toHaveBeenCalled();
+  expect(harness.sleep).not.toHaveBeenCalled();
+}
 
 function createService(
   prisma: PrismaService,

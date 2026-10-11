@@ -1,5 +1,13 @@
 # 变更日志（Changelog）
 
+## 2026-10-11 — AI Proposal 澄清字段白名单修复（DONE_LOCAL / NOT_COMMITTED）
+
+- 任务 `V15-H7-PROPOSAL-FIELD-WHITELIST-FIX-001`，基线 `10847ee123283bdb22a3a1f0fec5530fdbcc734b`，独立分支 `codex/v15-h7-proposal-whitelist-fix-001`；远端 Integration 在开始及结束核对时一致，原始 `work` 未修改。
+- 移除零置信度且含 clarification 的字段校验绕过。复用五类 Create DTO，澄清仅放宽未提供字段的必填校验，拒绝未知/服务端字段、非法已提供值及转换时丢失的键；不会删除非法字段后继续持久化。正式写入保留独立完整校验，Router、Gate、超时、重试、熔断及 Adapter 源码保持原样。
+- 修复前 30 项 mock 反例证明 `userId`/`token` 进入 Proposal 创建结果；新增 212 项回归覆盖五类 operation × Fake/DeepSeek/OpenAI 路径及最终写入边界，断言真实持久化入口参数、零非法持久化、既有失败分类和单次 Provider 调用。合法 UNCERTAIN 继续保留 clarification 与空 fields，合法部分字段和正常 SUCCESS 原样保留。
+- 定向测试 317/317，API 全量 495 passed / 140 skipped，全仓 1148 passed / 140 skipped，完整 `quality` 通过；跳过的是未提供测试数据库的 140 项集成测试。依赖审计无 High/Critical，既有六项 Moderate 继续记录，依赖和门禁未修改。
+- 本轮仅源码、测试及两份派生进度文档变更；所有 Provider transport 和 Prisma 均 mock，未执行 Live、真实数据库或部署验证，未修改 Cloud Environment、Provider 开关、Preview 或 Live CLI，未提交、推送、PR 或合并，未改写历史 H7 CLOSED。
+
 ## 2026-10-08 — BudgetsView 日期 fixture 云端修复（BUDGET_MONTH_FIXTURE_CLOUD_READY）
 
 - 任务 `V15-BUDGET-MONTH-FIXTURE-CLOUD-004`，基线 `c19df9e4eac78ad8841b7e5386b4ca00f79b797b`，独立分支 `codex/budget-month-fixture-cloud-004`；未使用历史本地修复 SHA。
