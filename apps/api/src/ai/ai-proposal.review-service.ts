@@ -517,17 +517,16 @@ export abstract class AiProposalReviewService extends AiProposalApplicationPort 
       if (operation.operationType !== request.requestType) {
         throw domainValidationError();
       }
-      if (
-        operation.confidence === "0.0000" &&
-        operation.clarification !== null
-      ) {
-        continue;
-      }
       try {
         await validateAiOperationFields(
           operation.operationType,
           operation.fields,
           `ai-validation:${inputFingerprint}`,
+          {
+            allowPartial:
+              operation.confidence === "0.0000" &&
+              operation.clarification !== null,
+          },
         );
       } catch {
         throw domainValidationError();

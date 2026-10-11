@@ -2,7 +2,10 @@ import "reflect-metadata";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { AiFormalWriteOrchestrator } from "./ai-formal-write.orchestrator.js";
+import {
+  AiFormalWriteOrchestrator,
+  validateAiOperationFields,
+} from "./ai-formal-write.orchestrator.js";
 
 function createOrchestrator() {
   const financeService = {
@@ -42,6 +45,47 @@ function createOrchestrator() {
 }
 
 describe("PR18 H04 formal write orchestrator", () => {
+  it.each([
+    ["TRANSACTION", { amount: "12.50" }],
+    ["CALENDAR_EVENT", { title: "合成会议" }],
+    ["TASK", { priority: "HIGH" }],
+    ["REMINDER", { recurrence: { interval: 2 } }],
+    ["TRIP", { destination: "上海" }],
+  ] as const)(
+    "%s partial clarification fields still require full validation at final write",
+    async (operationType, fields) => {
+      const harness = createOrchestrator();
+      await expect(
+        validateAiOperationFields(
+          operationType,
+          fields,
+          "ai-validation:synthetic-only",
+          { allowPartial: true },
+        ),
+      ).resolves.toMatchObject(fields);
+      await expect(
+        harness.orchestrator.prepare(
+          operationType,
+          fields,
+          "ai-final:proposal_1:operation_1",
+        ),
+      ).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
+      await expect(
+        harness.orchestrator.apply(
+          "user_1",
+          operationType,
+          fields,
+          "ai-final:proposal_1:operation_1",
+        ),
+      ).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
+      expect(harness.financeService.createTransaction).not.toHaveBeenCalled();
+      expect(harness.calendarService.create).not.toHaveBeenCalled();
+      expect(harness.tasksService.create).not.toHaveBeenCalled();
+      expect(harness.remindersService.create).not.toHaveBeenCalled();
+      expect(harness.tripsService.create).not.toHaveBeenCalled();
+    },
+  );
+
   it("H04-U01: uses a deterministic server mutation key", async () => {
     const { financeService, orchestrator } = createOrchestrator();
     await orchestrator.apply(

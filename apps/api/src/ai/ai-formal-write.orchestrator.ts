@@ -164,6 +164,7 @@ export async function validateAiOperationFields(
   operationType: AiOperationType,
   fields: Record<string, unknown>,
   clientMutationId: string,
+  options: { allowPartial?: boolean } = {},
 ): Promise<FormalCreateDto> {
   if (!isRecord(fields)) {
     throw validationError("AI operation fields must be an object");
@@ -189,15 +190,38 @@ export async function validateAiOperationFields(
     operationType,
   ) as ClassConstructor<FormalCreateDto>;
   const dto = plainToInstance(Dto, { ...sanitized, clientMutationId });
+  // Transformation must not silently hide forbidden keys from DTO validation.
+  assertFieldsPreserved(sanitized, dto);
   const errors = await validate(dto, {
     forbidNonWhitelisted: true,
     forbidUnknownValues: true,
+    // Clarification may omit required facts; supplied values still follow the DTO.
+    skipUndefinedProperties: options.allowPartial ?? false,
     whitelist: true,
   });
   if (errors.length > 0) {
     throw validationError("AI operation fields failed domain validation");
   }
   return dto as FormalCreateDto;
+}
+
+function assertFieldsPreserved(source: unknown, target: unknown): void {
+  if (
+    source === null ||
+    typeof source !== "object" ||
+    target === null ||
+    typeof target !== "object"
+  ) {
+    return;
+  }
+  const sourceFields = source as Record<string, unknown>;
+  const targetFields = target as Record<string, unknown>;
+  for (const key of Object.keys(sourceFields)) {
+    if (!hasOwn(targetFields, key)) {
+      throw validationError("AI operation fields contain an unsupported key");
+    }
+    assertFieldsPreserved(sourceFields[key], targetFields[key]);
+  }
 }
 
 function dtoForOperation(

@@ -1,5 +1,15 @@
 # 项目进度（派生摘要）
 
+## 2026-10-11 — V15-H7-PROPOSAL-FIELD-WHITELIST-FIX-001（DONE_LOCAL / NOT_COMMITTED）
+
+- 两次 fetch 核对远端 Integration 均为 `10847ee123283bdb22a3a1f0fec5530fdbcc734b`；使用独立 Worktree 和 `codex/v15-h7-proposal-whitelist-fix-001`，原始 `work` 保持干净。
+- 修复前，`SUCCESS` operation 在 `confidence="0.0000"` 且 clarification 非空时跳过全部领域字段校验。三个 Provider 路径 × 五类 operation × `userId`/`token` 的 30 项 mock 反例全部复现：请求返回 SUCCEEDED，非法字段进入 Proposal 创建结果。
+- Proposal 持久化前现在逐项复用现有 Create DTO 校验；澄清路径仅允许省略未提供的必填事实，已提供值仍受 DTO 约束。未知字段、服务端专属字段和 DTO 转换会丢弃的特殊键均拒绝，不静默清洗后持久化；最终正式写入继续完整校验。
+- 新增 212 项测试，覆盖 Fake 与使用 mock transport 的真实 DeepSeek/OpenAI Adapter、五类 operation、合法部分字段、合法 UNCERTAIN 空 fields、正常 SUCCESS、嵌套提醒字段和第二个 operation 非法的整组失败。断言 `aiProposal.create` 字段及调用次数、请求/attempt 的 FAILED / DOMAIN_INVALID 分类、`AI_DOMAIN_VALIDATION_ERROR`、单次 Provider 调用及零重试；原生 fetch 为零，Prisma 全部 mock。
+- 定向 8 文件 317/317，API 全量 495 passed / 140 skipped，全仓 1148 passed / 140 skipped。完整 `quality`（context、format、lint、typecheck、tests、build、Prisma、OpenAPI、离线 migration diff、审计）通过；140 项数据库集成测试因未设置测试数据库而跳过。
+- 审计 High/Critical 均为 0；既有六项 Moderate 为 `@nestjs/platform-express`、`@prisma/adapter-mariadb`、`fast-uri`、`mariadb`、`multer`、`postcss-selector-parser`，本轮未修改依赖、锁文件或审计门禁。
+- 未连接真实数据库或 Provider，未使用生产凭据，未修改运行时开关、Preview、Cloud Environment 或 Live 评估 CLI；未 commit、push、PR、merge 或部署。历史 H7 CLOSED 记录保持原样，本轮仅形成独立 Commit Gate 前的本地候选。
+
 ## 2026-10-08 — V15-BUDGET-MONTH-FIXTURE-CLOUD-004（BUDGET_MONTH_FIXTURE_CLOUD_READY）
 
 - Cloud 初始工作区干净；显式 fetch 并核对远端 Integration HEAD 为 `c19df9e4eac78ad8841b7e5386b4ca00f79b797b`，从该基线创建 `codex/budget-month-fixture-cloud-004`。
