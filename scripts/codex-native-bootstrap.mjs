@@ -248,6 +248,56 @@ function setupEnvironment(tmp) {
   // The existing setup strips application secrets again and sets fake/local flags.
   return { ...env, TMPDIR: tmp, TMP: tmp, TEMP: tmp };
 }
+// Load only build/toolchain libraries and generated Prisma code. Never create a
+// client, connect to a database, import application services or execute a CLI.
+const dependencyProbeSource = `
+import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+const require = createRequire(path.resolve('apps/api/package.json'));
+const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
+for (const name of ['prisma', '@prisma/client', '@prisma/adapter-mariadb', 'argon2', 'typescript', 'tsx']) {
+  const manifest = JSON.parse(readFileSync('node_modules/' + name + '/package.json', 'utf8'));
+  const expected = lock.packages['node_modules/' + name]?.version;
+  assert.ok(expected);
+  assert.equal(manifest.name, name);
+  assert.equal(manifest.version, expected);
+}
+assert.ok(existsSync('node_modules/prisma/build/index.js'));
+require('@prisma/client/runtime/client');
+assert.equal(typeof require('@prisma/adapter-mariadb').PrismaMariaDb, 'function');
+assert.equal(typeof require('argon2').hash, 'function');
+assert.equal(require('typescript').version, lock.packages['node_modules/typescript'].version);
+const client = require(path.resolve('apps/api/src/generated/prisma/client.ts'));
+assert.equal(typeof client.PrismaClient, 'function');
+assert.equal(client.Prisma.prismaVersion.client, lock.packages['node_modules/@prisma/client'].version);
+for (const file of ['packages/api-contracts/dist/index.js', 'packages/config/dist/index.js']) {
+  const module = await import(pathToFileURL(path.resolve(file)).href);
+  assert.ok(Object.keys(module).length > 0);
+}
+process.stdout.write('DEPENDENCY_PROBE_PASS\\n');
+`;
+export function probeDependencies(repo, tmp, execute = spawnSync) {
+  const result = execute(
+    process.execPath,
+    ["--import", "tsx", "--input-type=module", "--eval", dependencyProbeSource],
+    {
+      cwd: repo,
+      env: setupEnvironment(tmp),
+      encoding: "utf8",
+      shell: false,
+      timeout: 20_000,
+      maxBuffer: 1024 * 1024,
+    },
+  );
+  return (
+    !result.error &&
+    result.status === 0 &&
+    result.stdout === "DEPENDENCY_PROBE_PASS\n"
+  );
+}
 export function writableNpmCache(cache) {
   try {
     mkdirSync(cache, { recursive: true });
@@ -346,16 +396,28 @@ export function bootstrap(options, dependencies = {}) {
       state.phase === "READY" &&
       artifactsPresent(c) &&
       state.artifactFingerprint === artifactFingerprint(c)
-    )
-      return {
-        status: "BOOTSTRAP_ALREADY_READY",
-        ...state,
-        stateFile: c.stateFile,
-        cwd: c.repo,
-        prBase: BASE_BRANCH,
-        platformDiffBase: "NOT_VERIFIED",
-        automaticPrAllowed: false,
-      };
+    ) {
+      const probeTmp = privateDirectory(
+        mkdtempSync(path.join(c.directory, "probe-")),
+      );
+      if (probeDependencies(c.repo, probeTmp, c.execute))
+        return {
+          status: "BOOTSTRAP_ALREADY_READY",
+          ...state,
+          stateFile: c.stateFile,
+          cwd: c.repo,
+          prBase: BASE_BRANCH,
+          platformDiffBase: "NOT_VERIFIED",
+          automaticPrAllowed: false,
+        };
+      // A broken dependency graph must not retain a usable READY marker.
+      state.phase = "DEPENDENCIES_INVALID";
+      atomicJson(c.stateFile, state);
+    }
+    // Invalidate any old READY marker before repair, including a successful
+    // installer that later leaves missing artifacts or fails a post-check.
+    state.phase = "SETUP_PENDING";
+    atomicJson(c.stateFile, state);
     const cache = checkLegacyCache();
     const tmp = privateDirectory(
       mkdtempSync(path.join(c.directory, "runtime-")),
@@ -394,6 +456,13 @@ export function bootstrap(options, dependencies = {}) {
       "ORIGINAL_BRANCH_CHANGED",
     );
     requireCondition(artifactsPresent(c), "SETUP_ARTIFACTS_MISSING");
+    if (!probeDependencies(c.repo, tmp, c.execute)) {
+      state.phase = "DEPENDENCIES_INVALID";
+      atomicJson(c.stateFile, state);
+      throw new BootstrapError("DEPENDENCY_VALIDATION_FAILED", {
+        setupLog: log,
+      });
+    }
     state.phase = "READY";
     state.artifactFingerprint = artifactFingerprint(c);
     atomicJson(c.stateFile, state);

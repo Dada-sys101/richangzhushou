@@ -45,10 +45,12 @@ node /已审查的启动器路径/codex-native-bootstrap.mjs bootstrap \
 | 状态 | 含义 |
 | --- | --- |
 | `BOOTSTRAP_READY` | SHA、祖先、merge-base、空差异、Setup 和现有产物检查通过 |
-| `BOOTSTRAP_ALREADY_READY` | 同一任务、同一功能分支、同一初始 HEAD，已成功初始化，锁文件/关键生成产物指纹未变化且产物存在；重新 Fetch 验证批准 SHA，复用产物，不重复安装 |
+| `BOOTSTRAP_ALREADY_READY` | 同一任务、同一功能分支、同一初始 HEAD，锁文件/关键产物指纹未变化，且固定范围依赖加载与锁定版本检查通过；重新 Fetch 验证批准 SHA，复用产物，不重复安装 |
 | `BOOTSTRAP_BLOCKED` | 依据 `code` 停止。失败不自动 stash、reset、clean、切到其他分支或放宽网络权限 |
 
 重复初始化要求工作区干净且 HEAD 仍为批准 SHA；开发后再次运行会停止，避免重置或污染已开展的任务。若其他分支处于活动状态，同一任务重试不会自动切回。Setup 失败保留功能分支、失败状态和日志；修复原因需对应授权，之后可在同一初始分支重试。进程异常留下锁文件时，先人工核查活动进程；脚本不擅自清除其他任务的锁。
+
+重复运行还会在隔离子进程中检查 Prisma/Client/Adapter、argon2、TypeScript 和 tsx 的锁定版本，加载 Prisma runtime、生成 Client、原生密码库及两个共享包的模块图，并确认 Prisma CLI 入口存在。不会实例化 Prisma Client、连接数据库、执行 CLI、导入应用服务或调用 Provider。缺失内部模块、原生绑定、生成文件或明显版本错误会使 READY 失效；只尝试一次既有 Setup，仍不通过则保留非 READY 状态并停止，PR guard 也会拒绝。模块加载失败标记为 `DEPENDENCIES_INVALID`；安装或产物检查失败保留相应失败或待完成状态。此检查检测常见损坏，不是所有依赖文件的完整校验或供应链认证。
 
 ### 缓存、临时目录和凭据
 
@@ -87,7 +89,9 @@ Codex 平台差异跟踪和自动 PR 默认 base 为 **NOT_VERIFIED**。所有�
 
 ## 验证与收尾
 
-针对性测试：`node --test scripts/codex-native-bootstrap.test.mjs`。隔离克隆中覆盖首次/重复运行、tracked/untracked Dirty、SHA 漂移、错误仓库、网络失败、运行时 .env、Setup 失败、临时目录/缓存安全、任务锁和 PR base/head/SHA/files/scope 阻断。测试只使用已存在的 Git 提交，不创建提交，不访问真实 Provider，不执行远端写操作。
+针对性测试：`node --test scripts/codex-native-bootstrap.test.mjs`。现有 CI quality job 在依赖安装、Prisma 生成及共享包构建后显式执行该测试；其 `actions/checkout` 使用 `fetch-depth: 0`。测试默认从自身文件位置定位仓库，支持显式 `BOOTSTRAP_TEST_REPOSITORY`，不依赖 Cloud 固定目录或当前 shell 目录。夹具只需要批准 Integration `20f8e704...` 及其通过 Git 解析的父提交，二者均为 PR head 的祖先；不依赖旧 main/work 提交或其分支名。缺少所需历史时明确失败并提示完整检出，测试不会自行 Fetch 或创建 Commit。
+
+隔离克隆中覆盖首次/重复运行、tracked/untracked Dirty、SHA 漂移、错误仓库、网络失败、运行时 .env、Setup 失败、临时目录/缓存安全、任务锁、损坏依赖的探测/修复失败及 PR base/head/SHA/files/scope 阻断。模块图回归测试仅损坏临时目录中的假依赖，不修改真实依赖。测试不访问真实 Provider，不执行远端写操作。完整 GitHub Actions 的通过状态需要远端实际运行证明，本地模拟检出和测试步骤不等同于整个 CI 已通过。
 
 真实原生首次与重复运行、Setup 和恢复证据存于本地任务交付目录；最终报告记录实际结果。原始 `work` 保护检查通过后恢复该分支，保留临时任务分支和日志。保留的 Integration 依赖产物不能视为适配旧版 work。
 

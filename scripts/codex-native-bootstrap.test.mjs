@@ -13,6 +13,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   bootstrap,
   guard,
@@ -21,13 +22,13 @@ import {
   BootstrapError,
   privateDirectory,
   writableNpmCache,
+  probeDependencies,
 } from "./codex-native-bootstrap.mjs";
 
 const SOURCE =
-  process.env.BOOTSTRAP_TEST_REPOSITORY ?? "/workspace/richangzhushou";
+  process.env.BOOTSTRAP_TEST_REPOSITORY ??
+  path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SHA = "20f8e7044958b8f01278392a9b97f379839a8ad5";
-const ORIGINAL_SHA = "9421d819a44a47728e6d7f6e93bfd4f98f681f24";
-const PARENT = "10847ee";
 function git(repo, ...args) {
   const r = spawnSync("git", ["-c", "core.hooksPath=/dev/null", ...args], {
     cwd: repo,
@@ -36,9 +37,27 @@ function git(repo, ...args) {
   assert.equal(r.status, 0, r.stderr);
   return r.stdout.trim();
 }
+// Both commits are ancestors of the PR head. CI explicitly checks out full
+// history; no main/work ref, remote fetch or fixture commit is needed.
+const history = spawnSync("git", ["rev-parse", `${SHA}^1`], {
+  cwd: SOURCE,
+  encoding: "utf8",
+});
+assert.equal(
+  history.status,
+  0,
+  "Bootstrap tests require approved Integration history; use actions/checkout fetch-depth: 0",
+);
+const PARENT = history.stdout.trim();
 function fixture(
   t,
-  { sha = SHA, setupFails = false, fetchFails = false } = {},
+  {
+    sha = SHA,
+    setupFails = false,
+    fetchFails = false,
+    probeFails = false,
+    repairProbe = false,
+  } = {},
 ) {
   const temporary = mkdtempSync(path.join(tmpdir(), "native-bootstrap-test-"));
   const repo = path.join(temporary, "repo");
@@ -47,7 +66,7 @@ function fixture(
   });
   assert.equal(clone.status, 0, clone.stderr);
   // Do not let the source checkout's active bootstrap branch redefine fixtures.
-  git(repo, "switch", "--no-track", "-c", "fixture-original", ORIGINAL_SHA);
+  git(repo, "switch", "--no-track", "-c", "fixture-original", PARENT);
   git(
     repo,
     "remote",
@@ -64,8 +83,19 @@ function fixture(
   };
   let fetches = 0;
   let setups = 0;
+  let probes = 0;
+  let probeBroken = probeFails;
+  let omitArtifacts = false;
   let setupEnv;
   const execute = (command, args, settings) => {
+    if (command === process.execPath && args.includes("--import")) {
+      probes++;
+      return {
+        status: probeBroken ? 1 : 0,
+        stdout: probeBroken ? "" : "DEPENDENCY_PROBE_PASS\n",
+        stderr: "",
+      };
+    }
     if (command === "git" && args.includes("fetch")) {
       fetches++;
       if (fetchFails)
@@ -82,12 +112,14 @@ function fixture(
       setupEnv = settings.env;
       if (setupFails)
         return { status: 9, stdout: "fixture setup failed", stderr: "" };
+      if (repairProbe) probeBroken = false;
       for (const file of [
         "node_modules/.fixture",
         "apps/api/src/generated/prisma/client.ts",
         "packages/api-contracts/dist/index.js",
         "packages/config/dist/index.js",
       ]) {
+        if (omitArtifacts && file.endsWith("prisma/client.ts")) continue;
         mkdirSync(path.dirname(path.join(repo, file)), { recursive: true });
         writeFileSync(path.join(repo, file), "// fixture artifact\n");
       }
@@ -107,7 +139,13 @@ function fixture(
     repo,
     options,
     dependencies: { execute },
-    counters: () => ({ fetches, setups, setupEnv }),
+    counters: () => ({ fetches, setups, probes, setupEnv }),
+    setProbeBroken: (value) => {
+      probeBroken = value;
+    },
+    setOmitArtifacts: (value) => {
+      omitArtifacts = value;
+    },
     originalHead,
     originalBranch,
   };
@@ -256,6 +294,175 @@ test("changed or missing artifact reruns setup on the same branch", (t) => {
   assert.equal(bootstrap(f.options, f.dependencies).status, "BOOTSTRAP_READY");
   assert.equal(f.counters().setups, 3);
 });
+test("repeat probes the dependency graph even when entry fingerprints are unchanged", (t) => {
+  const f = fixture(t, { repairProbe: true });
+  const first = bootstrap(f.options, f.dependencies);
+  f.setProbeBroken(true);
+  const repaired = bootstrap(f.options, f.dependencies);
+  assert.equal(repaired.status, "BOOTSTRAP_READY");
+  assert.equal(repaired.branch, first.branch);
+  assert.equal(f.counters().setups, 2);
+  assert.equal(f.counters().probes, 3);
+  assert.equal(
+    bootstrap(f.options, f.dependencies).status,
+    "BOOTSTRAP_ALREADY_READY",
+  );
+  assert.equal(f.counters().setups, 2);
+});
+test("unsuccessful dependency repair invalidates READY and blocks the PR guard", (t) => {
+  const f = fixture(t);
+  const first = bootstrap(f.options, f.dependencies);
+  f.setProbeBroken(true);
+  assert.throws(
+    () => bootstrap(f.options, f.dependencies),
+    rejects("DEPENDENCY_VALIDATION_FAILED"),
+  );
+  assert.equal(
+    JSON.parse(readFileSync(first.stateFile)).phase,
+    "DEPENDENCIES_INVALID",
+  );
+  const scope = path.join(path.dirname(f.repo), "scope.json");
+  writeFileSync(scope, "[]");
+  assert.throws(
+    () => guard({ ...f.options, scope }, f.dependencies),
+    rejects("BOOTSTRAP_NOT_READY"),
+  );
+});
+test("first setup cannot report READY if its installed graph fails validation", (t) => {
+  const f = fixture(t, { probeFails: true });
+  assert.throws(
+    () => bootstrap(f.options, f.dependencies),
+    rejects("DEPENDENCY_VALIDATION_FAILED"),
+  );
+  assert.equal(f.counters().setups, 1);
+});
+test("repair cannot leave a stale READY marker when an installer omits required artifacts", (t) => {
+  const f = fixture(t);
+  const ready = bootstrap(f.options, f.dependencies);
+  rmSync(path.join(f.repo, "apps/api/src/generated/prisma/client.ts"));
+  f.setOmitArtifacts(true);
+  assert.throws(
+    () => bootstrap(f.options, f.dependencies),
+    rejects("SETUP_ARTIFACTS_MISSING"),
+  );
+  assert.equal(
+    JSON.parse(readFileSync(ready.stateFile)).phase,
+    "SETUP_PENDING",
+  );
+  const scope = path.join(path.dirname(f.repo), "scope.json");
+  writeFileSync(scope, "[]");
+  assert.throws(
+    () => guard({ ...f.options, scope }, f.dependencies),
+    rejects("BOOTSTRAP_NOT_READY"),
+  );
+});
+test("real dependency probe rejects missing nested modules, generated internals, native binding and wrong versions", (t) => {
+  const root = mkdtempSync(path.join(tmpdir(), "native-dependency-probe-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const repo = path.join(root, "repo");
+  const runtime = path.join(root, "runtime");
+  mkdirSync(runtime);
+  const lock = JSON.parse(
+    readFileSync(path.join(SOURCE, "package-lock.json"), "utf8"),
+  );
+  function write(file, data) {
+    const location = path.join(repo, file);
+    mkdirSync(path.dirname(location), { recursive: true });
+    writeFileSync(location, data);
+  }
+  write("package-lock.json", JSON.stringify(lock));
+  write("apps/api/package.json", '{"name":"probe-fixture"}');
+  for (const name of [
+    "prisma",
+    "@prisma/client",
+    "@prisma/adapter-mariadb",
+    "argon2",
+    "typescript",
+  ]) {
+    write(
+      `node_modules/${name}/package.json`,
+      JSON.stringify({
+        name,
+        version: lock.packages[`node_modules/${name}`].version,
+        main: "index.js",
+      }),
+    );
+  }
+  write("node_modules/prisma/build/index.js", "// CLI not executed");
+  write(
+    "node_modules/@prisma/client/runtime/client.js",
+    "module.exports = require('./engine');",
+  );
+  write(
+    "node_modules/@prisma/client/runtime/engine.js",
+    "module.exports = {};",
+  );
+  write(
+    "node_modules/@prisma/adapter-mariadb/index.js",
+    "exports.PrismaMariaDb = class {};",
+  );
+  write(
+    "node_modules/argon2/index.js",
+    "exports.hash = require('./binding').hash;",
+  );
+  write(
+    "node_modules/argon2/binding.js",
+    "exports.hash = () => {}; // fixture native-binding boundary",
+  );
+  write(
+    "node_modules/typescript/index.js",
+    `exports.version = ${JSON.stringify(lock.packages["node_modules/typescript"].version)};`,
+  );
+  // Only the TypeScript loader is shared read-only; all damaged modules below
+  // live in this disposable directory, never in the real installed graph.
+  symlinkSync(
+    path.join(SOURCE, "node_modules/tsx"),
+    path.join(repo, "node_modules/tsx"),
+  );
+  write(
+    "apps/api/src/generated/prisma/client.ts",
+    "module.exports = require('./internal/class.ts');",
+  );
+  write(
+    "apps/api/src/generated/prisma/internal/class.ts",
+    `exports.PrismaClient = class {}; exports.Prisma = {prismaVersion:{client:${JSON.stringify(lock.packages["node_modules/@prisma/client"].version)}}};`,
+  );
+  for (const name of ["api-contracts", "config"]) {
+    write(`packages/${name}/package.json`, '{"type":"module"}');
+    write(
+      `packages/${name}/dist/index.js`,
+      "export {value} from './types.js';",
+    );
+    write(`packages/${name}/dist/types.js`, "export const value = 1;");
+  }
+  assert.equal(probeDependencies(repo, runtime), true);
+  for (const file of [
+    "node_modules/@prisma/client/runtime/engine.js",
+    "apps/api/src/generated/prisma/internal/class.ts",
+    "node_modules/argon2/binding.js",
+    "packages/config/dist/types.js",
+    "node_modules/prisma/build/index.js",
+  ]) {
+    const location = path.join(repo, file);
+    const original = readFileSync(location);
+    rmSync(location);
+    assert.equal(probeDependencies(repo, runtime), false, file);
+    writeFileSync(location, original);
+  }
+  const clientManifest = JSON.parse(
+    readFileSync(path.join(repo, "node_modules/@prisma/client/package.json")),
+  );
+  write(
+    "node_modules/@prisma/client/package.json",
+    JSON.stringify({ ...clientManifest, version: "0.0.0" }),
+  );
+  assert.equal(probeDependencies(repo, runtime), false);
+  write(
+    "node_modules/@prisma/client/package.json",
+    JSON.stringify(clientManifest),
+  );
+  assert.equal(probeDependencies(repo, runtime), true);
+});
 test("unsafe temp/cache paths stop without chmod/chown or using another cache", (t) => {
   const root = mkdtempSync(
     path.join(tmpdir(), "native-bootstrap-permissions-"),
@@ -366,10 +573,7 @@ test("guard and PR readback reject old main, wrong head, wrong SHA, incomplete f
   assert.equal(verifyPr(options, f.dependencies).status, "PR_READBACK_PASS");
   for (const [snapshot, error] of [
     [{ ...good, base: { ...good.base, ref: "main" } }, "PR_BASE_MISMATCH"],
-    [
-      { ...good, base: { ...good.base, sha: f.originalHead } },
-      "PR_BASE_MISMATCH",
-    ],
+    [{ ...good, base: { ...good.base, sha: SHA } }, "PR_BASE_MISMATCH"],
     [{ ...good, head: { ...good.head, ref: "work" } }, "PR_HEAD_MISMATCH"],
     [
       { ...good, head: { ...good.head, sha: f.options.sha } },
