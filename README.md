@@ -8,16 +8,9 @@ Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基
 保持 Feature Flag 关闭，不阻塞 R1 基础上线。AI 是 R1 首发硬门禁，只能生成
 待确认 Proposal，不得直接写正式业务记录。
 
-> 当前阶段：PR19 已通过 GitHub PR #18 合入 Integration，PR20 adapter integration 已通过
-> PR #20/#21/#22/#23 合入；当前 Integration HEAD（2026-08-29 只读重核）为
-> `299b1f71debbd5a3140d1ee19f9781372e67134b`。PR20 Live Provider Validation 当前为
-> `VERIFYING / DONE_LOCAL`，已完成本机一次性数据库和 200 条合成数据的 DeepSeek 受控验证；H7 为
-> H7 已于 2026-09-01 由 Dada 明确关闭；本机受控验证证据已就绪。Dada 已确认当前阶段暂定 DeepSeek、接受已复核条款和评估结果，
-> 并接受 ADR-029 的 `Asia/Shanghai` 自然月/暂不设固定金额上限临时策略。当前转入 `R1 Quality Gate BLOCKED / NOT_READY`，代码治理仍未完成生产 Provider 正式放行。`QUALITY-R1-GOVERNANCE-RECONCILIATION`
-> 已完成 post-write review，既有 commit `6adc111...` 已进入 Integration；已有私有预览服务器按 `299b1f71` 运行，Staging 未新建，生产未部署。用户已明确允许当前私有预览开启 live AI，服务器环境与数据库开关已对齐；扩大公网 Provider 使用范围仍需单独授权。每日备份和 7 天清理已配置，详见 `docs/49-private-preview-release-assessment.md`。
-> 针对初始评估发现的模糊任务占位字段，已完成提示词补强、3 条本机真实 Provider 定向回归和完整 200 条评估复跑；`case-146` 另行 3/3 复测成功。
-
-> 当前发布候选已整理为 `f7fb90a`（Web/同步）、`1545e21`（AI）、`d649ad4`（发布运营）和合并提交 `b7734d0`，已推送并创建 GitHub PR #25。`db-validation`、`browser-qa` 已通过，`quality` 仍被依赖审计 fail-closed；候选尚未部署，现有私有预览继续运行 `299b1f71`。后续新功能另开分支/PR，不回写该候选。
+> 当前阶段（2026-10-23）：受邀用户私有预览运营。Integration 为 6cab22f，历史合并 CI 38364527083 三项通过；预览仍为 d3db83b，API/Nginx/MySQL active。最新导航、依赖和 AI 校验修复已合入但尚未全部部署。
+> 本地 Vite 8.2.4 补丁已通过完整 quality 和正式依赖审计（0 High/Critical、8 Moderate），尚未提交、运行远端 CI 或部署。R1 历史批准、独立 Staging 豁免及私有预览 H6/H7/H8 边界保留；公网/生产未发布。
+> 本轮候选、验证与回滚/验收条件见 [准备清单](docs/54-private-preview-update-plan-20261023.md)。
 
 ## 工程结构
 

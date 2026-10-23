@@ -1,11 +1,19 @@
 # 路线图（派生摘要）
 
-updatedAt: 2026-09-14
+updatedAt: 2026-10-23
 
 > 完整 canonical 依赖、当前有效规则和 Task Selection Policy 仍以 `PLANS.md` v2.1.1 为准。
 > ADR-028 已 Accepted；本页同步其有限 PR20 历史边界，不替代 canonical 规范。
 
-当前移动端顺序：`R1.1 Web Push Candidate（DONE_INTEGRATION / PRIVATE_PREVIEW_PUSH_ACTIVE / H6_DEVICE_ACCEPTANCE_PASS）→ MOBILE-A（DONE_INTEGRATION）→ MOBILE-B（DONE_INTEGRATION）→ MOBILE-C1/C2/C3/C4（DONE_INTEGRATION）`。用户已确认现有私有预览的 Web Push 真实设备验收；调度器已恢复。
+## 当前事实与范围
+
+Integration 6cab22f，预览 d3db83b，canonical 保持 PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY。本轮对齐记录、准备更新并完成本地 Vite 8.2.4 补丁；完整 quality/正式审计通过，尚未提交、运行远端 CI 或部署，见 [准备清单](54-private-preview-update-plan-20261023.md)。REL-04～REL-06、R2/R3、公网及扩容延后。
+
+## 历史路线与门禁（2026-09-14）
+
+以下保留原时点记录，不覆盖当前审计或运行版本。
+
+历史移动端顺序：`R1.1 Web Push Candidate（DONE_INTEGRATION / PRIVATE_PREVIEW_PUSH_ACTIVE / H6_DEVICE_ACCEPTANCE_PASS）→ MOBILE-A（DONE_INTEGRATION）→ MOBILE-B（DONE_INTEGRATION）→ MOBILE-C1/C2/C3/C4（DONE_INTEGRATION）`。用户已确认现有私有预览的 Web Push 真实设备验收；调度器已恢复。
 
 ```text
 V15-CTRL-001 → PR6a → AI-DECISION-001 → PR2 → PR5 → PR6 → PR9

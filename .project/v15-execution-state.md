@@ -1,27 +1,29 @@
 # V1.5 Execution State
 
-updatedAt: 2026-09-15T17:29:00+08:00
+> Git 交付授权（2026-10-23）：用户明确确认提交当前 21 个文件、推送 codex/preview-readiness-20261022、创建面向 codex/v15-integration-foundation 的 Draft PR 并跟进 CI。当前正在交付；下文未提交/未授权表述为交付前检查点，不撤销本授权。合并、部署及真实服务调用仍不在范围内。
+
+updatedAt: 2026-10-23
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
 # integrationHead is the last verified Integration ref captured by this repository-state snapshot, not a self-updating realtime branch ref.
-integrationHead: d05b25cb058d0940b29508ba9ef071920226f994
+integrationHead: 6cab22f580f3345696258dea9983ea09c6def7ab
 pocBranch: codex/v15-tech-selection-poc
 pocHead: abeaa6444c116a59f5c139b2f56488a2f97b53f4
 currentTask: PRIVATE_PREVIEW_OPERATION
 lastCompletedTask: REL-03 Private Preview Readiness
 executionStatus: ACTIVE
 deliveryStatus: ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
-currentWork: The required date-time picker default-selection follow-up is merged, CI-verified and deployed to the existing private preview; R1.1 Web Push remains active after user-confirmed device acceptance
-latestDependencyGateRecheck: 2026-09-08 exact overrides deepmerge-ts 8.0.2, mariadb 3.4.7 and mysql2 3.24.3 with Prisma 7.9.1 and npm 11.18.0 passed clean install, npm ls, zero-vulnerability audit, SBOM, governance, quality, MySQL 8.4.11 integration, browser smoke, merged CI and target-host Linux verification; scoped license handling was approved and the candidate is deployed to private preview
+currentWork: VITE-SECURITY-PATCH-20261023 DONE_LOCAL after preview preparation; uncommitted dependency patch on 6cab22f; not deployed
+latestDependencyGateRecheck: 2026-10-23 local Vite 8.2.4 patch; full quality and formal audit PASS; 0 high/critical, 8 moderate; no patch commit or CI
 nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
 nextCanonicalTaskAfterCompletion: USER_DIRECTED_SCOPE_SELECTION
 openPullRequests: []
-repositoryPersistedGate: PR #25 MERGED / INTEGRATION 6515b8f / MERGED CI PASS / PRIVATE PREVIEW DEPLOYED
-repositoryLandingState: DONE_COMMITTED / DONE_PUSHED / DONE_INTEGRATION / CI_PASS / PRIVATE_PREVIEW_DEPLOYED / SUPPLY_CHAIN_PASS / POST_DEPLOYMENT_SMOKE_PASS / BACKUP_RESTORE_VERIFIED / IPHONE_WAIVED_PRIVATE_PREVIEW / PUBLIC_NOT_READY
+repositoryPersistedGate: Integration 6cab22f / PR #82 MERGED / CI 38364527083 SUCCESS; preview remains d3db83b
+repositoryLandingState: DONE_INTEGRATION / CI_PASS_HISTORICAL / CANDIDATE_NOT_DEPLOYED / PREVIEW_EXISTING_VERSION / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED
 
-## UI Reconstruction Planning Gate
+## Historical UI Reconstruction Planning Gate (2026-09-15)
 
 - baseline: Integration `1907c5898d5916fe5d443444bf14b33a82ac97e4`
 - sourcePlanningCommit: `370c0247479894602624c089d0212feee894bdf0`
@@ -31,6 +33,16 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - preservedCurrentMode: `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`
 
 ## Current Private Preview Release Assessment
+
+- Verified 2026-10-23: current resolves to /opt/daily-assistant-preview/releases/d3db83b1-20260924T133437Z; API/Nginx/MySQL active.
+- Running commit: d3db83b19eb6a9f0b751bd13f2020d2519364fb7 (PR #77). Candidate 6cab22f580f3345696258dea9983ea09c6def7ab is not deployed.
+- Original workspace 2026-09-27 record still marks business/device acceptance pending; this turn rechecks only current/services.
+- Candidate merged CI 38364527083 passed quality/db-validation/browser-qa on 2026-10-13; browser report upload skipped.
+- Local uncommitted Vite 8.2.4 patch passes full quality/formal audit, 0 high/critical and 8 moderate. Historical 6cab22f CI does not cover this patch or establish deployment readiness.
+- Preserve historical R1 approval, separate-Staging waiver and scoped H6/H7/H8 closure; H1/H2 waiver is not device evidence.
+- Current plan, rollback and acceptance: docs/54-private-preview-update-plan-20261023.md. No deployment/migration/live Provider action this turn.
+
+## Historical Private Preview Assessment (2026-09-15)
 
 - Active release: UIR-02 candidate `05e4d696`, deployed at `/opt/daily-assistant-preview/releases/05e4d696-20260915T091034Z`; previous `/opt/daily-assistant-preview/releases/8bbb3022-20260914T083606Z` remains available for rollback.
 - Status: `OPERATIONAL / UIR_02_CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / DEVICE_ACCEPTANCE_PASS / PUBLIC_NOT_READY`.
@@ -53,18 +65,19 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 ## Active Task
 
 - id: PRIVATE_PREVIEW_OPERATION
-- displayName: Invited-user private-preview operation and feedback fixes
-- branch: codex/reminder-picker-deployment-record
-- baseHead: Integration `8bbb30228e6520506ac440764e12ff535382d9eb`
-- contract: PLANS.md simplified private-preview operation scope
-- implementation: invited-user private-preview availability, feedback fixes and explicitly selected Web Push device validation; no automatic scope expansion
-- latestDelivery: required-picker PR #38 merged, CI-verified and deployed; deployment record PR #39 merged as Integration `77bedde...`
-- validation: latest Integration CI run `34824580264` passed quality, db-validation and browser-qa; H8 is closed and H6 device acceptance passed
-- remaining: handle only explicitly reported private-preview defects; keep public entry, production, Provider expansion and new infrastructure separately gated
+- localWorkPackage: VITE-SECURITY-PATCH-20261023 (completed locally; PREVIEW-UPDATE-PREP-20261023 retained)
+- branch: codex/preview-readiness-20261022
+- baseHead: 6cab22f580f3345696258dea9983ea09c6def7ab
+- contract: PLANS simplified private-preview scope and section 13; user-approved preparation and subsequent scoped Vite dependency repair
+- implementation: two frontend Vite manifest minima and root lockfile updated; affected documentation synchronized; no business-code edits
 - executionStatus: ACTIVE
-- deliveryStatus: FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
+- deliveryStatus: DONE_LOCAL / QUALITY_PASS / UNCOMMITTED / PREVIEW_EXISTING_VERSION
+- remaining: independent Git delivery authorization, exact patch SHA and CI, target Linux build and approved deployment/acceptance
+- preservedMode: FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
 
 ## Previous Canonical Task
+
+> Historical checkpoints below retain their original status and authorization fields; these are not current candidate state. Current facts are in Active Task and Last Verified.
 
 - id: R1.1 Web Push Candidate
 - displayName: minimal browser external reminders
@@ -231,6 +244,10 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Task Ledger
 
+Current verified delivery: GitHub PR #77 is in the running preview; #78 through #82 are integrated and not yet deployed there. This records delivery facts, not new canonical approvals.
+
+The following table preserves historical checkpoints; do not infer current release readiness from historical local-status rows.
+
 | ID | executionStatus | deliveryStatus | Release | Dependencies/Gate | Evidence/Next |
 |---|---|---|---|---|---|
 | V15-CTRL-001a | DONE | DONE_INTEGRATION | R1 | none | PR #9 / `bc747b7...` |
@@ -287,6 +304,12 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 | H9 | CLOSED | integration | Dada | none |
 
 ## Evidence
+
+- Current Integration: 6cab22f580f3345696258dea9983ea09c6def7ab; CI https://github.com/Dada-sys101/richangzhushou/actions/runs/38364527083 .
+- Current preview: /opt/daily-assistant-preview/releases/d3db83b1-20260924T133437Z; services checked 2026-10-23.
+- Current preparation evidence: docs/54-private-preview-update-plan-20261023.md.
+
+### Historical evidence (original checkpoints)
 
 - repository: Dada-sys101/richangzhushou
 - completedPRs: #8, #9, #10, #11, #12, #13, #14, #15, #16, #17, #18, #20, #21, #22, #23；#19 为无关 Preview workflow
@@ -351,6 +374,17 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Last Verified
 
+- Date: 2026-10-23 (Asia/Shanghai).
+- Integration: 6cab22f580f3345696258dea9983ea09c6def7ab; main: 9421d819a44a47728e6d7f6e93bfd4f98f681f24.
+- GitHub: #77 through #82 MERGED; no open PRs at 2026-10-22 check.
+- CI: 38364527083 SUCCESS; quality/db-validation/browser-qa passed; browser report upload skipped.
+- Environment: current /opt/daily-assistant-preview/releases/d3db83b1-20260924T133437Z; API/Nginx/MySQL active; no authenticated business smoke this turn.
+- Local: Vite 8.2.4 patch setup/full quality/formal audit PASS; governance 30/30; 1148 tests passed / 140 database tests skipped; full npm tree and SBOM 1057 components PASS; 0 high/critical and 8 moderate. Evidence: docs/55-vite-security-patch-20261023.md.
+- Original workspace: four dirty files preserved; independent worktree used.
+- Git delivery/deployment: none this turn.
+
+## Historical Verification Snapshot (superseded current assertions)
+
 - liveFactsChecked: origin Integration `codex/v15-integration-foundation` resolves to `299b1f71debbd5a3140d1ee19f9781372e67134b`; active branch is pushed at `b7734d093072c400ca9ae9d44b60abb95a45a725`; historical PR #23 evidence remains `d53f84a...`; PR #18/PR19 canonical delivery is `c42c19ec...` / `DONE_INTEGRATION`; PR #19 is unrelated Preview workflow
 - pr20HistoryChecked: PR #20 `c7914cfe...`, PR #21 `6c903073...`, PR #22 `7445ba3...`, PR #23 `d53f84a...` all MERGED into Integration; this is adapter integration evidence, not H7 evidence
 - integrationCI33043413216: `quality`, `db-validation`, `browser-qa` SUCCESS；`supply-chain-governance` and `pr6a-mysql84-evidence` artifacts exist；Playwright report upload skipped
@@ -369,6 +403,8 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 
 ## Recovery Rules
 
+2026-10-23 补充：基线 6cab22f 的 Vite High 已由本地 Vite 8.2.4 补丁消除，完整 quality 与正式审计通过；补丁未提交、未运行远端 CI，预览仍为 d3db83b。以下历史许可只约束原对象和范围，不自动授权本次 Git 交付、部署或真实 Provider 操作。原治理恢复规则继续保留。
+
 1. Read `PLANS.md`, then this snapshot; verify GitHub/Git/CI/environment before action.
 2. Obey explicit `nextCanonicalTask` after dependency/gate validation; do not choose a random READY task.
 3. V15-CTRL-001、PR6a、AI-DECISION-001、PR2、PR5、PR6、PR9、PR18、PR19 均为
@@ -378,7 +414,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
    也已进入 Integration；PR20 live Provider validation 当前为 `VERIFYING / DONE_LOCAL`，
    H7 已由 Dada 于 2026-09-01 明确关闭；Provider enablement 与 R1 仍受独立门禁约束。
 4. Live Integration ref must be re-read from Git/GitHub before any future write action;
-   the 2026-09-15 verified value is `77bedde231b11342e7bbec40234fc1ee5bcb6860`.
+   the 2026-10-23 verified value is `6cab22f580f3345696258dea9983ea09c6def7ab`.
 5. At most one canonical task may be IN_PROGRESS; do not auto-parallelize.
 6. Human gates may only be closed by a human based on evidence.
 7. The earlier H7 closure update did not authorize commit, push, PR metadata update, Ready,
