@@ -1,5 +1,7 @@
 # TODO
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](docs/55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 仅使用 `NOT_STARTED`、`IN_PROGRESS`、`BLOCKED`、`DONE`、`CANCELLED`。
 
 ## 当前执行记录（2026-10-23）
@@ -7,7 +9,8 @@
 - DONE：核实 Integration 6cab22f、PR #77～#82、历史 CI 和预览 d3db83b。
 - DONE：状态对齐、本日审计/质量检查与更新验收清单（准备完成不等于候选放行）。
 - DONE：Vite 8.2.4 安全补丁本地验证；完整 quality、正式审计、依赖树、SBOM 通过，0 High/Critical、8 Moderate。
-- NOT_STARTED：补丁提交/CI 及后续交付，需对应独立授权；当前本地通过不等于可直接部署。
+- DONE：补丁 fb50097 提交并推送，创建 Draft PR #83；CI 见顶部交付快照。
+- NOT_STARTED：Ready、合并及部署，需对应独立授权；本轮交付不等于已部署。
 - NOT_STARTED：目标 Linux 构建、备份/切换与业务/设备验收。
 - canonical 保持 PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY。
 

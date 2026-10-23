@@ -1,5 +1,7 @@
 # 项目概述（Project Overview）
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 文档版本：1.1
 更新：2026-10-23
 适用版本：V1.5 私有预览；代码实现与发布验收分别记录。
@@ -44,7 +46,7 @@
 
 - Integration：6cab22f580f3345696258dea9983ea09c6def7ab；PR #77～#82 已合并。
 - 历史 merged CI 38364527083 三项 SUCCESS；当前预览为 d3db83b1-20260924T133437Z，API/Nginx/MySQL active。
-- 最新代码与预览版本存在差距；Vite 8.2.4 补丁在本地通过完整 quality 和正式审计，0 High/Critical、8 Moderate，尚无补丁 SHA/CI 或部署。没有正式公开发布。
+- 最新代码与预览版本存在差距；Vite 8.2.4 补丁在本地通过完整 quality 和正式审计，0 High/Critical、8 Moderate，补丁 fb50097 已推送至 Draft PR #83，最终 HEAD CI 以 PR 为准，尚未合并或部署。没有正式公开发布。
 - R1 历史批准、独立 Staging 豁免及私有预览 H6/H7/H8 关闭保持原范围；H1/H2 豁免不能当作真机通过。
 - R2/R3、Import、新 RRULE、完整本地加密迁移、Shrink、公开发布及扩容继续延后；天气尚未配置。
 

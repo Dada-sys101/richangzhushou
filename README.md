@@ -1,5 +1,7 @@
 # 日常助手（Daily Assistant）
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](docs/55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 面向约 10 名管理员建号的首批用户。V1 已实现记账、日程、待办、提醒、行程、
 Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基础上增量加入受控 AI、
 可选 Web Push 和后续迁移能力。
@@ -9,7 +11,7 @@ Apple 快捷指令辅助记账、云端同步和本地离线；V1.5 在现有基
 待确认 Proposal，不得直接写正式业务记录。
 
 > 当前阶段（2026-10-23）：受邀用户私有预览运营。Integration 为 6cab22f，历史合并 CI 38364527083 三项通过；预览仍为 d3db83b，API/Nginx/MySQL active。最新导航、依赖和 AI 校验修复已合入但尚未全部部署。
-> 本地 Vite 8.2.4 补丁已通过完整 quality 和正式依赖审计（0 High/Critical、8 Moderate），尚未提交、运行远端 CI 或部署。R1 历史批准、独立 Staging 豁免及私有预览 H6/H7/H8 边界保留；公网/生产未发布。
+> 本地 Vite 8.2.4 补丁已通过完整 quality 和正式依赖审计（0 High/Critical、8 Moderate），已提交推送为 fb50097，Draft PR #83；最终 HEAD 的 CI 以 PR 检查为准，尚未合并或部署。R1 历史批准、独立 Staging 豁免及私有预览 H6/H7/H8 边界保留；公网/生产未发布。
 > 本轮候选、验证与回滚/验收条件见 [准备清单](docs/54-private-preview-update-plan-20261023.md)。
 
 ## 工程结构

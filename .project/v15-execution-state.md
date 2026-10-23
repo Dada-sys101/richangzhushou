@@ -1,6 +1,13 @@
 # V1.5 Execution State
 
-> Git 交付授权（2026-10-23）：用户明确确认提交当前 21 个文件、推送 codex/preview-readiness-20261022、创建面向 codex/v15-integration-foundation 的 Draft PR 并跟进 CI。当前正在交付；下文未提交/未授权表述为交付前检查点，不撤销本授权。合并、部署及真实服务调用仍不在范围内。
+## Git 交付快照（2026-10-23）
+
+- 补丁提交：`fb50097e66be2e63fcc994715cd36db2252b02ba`，已推送至 `codex/preview-readiness-20261022`。
+- [Draft PR #83](https://github.com/Dada-sys101/richangzhushou/pull/83) → `codex/v15-integration-foundation`；尚未合并、未部署。
+- [PR CI 39916174760](https://github.com/Dada-sys101/richangzhushou/actions/runs/39916174760) SUCCESS：quality、MySQL 8.4.13 数据库验证（18 文件 / 162 项）与 Chromium desktop/mobile 冒烟（86/86）通过。供应链和数据库产物已上传；Playwright 报告仅失败时上传，本次 SKIPPED。
+- [Push CI 39916145898](https://github.com/Dada-sys101/richangzhushou/actions/runs/39916145898) SUCCESS；本结论仅对应补丁 fb50097，后续 HEAD 必须另核。
+- 本节是补丁 SHA 的已核实交付快照；本记录后续文档提交的 HEAD 和 CI 以 Git/PR 为准，不能复用父提交结果。五档宽度、真实设备、目标服务器 release 构建和部署验收未在此 CI 覆盖。
+- 用户授权的 commit/push/Draft PR 已执行；合并、转 Ready、部署和真实服务调用仍需独立授权。下方本地未提交等表述仅保留其原检查点语义，不覆盖本节。
 
 updatedAt: 2026-10-23
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
@@ -14,11 +21,11 @@ currentTask: PRIVATE_PREVIEW_OPERATION
 lastCompletedTask: REL-03 Private Preview Readiness
 executionStatus: ACTIVE
 deliveryStatus: ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
-currentWork: VITE-SECURITY-PATCH-20261023 DONE_LOCAL after preview preparation; uncommitted dependency patch on 6cab22f; not deployed
-latestDependencyGateRecheck: 2026-10-23 local Vite 8.2.4 patch; full quality and formal audit PASS; 0 high/critical, 8 moderate; no patch commit or CI
+currentWork: VITE-SECURITY-PATCH-20261023 DONE_PUSHED; patch fb50097e66be2e63fcc994715cd36db2252b02ba; PR #83 DRAFT; not merged/deployed
+latestDependencyGateRecheck: 2026-10-23 local Vite 8.2.4 patch; full quality and formal audit PASS; 0 high/critical, 8 moderate; patch fb50097 and PR #83 delivered; CI snapshot above
 nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
 nextCanonicalTaskAfterCompletion: USER_DIRECTED_SCOPE_SELECTION
-openPullRequests: []
+openPullRequests: [83]
 repositoryPersistedGate: Integration 6cab22f / PR #82 MERGED / CI 38364527083 SUCCESS; preview remains d3db83b
 repositoryLandingState: DONE_INTEGRATION / CI_PASS_HISTORICAL / CANDIDATE_NOT_DEPLOYED / PREVIEW_EXISTING_VERSION / PUBLIC_NOT_READY
 persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRONMENT; REL-02 SEPARATE_STAGING_WAIVED; R1 QUALITY GATE APPROVED
@@ -38,7 +45,7 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - Running commit: d3db83b19eb6a9f0b751bd13f2020d2519364fb7 (PR #77). Candidate 6cab22f580f3345696258dea9983ea09c6def7ab is not deployed.
 - Original workspace 2026-09-27 record still marks business/device acceptance pending; this turn rechecks only current/services.
 - Candidate merged CI 38364527083 passed quality/db-validation/browser-qa on 2026-10-13; browser report upload skipped.
-- Local uncommitted Vite 8.2.4 patch passes full quality/formal audit, 0 high/critical and 8 moderate. Historical 6cab22f CI does not cover this patch or establish deployment readiness.
+- Vite 8.2.4 patch fb50097 is committed/pushed with Draft PR #83; local full quality/formal audit passes, 0 high/critical and 8 moderate. Historical 6cab22f CI does not cover this patch or establish deployment readiness.
 - Preserve historical R1 approval, separate-Staging waiver and scoped H6/H7/H8 closure; H1/H2 waiver is not device evidence.
 - Current plan, rollback and acceptance: docs/54-private-preview-update-plan-20261023.md. No deployment/migration/live Provider action this turn.
 
@@ -71,8 +78,8 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 - contract: PLANS simplified private-preview scope and section 13; user-approved preparation and subsequent scoped Vite dependency repair
 - implementation: two frontend Vite manifest minima and root lockfile updated; affected documentation synchronized; no business-code edits
 - executionStatus: ACTIVE
-- deliveryStatus: DONE_LOCAL / QUALITY_PASS / UNCOMMITTED / PREVIEW_EXISTING_VERSION
-- remaining: independent Git delivery authorization, exact patch SHA and CI, target Linux build and approved deployment/acceptance
+- deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_DRAFT / PREVIEW_EXISTING_VERSION
+- remaining: final PR HEAD CI and review; separately authorized Ready/merge and target Linux release build/deployment/acceptance
 - preservedMode: FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
 
 ## Previous Canonical Task
@@ -381,7 +388,7 @@ The following table preserves historical checkpoints; do not infer current relea
 - Environment: current /opt/daily-assistant-preview/releases/d3db83b1-20260924T133437Z; API/Nginx/MySQL active; no authenticated business smoke this turn.
 - Local: Vite 8.2.4 patch setup/full quality/formal audit PASS; governance 30/30; 1148 tests passed / 140 database tests skipped; full npm tree and SBOM 1057 components PASS; 0 high/critical and 8 moderate. Evidence: docs/55-vite-security-patch-20261023.md.
 - Original workspace: four dirty files preserved; independent worktree used.
-- Git delivery/deployment: none this turn.
+- Git delivery: patch fb50097 pushed, Draft PR #83 created; no merge/deployment.
 
 ## Historical Verification Snapshot (superseded current assertions)
 
@@ -403,7 +410,7 @@ The following table preserves historical checkpoints; do not infer current relea
 
 ## Recovery Rules
 
-2026-10-23 补充：基线 6cab22f 的 Vite High 已由本地 Vite 8.2.4 补丁消除，完整 quality 与正式审计通过；补丁未提交、未运行远端 CI，预览仍为 d3db83b。以下历史许可只约束原对象和范围，不自动授权本次 Git 交付、部署或真实 Provider 操作。原治理恢复规则继续保留。
+2026-10-23 补充：基线 6cab22f 的 Vite High 已由本地 Vite 8.2.4 补丁消除，完整 quality 与正式审计通过；补丁 fb50097 已推送至 Draft PR #83，CI 见顶部交付快照，预览仍为 d3db83b。本轮 commit/push/Draft PR 已获授权并执行；以下历史许可不自动授权新合并、部署或真实 Provider 操作。原治理恢复规则继续保留。
 
 1. Read `PLANS.md`, then this snapshot; verify GitHub/Git/CI/environment before action.
 2. Obey explicit `nextCanonicalTask` after dependency/gate validation; do not choose a random READY task.

@@ -1,10 +1,17 @@
 # Project Context
 
-> Git 交付授权（2026-10-23）：用户明确确认提交当前 21 个文件、推送 codex/preview-readiness-20261022、创建面向 codex/v15-integration-foundation 的 Draft PR 并跟进 CI。当前正在交付；下文未提交/未授权表述为交付前检查点，不撤销本授权。合并、部署及真实服务调用仍不在范围内。
+## Git 交付快照（2026-10-23）
+
+- 补丁提交：`fb50097e66be2e63fcc994715cd36db2252b02ba`，已推送至 `codex/preview-readiness-20261022`。
+- [Draft PR #83](https://github.com/Dada-sys101/richangzhushou/pull/83) → `codex/v15-integration-foundation`；尚未合并、未部署。
+- [PR CI 39916174760](https://github.com/Dada-sys101/richangzhushou/actions/runs/39916174760) SUCCESS：quality、MySQL 8.4.13 数据库验证（18 文件 / 162 项）与 Chromium desktop/mobile 冒烟（86/86）通过。供应链和数据库产物已上传；Playwright 报告仅失败时上传，本次 SKIPPED。
+- [Push CI 39916145898](https://github.com/Dada-sys101/richangzhushou/actions/runs/39916145898) SUCCESS；本结论仅对应补丁 fb50097，后续 HEAD 必须另核。
+- 本节是补丁 SHA 的已核实交付快照；本记录后续文档提交的 HEAD 和 CI 以 Git/PR 为准，不能复用父提交结果。五档宽度、真实设备、目标服务器 release 构建和部署验收未在此 CI 覆盖。
+- 用户授权的 commit/push/Draft PR 已执行；合并、转 Ready、部署和真实服务调用仍需独立授权。下方本地未提交等表述仅保留其原检查点语义，不覆盖本节。
 
 ## Last Updated
 
-2026-10-23 — 状态对齐、预览更新准备及 Vite 安全补丁本地完成；候选尚未提交或部署。
+2026-10-23 — 状态对齐、预览更新准备及 Vite 安全补丁本地完成；补丁已提交并推送，Draft PR #83；尚未合并或部署。
 
 ## Repository State
 
@@ -12,7 +19,7 @@
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`。
 - Integration: `codex/v15-integration-foundation` / `6cab22f580f3345696258dea9983ea09c6def7ab`；2026-10-23 远端重核。
 - Worktree: `C:/Users/hebia/.codex/worktrees/preview-readiness-20261022/daily-assistant`。
-- Branch: `codex/preview-readiness-20261022`；HEAD 为上述 Integration，无本轮提交。
+- Branch: `codex/preview-readiness-20261022`；补丁提交 `fb50097e66be2e63fcc994715cd36db2252b02ba`；交付记录后续提交以 Git/PR HEAD 为准。
 - 原始 `D:/daily-assistant` 分支与四项未提交内容保留，详见更新准备清单。
 
 ## Project Summary
@@ -24,11 +31,11 @@
 - Canonical: `PRIVATE_PREVIEW_OPERATION / ACTIVE / FEEDBACK_FIXES_ONLY`。
 - 本轮已完成：`VITE-SECURITY-PATCH-20261023`，承接 `PREVIEW-UPDATE-PREP-20261023`，限定 Vite 及必要间接依赖修复；canonical 保持不变。
 - 当前运行 release：`/opt/daily-assistant-preview/releases/d3db83b1-20260924T133437Z`；API、Nginx、MySQL active。
-- 本地候选：基于 `6cab22f` 的未提交 Vite 8.2.4 补丁；完整 quality 与正式审计通过，尚无补丁提交或 CI，未部署。历史 R1 APPROVED、独立 Staging 豁免、H6/H7/H8 关闭保持原范围；H1/H2 仍为豁免而非设备通过。
+- 交付候选：基于 `6cab22f` 的 Vite 8.2.4 补丁 `fb50097`，已推送并创建 Draft PR #83；CI 见顶部交付快照，未部署。历史 R1 APPROVED、独立 Staging 豁免、H6/H7/H8 关闭保持原范围；H1/H2 仍为豁免而非设备通过。
 
 ## Last Completed Task
 
-本轮 Vite 补丁为 DONE_LOCAL，见 [修复记录](../docs/55-vite-security-patch-20261023.md)。最新远端代码交付为 PR #82 的 Integration Bootstrap 与 PR 基线保护，已合并至 `6cab22f` 且合并 CI 通过；这不是当前预览的部署版本。canonical 上次完成的 REL-03 历史收口语义保留。
+本轮 Vite 补丁为 DONE_COMMITTED / DONE_PUSHED / PR_DRAFT，见 [修复记录](../docs/55-vite-security-patch-20261023.md)。最新远端代码交付为 PR #82 的 Integration Bootstrap 与 PR 基线保护，已合并至 `6cab22f` 且合并 CI 通过；这不是当前预览的部署版本。canonical 上次完成的 REL-03 历史收口语义保留。
 
 ## Completed Work
 
@@ -41,14 +48,14 @@
 
 ## Remaining Work
 
-- 本地补丁待独立 Git 交付授权、形成精确 SHA 并通过远端 CI；历史 6cab22f CI 不覆盖补丁。
+- Draft PR #83 的最终 HEAD 检查及人工审阅；转 Ready、合并和部署须对应独立授权。
 - 新候选目标 Linux 构建、备份、切换与业务/设备验收尚未执行。
 - 公网发布、扩容、新基础设施、R2/R3 保持延后。
 
 ## Blockers
 
-- Vite High 已在本地消除；尚无补丁 SHA/CI 和目标 Linux 构建、备份及部署后验收，不能视作发布就绪。
-- Git 交付、部署及真实第三方调用尚无本轮独立授权；不阻碍完成本地准备。
+- Vite High 已消除，Git 交付已完成；目标 Linux release 构建、备份及部署后验收未执行，不能视作已发布。
+- 用户已授权并执行本轮 commit/push/Draft PR；合并、部署及真实第三方调用不在本次授权范围。
 
 ## Known Issues
 
@@ -69,7 +76,7 @@
 
 ## Next Recommended Task
 
-下一步是审阅本地补丁及已完成的状态对齐，独立授权后形成提交和 CI；再按精确 SHA/环境走预览更新与验收。不要自动执行下一 canonical 功能任务。
+下一步是审阅 Draft PR #83 及其最终 HEAD 的 CI；获得对应授权后再推进 Ready、合并和精确 SHA/环境的预览更新与验收。不要自动执行下一 canonical 功能任务。
 
 ## Handoff Instructions
 

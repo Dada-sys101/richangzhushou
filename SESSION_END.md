@@ -1,5 +1,7 @@
 # Session End
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](docs/55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 ## 2026-10-23 — Vite 安全依赖补丁（DONE_LOCAL / UNCOMMITTED）
 
 - 承接更新准备后用户的继续指示；两个前端 Vite 最低版本提高至 ^8.2.4，锁文件统一修复版及所需 PostCSS/Rolldown 配套依赖。未改业务、数据库、API、运行配置或门禁。

@@ -1,5 +1,7 @@
 # Daily Assistant V1.5 唯一总执行规划
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](docs/55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 版本：v2.1.1 Final
 批准日期：2026-08-10
 状态：`APPROVED / ACTIVE`
@@ -460,7 +462,7 @@ AI-DECISION-001 已完成 ADR-027 v1.0 Final Accepted，当前为 `DONE / DONE_I
 
 ## 12. Task Selection Policy
 
-2026-10-23 实况补充（不修改冻结选择规则）：Integration 6cab22f，预览 d3db83b，canonical 保持 PRIVATE_PREVIEW_OPERATION。本轮已对齐记录、准备更新并完成本地 Vite 8.2.4 补丁；完整 quality 与正式审计通过（0 High/Critical、8 Moderate），补丁尚未提交、运行远端 CI 或部署，见 [修复记录](docs/55-vite-security-patch-20261023.md) 与 [准备清单](docs/54-private-preview-update-plan-20261023.md)。本节后部带 8/9 月提交和旧 CI 的描述为历史治理快照，不覆盖本补充。
+2026-10-23 实况补充（不修改冻结选择规则）：Integration 6cab22f，预览 d3db83b，canonical 保持 PRIVATE_PREVIEW_OPERATION。本轮已对齐记录、准备更新并完成本地 Vite 8.2.4 补丁；完整 quality 与正式审计通过（0 High/Critical、8 Moderate），补丁已提交推送为 fb50097，Draft PR #83 的 CI 见修复记录；尚未合并或部署，见 [修复记录](docs/55-vite-security-patch-20261023.md) 与 [准备清单](docs/54-private-preview-update-plan-20261023.md)。本节后部带 8/9 月提交和旧 CI 的描述为历史治理快照，不覆盖本补充。
 
 仅当用户要求继续推进但没有指定目标时，按 `nextCanonicalTask` 核验依赖和门禁后选择任务，
 不得自行重新排序；若该任务被阻塞，不得随机改做其他 READY 任务，除非计划明确 fallback 或人工改序。

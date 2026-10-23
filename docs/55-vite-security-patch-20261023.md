@@ -1,6 +1,13 @@
 # Vite 安全依赖补丁（2026-10-23）
 
-> Git 交付授权（2026-10-23）：用户明确确认提交当前 21 个文件、推送 codex/preview-readiness-20261022、创建面向 codex/v15-integration-foundation 的 Draft PR 并跟进 CI。当前正在交付；下文未提交/未授权表述为交付前检查点，不撤销本授权。合并、部署及真实服务调用仍不在范围内。
+## Git 交付快照（2026-10-23）
+
+- 补丁提交：`fb50097e66be2e63fcc994715cd36db2252b02ba`，已推送至 `codex/preview-readiness-20261022`。
+- [Draft PR #83](https://github.com/Dada-sys101/richangzhushou/pull/83) → `codex/v15-integration-foundation`；尚未合并、未部署。
+- [PR CI 39916174760](https://github.com/Dada-sys101/richangzhushou/actions/runs/39916174760) SUCCESS：quality、MySQL 8.4.13 数据库验证（18 文件 / 162 项）与 Chromium desktop/mobile 冒烟（86/86）通过。供应链和数据库产物已上传；Playwright 报告仅失败时上传，本次 SKIPPED。
+- [Push CI 39916145898](https://github.com/Dada-sys101/richangzhushou/actions/runs/39916145898) SUCCESS；本结论仅对应补丁 fb50097，后续 HEAD 必须另核。
+- 本节是补丁 SHA 的已核实交付快照；本记录后续文档提交的 HEAD 和 CI 以 Git/PR 为准，不能复用父提交结果。五档宽度、真实设备、目标服务器 release 构建和部署验收未在此 CI 覆盖。
+- 用户授权的 commit/push/Draft PR 已执行；合并、转 Ready、部署和真实服务调用仍需独立授权。下方本地未提交等表述仅保留其原检查点语义，不覆盖本节。
 
 状态：`DONE_LOCAL / QUALITY_PASS / UNCOMMITTED / NOT_DEPLOYED`。任务 `VITE-SECURITY-PATCH-20261023`，基于 Integration `6cab22f580f3345696258dea9983ea09c6def7ab` 的本地未提交改动，不代表新的 Integration SHA 或部署版本。
 

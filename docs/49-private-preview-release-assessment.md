@@ -1,9 +1,11 @@
 # 私有预览发布评估
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 ## 2026-10-23 — 运行复核与更新准备
 
 - current 只读核实为 /opt/daily-assistant-preview/releases/d3db83b1-20260924T133437Z，对应 d3db83b；API/Nginx/MySQL active。
-- Integration 6cab22f 未部署；其上的 Vite 8.2.4 本地补丁通过完整 quality 和正式审计（0 High/Critical、8 Moderate），尚无补丁 SHA/CI。历史 merged CI 不覆盖补丁，目标 Linux 构建与发布条件仍待完成。
+- Integration 6cab22f 未部署；其上的 Vite 8.2.4 本地补丁通过完整 quality 和正式审计（0 High/Critical、8 Moderate），补丁 fb50097 已提交推送至 Draft PR #83，最终 HEAD CI 以 PR 为准。历史 merged CI 不覆盖补丁，目标 Linux 构建与发布条件仍待完成。
 - 原始工作区 2026-09-27 记录仍标业务/设备验收 PENDING；本轮没有业务写入、备份正文读取或重新验收。
 - 拟更新的应用回滚目标为上述 current；切换前重核。新备份和目标 Linux 构建未执行。
 - 见 [准备清单](54-private-preview-update-plan-20261023.md)。以下均为历史发布证据，旧“当前”一词只适用于各记录时点。

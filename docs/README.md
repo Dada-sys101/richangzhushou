@@ -1,7 +1,9 @@
 # Documentation Index
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 版本：1.0
-状态：最新 Integration 与现有预览已核对；Vite 补丁本地 quality/审计通过，尚未提交或部署
+状态：最新 Integration 与现有预览已核对；Vite 补丁本地 quality/审计通过，已提交推送、Draft PR #83，尚未合并或部署
 更新：2026-10-23
 
 ## 当前准备入口

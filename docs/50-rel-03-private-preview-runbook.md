@@ -1,8 +1,10 @@
 # REL-03 私有预览发布与回滚运行手册
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 ## 当前准备入口（2026-10-23）
 
-当前预览为 d3db83b1-20260924T133437Z；Integration 6cab22f 未部署，其上的 Vite 8.2.4 本地补丁已通过 quality/审计；精确提交/CI 和目标环境验证完成前不切换。最新候选、回滚与验收见 [准备清单](54-private-preview-update-plan-20261023.md)；下方保留既有流程，历史基线不作为本次新备份/回滚目标。
+当前预览为 d3db83b1-20260924T133437Z；Integration 6cab22f 未部署，其上的 Vite 8.2.4 补丁 fb50097 已通过本地 quality/审计并推送至 Draft PR #83；精确提交/CI 和目标环境验证完成前不切换。最新候选、回滚与验收见 [准备清单](54-private-preview-update-plan-20261023.md)；下方保留既有流程，历史基线不作为本次新备份/回滚目标。
 
 状态：`DONE_LOCAL / EXISTING_ENVIRONMENT`
 

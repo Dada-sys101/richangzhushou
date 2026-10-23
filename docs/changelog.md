@@ -1,5 +1,7 @@
 # 变更日志（Changelog）
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 ## 2026-10-23 — Vite 安全依赖补丁（DONE_LOCAL / UNCOMMITTED）
 
 - 交付前复核补充：远端基线未变，修正 PLANS 与 execution-state 恢复入口遗留的修复前 High 阻塞描述；准备本地 PR 说明，未提交、推送或建 PR。

@@ -1,5 +1,7 @@
 # 路线图（派生摘要）
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 updatedAt: 2026-10-23
 
 > 完整 canonical 依赖、当前有效规则和 Task Selection Policy 仍以 `PLANS.md` v2.1.1 为准。
@@ -7,7 +9,7 @@ updatedAt: 2026-10-23
 
 ## 当前事实与范围
 
-Integration 6cab22f，预览 d3db83b，canonical 保持 PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY。本轮对齐记录、准备更新并完成本地 Vite 8.2.4 补丁；完整 quality/正式审计通过，尚未提交、运行远端 CI 或部署，见 [准备清单](54-private-preview-update-plan-20261023.md)。REL-04～REL-06、R2/R3、公网及扩容延后。
+Integration 6cab22f，预览 d3db83b，canonical 保持 PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY。本轮对齐记录、准备更新并完成本地 Vite 8.2.4 补丁；完整 quality/正式审计通过，补丁 fb50097 已提交推送至 Draft PR #83，最终 HEAD CI 以 PR 为准，尚未合并或部署，见 [准备清单](54-private-preview-update-plan-20261023.md)。REL-04～REL-06、R2/R3、公网及扩容延后。
 
 ## 历史路线与门禁（2026-09-14）
 
