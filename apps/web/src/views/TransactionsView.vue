@@ -7,6 +7,7 @@ import DateField from "../components/DateField.vue";
 import EmptyState from "../components/EmptyState.vue";
 import ErrorState from "../components/ErrorState.vue";
 import LoadingState from "../components/LoadingState.vue";
+import RecordMoreActions from "../components/RecordMoreActions.vue";
 import SecondaryPageShell from "../components/SecondaryPageShell.vue";
 import SectionCard from "../components/SectionCard.vue";
 import { requestAppConfirm } from "../composables/useAppConfirm";
@@ -165,7 +166,7 @@ function withTransactionsSource(path: string) {
 
 <template>
   <SecondaryPageShell
-    class="finance-page transactions-page"
+    class="finance-page transactions-page record-surface record-transactions"
     title="账单明细"
     title-id="transactions-title"
     subtitle="记账"
@@ -270,7 +271,7 @@ function withTransactionsSource(path: string) {
               <div class="transaction-amount" :class="amountClass(item.type)">
                 {{ signedMoney(item) }}
               </div>
-              <div class="row-actions">
+              <div class="row-actions record-toolbar">
                 <RouterLink
                   v-if="!item.deletedAt"
                   class="text-button"
@@ -278,16 +279,20 @@ function withTransactionsSource(path: string) {
                 >
                   编辑
                 </RouterLink>
-                <button
+                <RecordMoreActions
                   v-if="!item.deletedAt"
-                  class="text-button danger"
-                  type="button"
-                  @click="remove(item.id)"
+                  :label="`${item.merchant || '账单'}的更多操作`"
                 >
-                  删除
-                </button>
+                  <button
+                    class="text-button danger"
+                    type="button"
+                    @click="remove(item.id)"
+                  >
+                    删除
+                  </button>
+                </RecordMoreActions>
                 <button
-                  v-else
+                  v-if="item.deletedAt"
                   class="text-button"
                   type="button"
                   @click="restore(item.id)"

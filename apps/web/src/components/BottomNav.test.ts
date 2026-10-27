@@ -59,18 +59,49 @@ function makeRouter() {
       {
         path: "/transactions/new",
         component: EditPage,
-        meta: { navigationKind: "FLOW_PAGE" },
+        meta: {
+          navigationKind: "FLOW_PAGE",
+          page: {
+            title: "记一笔",
+            parent: { title: "记录", path: "/records" },
+          },
+        },
       },
       {
         path: "/calendar/event-1",
         component: Placeholder,
-        meta: { navigationKind: "DETAIL_PAGE" },
+        meta: {
+          navigationKind: "DETAIL_PAGE",
+          page: { title: "日程详情", parent: { title: "计划", path: "/plan" } },
+        },
       },
     ],
   });
 }
 
 describe("BottomNav", () => {
+  it("identifies the current section on a detail and updates after returning home", async () => {
+    const router = makeRouter();
+    await router.push("/calendar/event-1?returnTo=%2F");
+    await router.isReady();
+    const wrapper = mount(BottomNav, { global: { plugins: [router] } });
+
+    expect(wrapper.get('a[href="/plan"]').classes()).toContain(
+      "router-link-active",
+    );
+    expect(wrapper.get('a[href="/plan"]').attributes("aria-current")).toBe(
+      "location",
+    );
+    expect(wrapper.findAll("[aria-current]")).toHaveLength(1);
+    await wrapper.get('a[href="/"]').trigger("click");
+    await flushPromises();
+    expect(wrapper.get('a[href="/"]').attributes("aria-current")).toBe("page");
+    expect(
+      wrapper.get('a[href="/plan"]').attributes("aria-current"),
+    ).toBeUndefined();
+    wrapper.unmount();
+  });
+
   it("renders five entries and applies root-tab replacement through policy", async () => {
     const router = makeRouter();
     await router.push("/");
@@ -128,6 +159,9 @@ describe("BottomNav", () => {
     await flushPromises();
     expect(appConfirmState.open).toBe(true);
     expect(router.currentRoute.value.fullPath).toBe("/transactions/new");
+    expect(wrapper.get('a[href="/records"]').attributes("aria-current")).toBe(
+      "location",
+    );
 
     resolveAppConfirm(false);
     await flushPromises();
@@ -143,6 +177,7 @@ describe("BottomNav", () => {
     resolveAppConfirm(true);
     await flushPromises();
     expect(router.currentRoute.value.fullPath).toBe("/");
+    expect(wrapper.get('a[href="/"]').attributes("aria-current")).toBe("page");
     view.unmount();
     wrapper.unmount();
   });

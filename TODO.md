@@ -1,13 +1,37 @@
 # TODO
 
+## 2026-10-27 — 实施交付后待办
+
+- DONE_PUSHED：f50d20c 已进入 Draft PR #83，PR/Push CI 三项 SUCCESS；数据库 162/162、浏览器 86/86、Linux Bootstrap 18/18。
+- PENDING：本记录后续文档提交的最终 HEAD CI 与审阅；Ready、merge、精确 SHA/环境部署授权及目标 release 构建、备份、切换/回滚与真机/离线验收。
+- 不再将旧检查点的 Git 授权、实施 CI 或 Windows Bootstrap 限制作为未补齐门禁；canonical 保持反馈修复。见 [候选记录](docs/60-ui-release-candidate-20261027.md)。
+
+## 2026-10-27 — 当前 UI 候选交付
+
+- DONE_LOCAL：已确认 UI/导航，安全依赖补丁、E2E 真实入口适配；完整 quality、治理、正式审计、依赖树、许可证/SBOM。
+- PENDING：本候选 commit/push/更新 Draft PR #83 的对应授权；候选 Linux CI（含本机失败的 Bootstrap、未运行的数据库和浏览器 E2E）。
+- PENDING：最终 HEAD 审阅、Ready/merge 和精确 SHA/环境部署授权；目标 release 构建、备份、切换、五档/真机/离线验收及观察。
+- 现有私有预览 d3db83b 保持运行；不推进公网注册或下一 canonical 功能。见 [候选记录](docs/60-ui-release-candidate-20261027.md)。下方为历史检查点。
+
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](docs/55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 仅使用 `NOT_STARTED`、`IN_PROGRESS`、`BLOCKED`、`DONE`、`CANCELLED`。
 
-## 当前执行记录（2026-09-15）
+## 当前执行记录（2026-10-23）
 
-MOBILE-C3 已通过 PR #33 合入 Integration `5a0dc52`，合并 CI 最终全绿；私有预览与 iPhone/Android 验收保持通过。下一步是冻结 MOBILE-C4 独立任务契约。Web Push 候选保持关闭，真实送达门禁独立保留。
-MOBILE-C4 候选 `8e9f53e` 已在受保护备份后部署私有预览，最终 CI、发布后检查及 iPhone/Android 实机验收均通过；PR #34 已合并为 Integration `e407157`，合并 CI `34800440131` 全绿。简化运营与 REL-03 运行手册 PR #35 已合并为 Integration `6e3ba34`，合并 CI `34810670074` 全绿。用户已明确选择 R1.1 Web Push 私有预览验收：服务器密钥和功能开关已配置，H8/H6 均已关闭：用户确认真实设备订阅、送达、点击、退订和重新开启正常，调度器已恢复。当天日期时间确认修复 PR #36 已合入 Integration `9ddc354`，合并 CI `34819073059` 全绿，已部署私有预览。必填日期时间默认选中当天的后续修复 PR #38 已合入 Integration `8bbb302`，合并 CI `34823090430` 全绿，已在备份后部署至 `8bbb3022-20260914T083606Z`，等待 iPhone/Android 复验。
-UIR-00/01 和 UIR-02 已进入 Integration `d05b25cb`。UIR-02 的本地质量、PR/Integration CI、私有预览 smoke 及 iPhone/Android 软键盘、安全区和连续 Browser Back 验收全部通过；未自动开始 UIR-03。
+- DONE：核实 Integration 6cab22f、PR #77～#82、历史 CI 和预览 d3db83b。
+- DONE：状态对齐、本日审计/质量检查与更新验收清单（准备完成不等于候选放行）。
+- DONE：Vite 8.2.4 安全补丁本地验证；完整 quality、正式审计、依赖树、SBOM 通过，0 High/Critical、8 Moderate。
+- DONE：补丁 fb50097 提交并推送，创建 Draft PR #83；CI 见顶部交付快照。
+- NOT_STARTED：Ready、合并及部署，需对应独立授权；本轮交付不等于已部署。
+- NOT_STARTED：目标 Linux 构建、备份/切换与业务/设备验收。
+- canonical 保持 PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY。
 
+详见 [准备清单](docs/54-private-preview-update-plan-20261023.md)。
+
+## 历史工作包台账
+
+以下保留历史工作包标签，不表示本候选重新验收通过；旧注册/邀请码/OCR 条目不是当前功能边界，以 AGENTS/PLANS 为准。
 | ID | 任务 | 状态 | 工作包 |
 | --- | --- | --- | --- |
 | DA-1201 | PWA 导航策略、根 Tab 历史与深链接返回 | DONE | MOBILE-A（PR #29 已合并） |

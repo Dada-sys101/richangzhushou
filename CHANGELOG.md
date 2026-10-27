@@ -1,5 +1,34 @@
 # Changelog
 
+## 2026-10-27 — UI 候选交付
+
+实施 f50d20c 已提交推送并更新 Draft PR #83；PR CI 40458997179、Push CI 40458991356 三项 SUCCESS，数据库 162/162、浏览器 86/86、Linux Bootstrap 18/18。文档后续提交另核最终 CI，未合并或部署。下方 UNCOMMITTED 为历史准备检查点。见 [候选记录](docs/60-ui-release-candidate-20261027.md)。
+
+## 2026-10-27 — UI 候选安全与交付准备（DONE_LOCAL / UNCOMMITTED）
+
+body-parser 2.4.0、Multer 2.5.0、Undici 8.12.2 消除 High；适配 E2E 的更多菜单和新增折叠入口，保留业务断言。干净安装、完整 quality、1157 passed / 140 DB skipped、治理 30/30、审计 0 High/Critical、SBOM 1056 通过；Windows Bootstrap 15 项失败留待 Linux CI，数据库/真实后端浏览器未运行。当前 UI/导航候选尚未提交或部署，见 [候选记录](docs/60-ui-release-candidate-20261027.md)。
+
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](docs/55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
+## 2026-10-23 — Vite 安全依赖补丁（DONE_LOCAL / UNCOMMITTED）
+
+- 承接更新准备后用户的继续指示；两个前端 Vite 最低版本提高至 ^8.2.4，锁文件统一修复版及所需 PostCSS/Rolldown 配套依赖。未改业务、数据库、API、运行配置或门禁。
+- 干净安装、完整 quality、正式审计、依赖树和 SBOM PASS；治理 30/30，业务测试 1148 passed / 140 skipped。High/Critical 均为 0，仍有 8 Moderate。
+- SBOM 1057 components；许可证清单 1176 packages，保留 8 missing/unresolved 和 25 manual review required；变化包均声明 MIT，无新增安装脚本。
+- 本地基于 6cab22f，尚无补丁提交或远端 CI，预览仍为 d3db83b；未提交、推送、PR、部署或真实服务调用。原目录四项内容哈希保持不变。
+- 详细范围、证据与后续见 [修复记录](docs/55-vite-security-patch-20261023.md)。下方准备阶段的审计失败是修复前事实，未覆盖最新本地通过结果。
+
+## 2026-10-23 — 最新基线对齐与私有预览更新准备
+
+- 本轮 DONE_LOCAL / PREPARATION_COMPLETE；仅文档与验证，无业务实现、提交、推送、PR 或部署。
+- Integration 6cab22f，PR #77～#82 已合并；历史 merged CI 38364527083 三项 SUCCESS，浏览器报告上传 SKIPPED。
+- 服务器仍运行 d3db83b1-20260924T133437Z，API/Nginx/MySQL active；#78～#82 尚未部署，本轮未重跑业务/设备验收。
+- 正式审计 FAIL_CLOSED：Vite 8.2.0 High；共 8 moderate、1 high。quality 仅最终审计失败；其余阶段通过，业务测试 1148 passed / 140 skipped、治理 30/30。
+- 原目录四项未提交内容保留；独立分支 codex/preview-readiness-20261022。兼容性未发现 schema/migration/DTO/OpenAPI/运行配置/CORS 变更。
+- 候选、验证、回滚及验收见 [准备清单](docs/54-private-preview-update-plan-20261023.md)。
+
+> 以下为历史阶段记录；当时的 DONE_LOCAL、未提交及旧“当前”版本不覆盖上面的核验。
+
 ## 2026-09-15 — UIR-02 private-preview candidate
 
 - Added the bounded UI foundation and ChangePassword sample, including Browser Back state-consistency handling.

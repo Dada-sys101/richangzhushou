@@ -1,5 +1,63 @@
 # 项目进度（派生摘要）
 
+## 2026-10-27 — UI 候选已推送 / 实施 CI 通过
+
+- 用户明确授权 commit/push/更新既有 PR；实施 f50d20c 已进入 Draft PR #83，尚未 Ready/合并/部署。
+- PR CI 40458997179、Push CI 40458991356 三项 SUCCESS；MySQL 8.4.13 数据库 162/162、Chromium desktop/mobile 86/86、Linux Bootstrap 18/18。补齐下方本地检查点的对应 CI 缺口，保留 Windows 失败/DB skipped 事实。
+- 本交付记录后续提交另核最终 HEAD CI；目标 release 构建、备份、部署和真机/真正离线验收尚待，canonical 不晋级。见 [候选记录](60-ui-release-candidate-20261027.md)。
+
+## 2026-10-27 — 已确认 UI 的发布准备（DONE_LOCAL / UNCOMMITTED）
+
+- 用户认可 UI 并要求推进上线准备；补齐安全依赖修复、E2E 更多/新增入口与发布回滚记录，不扩展新功能。
+- 干净安装、完整 quality（1157 passed / 140 DB skipped）、治理 30/30、审计 0 High/Critical、SBOM 1056 通过；保留 6 Moderate、1 Low 及既有许可证待审核项。下方 UI 轮次的 High 阻塞已被本次修复替代。
+- E2E 86 项仅收集及修改文件 TS 检查通过；Windows Bootstrap 3 passed / 15 failed，待 Linux CI。候选未提交、未部署；现有 d3db83b 服务正常，health 200。见 [候选记录](60-ui-release-candidate-20261027.md)。
+
+## 2026-10-27 — 同类记录页面 UI 统一（DONE_LOCAL / UNCOMMITTED）
+
+- 基于 Apple 提醒事项和 Microsoft To Do 官方界面，统一待办/日程/提醒详情与编辑、账单表单/行操作、行程详情/编辑与子项操作；移除待办专用样式，复用记录页样式与更多组件。无 API、数据库或依赖变更。
+- 五档本地布局/错误/未保存保护、1157 项测试（Web 502，140 数据库测试 skipped）、构建与契约检查通过。完整 quality 在正式审计 FAIL_CLOSED：现有四项依赖含 High，替代此前超时的未知结果。真机/真实离线待验收，未提交或部署。
+- 参考、范围、矩阵和发布阻塞见 [UI 统一记录](59-record-ui-system-20261027.md)。替代下方两轮单页样板，不推进 canonical 状态。
+
+## 2026-10-26 — 待办详情操作排版（DONE_LOCAL / UNCOMMITTED）
+
+- 编辑/完成改为并排主操作，取消/删除降为次级行；清理重复标题和卡片装饰，与待办编辑样板保持一致。请求、确认和状态逻辑不变。
+- 45 项组件测试、Web Lint/类型/构建及五档浏览器布局检查通过；完成失败重试、删除恢复、长标题与返回流程有本地合成数据证据。真机/真实离线未验证，上一轮依赖审计超时缺口保留；未提交或部署。见 [详情操作区记录](58-task-detail-actions-20261026.md)。
+
+## 2026-10-26 — Impeccable 待办编辑样板（本地完成，审计待验证）
+
+- 安装固定版本 Impeccable，以现有暖白/紫色为基础精简待办编辑页：单一主标题、多行标题输入、扁平表单和文档流操作区；保留工作包 A 导航。无 API、数据库、依赖或全局设计系统变更。
+- 定向 45 项测试及五档视口的布局/未保存返回保护通过；保存 503 后重试、无截止时间保存通过。首轮测试类型声明错误已修复，第二轮 quality 的格式、Lint、类型、1154 项测试（140 数据库测试 skipped）、构建及契约校验通过；最后依赖审计与单独重试均超时，完整 quality 未通过。真机与真实离线仍待测。
+- 详细安装来源、实现、证据与边界见 [待办编辑样板](57-task-editor-impeccable-20261026.md)。未提交或部署，不推进 canonical 门禁。
+
+## 2026-10-23 — 手机内页导航工作包 A（DONE_LOCAL / UNCOMMITTED）
+
+- 基于 fbb9933 复用 #78 的内页底部导航，补全手机/桌面详情页所属栏目高亮及读屏标记；栏目沿现有路由父级解析，返回来源不改变栏目归属。未修改 API、数据库、依赖或运行配置。
+- 五档宽度的待办编辑、新账单、日程/行程详情和快速新增回首页、未保存内容取消/确认离开、日程浏览器 Back、HTTP 503 错误页导航通过；使用本地合成接口，未验证真实设备、真实离线恢复或数据库 E2E。
+- 完整 quality 重跑通过（首次 OpenAPI 校验成功后进程退出异常）：1153 passed / 140 数据库测试 skipped，Web 498/498，构建、Prisma、OpenAPI、离线 migration diff、审计无 High/Critical；context 与差异检查通过。详细结果与局限见 [工作包 A](56-mobile-navigation-a-20261023.md)。本次未提交或部署，不包含在既有 PR #83 CI 中；保留原 checkout 修改和 canonical 任务快照，未开始 B/C。
+
+> 下方交付更新仅适用于 Vite 补丁，不适用于本次导航改动。
+
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
+## 2026-10-23 — Vite 安全依赖补丁（DONE_LOCAL / UNCOMMITTED）
+
+- 承接更新准备后用户的继续指示；两个前端 Vite 最低版本提高至 ^8.2.4，锁文件统一修复版及所需 PostCSS/Rolldown 配套依赖。未改业务、数据库、API、运行配置或门禁。
+- 干净安装、完整 quality、正式审计、依赖树和 SBOM PASS；治理 30/30，业务测试 1148 passed / 140 skipped。High/Critical 均为 0，仍有 8 Moderate。
+- SBOM 1057 components；许可证清单 1176 packages，保留 8 missing/unresolved 和 25 manual review required；变化包均声明 MIT，无新增安装脚本。
+- 本地基于 6cab22f，尚无补丁提交或远端 CI，预览仍为 d3db83b；未提交、推送、PR、部署或真实服务调用。原目录四项内容哈希保持不变。
+- 详细范围、证据与后续见 [修复记录](55-vite-security-patch-20261023.md)。下方准备阶段的审计失败是修复前事实，未覆盖最新本地通过结果。
+
+## 2026-10-23 — 最新基线对齐与私有预览更新准备
+
+- 本轮 DONE_LOCAL / PREPARATION_COMPLETE；仅文档与验证，无业务实现、提交、推送、PR 或部署。
+- Integration 6cab22f，PR #77～#82 已合并；历史 merged CI 38364527083 三项 SUCCESS，浏览器报告上传 SKIPPED。
+- 服务器仍运行 d3db83b1-20260924T133437Z，API/Nginx/MySQL active；#78～#82 尚未部署，本轮未重跑业务/设备验收。
+- 正式审计 FAIL_CLOSED：Vite 8.2.0 High；共 8 moderate、1 high。quality 仅最终审计失败；其余阶段通过，业务测试 1148 passed / 140 skipped、治理 30/30。
+- 原目录四项未提交内容保留；独立分支 codex/preview-readiness-20261022。兼容性未发现 schema/migration/DTO/OpenAPI/运行配置/CORS 变更。
+- 候选、验证、回滚及验收见 [准备清单](54-private-preview-update-plan-20261023.md)。
+
+> 以下为历史阶段记录；当时的 DONE_LOCAL、未提交及旧“当前”版本不覆盖上面的核验。
+
 ## 2026-10-11 — V15-H7-PROPOSAL-FIELD-WHITELIST-FIX-001（DONE_LOCAL / NOT_COMMITTED）
 
 - 两次 fetch 核对远端 Integration 均为 `10847ee123283bdb22a3a1f0fec5530fdbcc734b`；使用独立 Worktree 和 `codex/v15-h7-proposal-whitelist-fix-001`，原始 `work` 保持干净。

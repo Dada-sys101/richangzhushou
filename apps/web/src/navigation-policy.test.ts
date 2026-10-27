@@ -10,6 +10,7 @@ import {
   ensureDirectEntryFallback,
   navigate,
   resolveBackTarget,
+  resolveNavigationSection,
   sanitizeReturnTo,
 } from "./navigation-policy";
 
@@ -57,6 +58,70 @@ function makeRouter() {
 }
 
 describe("navigation policy", () => {
+  it("resolves section ownership independently of returnTo and follows nested parents", () => {
+    const router = makeRouter();
+    router.addRoute({
+      path: "/trips",
+      component: Placeholder,
+      meta: {
+        page: { title: "行程", parent: { title: "我的", path: "/account" } },
+      },
+    });
+    router.addRoute({
+      path: "/trips/:id",
+      component: Placeholder,
+      meta: {
+        page: { title: "行程详情", parent: { title: "行程", path: "/trips" } },
+      },
+    });
+    expect(
+      resolveNavigationSection(
+        router,
+        router.resolve("/tasks/one?returnTo=%2F"),
+      ),
+    ).toBe("/plan");
+    expect(resolveNavigationSection(router, router.resolve("/trips/one"))).toBe(
+      "/account",
+    );
+    expect(
+      resolveNavigationSection(router, router.resolve("/records?tab=pending")),
+    ).toBe("/records");
+  });
+
+  it("leaves unknown/public pages unselected and stops invalid or cyclic parent chains", () => {
+    const router = makeRouter();
+    expect(
+      resolveNavigationSection(router, { path: "/missing", meta: {} }),
+    ).toBeNull();
+    expect(
+      resolveNavigationSection(router, { path: "/", meta: { public: true } }),
+    ).toBeNull();
+    expect(
+      resolveNavigationSection(router, { path: "/capture", meta: {} }),
+    ).toBe("/capture");
+    expect(
+      resolveNavigationSection(router, {
+        path: "/external",
+        meta: {
+          page: {
+            title: "外部",
+            parent: { title: "外部", path: "https://example.com" },
+          },
+        },
+      }),
+    ).toBeNull();
+    router.addRoute({
+      path: "/loop",
+      component: Placeholder,
+      meta: {
+        page: { title: "循环", parent: { title: "循环", path: "/loop" } },
+      },
+    });
+    expect(
+      resolveNavigationSection(router, router.resolve("/loop")),
+    ).toBeNull();
+  });
+
   it("does not retain 20 root-tab cycles below a business detail", async () => {
     const router = makeRouter();
     await router.push("/");

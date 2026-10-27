@@ -205,9 +205,8 @@ function defaultOccurredAt(): string {
 <template>
   <UiPageFrame
     :title="editingId ? '编辑账单' : '记一笔'"
-    class="finance-page transaction-form-page"
+    class="finance-page transaction-form-page record-surface record-editor"
     max-width="form"
-    subtitle="记账"
     title-id="transaction-form-title"
   >
     <template #status>

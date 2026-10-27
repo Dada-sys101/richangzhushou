@@ -1,65 +1,59 @@
 # Project Status
 
-updatedAt: 2026-09-15T17:29:00+08:00
+## 2026-10-27 — 实施候选已交付
+
+实施 f50d20cb519c827759e011999b46103c499e08ab 已按明确授权提交推送、更新 Draft PR #83，未 Ready/合并/部署。PR CI 40458997179、Push CI 40458991356 三项 SUCCESS，MySQL 8.4.13 数据库 162/162、浏览器 86/86、Linux Bootstrap 18/18；本交付记录后续提交须另核最终 HEAD CI。此节替代下方本地准备检查点的未提交/CI 待运行状态，canonical 不晋级。见 [候选记录](docs/60-ui-release-candidate-20261027.md)。
+
+## 2026-10-27 — 当前本地 UI 发布候选
+
+UI-RELEASE-PREP-20261027 DONE_LOCAL / UNCOMMITTED / CANDIDATE_CI_PENDING / NOT_DEPLOYED。完整 quality PASS（1157 passed / 140 DB skipped），治理 30/30、审计 0 High/Critical、SBOM 1056 通过；Bootstrap 本机 3 passed / 15 failed（Windows 权限限制），待 Linux CI。HEAD/PR #83 为 fbb9933，尚不包含本地 UI/导航、安全依赖及 E2E 入口适配。预览仍 d3db83b，health 200；canonical 不晋级。此节覆盖下方旧检查点的当前候选描述。见 [候选记录](docs/60-ui-release-candidate-20261027.md)。
+
+## Git 交付快照（2026-10-23）
+
+- 补丁提交：`fb50097e66be2e63fcc994715cd36db2252b02ba`，已推送至 `codex/preview-readiness-20261022`。
+- [Draft PR #83](https://github.com/Dada-sys101/richangzhushou/pull/83) → `codex/v15-integration-foundation`；尚未合并、未部署。
+- [PR CI 39916174760](https://github.com/Dada-sys101/richangzhushou/actions/runs/39916174760) SUCCESS：quality、MySQL 8.4.13 数据库验证（18 文件 / 162 项）与 Chromium desktop/mobile 冒烟（86/86）通过。供应链和数据库产物已上传；Playwright 报告仅失败时上传，本次 SKIPPED。
+- [Push CI 39916145898](https://github.com/Dada-sys101/richangzhushou/actions/runs/39916145898) SUCCESS；本结论仅对应补丁 fb50097，后续 HEAD 必须另核。
+- 本节是补丁 SHA 的已核实交付快照；本记录后续文档提交的 HEAD 和 CI 以 Git/PR 为准，不能复用父提交结果。五档宽度、真实设备、目标服务器 release 构建和部署验收未在此 CI 覆盖。
+- 用户授权的 commit/push/Draft PR 已执行；合并、转 Ready、部署和真实服务调用仍需独立授权。下方本地未提交等表述仅保留其原检查点语义，不覆盖本节。
+
+updatedAt: 2026-10-23
 repository: Dada-sys101/richangzhushou
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
-integrationHead: d05b25cb058d0940b29508ba9ef071920226f994
-activeBranch: codex/uir-02-delivery-record
-activeHead: 05e4d696
+integrationHead: 6cab22f580f3345696258dea9983ea09c6def7ab
+activeBranch: codex/preview-readiness-20261022
+patchCommit: fb50097e66be2e63fcc994715cd36db2252b02ba
+activeHeadAtSnapshot: fb50097e66be2e63fcc994715cd36db2252b02ba
 activeTask: PRIVATE_PREVIEW_OPERATION
 executionStatus: ACTIVE
-deliveryStatus: FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
+deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_DRAFT / CANDIDATE_NOT_DEPLOYED
 nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
-nextCanonicalTaskAfterCompletion: NONE
-localRevision: 8bbb302
-staging: SEPARATE_STAGING_WAIVED / EXISTING_PRIVATE_PREVIEW_IS_VALIDATION_ENVIRONMENT
+nextCanonicalTaskAfterCompletion: USER_DIRECTED_SCOPE_SELECTION
+staging: SEPARATE_STAGING_WAIVED
 production: NOT_DEPLOYED
-privatePreview: OPERATIONAL / CANDIDATE_DEPLOYED / POST_DEPLOYMENT_SMOKE_PASS / PUBLIC_NOT_READY
-privatePreviewRelease: 05e4d696 / 05e4d696-20260915T091034Z
+privatePreviewRelease: /opt/daily-assistant-preview/releases/d3db83b1-20260924T133437Z
 
 ## Completed
 
-- R1 Quality Gate: `APPROVED / DONE`.
-- H1/H2: `WAIVED_FOR_R1 / UNVERIFIED`; no physical-device pass is claimed.
-- PR #25 merged into Integration `6515b8f`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
-- Prisma 7.9.1 with exact patched overrides and npm 11.18.0 passed local and target-host dependency, audit, SBOM and build checks.
-- Private-preview deployment and post-deployment business smoke passed; disposable test data was removed with zero residue.
-- Daily backup, 7-day cleanup and isolated database restore passed.
-- REL-02 separate Staging was explicitly waived; no new cloud resources or fees are planned for the current scope.
+PR #77～#82 已合并；候选历史 CI 38364527083 三项通过。R1 历史审批、H6/H7/H8 原边界和 H1/H2 豁免保留。
 
 ## Current
 
-UIR-02 candidate `05e4d696` is deployed to private preview and passed device acceptance. PR #41 merged as Integration `d05b25cb`; merged CI run `34952298758` passed quality, db-validation and browser-qa.
-
-`MOBILE-C4` is integrated and passed private-preview iPhone/Android acceptance. R1.1 Web Push is active only in the existing private preview; real-device subscription, delivery, click-through, unsubscribe and re-enable are user-confirmed, and the scheduler is active. PR #38 makes empty required date-time pickers select today temporarily so confirmation is available; it is merged, CI-verified and deployed, pending device recheck.
-
-UIR-00/01 planning and UIR-02 are integrated at `d05b25cb`. UIR-02 passed CI, private-preview smoke and device acceptance; UIR-03 has not started.
+预览为 d3db83b；Integration 6cab22f 与其上的 Vite 补丁 fb50097（Draft PR #83）均未部署。2026-10-23 三项服务 active，仅证明运行状态。
 
 ## Remaining
 
-- Select and authorize the next bounded UI task; do not start UIR-03 automatically.
-- Handle DNS, HTTPS, exact CORS and public smoke only when public entry is requested.
+Vite 补丁已提交推送并创建 Draft PR #83，最终 HEAD 的 CI 与审阅待核；之后按精确 SHA/环境批准部署和验收。
 
 ## Verification
 
-- Local quality and dependency governance: `PASS`.
-- Web Push MySQL 8.4.9 integration: `13 migrations / 18 files / 161 tests PASS`.
-- Controlled Chromium Web Push flows and five widths: `2/2 PASS`.
-- Database-backed browser smoke: `44/44 PASS`.
-- Merged CI: `PASS` (PR #38 / run `34823090430`).
-- Latest Integration CI: `PASS` (PR #39 / run `34824580264` at `77bedde...`).
-- UI planning documentation checks: `format:check`、`check:context`、`git diff --check` `PASS`; UI implementation checks `NOT_RUN / NOT_STARTED`.
-- Target Linux build/audit/SBOM: `PASS`.
-- Private-preview entry, business smoke and cleanup: `PASS`.
-- Backup/retention/restore: `PASS`.
-- REL-03 readiness: `NOT_STARTED`.
-- H8 MPL-2.0 private-preview Push review: `CLOSED` by user confirmation.
-- H6 real device delivery: `PASS` (user-confirmed private-preview acceptance on 2026-09-14).
-- Public entry and physical iPhone: `NOT_VERIFIED`.
+Vite 8.2.4 本地补丁的完整 quality、正式审计、依赖树、SBOM 均通过；0 High/Critical、8 Moderate。1148 passed / 140 skipped，治理 30/30。历史 CI 不覆盖本地补丁。本轮未执行本地数据库/浏览器矩阵、实机或真实 Provider 验收。
 
 ## Git State
 
-- PR #38 is merged as Integration `8bbb302`; CI run `34823090430` passed and release `8bbb3022-20260914T083606Z` is deployed. No public switch, new resource creation or Provider expansion was performed.
-- PR #39 is merged as Integration `77bedde`; latest CI run `34824580264` passed.
-- Local UI planning branch `codex/ui-reconstruction-baseline-refresh` is based on `77bedde...`; its documentation commit is not pushed and UIR-02 has not started.
+Vite 补丁及状态对齐已提交为 fb50097 并推送，状态证据后续提交见 PR #83。原始 D:/daily-assistant 四项未提交内容保留。
+
+## Evidence
+
+[更新准备清单](docs/54-private-preview-update-plan-20261023.md)；[Vite 修复与验证](docs/55-vite-security-patch-20261023.md)。

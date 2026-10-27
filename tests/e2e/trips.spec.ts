@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { recordAction } from "./helpers/record-ui";
 import {
   createActiveUserViaApi,
   E2E_ACTIVE_PASSWORD,
@@ -349,7 +350,13 @@ test("切换行程详情时隐藏旧数据并在服务失败后恢复", async ({
     ).toBeVisible();
     await expect(page.getByText(titleA, { exact: true })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "编辑行程" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "删除" })).toHaveCount(0);
+    await expect(
+      page.getByRole("button", {
+        name: "删除",
+        exact: true,
+        includeHidden: true,
+      }),
+    ).toHaveCount(0);
   } finally {
     releaseFailure();
   }
@@ -358,7 +365,13 @@ test("切换行程详情时隐藏旧数据并在服务失败后恢复", async ({
     page.getByRole("heading", { name: "行程暂时无法加载" }),
   ).toBeVisible();
   await expect(page.getByText(titleA, { exact: true })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "删除" })).toHaveCount(0);
+  await expect(
+    page.getByRole("button", {
+      name: "删除",
+      exact: true,
+      includeHidden: true,
+    }),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "重试" }).click();
   await expect(page.getByRole("heading", { name: titleB })).toBeVisible();
   await expect(page.getByText(destinationB)).toBeVisible();
@@ -550,7 +563,7 @@ test("行程详情本体编辑、删除确认、恢复和浏览器返回", async
       deleteResponseStatuses.push(response.status());
     }
   });
-  await page.getByRole("button", { name: "删除", exact: true }).click();
+  await (await recordAction(page, "删除")).click();
   await expect(
     page.getByRole("dialog", { name: "确认删除这段行程？" }),
   ).toBeVisible();
@@ -560,11 +573,9 @@ test("行程详情本体编辑、删除确认、恢复和浏览器返回", async
     .click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   expect(deleteRequests).toBe(0);
-  await expect(
-    page.getByRole("button", { name: "删除", exact: true }),
-  ).toBeVisible();
+  await expect(await recordAction(page, "删除")).toBeVisible();
 
-  await page.getByRole("button", { name: "删除", exact: true }).click();
+  await (await recordAction(page, "删除")).click();
   const deleteResponse = page.waitForResponse(
     (response) =>
       response.request().method() === "DELETE" &&
@@ -587,7 +598,11 @@ test("行程详情本体编辑、删除确认、恢复和浏览器返回", async
   );
   await expect(page.getByRole("button", { name: "编辑行程" })).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "删除", exact: true }),
+    page.getByRole("button", {
+      name: "删除",
+      exact: true,
+      includeHidden: true,
+    }),
   ).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "恢复", exact: true }),
@@ -626,9 +641,7 @@ test("行程详情本体编辑、删除确认、恢复和浏览器返回", async
     "行程已恢复",
   );
   await expect(page.getByRole("button", { name: "编辑行程" })).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "删除", exact: true }),
-  ).toBeVisible();
+  await expect(await recordAction(page, "删除")).toBeVisible();
 
   const scaledOverflow = await page.evaluate(
     () =>
@@ -764,7 +777,9 @@ test("行程节点新增、编辑、范围确认、删除恢复和未保存返�
   await page.goto("/trips");
   await page.getByRole("link").filter({ hasText: title }).click();
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "新增节点" })).toBeVisible();
+  const addNode = page.locator(".trip-node-subsection.record-add > summary");
+  await expect(addNode).toHaveText("添加节点");
+  await addNode.click();
   await expect(page.getByRole("heading", { name: "已有节点" })).toBeVisible();
   await expect(
     page.getByText("还没有行程节点。", { exact: true }),
@@ -912,7 +927,7 @@ test("行程节点新增、编辑、范围确认、删除恢复和未保存返�
   const deleteResponsePath = (response: import("@playwright/test").Response) =>
     response.request().method() === "DELETE" &&
     new URL(response.url()).pathname === deletePath;
-  await firstCard.getByRole("button", { name: "删除节点" }).click();
+  await (await recordAction(firstCard, "删除节点")).click();
   const deleteDialog = page.getByRole("dialog", {
     name: "确认删除这个行程节点？",
   });
@@ -923,12 +938,10 @@ test("行程节点新增、编辑、范围确认、删除恢复和未保存返�
   expect(
     mutationRequests.filter(({ method }) => method === "DELETE"),
   ).toHaveLength(0);
-  await expect(
-    firstCard.getByRole("button", { name: "删除节点" }),
-  ).toBeVisible();
+  await expect(await recordAction(firstCard, "删除节点")).toBeVisible();
 
   const deleteResponse = page.waitForResponse(deleteResponsePath);
-  await firstCard.getByRole("button", { name: "删除节点" }).click();
+  await (await recordAction(firstCard, "删除节点")).click();
   await page
     .getByRole("dialog", { name: "确认删除这个行程节点？" })
     .getByRole("button", { name: "删除节点", exact: true })
@@ -938,9 +951,13 @@ test("行程节点新增、编辑、范围确认、删除恢复和未保存返�
   await expect(firstCard.getByRole("button", { name: "编辑节点" })).toHaveCount(
     0,
   );
-  await expect(firstCard.getByRole("button", { name: "删除节点" })).toHaveCount(
-    0,
-  );
+  await expect(
+    firstCard.getByRole("button", {
+      name: "删除节点",
+      exact: true,
+      includeHidden: true,
+    }),
+  ).toHaveCount(0);
 
   let failRestoreOnce = true;
   const restorePath = `${itemPath}/restore`;
@@ -1124,7 +1141,11 @@ test("行李清单新增、编辑、勾选、删除确认、恢复与返回保�
   await expect(page.getByRole("heading", { name: "我的行程" })).toBeVisible();
   await page.getByRole("link").filter({ hasText: title }).click();
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "新增行李项" })).toBeVisible();
+  const addPacking = page.locator(
+    ".trip-packing-subsection.record-add > summary",
+  );
+  await expect(addPacking).toHaveText("添加行李项");
+  await addPacking.click();
   await expect(page.getByRole("heading", { name: "清单项目" })).toBeVisible();
 
   let failCreateOnce = focusedFailureViewport;
@@ -1325,7 +1346,7 @@ test("行李清单新增、编辑、勾选、删除确认、恢复与返回保�
   const deleteCountBeforeCancel = mutationRequests.filter(
     ({ method, path }) => method === "DELETE" && path === itemPath,
   ).length;
-  await card.getByRole("button", { name: "删除行李项" }).click();
+  await (await recordAction(card, "删除行李项")).click();
   const deleteDialog = page.getByRole("dialog", {
     name: "确认删除这个行李项？",
   });
@@ -1338,14 +1359,14 @@ test("行李清单新增、编辑、勾选、删除确认、恢复与返回保�
       ({ method, path }) => method === "DELETE" && path === itemPath,
     ),
   ).toHaveLength(deleteCountBeforeCancel);
-  await expect(card.getByRole("button", { name: "删除行李项" })).toBeVisible();
+  await expect(await recordAction(card, "删除行李项")).toBeVisible();
 
   const deleteResponsePromise = page.waitForResponse(
     (response) =>
       response.request().method() === "DELETE" &&
       new URL(response.url()).pathname === itemPath,
   );
-  await card.getByRole("button", { name: "删除行李项" }).click();
+  await (await recordAction(card, "删除行李项")).click();
   await page
     .getByRole("dialog", { name: "确认删除这个行李项？" })
     .getByRole("button", { name: "删除行李项", exact: true })
@@ -1356,16 +1377,14 @@ test("行李清单新增、编辑、勾选、删除确认、恢复与返回保�
     await expect(
       page.locator(".trip-packing-section").getByRole("alert"),
     ).toContainText("行李项删除暂时失败");
-    await expect(
-      card.getByRole("button", { name: "删除行李项" }),
-    ).toBeVisible();
+    await expect(await recordAction(card, "删除行李项")).toBeVisible();
     await page.unroute(`**${itemPath}`);
     const retryDeleteResponsePromise = page.waitForResponse(
       (response) =>
         response.request().method() === "DELETE" &&
         new URL(response.url()).pathname === itemPath,
     );
-    await card.getByRole("button", { name: "删除行李项" }).click();
+    await (await recordAction(card, "删除行李项")).click();
     await page
       .getByRole("dialog", { name: "确认删除这个行李项？" })
       .getByRole("button", { name: "删除行李项", exact: true })
@@ -1377,7 +1396,13 @@ test("行李清单新增、编辑、勾选、删除确认、恢复与返回保�
   card = page.locator(`[data-packing-id="${packingId}"]`);
   await expect(card).toContainText("已删除 · 可恢复");
   await expect(card.getByRole("button", { name: "编辑行李项" })).toHaveCount(0);
-  await expect(card.getByRole("button", { name: "删除行李项" })).toHaveCount(0);
+  await expect(
+    card.getByRole("button", {
+      name: "删除行李项",
+      exact: true,
+      includeHidden: true,
+    }),
+  ).toHaveCount(0);
   await expect(card.getByRole("button", { name: "恢复行李项" })).toBeVisible();
   await expect(page.locator(".trip-packing-recovery-note")).toContainText(
     "刷新或重新进入行程后继续恢复",
@@ -1567,7 +1592,7 @@ test("删除的行程节点和行李项跨刷新仍可恢复", async ({ page, re
       response.request().method() === "DELETE" &&
       new URL(response.url()).pathname === `/api/v1/trip-items/${nodeId}`,
   );
-  await nodeCard.getByRole("button", { name: "删除节点" }).click();
+  await (await recordAction(nodeCard, "删除节点")).click();
   const nodeDialog = page.getByRole("dialog", {
     name: "确认删除这个行程节点？",
   });
@@ -1579,9 +1604,13 @@ test("删除的行程节点和行李项跨刷新仍可恢复", async ({ page, re
   await expect(nodeCard.getByRole("button", { name: "编辑节点" })).toHaveCount(
     0,
   );
-  await expect(nodeCard.getByRole("button", { name: "删除节点" })).toHaveCount(
-    0,
-  );
+  await expect(
+    nodeCard.getByRole("button", {
+      name: "删除节点",
+      exact: true,
+      includeHidden: true,
+    }),
+  ).toHaveCount(0);
   await expect(
     nodeCard.getByRole("button", { name: "恢复节点" }),
   ).toBeVisible();
@@ -1604,7 +1633,11 @@ test("删除的行程节点和行李项跨刷新仍可恢复", async ({ page, re
     reloadedNode.getByRole("button", { name: "编辑节点" }),
   ).toHaveCount(0);
   await expect(
-    reloadedNode.getByRole("button", { name: "删除节点" }),
+    reloadedNode.getByRole("button", {
+      name: "删除节点",
+      exact: true,
+      includeHidden: true,
+    }),
   ).toHaveCount(0);
   const restoreNodeResponse = page.waitForResponse(
     (response) =>
@@ -1631,7 +1664,7 @@ test("删除的行程节点和行李项跨刷新仍可恢复", async ({ page, re
       response.request().method() === "DELETE" &&
       new URL(response.url()).pathname === `/api/v1/packing-items/${packingId}`,
   );
-  await packingCard.getByRole("button", { name: "删除行李项" }).click();
+  await (await recordAction(packingCard, "删除行李项")).click();
   const packingDialog = page.getByRole("dialog", {
     name: "确认删除这个行李项？",
   });
@@ -1645,7 +1678,11 @@ test("删除的行程节点和行李项跨刷新仍可恢复", async ({ page, re
     packingCard.getByRole("button", { name: "编辑行李项" }),
   ).toHaveCount(0);
   await expect(
-    packingCard.getByRole("button", { name: "删除行李项" }),
+    packingCard.getByRole("button", {
+      name: "删除行李项",
+      exact: true,
+      includeHidden: true,
+    }),
   ).toHaveCount(0);
 
   const afterPackingReload = page.waitForResponse(

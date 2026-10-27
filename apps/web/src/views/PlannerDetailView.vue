@@ -12,6 +12,8 @@ import {
   type TaskSummary,
 } from "../api/client";
 import DateField from "../components/DateField.vue";
+import AppIcon from "../components/AppIcon.vue";
+import RecordMoreActions from "../components/RecordMoreActions.vue";
 import DateTimeField from "../components/DateTimeField.vue";
 import ErrorState from "../components/ErrorState.vue";
 import FormActions from "../components/FormActions.vue";
@@ -96,7 +98,7 @@ const confirmingDelete = ref(false);
 const confirmingEditCancel = ref(false);
 const editing = ref(false);
 const editSnapshot = ref("");
-const editTitleInput = ref<HTMLInputElement | null>(null);
+const editTitleInput = ref<HTMLInputElement | HTMLTextAreaElement | null>(null);
 const editTrigger = ref<HTMLButtonElement | null>(null);
 let loadSequence = 0;
 
@@ -966,11 +968,61 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
 
 <template>
   <SecondaryPageShell
-    class="planner-detail-page planner-detail-workspace"
-    :title="pageTitle"
+    class="planner-detail-page planner-detail-workspace record-surface record-detail"
+    :class="{ 'record-editor': editing }"
+    :title="editing ? `编辑${entityLabel}` : pageTitle"
     title-id="planner-detail-title"
-    subtitle="查看并管理当前事项"
   >
+    <template v-if="item && !editing && !loading" #actions>
+      <div class="record-toolbar" :aria-busy="isBusy" aria-label="事项操作">
+        <button
+          v-if="canEdit"
+          ref="editTrigger"
+          class="record-edit-button"
+          :disabled="isBusy"
+          type="button"
+          @click="startEdit"
+        >
+          编辑
+        </button>
+        <button
+          v-if="showReschedule"
+          class="record-edit-button"
+          :disabled="isBusy"
+          type="button"
+          @click="rescheduleReminder"
+        >
+          {{ activeAction === "reschedule" ? "处理中…" : "重新安排" }}
+        </button>
+        <button
+          v-if="item.deletedAt"
+          class="record-edit-button"
+          :disabled="isBusy"
+          type="button"
+          @click="restoreCurrent"
+        >
+          {{ activeAction === "restore" ? "处理中…" : "恢复" }}
+        </button>
+        <RecordMoreActions v-else :disabled="isBusy">
+          <button
+            v-if="showCancel"
+            :disabled="isBusy"
+            type="button"
+            @click="cancelCurrent"
+          >
+            {{ activeAction === "cancel" ? "处理中…" : `取消${entityLabel}` }}
+          </button>
+          <button
+            class="danger"
+            :disabled="isBusy"
+            type="button"
+            @click="handleDeleteCurrent"
+          >
+            {{ activeAction === "delete" ? "删除中…" : "删除" }}
+          </button>
+        </RecordMoreActions>
+      </div>
+    </template>
     <LoadingState
       v-if="loading"
       description="正在获取当前事项的最新详情。"
@@ -986,10 +1038,42 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
         @retry="retry"
       />
       <article v-else-if="item" class="planner-detail-card">
-        <div class="planner-detail-card-head">
+        <div v-if="!editing" class="planner-detail-card-head">
+          <button
+            v-if="showComplete"
+            class="record-complete"
+            :disabled="isBusy"
+            type="button"
+            aria-label="完成"
+            @click="completeTask"
+          >
+            <AppIcon
+              v-if="activeAction === 'complete'"
+              name="refresh"
+              :size="20"
+            /><span class="visually-hidden">{{
+              activeAction === "complete" ? "处理中…" : "完成"
+            }}</span>
+          </button>
+          <span v-else class="record-type-icon" aria-hidden="true"
+            ><AppIcon
+              :name="
+                entity === 'task'
+                  ? 'check'
+                  : entity === 'reminder'
+                    ? 'bell'
+                    : 'calendar'
+              "
+              :size="22"
+          /></span>
           <div class="planner-detail-heading">
-            <p class="eyebrow">{{ entityLabel }}详情</p>
             <h2>{{ item.title }}</h2>
+            <div class="record-summary-meta">
+              <span>{{ entityLabel }}</span>
+              <span class="status-badge" :class="statusClass(item)">{{
+                statusText(item)
+              }}</span>
+            </div>
           </div>
           <div
             v-if="item.deletedAt"
@@ -1030,14 +1114,8 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
         <section
           v-if="editing"
           class="planner-detail-editor"
-          aria-labelledby="planner-detail-editor-title"
+          aria-labelledby="planner-detail-title"
         >
-          <header class="planner-detail-editor-head">
-            <p class="eyebrow">编辑{{ entityLabel }}</p>
-            <h3 id="planner-detail-editor-title">更新{{ entityLabel }}信息</h3>
-            <p>修改后保存；带“必填”的项目不能为空。</p>
-          </header>
-
           <div
             v-if="errorMessage"
             class="planner-detail-error planner-detail-feedback"
@@ -1065,14 +1143,19 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
               <div class="planner-detail-edit-grid">
                 <template v-if="entity === 'task'">
                   <label class="planner-field planner-detail-wide-field">
-                    <span>标题（必填）</span>
-                    <input
+                    <span id="task-edit-title-label">标题（必填）</span>
+                    <textarea
                       ref="editTitleInput"
                       v-model="taskEditForm.title"
+                      aria-labelledby="task-edit-title-label"
+                      aria-describedby="task-edit-title-help"
                       maxlength="200"
                       required
-                    />
-                    <small class="planner-field-help">最多 200 个字符。</small>
+                      rows="3"
+                    ></textarea>
+                    <small id="task-edit-title-help" class="planner-field-help"
+                      >最多 200 个字符。</small
+                    >
                   </label>
                 </template>
 
@@ -1278,18 +1361,6 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
 
         <dl v-else class="planner-detail-list">
           <div>
-            <dt>类型</dt>
-            <dd>{{ entityLabel }}</dd>
-          </div>
-          <div>
-            <dt>状态</dt>
-            <dd>
-              <span class="status-badge" :class="statusClass(item)">
-                {{ statusText(item) }}
-              </span>
-            </dd>
-          </div>
-          <div>
             <dt>{{ timeLabel(item) }}</dt>
             <dd>
               <span>{{ timeText(item) }}</span>
@@ -1313,11 +1384,14 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
             <dt>尝试次数</dt>
             <dd>{{ item.attemptCount }} 次</dd>
           </div>
-          <div v-if="'scheduleType' in item && item.failureReason">
+          <div
+            v-if="'scheduleType' in item && item.failureReason"
+            class="record-detail-note"
+          >
             <dt>失败原因</dt>
             <dd>{{ item.failureReason }}</dd>
           </div>
-          <div v-if="detailNote(item)">
+          <div v-if="detailNote(item)" class="record-detail-note">
             <dt>备注</dt>
             <dd>{{ detailNote(item) }}</dd>
           </div>
@@ -1326,88 +1400,6 @@ function messageOf(error: unknown, phase: "load" | "action"): string {
             <dd class="revoked-mark">已删除，可恢复</dd>
           </div>
         </dl>
-
-        <div
-          v-if="!editing"
-          class="planner-detail-actions"
-          :aria-busy="isBusy"
-          aria-label="事项操作"
-        >
-          <div
-            v-if="canEdit || showComplete || showReschedule"
-            class="planner-detail-action-group"
-            role="group"
-            aria-label="主要操作"
-          >
-            <button
-              v-if="canEdit"
-              ref="editTrigger"
-              class="secondary-button"
-              :disabled="isBusy"
-              type="button"
-              @click="startEdit"
-            >
-              编辑
-            </button>
-            <button
-              v-if="showComplete"
-              class="primary-button"
-              :disabled="isBusy"
-              type="button"
-              @click="completeTask"
-            >
-              {{ activeAction === "complete" ? "处理中…" : "完成" }}
-            </button>
-            <button
-              v-if="showReschedule"
-              class="primary-button"
-              :disabled="isBusy"
-              type="button"
-              @click="rescheduleReminder"
-            >
-              {{ activeAction === "reschedule" ? "处理中…" : "重新安排" }}
-            </button>
-          </div>
-          <div
-            v-if="showCancel"
-            class="planner-detail-action-group"
-            role="group"
-            aria-label="状态操作"
-          >
-            <button
-              class="text-button danger"
-              :disabled="isBusy"
-              type="button"
-              @click="cancelCurrent"
-            >
-              {{ activeAction === "cancel" ? "处理中…" : `取消${entityLabel}` }}
-            </button>
-          </div>
-          <div
-            class="planner-detail-action-group planner-detail-danger-actions"
-            role="group"
-            aria-label="危险操作"
-          >
-            <button
-              v-if="item.deletedAt"
-              class="primary-button"
-              :disabled="isBusy"
-              type="button"
-              @click="restoreCurrent"
-            >
-              {{ activeAction === "restore" ? "处理中…" : "恢复" }}
-            </button>
-            <button
-              v-else
-              class="danger-button"
-              :disabled="isBusy"
-              type="button"
-              @click="handleDeleteCurrent"
-            >
-              {{ activeAction === "delete" ? "删除中…" : "删除" }}
-            </button>
-          </div>
-        </div>
       </article>
     </template>
   </SecondaryPageShell>

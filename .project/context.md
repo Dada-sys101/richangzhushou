@@ -1,128 +1,92 @@
 # Project Context
 
+## 最新本地候选（2026-10-27）
+
+当前工作包为 UI-RELEASE-PREP-20261027，DONE_COMMITTED / DONE_PUSHED / PR_DRAFT / IMPLEMENTATION_CI_PASS / NOT_DEPLOYED。实施 f50d20cb519c827759e011999b46103c499e08ab 已推送，用户已授权并执行 commit/push/更新 PR #83。PR CI 40458997179、Push CI 40458991356 三项 SUCCESS，MySQL 162 项、浏览器 86 项、Linux Bootstrap 18 项通过；后续文档提交须另核最终 HEAD CI。旧 Git 快照仅适用于其 SHA。完整候选、证据和回滚见 [docs/60](../docs/60-ui-release-candidate-20261027.md)。
+
+## Git 交付快照（2026-10-23）
+
+- 补丁提交：`fb50097e66be2e63fcc994715cd36db2252b02ba`，已推送至 `codex/preview-readiness-20261022`。
+- [Draft PR #83](https://github.com/Dada-sys101/richangzhushou/pull/83) → `codex/v15-integration-foundation`；尚未合并、未部署。
+- [PR CI 39916174760](https://github.com/Dada-sys101/richangzhushou/actions/runs/39916174760) SUCCESS：quality、MySQL 8.4.13 数据库验证（18 文件 / 162 项）与 Chromium desktop/mobile 冒烟（86/86）通过。供应链和数据库产物已上传；Playwright 报告仅失败时上传，本次 SKIPPED。
+- [Push CI 39916145898](https://github.com/Dada-sys101/richangzhushou/actions/runs/39916145898) SUCCESS；本结论仅对应补丁 fb50097，后续 HEAD 必须另核。
+- 本节是补丁 SHA 的已核实交付快照；本记录后续文档提交的 HEAD 和 CI 以 Git/PR 为准，不能复用父提交结果。五档宽度、真实设备、目标服务器 release 构建和部署验收未在此 CI 覆盖。
+- 用户授权的 commit/push/Draft PR 已执行；合并、转 Ready、部署和真实服务调用仍需独立授权。下方本地未提交等表述仅保留其原检查点语义，不覆盖本节。
+
 ## Last Updated
 
-2026-09-15 17:29 +08:00 — UIR-02 passed local, PR, private-preview and device gates; PR #41 merged as Integration `d05b25cb` and merged CI passed.
+2026-10-27 — UI 发布候选已提交推送，Draft PR #83 更新，实施 CI 通过；未合并或部署。
 
 ## Repository State
 
-- Repository: `Dada-sys101/richangzhushou`
-- Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`
-- Integration branch: `codex/v15-integration-foundation`
-- Verified Integration HEAD: `d05b25cb058d0940b29508ba9ef071920226f994`
-- Active worktree: `D:\daily-assistant`
-- Active branch: `codex/uir-02-delivery-record`
-- Current delivery: required-picker default-selection follow-up `PR #38 MERGED / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED`; its deployment record PR #39 is also merged.
-- PR #25: `MERGED`; merged CI run `34181985716` passed quality, db-validation and browser-qa.
-- Original mixed PR #26 is closed; governance/dependency PR #27 and Web Push PR #28 both pass quality, db-validation and browser-qa.
-- MOBILE-A PR #29 merged at Integration `6e1313f`; MOBILE-B PR #30 and MOBILE-C1/C2/C3 PRs #31/#32/#33 are merged. Active release is `/opt/daily-assistant-preview/releases/9ddc3546-20260914T074811Z`.
+- Repository: `Dada-sys101/richangzhushou`。
+- Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`。
+- Integration: `codex/v15-integration-foundation` / `6cab22f580f3345696258dea9983ea09c6def7ab`；2026-10-23 远端重核。
+- Worktree: `C:/Users/hebia/.codex/worktrees/preview-readiness-20261022/daily-assistant`。
+- Branch: `codex/preview-readiness-20261022`；实施提交 `f50d20cb519c827759e011999b46103c499e08ab` 已推送，2026-10-27 重核；文档后续提交 HEAD/CI 以 Git/PR 实时为准。
+- 原始 `D:/daily-assistant` 分支与四项未提交内容保留，详见更新准备清单。
 
 ## Project Summary
 
-- Daily Assistant is a standalone invited-user product for about 10 administrator-created accounts.
-- Architecture remains one NestJS API, one MySQL database, one Vue PWA and one Vue Element Plus admin app.
-- Cloud data is authoritative; clients support local cache, offline writes, retry and conflict confirmation.
-- AI output remains a draft/proposal and cannot directly write formal business records without user confirmation.
-
-## Current Development Stage
-
-- R1 Quality Gate: `APPROVED / DONE`.
-- H1/H2 physical iPhone evidence: `WAIVED_FOR_R1 / UNVERIFIED`; never report as a device pass.
-- REL-02 separate Staging: `CANCELLED / SEPARATE_STAGING_WAIVED` by explicit user decision.
-- Validation environment: existing Alibaba private preview.
-- Current operating mode: `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS`.
-- UI reconstruction gate: `UIR-00/01 DONE_INTEGRATION / UIR-02 DONE_INTEGRATION / PR_41_MERGED / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED / DEVICE_ACCEPTANCE_PASS`.
-- Public DNS/HTTPS/CORS, Provider expansion, REL-04 and production release remain separate gates.
-
-## Last Completed Task
-
-`MOBILE-C4 Complex Secondary Pages` completed after:
-
-- Four UI slices covered transactions, planner lists, planner/trip details and AI drafts/proposals without changing business semantics.
-- Candidate `8e9f53e` passed its CI, private-preview deployment checks and iPhone/Android device acceptance.
-- PR #34 merged as Integration `e407157`; merged CI `34800440131` passed quality, db-validation and browser-qa.
+独立 Daily Assistant，约 10 名管理员创建账号的受邀用户；NestJS 单体、MySQL、Vue PWA 与 Vue Element Plus 管理端。记账/预算、日程/待办/提醒、行程、快捷指令、AI 提案、离线同步和管理能力已有实现；实现存在不等于本候选全量验收完成。云端为主副本，AI 正式写入必须经用户确认。
 
 ## Current Task
 
-- ID: `PRIVATE_PREVIEW_OPERATION`.
-- Goal: let invited users use the existing private preview, address real feedback, and complete the explicitly selected R1.1 Web Push device validation.
-- Current state: `ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_PUSH_ACTIVE / H6_DEVICE_ACCEPTANCE_PASS`; the iPhone today-date confirmation fix and the empty required-picker follow-up are `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED`.
-- Deferred: REL-04～REL-06, R2/R3, public entry and new infrastructure.
+- Canonical: `PRIVATE_PREVIEW_OPERATION / ACTIVE / FEEDBACK_FIXES_ONLY`。
+- 本轮已完成：`UI-RELEASE-PREP-20261027` 本地准备，纳入用户认可的 UI/导航、安全依赖修复和 E2E 入口适配；canonical 保持不变。
+- 当前运行 release：`/opt/daily-assistant-preview/releases/d3db83b1-20260924T133437Z`；API、Nginx、MySQL active。
+- 交付候选：实施 f50d20c 已进入 Draft PR #83，实施 CI 通过；文档后续提交另核最终检查。历史 R1 APPROVED、独立 Staging 豁免、H6/H7/H8 关闭保持原范围；H1/H2 仍为豁免而非设备通过。
 
-## Next Recommended Task
+## Last Completed Task
 
-Await explicit selection and authorization of the next bounded UI task; do not start UIR-03 automatically.
+本轮 UI 发布候选为 DONE_COMMITTED / DONE_PUSHED / PR_DRAFT，实施 CI 通过；尚未合并或部署。Integration #82 为 6cab22f，canonical 上次完成的 REL-03 历史收口语义保留。
 
 ## Completed Work
 
-- V1 and the V1.5 R1 foundation, AI proposal/router/provider adapter integration, offline synchronization, Web UX closure and release candidate integration are complete.
-- H7 is closed based on the recorded synthetic-data Provider evaluation; this does not authorize broader/public Provider use.
-- Daily protected database backup, 7-day cleanup and one isolated restore have been verified on the private-preview host.
-- The active release is `/opt/daily-assistant-preview/releases/05e4d696-20260915T091034Z`; `/opt/daily-assistant-preview/releases/8bbb3022-20260914T083606Z` is retained for rollback. UIR-02 post-deployment service, entry, PWA asset and recent-error-log checks passed.
-- The required date-time picker now defaults to a temporary selection of today for empty required fields, so the dialog can confirm immediately; cancel continues to leave the form unchanged. PR #38 and merged CI passed; the database-backed browser matrix passed in CI. Private-preview device recheck remains pending.
-- UIR-00/01 and the bounded UIR-02 implementation are in Integration `d05b25cb`; UIR-02 changed no API or database contract.
-- Existing private-preview live AI remains enabled by explicit user decision; public expansion remains separately gated.
-- MOBILE-B update takeover fixes `e756c0b`/`727cb60` and MOBILE-C planning commit `d7860cd` pass required validation; private preview runs `/opt/daily-assistant-preview/releases/727cb600-20260912T0203Z` with `927dea30-20260912T0129Z` retained for rollback.
+- 已确认的 UI/导航、三项安全依赖与锁文件、E2E 更多/新增入口适配已完成；干净安装、完整 quality、治理、许可证/SBOM、依赖树通过。High/Critical 为 0，不等于已经部署。
+
+- PR #77 行程子项恢复已合入；当前预览包含该版本。
+- PR #78 手机内页导航、#79 依赖/测试门禁修复、#80 Cloud setup、#81 AI 澄清字段校验、#82 Bootstrap 均已合入，尚未出现在当前预览 release。
+- 最新 merged CI `38364527083` 的 quality、db-validation、browser-qa SUCCESS；浏览器报告上传 SKIPPED。
+- 既有 Web Push 私有预览验收、R1 决策与备份恢复历史证据继续有效于原范围，不作为本次新候选验证。
 
 ## Remaining Work
 
-- Deliver the local UI planning commit through separately authorized push, PR and merge gates; keep UIR-02 blocked until that delivery reaches Integration or its exact local SHA is separately authorized.
-- Continue handling only necessary feedback from invited users; the iPhone date-time confirmation fix is deployed.
-- Address necessary defects reported by invited users in the existing private preview.
-- Keep all scope expansion, public release and new infrastructure deferred until the user explicitly selects one.
-- Public DNS, HTTPS, exact CORS and public-entry smoke only when public access is requested.
-- R1.1 Push, R2 RRULE/Import/observability and R3 encrypted local migration/shrink remain future feature tracks.
+- 文档后续提交的最终 HEAD CI 及审阅；取得对应 Ready/merge/精确 SHA 环境部署授权后执行。
+- 新候选目标 Linux 构建、备份、切换与业务/设备验收尚未执行。
+- 公网发布、扩容、新基础设施、R2/R3 保持延后。
 
 ## Blockers
 
-- REL-03 has no current technical blocker.
-- UIR-02 is blocked by `PLANNING_NOT_IN_INTEGRATION`; the planning contract being present locally is not implementation authorization.
-- Public entry is blocked until domain/DNS/HTTPS/CORS work is explicitly requested and verified.
-- Production and broader Provider use remain independently unauthorized.
+- 实施 f50d20c CI 已通过；文档后续提交不能复用父提交 CI。
+- 本机无 MySQL/Docker；Windows Bootstrap 3 passed / 15 failed 保留为本地事实，Linux CI 已 18/18 通过，数据库/浏览器 CI 亦通过，相关候选验证缺口已补齐。
+- 目标 Linux release 构建、备份及部署后验收未执行；Git/外部动作按 PLANS 第 13 节及对应有效授权执行。
 
 ## Known Issues
 
-- The update action remains imperfect for an already-installed legacy PWA client; the user deferred it because it does not materially block use.
-- iOS system edge navigation cannot be fully disabled by a PWA on root pages; root-tab history remains flattened and horizontal overscroll is suppressed where supported.
-- The user reported iPhone and Android MOBILE-A acceptance passed on 2026-09-11; detailed device screenshots/logs were not captured in the repository.
-- Public health performs a database query and returns readiness without exposing sensitive details.
-- Separate Staging, managed MySQL TLS/private networking and cross-location restore were deliberately waived for the current small private-preview scope; reassess them for public launch, larger scale or important real data.
+- 依赖仍有 6 Moderate、1 Low；许可证清单有 8 missing/unresolved、25 manual review required，未自动关闭既有审核项。
+- 当前预览记录中的业务及 iPhone/Android 验收仍待完成；本轮只核对服务运行状态。
+- 历史 PWA 更新/系统返回限制与真实断网验收缺口未在本轮消除。
+- Cloud Bootstrap 自动触发与平台自动 PR 基线仍未被证明；使用已记录的显式初始化流程。
 
 ## Verification Status
 
-- Local quality and dependency governance: `PASS`.
-- MySQL 8.4.11 integration: `18 files / 160 tests PASS`.
-- Database-backed browser smoke: `44/44 PASS`.
-- PR #25 and merged Integration CI: `PASS`.
-- Target-host Linux build, audit and SBOM: `PASS`.
-- Private-preview health, business smoke and cleanup: `PASS`.
-- Backup timer, retention cleanup and isolated restore: `PASS`.
-- REL-03 readiness: `NOT_STARTED`.
-- Public entry and physical iPhone: `NOT_VERIFIED`.
-- MOBILE-B second feedback fix: local quality `PASS`（Web 26 files/130 tests、API 34 files/281 tests）；CI runs `34664717946` and `34664718882` all green; private-preview post-deployment checks pass.
-- Latest verified Integration CI run `34824580264` at `77bedde...`: `PASS`.
-- UI planning documentation checks: `format:check`、`check:context`、`git diff --check` `PASS`; UIR-02 business/browser verification `NOT_RUN / NOT_STARTED`.
+- 已核实：2026-10-27 远端 SHA、Draft PR #83、服务器 current/服务 active/health 200、兼容性差异；旧 HEAD CI 不覆盖候选。
+- 当前干净安装、完整 quality、治理 30/30、依赖树、SBOM 1056 components PASS；业务测试 1157 passed / 140 DB skipped；正式审计 0 High/Critical。实施 SHA 的 Linux CI 三项 SUCCESS，MySQL 8.4.13 数据库 162/162、浏览器 86/86、Bootstrap 18/18。见 docs/60。
+- 未执行：真实 Provider、目标 Linux release 构建、部署与真机/真正离线验收；后续文档提交 CI 尚须独立核验。
 
 ## Recent Changes
 
-- Corrected the earlier blanket conclusion that npm overrides cannot produce valid SBOMs; the failure was specific to npm 11.13.0 workspace/file-link override propagation and is resolved by the pinned npm 11.18.0 toolchain.
-- Merged and deployed the verified dependency candidate.
-- Closed R1 with an explicit H1/H2 waiver while retaining the unverified status.
-- Waived separate Staging and redirected REL-03 to the existing private-preview environment.
-- Made PWA update actions observable and resilient when the waiting worker changes, selected today visibly by default in Plan Center, and drafted MOBILE-C as four bounded UI phases.
+在已确认 UI/导航基础上完成安全依赖和 E2E 真实入口适配；同步候选、核验及回滚记录。保留历史决策，不虚构发布晋级。
 
-## Important Constraints
+## Next Recommended Task
 
-- Preserve user data isolation, fixed-point monetary handling, `Asia/Shanghai` business time and user confirmation before formal AI-assisted writes.
-- Do not treat H1/H2 waiver as physical-device evidence.
-- Do not create a separate Staging environment unless the user revisits the scope decision.
-- Do not commit, push, switch public traffic, deploy production or expand Provider use without applicable authorization.
-- Do not include credentials, tokens, cookies, private keys or private business content in repository evidence.
+核验文档提交后的最终 HEAD CI 与审阅，再按独立授权推进 Ready、合并及最终 SHA/环境的现有预览更新验收。不要自动执行下一 canonical 功能任务。
 
 ## Handoff Instructions
 
-1. Restore state from `AGENTS.md`, `PLANS.md`, `.project/v15-execution-state.md` and `.project/session.md` before implementation.
-2. Treat Integration `77bedde231b11342e7bbec40234fc1ee5bcb6860`, PR #39 merge and the active private-preview release as the latest verified facts.
-3. Preserve `PRIVATE_PREVIEW_OPERATION`, H6/H8, MOBILE-C4 and required-picker delivery facts when handling the UI planning branch.
-4. Keep UIR-02 blocked until the planning commit enters Integration or its exact local SHA is separately authorized; push, PR, merge and implementation remain separate actions.
-5. Reassess separate Staging only for public launch, larger scale or important real data.
+1. 先读 AGENTS、PLANS、本文件、session 与 execution-state；按更新准备清单恢复。
+2. 本工作区包含既有文档改动和三个依赖文件的本地补丁；不要覆盖原始 D:/daily-assistant 的四项内容，不使用旧分支交付新候选。
+3. 重核最终候选 SHA 与审计；当前本地通过不等于已提交、已跑远端 CI 或已部署。
+4. 保留 H1/H2 豁免、H6/H7/H8 原范围和 R1 历史审批，不自动关闭任何新候选门禁。
+5. 没有独立授权，不提交、推送、建 PR、部署、迁移或调用真实 Provider。

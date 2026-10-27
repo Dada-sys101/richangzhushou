@@ -1,5 +1,62 @@
 # 变更日志（Changelog）
 
+## 2026-10-27 — 实施交付与 CI 证据
+
+- f50d20cb519c827759e011999b46103c499e08ab 已按明确授权提交推送、更新 Draft PR #83。
+- PR CI 40458997179、Push CI 40458991356 三项 SUCCESS；MySQL 数据库 162/162、浏览器 86/86、Linux Bootstrap 18/18。后续文档提交另核最终 HEAD CI，未 Ready/合并/部署。下方未提交等状态仅为原检查点。见 [候选记录](60-ui-release-candidate-20261027.md)。
+
+## 2026-10-27 — UI 发布候选与安全依赖（DONE_LOCAL / UNCOMMITTED）
+
+- 固定 body-parser 2.4.0、Multer 2.5.0、Undici 8.12.2 及必要锁文件解析；未升级 Nest、修改审计门禁、数据库或部署配置。
+- E2E 先展开更多菜单/新增表单再操作，保留删除恢复、失败和未保存断言；86 项可收集、相关 TS 通过，未执行真实后端浏览器测试。
+- 干净安装、完整 quality、1157 passed / 140 DB skipped、治理 30/30、审计 0 High/Critical、SBOM 1056 通过；额外 Windows Bootstrap 3 passed / 15 failed，待 Linux CI。保留既有审核项；未提交、推送或部署。见 [候选记录](60-ui-release-candidate-20261027.md)。下方 UI 检查点的 High 结论保留其历史语义。
+
+## 2026-10-27 — 记录详情与表单共用视觉（DONE_LOCAL / UNCOMMITTED）
+
+- 待办、日程、提醒统一页头、标题、属性分组和更多操作；账单与行程同步共用规范，行程新增入口可展开并保留草稿。
+- Web 502 项及全仓 1157 项测试、构建/契约和五档本地检查通过；完整 quality 在现有依赖 High 审计失败，未放宽策略。未提交或部署，真机/真实离线未验收。见 [实施记录](59-record-ui-system-20261027.md)。
+
+## 2026-10-26 — 待办详情操作区（DONE_LOCAL / UNCOMMITTED）
+
+- 待办详情使用并排编辑/完成与次级取消/删除，清理重复标题和外层卡片，适配已完成、已删除和长标题状态；不改变业务处理逻辑。
+- 相关 45 项测试、Web Lint/类型/构建、五档视口检查通过；真实离线、真机及此前依赖审计缺口仍待补齐。未提交或部署，见 [验收记录](58-task-detail-actions-20261026.md)。
+
+## 2026-10-26 — 待办编辑 UI 样板（本地完成，审计待验证）
+
+- 使用新安装的 Impeccable 精简待办编辑页，移除重复标题和嵌套卡片，支持多行标题，统一字段与保存/取消排版；限定在待办编辑状态，原业务保存和导航守卫保持不变。
+- 组件测试 45 项及五档本地浏览器布局、返回保护通过。修复首轮测试类型声明错误后，第二轮 quality 的格式、Lint、类型、1154 项测试（140 数据库测试 skipped）、构建与契约校验通过；最终依赖审计及单独重试均超时，完整 quality 未通过。真实设备与离线恢复未验收；未提交、推送或部署。见 [样板记录](57-task-editor-impeccable-20261026.md)。
+
+## 2026-10-23 — 手机内页导航栏目补全（DONE_LOCAL / UNCOMMITTED）
+
+- 手机底部导航与桌面顶部导航按已有页面父级显示所属栏目：日程/待办为计划、账单为记录、行程沿列表归我的；新增 `aria-current` 标记，不改变历史返回和未保存内容守卫。
+- 补充栏目解析、组件和离线身份测试，完成五档本地浏览器操作矩阵；同步 docs/50、docs/51 的旧导航隐藏规则。完整 quality 重跑通过（首次 OpenAPI 进程退出异常），1153 passed / 140 数据库测试 skipped、Web 498/498，审计无 High/Critical；证据与真实离线/真机缺口见 [工作包 A](56-mobile-navigation-a-20261023.md)。
+- 未提交、推送、创建 PR、合并或部署；未修改现有 PR，未推进 canonical 门禁，不自动开始弹层 Back 或其他工作包。
+
+> 下方交付更新仅适用于 Vite 补丁，不适用于本次导航改动。
+
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
+## 2026-10-23 — Vite 安全依赖补丁（DONE_LOCAL / UNCOMMITTED）
+
+- 交付前复核补充：远端基线未变，修正 PLANS 与 execution-state 恢复入口遗留的修复前 High 阻塞描述；准备本地 PR 说明，未提交、推送或建 PR。
+
+- 承接更新准备后用户的继续指示；两个前端 Vite 最低版本提高至 ^8.2.4，锁文件统一修复版及所需 PostCSS/Rolldown 配套依赖。未改业务、数据库、API、运行配置或门禁。
+- 干净安装、完整 quality、正式审计、依赖树和 SBOM PASS；治理 30/30，业务测试 1148 passed / 140 skipped。High/Critical 均为 0，仍有 8 Moderate。
+- SBOM 1057 components；许可证清单 1176 packages，保留 8 missing/unresolved 和 25 manual review required；变化包均声明 MIT，无新增安装脚本。
+- 本地基于 6cab22f，尚无补丁提交或远端 CI，预览仍为 d3db83b；未提交、推送、PR、部署或真实服务调用。原目录四项内容哈希保持不变。
+- 详细范围、证据与后续见 [修复记录](55-vite-security-patch-20261023.md)。下方准备阶段的审计失败是修复前事实，未覆盖最新本地通过结果。
+
+## 2026-10-23 — 最新基线对齐与私有预览更新准备
+
+- 本轮 DONE_LOCAL / PREPARATION_COMPLETE；仅文档与验证，无业务实现、提交、推送、PR 或部署。
+- Integration 6cab22f，PR #77～#82 已合并；历史 merged CI 38364527083 三项 SUCCESS，浏览器报告上传 SKIPPED。
+- 服务器仍运行 d3db83b1-20260924T133437Z，API/Nginx/MySQL active；#78～#82 尚未部署，本轮未重跑业务/设备验收。
+- 正式审计 FAIL_CLOSED：Vite 8.2.0 High；共 8 moderate、1 high。quality 仅最终审计失败；其余阶段通过，业务测试 1148 passed / 140 skipped、治理 30/30。
+- 原目录四项未提交内容保留；独立分支 codex/preview-readiness-20261022。兼容性未发现 schema/migration/DTO/OpenAPI/运行配置/CORS 变更。
+- 候选、验证、回滚及验收见 [准备清单](54-private-preview-update-plan-20261023.md)。
+
+> 以下为历史阶段记录；当时的 DONE_LOCAL、未提交及旧“当前”版本不覆盖上面的核验。
+
 ## 2026-10-11 — AI Proposal 澄清字段白名单修复（DONE_LOCAL / NOT_COMMITTED）
 
 - 任务 `V15-H7-PROPOSAL-FIELD-WHITELIST-FIX-001`，基线 `10847ee123283bdb22a3a1f0fec5530fdbcc734b`，独立分支 `codex/v15-h7-proposal-whitelist-fix-001`；远端 Integration 在开始及结束核对时一致，原始 `work` 未修改。

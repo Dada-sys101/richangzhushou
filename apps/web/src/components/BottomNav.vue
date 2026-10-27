@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import AppIcon from "./AppIcon.vue";
-import { navigate } from "../navigation-policy";
+import { navigate, resolveNavigationSection } from "../navigation-policy";
 
 const router = useRouter();
 const route = useRoute();
+const currentSection = computed(() => resolveNavigationSection(router, route));
 
 const items = [
   { icon: "home", label: "首页", to: "/" },
@@ -15,7 +17,15 @@ const items = [
 ] as const;
 
 function isActive(target: string) {
-  return route.path === target;
+  return currentSection.value === target;
+}
+
+function ariaCurrent(target: string) {
+  return isActive(target)
+    ? route.path === target
+      ? "page"
+      : "location"
+    : undefined;
 }
 
 function go(target: string) {
@@ -30,6 +40,7 @@ function go(target: string) {
       :key="item.to"
       class="bottom-nav-item"
       :class="{ 'router-link-active': isActive(item.to) }"
+      :aria-current="ariaCurrent(item.to)"
       :href="router.resolve(item.to).href"
       @click.prevent="go(item.to)"
     >
@@ -40,6 +51,7 @@ function go(target: string) {
       class="bottom-nav-fab"
       :href="router.resolve('/capture').href"
       aria-label="快速新增"
+      :aria-current="ariaCurrent('/capture')"
       @click.prevent="go('/capture')"
     >
       <AppIcon name="plus" :size="26" />
@@ -49,6 +61,7 @@ function go(target: string) {
       :key="item.to"
       class="bottom-nav-item"
       :class="{ 'router-link-active': isActive(item.to) }"
+      :aria-current="ariaCurrent(item.to)"
       :href="router.resolve(item.to).href"
       @click.prevent="go(item.to)"
     >

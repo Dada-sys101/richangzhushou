@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { recordAction } from "./helpers/record-ui";
 
 import {
   createActiveUserViaApi,
@@ -238,7 +239,7 @@ test("统一页面壳保留来源、拦截未保存离开并支持刷新", async
   await expect(page.getByText(`${taskTitle}_edited`)).toBeVisible();
   await page.getByRole("button", { name: "完成", exact: true }).click();
   await expect(page.getByText("已完成", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "删除", exact: true }).click();
+  await (await recordAction(page, "删除")).click();
   await page.getByRole("dialog").getByRole("button", { name: "删除" }).click();
   await expect(page.getByText("已删除，可恢复")).toBeVisible();
   await page.getByRole("button", { name: "恢复", exact: true }).click();
@@ -271,9 +272,9 @@ test("统一页面壳保留来源、拦截未保存离开并支持刷新", async
   await page.getByLabel("标题").fill(`${eventTitle}_edited`);
   await page.getByRole("button", { name: "保存", exact: true }).click();
   await expect(page.getByText(`${eventTitle}_edited`)).toBeVisible();
-  await page.getByRole("button", { name: "取消日程" }).click();
+  await (await recordAction(page, "取消日程")).click();
   await expect(page.getByText("已取消", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "删除", exact: true }).click();
+  await (await recordAction(page, "删除")).click();
   await page.getByRole("dialog").getByRole("button", { name: "删除" }).click();
   await expect(page.getByText("已删除，可恢复")).toBeVisible();
   await page.getByRole("button", { name: "恢复", exact: true }).click();
@@ -303,11 +304,11 @@ test("统一页面壳保留来源、拦截未保存离开并支持刷新", async
   await page.getByLabel("标题").fill(`${reminderTitle}_edited`);
   await page.getByRole("button", { name: "保存", exact: true }).click();
   await expect(page.getByText(`${reminderTitle}_edited`)).toBeVisible();
-  await page.getByRole("button", { name: "取消提醒" }).click();
+  await (await recordAction(page, "取消提醒")).click();
   await expect(page.getByText("已取消", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "重新安排" }).click();
   await expect(page.getByText("待发送")).toBeVisible();
-  await page.getByRole("button", { name: "删除", exact: true }).click();
+  await (await recordAction(page, "删除")).click();
   await page.getByRole("dialog").getByRole("button", { name: "删除" }).click();
   await expect(page.getByText("已删除，可恢复")).toBeVisible();
   await page.getByRole("button", { name: "恢复", exact: true }).click();

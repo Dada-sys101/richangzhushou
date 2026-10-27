@@ -1,5 +1,15 @@
 # 私有预览发布评估
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
+## 2026-10-23 — 运行复核与更新准备
+
+- current 只读核实为 /opt/daily-assistant-preview/releases/d3db83b1-20260924T133437Z，对应 d3db83b；API/Nginx/MySQL active。
+- Integration 6cab22f 未部署；其上的 Vite 8.2.4 本地补丁通过完整 quality 和正式审计（0 High/Critical、8 Moderate），补丁 fb50097 已提交推送至 Draft PR #83，最终 HEAD CI 以 PR 为准。历史 merged CI 不覆盖补丁，目标 Linux 构建与发布条件仍待完成。
+- 原始工作区 2026-09-27 记录仍标业务/设备验收 PENDING；本轮没有业务写入、备份正文读取或重新验收。
+- 拟更新的应用回滚目标为上述 current；切换前重核。新备份和目标 Linux 构建未执行。
+- 见 [准备清单](54-private-preview-update-plan-20261023.md)。以下均为历史发布证据，旧“当前”一词只适用于各记录时点。
+
 > 2026-09-14 必填日期时间默认选中当天发布：PR #38 已合入 Integration `8bbb302`，合并 CI run `34823090430` 的 quality、db-validation、browser-qa 全绿。目标 Linux 隔离 release 顺序完成锁定依赖安装、Prisma 生成、API/Web/Admin 构建与依赖审计；受保护备份为 `daily_assistant_preview_20260914T084007Z.sql.gz`。当前 release 为 `/opt/daily-assistant-preview/releases/8bbb3022-20260914T083606Z`，旧 release `9ddc3546-20260914T074811Z` 保留回滚。API、Nginx、MySQL、健康接口、提醒深链接、Manifest、Service Worker、新用户端资源和启动日志检查通过；iPhone/Android 复验待执行。
 
 评估更新：2026-09-14（`Asia/Shanghai`）
@@ -26,7 +36,7 @@
 
 > 2026-09-11 MOBILE-A 认证修复发布：线上认证请求因 API 数据库连接池启动异常返回 500，重启后即时恢复。提交 `77718a0` 增加 Prisma 启动连接和数据库就绪检查，避免进程存活掩盖数据库故障；API 与 PWA 的可见英文/未知错误统一转换为中文，同时保留已有中文业务细节。两组 CI 全绿后部署至 `/opt/daily-assistant-preview/releases/77718a00-20260911T0713Z`；发布前备份、目标顺序构建、公开数据库健康检查、中文登录错误响应和日志检查通过。旧 release `7103ad10-20260911T0634Z` 保留为回滚点。
 
-## 当前结论
+## 历史结论（2026-09-14）
 
 - R1 Quality Gate：`APPROVED / DONE`。
 - H1/H2：`WAIVED_FOR_R1 / UNVERIFIED`，不能记为物理 iPhone 通过。
@@ -35,7 +45,7 @@
 - 当前模式：`PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE`；PR #36 日期时间确认修复已达到 `DONE_INTEGRATION / MERGED_CI_PASS / PRIVATE_PREVIEW_DEPLOYED`，REL-03 已完成本地收口。
 - 公网 DNS/HTTPS/CORS、Provider 扩展、REL-04 和生产发布仍是独立门禁。
 
-## 当前发布版本
+## 历史发布版本（2026-09-14）
 
 - Integration commit：`9ddc354676b831afda7de2afb4948a90fadfef38`。
 - 来源：日期时间确认修复 PR #36，状态 `MERGED`。

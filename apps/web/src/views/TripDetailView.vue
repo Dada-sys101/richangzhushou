@@ -10,9 +10,11 @@ import {
   type TripItemType,
 } from "../api/client";
 import DateField from "../components/DateField.vue";
+import AppIcon from "../components/AppIcon.vue";
 import DateTimeField from "../components/DateTimeField.vue";
 import ErrorState from "../components/ErrorState.vue";
 import LoadingState from "../components/LoadingState.vue";
+import RecordMoreActions from "../components/RecordMoreActions.vue";
 import SecondaryPageShell from "../components/SecondaryPageShell.vue";
 import {
   requestAppConfirm,
@@ -1074,35 +1076,34 @@ function percent(value: string | null): string {
 
 <template>
   <SecondaryPageShell
-    class="trip-page trip-detail-workspace"
-    :title="detail?.trip.title ?? '行程详情'"
+    class="trip-page trip-detail-workspace record-surface record-trip"
+    :title="editingTrip ? '编辑行程' : '行程详情'"
     title-id="trip-detail-title"
-    :subtitle="
-      detail
-        ? `${detail.trip.destination} · ${detail.trip.startDate} – ${detail.trip.endDate}`
-        : '行程'
-    "
   >
     <template #actions>
-      <div v-if="detail" class="trip-head-actions">
+      <div v-if="detail" class="trip-head-actions record-toolbar">
         <button
           v-if="!editingTrip && !detail.trip.deletedAt"
-          class="secondary-button"
+          class="record-edit-button"
           :disabled="tripMutation !== null || saving"
           type="button"
           @click="startEditTrip"
         >
           编辑行程
         </button>
-        <button
+        <RecordMoreActions
           v-if="!editingTrip && !detail.trip.deletedAt"
-          class="danger-button"
           :disabled="tripMutation !== null || saving"
-          type="button"
-          @click="removeTrip"
         >
-          删除
-        </button>
+          <button
+            class="danger-button"
+            :disabled="tripMutation !== null || saving"
+            type="button"
+            @click="removeTrip"
+          >
+            删除
+          </button>
+        </RecordMoreActions>
         <button
           v-if="detail.trip.deletedAt"
           class="secondary-button"
@@ -1143,6 +1144,18 @@ function percent(value: string | null): string {
       @retry="load"
     />
     <template v-else-if="detail">
+      <div class="record-trip-hero">
+        <span class="record-type-icon" aria-hidden="true"
+          ><AppIcon name="trip" :size="22"
+        /></span>
+        <div>
+          <h2>{{ detail.trip.title }}</h2>
+          <p class="record-trip-context">
+            {{ detail.trip.destination }} · {{ detail.trip.startDate }} –
+            {{ detail.trip.endDate }}
+          </p>
+        </div>
+      </div>
       <p
         v-if="detail.trip.deletedAt"
         class="trip-detail-deleted-state"
@@ -1279,10 +1292,11 @@ function percent(value: string | null): string {
           </div>
         </div>
 
-        <div
-          class="trip-node-subsection"
+        <details
+          class="trip-node-subsection record-add"
           aria-labelledby="trip-node-create-title"
         >
+          <summary><AppIcon name="plus" :size="18" />添加节点</summary>
           <div class="trip-node-subsection-heading">
             <h3 id="trip-node-create-title">新增节点</h3>
             <p>填写类型、起止时间和地点，时间按上海时区保存。</p>
@@ -1336,7 +1350,7 @@ function percent(value: string | null): string {
               {{ itemMutation?.kind === "create" ? "添加中…" : "添加节点" }}
             </button>
           </form>
-        </div>
+        </details>
 
         <div
           class="trip-node-subsection"
@@ -1464,7 +1478,7 @@ function percent(value: string | null): string {
                   </div>
                 </dl>
               </div>
-              <div class="row-actions trip-node-actions">
+              <div class="row-actions trip-node-actions record-toolbar">
                 <button
                   v-if="!isNodeDeleted(item)"
                   class="text-button"
@@ -1474,20 +1488,25 @@ function percent(value: string | null): string {
                 >
                   编辑节点
                 </button>
-                <button
+                <RecordMoreActions
                   v-if="!isNodeDeleted(item)"
-                  class="text-button danger"
                   :disabled="itemControlsDisabled"
-                  type="button"
-                  @click="removeItem(item)"
+                  :label="`${item.location || '节点'}的更多操作`"
                 >
-                  {{
-                    itemMutation?.kind === "delete" &&
-                    itemMutation.itemId === item.id
-                      ? "删除中…"
-                      : "删除节点"
-                  }}
-                </button>
+                  <button
+                    class="text-button danger"
+                    :disabled="itemControlsDisabled"
+                    type="button"
+                    @click="removeItem(item)"
+                  >
+                    {{
+                      itemMutation?.kind === "delete" &&
+                      itemMutation.itemId === item.id
+                        ? "删除中…"
+                        : "删除节点"
+                    }}
+                  </button>
+                </RecordMoreActions>
                 <button
                   v-if="isNodeDeleted(item)"
                   class="text-button"
@@ -1529,7 +1548,8 @@ function percent(value: string | null): string {
           {{ packingSuccessMessage }}
         </p>
 
-        <div class="trip-packing-subsection">
+        <details class="trip-packing-subsection record-add">
+          <summary><AppIcon name="plus" :size="18" />添加行李项</summary>
           <div class="trip-packing-subsection-heading">
             <h3 id="trip-packing-create-title">新增行李项</h3>
             <p>勾选后会明确标记为已收纳。</p>
@@ -1559,7 +1579,7 @@ function percent(value: string | null): string {
               }}
             </button>
           </form>
-        </div>
+        </details>
 
         <div class="trip-packing-subsection">
           <div class="trip-packing-subsection-heading">
@@ -1678,7 +1698,7 @@ function percent(value: string | null): string {
                   }}
                 </span>
               </div>
-              <div class="row-actions trip-packing-actions">
+              <div class="row-actions trip-packing-actions record-toolbar">
                 <button
                   v-if="!isPackingDeleted(item)"
                   class="text-button"
@@ -1688,20 +1708,25 @@ function percent(value: string | null): string {
                 >
                   编辑行李项
                 </button>
-                <button
+                <RecordMoreActions
                   v-if="!isPackingDeleted(item)"
-                  class="text-button danger"
                   :disabled="packingControlsDisabled"
-                  type="button"
-                  @click="removePacking(item)"
+                  :label="`${item.text}的更多操作`"
                 >
-                  {{
-                    packingMutation?.kind === "delete" &&
-                    packingMutation.itemId === item.id
-                      ? "删除中…"
-                      : "删除行李项"
-                  }}
-                </button>
+                  <button
+                    class="text-button danger"
+                    :disabled="packingControlsDisabled"
+                    type="button"
+                    @click="removePacking(item)"
+                  >
+                    {{
+                      packingMutation?.kind === "delete" &&
+                      packingMutation.itemId === item.id
+                        ? "删除中…"
+                        : "删除行李项"
+                    }}
+                  </button>
+                </RecordMoreActions>
                 <button
                   v-if="isPackingDeleted(item)"
                   class="text-button"

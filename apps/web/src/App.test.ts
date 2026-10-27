@@ -176,6 +176,18 @@ describe("App shell bottom navigation visibility", () => {
     expectBottomNavigation(app, false, false);
   });
 
+  it("keeps inner-page navigation available in an offline session without an access token", async () => {
+    const app = mountApp(false);
+    useAuthStore().$patch({ offlineMode: true, offlineUserId: "offline-user" });
+    await visit("/calendar/event-1");
+
+    expectBottomNavigation(app, true, false);
+
+    useAuthStore().$patch({ offlineMode: false, offlineUserId: null });
+    await nextTick();
+    expectBottomNavigation(app, false, false);
+  });
+
   it("keeps navigation available across root, secondary, detail and edit routes", async () => {
     const app = mountApp(true);
     expectBottomNavigation(app, true, true);

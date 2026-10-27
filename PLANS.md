@@ -1,21 +1,23 @@
 # Daily Assistant V1.5 唯一总执行规划
 
+> 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](docs/55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
+
 版本：v2.1.1 Final
 批准日期：2026-08-10
 状态：`APPROVED / ACTIVE`
 仓库：`Dada-sys101/richangzhushou`
 集成分支：`codex/v15-integration-foundation`
-当前 canonical 任务：`PRIVATE_PREVIEW_OPERATION`（`ACTIVE / FEEDBACK_FIXES_ONLY / R1.1_PRIVATE_PREVIEW_PUSH_VALIDATION`；现有私有预览继续供受邀用户使用）
+当前 canonical 任务：`PRIVATE_PREVIEW_OPERATION`（`ACTIVE / FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE`；现有私有预览继续供受邀用户使用）
 PR18 Integration：`7caf892022c9bb6833c7316893bfddeb169b7243`（PR #17，历史事实）
 PR19 Integration：`c42c19ecb606893b1384fab4a13af2afb6b9981c`（PR #18，`DONE_INTEGRATION`）
 PR20 Adapter Integration：历史证据为 `d53f84a4ff99208f69d209e98a1d3f07c588d760`（PR #20/#21/#22/#23，`DONE_INTEGRATION`）
 Historical PR18 Integration CI #264：`SUCCESS`
-Latest Integration CI run `33043413216`：`quality` / `db-validation` / `browser-qa` `SUCCESS`；Playwright report upload skipped
+Latest verified Integration CI run 38364527083（2026-10-13，候选 6cab22f）：quality / db-validation / browser-qa SUCCESS；Playwright report upload skipped；本日审计另见更新准备清单
 PR19 Contract：`tasks/PR19.md`（`V10 / FROZEN / GPT_ACCEPT`；规范范围未改，历史实现已合入）
-Remote Integration：`299b1f71debbd5a3140d1ee19f9781372e67134b`（2026-08-29 只读重核）；旧 draft worktree 基线不再作为当前事实
+Remote Integration：6cab22f580f3345696258dea9983ea09c6def7ab（2026-10-23 重核）；当前预览仍为 d3db83b
 Current Governance Gate：`REL-03 PRIVATE PREVIEW READINESS（READY / EXISTING_ENVIRONMENT）`
 Governance write state：`DONE_INTEGRATION / POST_WRITE_REVIEW_PASS`（commit `6adc111492dcbeb35e79475a3d69f6a63007e5bb`）
-Commit authorization：`GRANTED_AND_CONSUMED_FOR_MOBILE_A`
+Commit authorization：2026-10-23 用户确认本轮 21 文件提交、推送 codex/preview-readiness-20261022、创建面向 Integration 的 Draft PR 并跟进 CI；不含 merge/deploy。历史 MOBILE-A 一次性授权已消费
 Persisted Successor Gate：`REL-03 PRIVATE PREVIEW READINESS READY；REL-02 SEPARATE_STAGING_WAIVED；R1 APPROVED`
 
 移动端优化执行顺序（2026-09-11 批准）：`R1.1 Web Push Candidate（DONE_INTEGRATION）→ MOBILE-A（DONE_INTEGRATION）→ MOBILE-B（DONE_INTEGRATION）→ MOBILE-C1/C2/C3（DONE_INTEGRATION）→ MOBILE-C4（DONE_INTEGRATION）`。MOBILE-C4 已合入 Integration `e407157`，不改变冻结架构、发布范围或 Push 启用门禁。
@@ -459,6 +461,8 @@ AI-DECISION-001 已完成 ADR-027 v1.0 Final Accepted，当前为 `DONE / DONE_I
 其 PR2 前置门禁已经完成。
 
 ## 12. Task Selection Policy
+
+2026-10-23 实况补充（不修改冻结选择规则）：Integration 6cab22f，预览 d3db83b，canonical 保持 PRIVATE_PREVIEW_OPERATION。本轮已对齐记录、准备更新并完成本地 Vite 8.2.4 补丁；完整 quality 与正式审计通过（0 High/Critical、8 Moderate），补丁已提交推送为 fb50097，Draft PR #83 的 CI 见修复记录；尚未合并或部署，见 [修复记录](docs/55-vite-security-patch-20261023.md) 与 [准备清单](docs/54-private-preview-update-plan-20261023.md)。本节后部带 8/9 月提交和旧 CI 的描述为历史治理快照，不覆盖本补充。
 
 仅当用户要求继续推进但没有指定目标时，按 `nextCanonicalTask` 核验依赖和门禁后选择任务，
 不得自行重新排序；若该任务被阻塞，不得随机改做其他 READY 任务，除非计划明确 fallback 或人工改序。
