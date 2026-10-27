@@ -1,5 +1,9 @@
 # Project Context
 
+## 最新本地候选（2026-10-27）
+
+当前工作包为 UI-RELEASE-PREP-20261027，DONE_LOCAL / UNCOMMITTED / CANDIDATE_CI_PENDING / NOT_DEPLOYED。此节及下方更新字段为当前事实；旧 Git 交付快照仅适用于其 SHA。完整候选、证据和回滚见 [docs/60](../docs/60-ui-release-candidate-20261027.md)。
+
 ## Git 交付快照（2026-10-23）
 
 - 补丁提交：`fb50097e66be2e63fcc994715cd36db2252b02ba`，已推送至 `codex/preview-readiness-20261022`。
@@ -11,7 +15,7 @@
 
 ## Last Updated
 
-2026-10-23 — 状态对齐、预览更新准备及 Vite 安全补丁本地完成；补丁已提交并推送，Draft PR #83；尚未合并或部署。
+2026-10-27 — UI 方向经用户认可；发布准备本地完成，候选未提交、未部署。
 
 ## Repository State
 
@@ -19,7 +23,7 @@
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`。
 - Integration: `codex/v15-integration-foundation` / `6cab22f580f3345696258dea9983ea09c6def7ab`；2026-10-23 远端重核。
 - Worktree: `C:/Users/hebia/.codex/worktrees/preview-readiness-20261022/daily-assistant`。
-- Branch: `codex/preview-readiness-20261022`；补丁提交 `fb50097e66be2e63fcc994715cd36db2252b02ba`；交付记录后续提交以 Git/PR HEAD 为准。
+- Branch: `codex/preview-readiness-20261022`；当前 HEAD/远端 PR #83 为 `fbb993342fe1def0f87853a1496e85c14f2bbd89`，2026-10-27 重核；本地候选未提交。
 - 原始 `D:/daily-assistant` 分支与四项未提交内容保留，详见更新准备清单。
 
 ## Project Summary
@@ -29,17 +33,17 @@
 ## Current Task
 
 - Canonical: `PRIVATE_PREVIEW_OPERATION / ACTIVE / FEEDBACK_FIXES_ONLY`。
-- 本轮已完成：`VITE-SECURITY-PATCH-20261023`，承接 `PREVIEW-UPDATE-PREP-20261023`，限定 Vite 及必要间接依赖修复；canonical 保持不变。
+- 本轮已完成：`UI-RELEASE-PREP-20261027` 本地准备，纳入用户认可的 UI/导航、安全依赖修复和 E2E 入口适配；canonical 保持不变。
 - 当前运行 release：`/opt/daily-assistant-preview/releases/d3db83b1-20260924T133437Z`；API、Nginx、MySQL active。
-- 交付候选：基于 `6cab22f` 的 Vite 8.2.4 补丁 `fb50097`，已推送并创建 Draft PR #83；CI 见顶部交付快照，未部署。历史 R1 APPROVED、独立 Staging 豁免、H6/H7/H8 关闭保持原范围；H1/H2 仍为豁免而非设备通过。
+- 交付候选：HEAD fbb9933 加本地未提交修改；Draft PR #83 尚不包含本轮候选。历史 R1 APPROVED、独立 Staging 豁免、H6/H7/H8 关闭保持原范围；H1/H2 仍为豁免而非设备通过。
 
 ## Last Completed Task
 
-本轮 Vite 补丁为 DONE_COMMITTED / DONE_PUSHED / PR_DRAFT，见 [修复记录](../docs/55-vite-security-patch-20261023.md)。最新远端代码交付为 PR #82 的 Integration Bootstrap 与 PR 基线保护，已合并至 `6cab22f` 且合并 CI 通过；这不是当前预览的部署版本。canonical 上次完成的 REL-03 历史收口语义保留。
+本轮 UI 发布准备为 DONE_LOCAL，待 Git 交付。此前 Vite 补丁已推送至 Draft PR #83；Integration #82 已合并至 6cab22f，但未部署。canonical 上次完成的 REL-03 历史收口语义保留。
 
 ## Completed Work
 
-- 状态对齐、兼容性审查和更新验收准备已完成；Vite 8.2.4 补丁及本地验证为 DONE_LOCAL，High/Critical 均为 0，不等于已经部署。
+- 已确认的 UI/导航、三项安全依赖与锁文件、E2E 更多/新增入口适配已完成；干净安装、完整 quality、治理、许可证/SBOM、依赖树通过。High/Critical 为 0，不等于已经部署。
 
 - PR #77 行程子项恢复已合入；当前预览包含该版本。
 - PR #78 手机内页导航、#79 依赖/测试门禁修复、#80 Cloud setup、#81 AI 澄清字段校验、#82 Bootstrap 均已合入，尚未出现在当前预览 release。
@@ -48,35 +52,36 @@
 
 ## Remaining Work
 
-- Draft PR #83 的最终 HEAD 检查及人工审阅；转 Ready、合并和部署须对应独立授权。
+- 本候选 commit、push、更新 Draft PR #83 的对应授权；候选 Linux quality/db-validation/browser-qa CI、最终 HEAD 审阅及后续 Ready/merge/部署。
 - 新候选目标 Linux 构建、备份、切换与业务/设备验收尚未执行。
 - 公网发布、扩容、新基础设施、R2/R3 保持延后。
 
 ## Blockers
 
-- Vite High 已消除，Git 交付已完成；目标 Linux release 构建、备份及部署后验收未执行，不能视作已发布。
-- 用户已授权并执行本轮 commit/push/Draft PR；合并、部署及真实第三方调用不在本次授权范围。
+- 本候选未提交，旧 PR CI 不能复用；本机无 MySQL/Docker，数据库和真实后端浏览器 E2E 待候选 CI。
+- Cloud Bootstrap 在 Windows 为 3 passed / 15 failed（私有目录 POSIX 权限及 symlink EPERM），保留 Linux CI 门禁；不改保护以使本地通过。
+- 目标 Linux release 构建、备份及部署后验收未执行；Git/外部动作按 PLANS 第 13 节及对应有效授权执行。
 
 ## Known Issues
 
-- 依赖仍有 8 项 Moderate；许可证清单有 8 项 missing/unresolved、25 项 manual review required，未自动关闭既有审核项。
+- 依赖仍有 6 Moderate、1 Low；许可证清单有 8 missing/unresolved、25 manual review required，未自动关闭既有审核项。
 - 当前预览记录中的业务及 iPhone/Android 验收仍待完成；本轮只核对服务运行状态。
 - 历史 PWA 更新/系统返回限制与真实断网验收缺口未在本轮消除。
 - Cloud Bootstrap 自动触发与平台自动 PR 基线仍未被证明；使用已记录的显式初始化流程。
 
 ## Verification Status
 
-- 已核实：远端 SHA、PR 合并、候选历史 CI、服务器 current 和服务状态、候选兼容性差异。
-- 修复后 setup、完整 quality、治理 30/30、依赖树、SBOM 1057 components 均 PASS；业务测试 1148 passed / 140 skipped。正式审计 PASS，0 High/Critical、8 Moderate。详见 [修复记录](../docs/55-vite-security-patch-20261023.md)。
-- 未执行：本地真实数据库/浏览器矩阵、真实 Provider、目标 Linux 候选构建、部署与设备验收。
+- 已核实：2026-10-27 远端 SHA、Draft PR #83、服务器 current/服务 active/health 200、兼容性差异；旧 HEAD CI 不覆盖候选。
+- 当前干净安装、完整 quality、治理 30/30、依赖树、SBOM 1056 components PASS；业务测试 1157 passed / 140 DB skipped；正式审计 0 High/Critical。E2E 收集 86 项及相关 TS 检查通过，未实际执行；额外 Bootstrap 本机失败如上。见 docs/60。
+- 未执行：本候选真实数据库/后端浏览器 E2E、真实 Provider、目标 Linux 候选构建、部署与真机/真正离线验收。
 
 ## Recent Changes
 
-对齐 Integration、预览与本地工作区；两个前端提高 Vite 最低版本至 ^8.2.4，锁文件统一解析修复版及必要间接依赖。保留历史决策，不虚构发布晋级。
+在已确认 UI/导航基础上完成安全依赖和 E2E 真实入口适配；同步候选、核验及回滚记录。保留历史决策，不虚构发布晋级。
 
 ## Next Recommended Task
 
-下一步是审阅 Draft PR #83 及其最终 HEAD 的 CI；获得对应授权后再推进 Ready、合并和精确 SHA/环境的预览更新与验收。不要自动执行下一 canonical 功能任务。
+取得本候选 commit/push/更新 Draft PR #83 的对应授权后，运行候选 CI 并处理失败；再按最终 SHA/环境的独立授权推进 Ready、合并、现有预览更新与验收。不要自动执行下一 canonical 功能任务。
 
 ## Handoff Instructions
 

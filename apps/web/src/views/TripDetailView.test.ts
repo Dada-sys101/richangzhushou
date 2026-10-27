@@ -216,8 +216,8 @@ describe("TripDetailView", () => {
     const { wrapper } = await mountTrip("/trips/trip-1");
     await flushPromises();
 
-    expect(wrapper.get("h1").text()).toBe("杭州秋日行程");
-    expect(wrapper.get(".page-header-subtitle").text()).toContain(
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("杭州秋日行程");
+    expect(wrapper.get(".record-trip-context").text()).toContain(
       "杭州目的地 trip-1",
     );
     expect(wrapper.text()).toContain("¥123456789012.30");
@@ -226,7 +226,14 @@ describe("TripDetailView", () => {
     expect(wrapper.text()).toContain("账单 trip-1");
     expect(
       wrapper.findAll(".secondary-page-content h2").map((node) => node.text()),
-    ).toEqual(["费用汇总", "行程节点", "行李清单", "行程内日历", "关联账单"]);
+    ).toEqual([
+      "杭州秋日行程",
+      "费用汇总",
+      "行程节点",
+      "行李清单",
+      "行程内日历",
+      "关联账单",
+    ]);
     expect(wrapper.text()).toContain("10/01 10:00");
     expect(wrapper.get("#trip-node-create-title").text()).toBe("新增节点");
     expect(wrapper.get("#trip-node-list-title").text()).toBe("已有节点");
@@ -291,7 +298,7 @@ describe("TripDetailView", () => {
     expect(getTrip).toHaveBeenCalledWith("trip-offline", {
       includeDeletedChildren: true,
     });
-    expect(wrapper.get("h1").text()).toBe("离线缓存行程");
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("离线缓存行程");
     expect(wrapper.text()).toContain("¥123456789012.30");
     expect(wrapper.get('[data-node-id="item-trip-offline"]').text()).toContain(
       "已删除",
@@ -319,7 +326,7 @@ describe("TripDetailView", () => {
 
     pending.resolve(tripDetail("trip-current", "当前行程"));
     await flushPromises();
-    expect(wrapper.get("h1").text()).toBe("当前行程");
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("当前行程");
     expect(wrapper.text()).not.toContain("上一段行程");
     expect(wrapper.text()).toContain("编辑行程");
   });
@@ -347,7 +354,7 @@ describe("TripDetailView", () => {
 
     await wrapper.get(".feedback-state-action").trigger("click");
     await flushPromises();
-    expect(wrapper.get("h1").text()).toBe("行程 trip-old");
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("行程 trip-old");
     expect(request).toHaveBeenCalledTimes(3);
   });
 
@@ -360,7 +367,7 @@ describe("TripDetailView", () => {
     });
     const { router, wrapper } = await mountTrip("/trips/trip-a");
     await flushPromises();
-    expect(wrapper.get("h1").text()).toBe("行程 A");
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("行程 A");
 
     await router.push("/trips/trip-b");
     await flushPromises();
@@ -370,11 +377,11 @@ describe("TripDetailView", () => {
 
     await router.push("/trips/trip-c");
     await flushPromises();
-    expect(wrapper.get("h1").text()).toBe("当前 trip-c");
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("当前 trip-c");
 
     latePrevious.resolve(tripDetail("trip-b", "迟到的行程 B"));
     await flushPromises();
-    expect(wrapper.get("h1").text()).toBe("当前 trip-c");
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("当前 trip-c");
     expect(wrapper.text()).not.toContain("迟到的行程 B");
     expect(wrapper.text()).not.toContain("行程 A");
     expect(getTrip.mock.calls.map(([id]) => id)).toEqual([
@@ -529,7 +536,7 @@ describe("TripDetailView", () => {
     await flushPromises();
     pending.resolve(detailA.trip);
     await flushPromises();
-    expect(wrapper.get("h1").text()).toBe("行程 B");
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("行程 B");
     expect(wrapper.text()).not.toContain("A 的新标题");
     expect(wrapper.text()).not.toContain("行程已更新");
     expect(wrapper.find('[role="alert"]').exists()).toBe(false);
@@ -596,7 +603,7 @@ describe("TripDetailView", () => {
     await flushPromises();
 
     expect(remove).not.toHaveBeenCalled();
-    expect(wrapper.get("h1").text()).toBe("当前行程 B");
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("当前行程 B");
     expect(wrapper.text()).not.toContain("行程已删除");
     expect(wrapper.find('[role="alert"]').exists()).toBe(false);
   });
@@ -861,7 +868,7 @@ describe("TripDetailView", () => {
     await flushPromises();
     pending.resolve({} as never);
     await flushPromises();
-    expect(wrapper.get("h1").text()).toBe("当前行程");
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("当前行程");
     expect(wrapper.text()).not.toContain("旧行程节点");
     expect(wrapper.text()).not.toContain("节点已保存");
     expect(wrapper.find(".trip-node-section [role=alert]").exists()).toBe(
@@ -1150,7 +1157,7 @@ describe("TripDetailView", () => {
     pending.resolve({} as never);
     await flushPromises();
 
-    expect(wrapper.get("h1").text()).toBe("当前行程");
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("当前行程");
     expect(wrapper.text()).not.toContain("旧行程的未保存行李项");
     expect(wrapper.text()).not.toContain("行李项已添加");
     expect(wrapper.find(".trip-packing-section [role=alert]").exists()).toBe(
@@ -1183,7 +1190,7 @@ describe("TripDetailView", () => {
     await flushPromises();
 
     expect(remove).not.toHaveBeenCalled();
-    expect(wrapper.get("h1").text()).toBe("当前行程");
+    expect(wrapper.get(".record-trip-hero h2").text()).toBe("当前行程");
     expect(wrapper.text()).not.toContain(
       "需要正常换行的长行李说明 trip-packing-confirm-old",
     );

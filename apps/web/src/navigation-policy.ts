@@ -18,6 +18,31 @@ declare module "vue-router" {
 export type BackAction =
   { type: "history" } | { type: "replace"; target: string };
 
+const navigationEntries = new Set([
+  "/",
+  "/records",
+  "/plan",
+  "/account",
+  "/capture",
+]);
+
+export function resolveNavigationSection(
+  router: Router,
+  route: Pick<RouteLocationNormalizedLoaded, "path" | "meta">,
+): string | null {
+  let current = route;
+  const visited = new Set<string>();
+  // Section ownership follows route metadata, not the page's returnTo source.
+  while (!visited.has(current.path) && !current.meta?.public) {
+    if (navigationEntries.has(current.path)) return current.path;
+    visited.add(current.path);
+    const parent = sanitizeInternalPath(current.meta?.page?.parent?.path);
+    if (!parent) return null;
+    current = router.resolve(parent);
+  }
+  return null;
+}
+
 export function classifyRoute(
   route: Pick<RouteLocationNormalizedLoaded, "meta">,
 ): NavigationKind {

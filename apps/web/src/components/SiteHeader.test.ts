@@ -3,16 +3,19 @@ import { mount } from "@vue/test-utils";
 import { RouterLinkStub } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { RouteMeta } from "vue-router";
 
 import { useAuthStore } from "../stores/auth";
 import { useSyncStore } from "../stores/sync";
 import SiteHeader from "./SiteHeader.vue";
 
 const router = vi.hoisted(() => ({
+  route: { fullPath: "/", path: "/", meta: {} as RouteMeta },
   push: vi.fn(),
   replace: vi.fn(),
   resolve: vi.fn((to: string) => ({
     fullPath: to,
+    path: to,
     meta: { navigationKind: "ROOT_TAB" },
   })),
 }));
@@ -21,7 +24,7 @@ vi.mock("vue-router", async (importOriginal) => {
   const actual = await importOriginal<typeof import("vue-router")>();
   return {
     ...actual,
-    useRoute: () => ({ fullPath: "/", path: "/" }),
+    useRoute: () => router.route,
     useRouter: () => router,
   };
 });
@@ -30,6 +33,7 @@ describe("SiteHeader", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
+    Object.assign(router.route, { fullPath: "/", path: "/", meta: {} });
   });
 
   it("hides the primary navigation until authenticated", () => {
@@ -38,6 +42,25 @@ describe("SiteHeader", () => {
     });
     expect(wrapper.find("nav").exists()).toBe(false);
     expect(wrapper.text()).toContain("日常助手");
+  });
+
+  it("marks the owning section on desktop detail pages", () => {
+    useAuthStore().$patch({ accessToken: "token" });
+    Object.assign(router.route, {
+      fullPath: "/tasks/task-1?returnTo=%2F",
+      path: "/tasks/task-1",
+      meta: {
+        page: { title: "待办详情", parent: { title: "计划", path: "/plan" } },
+      },
+    });
+    const wrapper = mount(SiteHeader, {
+      global: { stubs: { RouterLink: RouterLinkStub } },
+    });
+    const current = wrapper.get('.site-nav a[aria-current="location"]');
+    expect(current.attributes("href")).toBe("/plan");
+    expect(current.classes()).toContain("router-link-active");
+    expect(wrapper.findAll(".site-nav [aria-current]")).toHaveLength(1);
+    wrapper.unmount();
   });
 
   it("shows the concise desktop navigation when authenticated", async () => {

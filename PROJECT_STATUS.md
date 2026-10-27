@@ -1,5 +1,9 @@
 # Project Status
 
+## 2026-10-27 — 当前本地 UI 发布候选
+
+UI-RELEASE-PREP-20261027 DONE_LOCAL / UNCOMMITTED / CANDIDATE_CI_PENDING / NOT_DEPLOYED。完整 quality PASS（1157 passed / 140 DB skipped），治理 30/30、审计 0 High/Critical、SBOM 1056 通过；Bootstrap 本机 3 passed / 15 failed（Windows 权限限制），待 Linux CI。HEAD/PR #83 为 fbb9933，尚不包含本地 UI/导航、安全依赖及 E2E 入口适配。预览仍 d3db83b，health 200；canonical 不晋级。此节覆盖下方旧检查点的当前候选描述。见 [候选记录](docs/60-ui-release-candidate-20261027.md)。
+
 ## Git 交付快照（2026-10-23）
 
 - 补丁提交：`fb50097e66be2e63fcc994715cd36db2252b02ba`，已推送至 `codex/preview-readiness-20261022`。

@@ -1,0 +1,673 @@
+/* Shared record language: content first, grouped properties, quiet tools. */
+body:has(.record-surface) {
+  background: #f6f5f8;
+}
+
+.record-surface {
+  --record-line: #eae8ee;
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+  color: var(--ui-color-text);
+}
+
+.record-surface .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: var(--ui-space-3);
+  min-height: 60px;
+  padding: var(--ui-space-2) 0;
+  margin: 0 0 var(--ui-space-6);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.record-surface .page-header-main {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+
+.record-surface .page-header h1 {
+  margin: 0;
+  font-size: var(--ui-font-size-16);
+  font-weight: var(--ui-font-weight-semibold);
+  line-height: var(--ui-line-height-compact);
+  overflow-wrap: anywhere;
+}
+
+.record-surface .page-header-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  width: 44px;
+  min-height: 44px;
+  margin: 0 0 0 -10px;
+  padding: 0;
+  color: var(--ui-color-text);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.record-surface .page-header-back span {
+  display: none;
+}
+
+.record-surface .page-header-actions,
+.record-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: var(--ui-space-2);
+  width: auto;
+  min-width: 0;
+}
+
+.record-surface .page-header-actions {
+  flex-shrink: 0;
+}
+
+.record-edit-button {
+  min-height: 44px;
+  padding: var(--ui-space-2) var(--ui-space-3);
+  border: 0;
+  border-radius: var(--ui-radius-sm);
+  background: transparent;
+  color: var(--ui-color-primary-strong);
+  font-size: var(--ui-font-size-16);
+  font-weight: var(--ui-font-weight-semibold);
+  white-space: nowrap;
+}
+
+.record-more {
+  position: relative;
+  flex: 0 0 44px;
+  color: var(--ui-color-text);
+}
+
+.record-more > summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  list-style: none;
+}
+
+.record-more > summary::-webkit-details-marker {
+  display: none;
+}
+.record-more > summary[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.record-more__items {
+  position: absolute;
+  z-index: 30;
+  inset-inline-end: 0;
+  top: calc(100% + 8px);
+  display: grid;
+  width: max-content;
+  min-width: 176px;
+  max-width: min(280px, calc(100vw - 32px));
+  padding: var(--ui-space-2);
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-color-surface);
+  box-shadow: var(--ui-shadow-high);
+}
+
+.record-more__items > button,
+.record-more__items > a {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  padding: var(--ui-space-3);
+  border: 0;
+  border-radius: var(--ui-radius-sm);
+  background: transparent;
+  color: var(--ui-color-text);
+  font-size: var(--ui-font-size-16);
+  text-align: start;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+.record-more__items > .danger,
+.record-more__items > .danger-button {
+  color: var(--ui-color-danger);
+}
+.record-more__items > * + * {
+  border-top: 1px solid var(--record-line, #eae8ee);
+}
+
+.record-surface :is(button, a, summary):hover:not(:disabled) {
+  filter: none;
+}
+.record-more > summary:hover,
+.record-more__items > :hover,
+.record-edit-button:hover,
+.record-surface .page-header-back:hover {
+  background: var(--ui-color-primary-soft);
+}
+
+.record-surface :focus-visible,
+.record-more :focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 3px;
+}
+.record-surface ::selection {
+  background: var(--ui-color-primary-soft);
+  color: var(--ui-color-text);
+}
+
+.record-detail .planner-detail-card {
+  overflow: visible;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.record-detail .planner-detail-card-head {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--ui-space-3);
+  padding: var(--ui-space-2) 0 var(--ui-space-6);
+  border: 0;
+  background: transparent;
+}
+
+.record-detail .planner-detail-heading {
+  flex: 1;
+  min-width: 0;
+}
+.record-summary-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ui-space-3);
+  margin-top: var(--ui-space-3);
+  color: var(--ui-color-text-muted);
+  font-size: var(--ui-font-size-12);
+}
+.record-detail .planner-detail-heading h2 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: var(--ui-font-weight-semibold);
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.record-complete,
+.record-type-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  margin-top: -4px;
+  padding: 0;
+  color: var(--ui-color-primary-strong);
+  border: 0;
+  border-radius: 50%;
+  background: var(--ui-color-primary-soft);
+  box-shadow: none;
+}
+.record-complete {
+  background: transparent;
+  position: relative;
+}
+.record-complete::before {
+  position: absolute;
+  content: "";
+  inset: 8px;
+  border: 2px solid var(--ui-color-primary-strong);
+  border-radius: 50%;
+}
+.record-complete:hover {
+  background: var(--ui-color-primary-soft);
+}
+
+.record-detail .planner-detail-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0 var(--ui-space-5);
+  border-radius: var(--ui-radius-lg);
+  background: var(--ui-color-surface);
+}
+.record-detail .planner-detail-list > div {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(0, 2fr);
+  align-items: baseline;
+  gap: var(--ui-space-4);
+  min-height: 56px;
+  padding: var(--ui-space-4) 0;
+  border-top: 1px solid var(--record-line);
+}
+.record-detail .planner-detail-list > div:first-child {
+  padding-top: var(--ui-space-4);
+  border: 0;
+}
+.record-detail .planner-detail-list dt {
+  color: var(--ui-color-text-muted);
+  font-size: var(--ui-font-size-14);
+  font-weight: var(--ui-font-weight-normal);
+}
+.record-detail .planner-detail-list dd {
+  margin: 0;
+  text-align: right;
+  font-size: var(--ui-font-size-16);
+  line-height: var(--ui-line-height-body);
+  overflow-wrap: anywhere;
+}
+.record-detail .planner-detail-list > .record-detail-note {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ui-space-2);
+}
+.record-detail .record-detail-note dd {
+  text-align: start;
+}
+.record-detail .planner-detail-feedback,
+.record-detail .planner-detail-success,
+.record-detail .planner-detail-overlap-warning {
+  margin: 0 0 var(--ui-space-4);
+}
+
+/* Editing uses the same grouped property language on every record kind. */
+.record-editor .planner-detail-editor {
+  gap: var(--ui-space-5);
+  margin: 0;
+}
+.record-editor .planner-detail-form {
+  gap: var(--ui-space-5);
+  padding: 0;
+}
+.record-editor .planner-detail-edit-section,
+.record-editor .section-card {
+  margin: 0;
+  padding: var(--ui-space-5);
+  border: 0;
+  border-radius: var(--ui-radius-lg);
+  background: var(--ui-color-surface);
+  box-shadow: none;
+}
+.record-editor .planner-detail-edit-section > legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.record-editor .planner-detail-edit-grid,
+.record-editor .transaction-form-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ui-space-5);
+}
+.record-editor .planner-field,
+.record-editor .transaction-form-field {
+  gap: var(--ui-space-2);
+  color: var(--ui-color-text-muted);
+  font-size: var(--ui-font-size-14);
+  font-weight: var(--ui-font-weight-medium);
+}
+.record-editor
+  :is(input:not([type="checkbox"]), select, textarea, .temporal-field),
+.record-trip
+  .trip-field
+  :is(input:not([type="checkbox"]), select, textarea, .temporal-field) {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--ui-space-3) var(--ui-space-4);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-surface);
+  color: var(--ui-color-text);
+  font: inherit;
+  font-size: var(--ui-font-size-16);
+  box-shadow: none;
+  caret-color: var(--ui-color-primary-strong);
+}
+.record-editor textarea {
+  min-height: 96px;
+  resize: vertical;
+  line-height: var(--ui-line-height-body);
+}
+.record-editor .planner-field-help {
+  font-size: var(--ui-font-size-12);
+  font-weight: 400;
+}
+.record-editor .planner-detail-form-actions,
+.record-editor .transaction-form-actions {
+  position: static;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--ui-space-3);
+  margin: 0;
+  padding: var(--ui-space-2) 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.record-editor .form-actions > * {
+  min-width: 0;
+  min-height: 48px;
+  width: 100%;
+  box-shadow: none;
+  border-radius: var(--ui-radius-md);
+}
+.record-surface .primary-button {
+  background: var(--ui-color-primary-strong);
+  border-color: var(--ui-color-primary-strong);
+  box-shadow: none;
+}
+.record-surface .primary-button:hover:not(:disabled) {
+  background: var(--ui-color-primary-strong);
+}
+.record-editor .section-card-header {
+  padding: 0 0 var(--ui-space-5);
+  border: 0;
+  background: transparent;
+}
+.record-editor .section-card-header h2 {
+  font-size: var(--ui-font-size-16);
+}
+.record-editor .section-card-header p {
+  display: none;
+}
+.record-editor .section-card-body {
+  padding: 0;
+}
+.record-editor .transaction-form {
+  gap: var(--ui-space-5);
+}
+.record-editor .transaction-amount-field input {
+  font-size: 28px;
+  font-weight: var(--ui-font-weight-semibold);
+}
+.record-editor .transaction-form-actions {
+  margin-top: var(--ui-space-5);
+}
+.record-editor .ui-page-frame__action {
+  position: static;
+  inset: auto;
+  z-index: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.record-trip {
+  max-width: 960px;
+}
+.record-trip-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ui-space-3);
+  padding-bottom: var(--ui-space-6);
+}
+.record-trip-hero > div {
+  min-width: 0;
+}
+.record-trip-hero h2 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.35;
+  font-weight: var(--ui-font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+.record-trip-context {
+  margin: var(--ui-space-3) 0 0;
+  color: var(--ui-color-text-muted);
+  font-size: 13px;
+  line-height: var(--ui-line-height-body);
+  overflow-wrap: anywhere;
+}
+.record-trip .resource-list > li {
+  overflow: visible;
+}
+.record-trip .trip-node-card,
+.record-trip .trip-packing-card {
+  overflow: visible;
+  padding: var(--ui-space-4) 0;
+  border: 0;
+  border-top: 1px solid var(--record-line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.record-trip .trip-node-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ui-space-2);
+}
+.record-trip .trip-node-details > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--ui-space-3);
+}
+.record-trip .trip-node-details dt {
+  flex: 0 0 76px;
+  font-size: var(--ui-font-size-14);
+  font-weight: var(--ui-font-weight-normal);
+  color: var(--ui-color-text-muted);
+}
+.record-trip .trip-node-details dd {
+  margin: 0;
+  min-width: 0;
+  font-size: var(--ui-font-size-14);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.record-trip .trip-node-type {
+  font-size: var(--ui-font-size-14);
+}
+.record-trip .trip-node-actions.record-toolbar,
+.record-trip .trip-packing-actions.record-toolbar {
+  display: flex;
+  width: auto;
+  justify-content: flex-end;
+  padding-top: var(--ui-space-2);
+  border-top: 1px solid var(--record-line);
+}
+.record-trip .record-toolbar > button {
+  width: auto;
+  min-height: 44px;
+}
+.record-trip .trip-node-actions .record-more__items,
+.record-trip .trip-packing-actions .record-more__items {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+.record-trip .page-header-main {
+  flex: 1;
+}
+.record-trip .trip-card,
+.record-trip .trip-section,
+.record-transactions .section-card {
+  border: 0;
+  border-radius: var(--ui-radius-lg);
+  background: var(--ui-color-surface);
+  box-shadow: none;
+}
+.record-trip .trip-section h2 {
+  font-size: var(--ui-font-size-18);
+}
+.record-trip .trip-card {
+  display: block;
+  padding: var(--ui-space-5);
+}
+.record-trip .trip-card .today-stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ui-space-3);
+  margin: 0;
+  padding: var(--ui-space-3) 0;
+  border: 0;
+}
+.record-trip .trip-card .today-stat + .today-stat {
+  border-top: 1px solid var(--record-line);
+}
+.record-trip .trip-card .stat-label {
+  font-size: var(--ui-font-size-14);
+  font-weight: var(--ui-font-weight-normal);
+  color: var(--ui-color-text-muted);
+}
+.record-trip .trip-card .stat-value {
+  font-size: var(--ui-font-size-18);
+  font-weight: var(--ui-font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+.record-trip .record-add {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.record-add > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-height: 48px;
+  color: var(--ui-color-primary-strong);
+  font-size: var(--ui-font-size-16);
+  cursor: pointer;
+  list-style: none;
+}
+.record-add > summary::-webkit-details-marker {
+  display: none;
+}
+.record-add .trip-node-subsection-heading h3,
+.record-add .trip-packing-subsection-heading h3 {
+  display: none;
+}
+.record-trip .record-add > .trip-create {
+  padding: var(--ui-space-4) 0;
+  border-radius: 0;
+}
+.record-trip .trip-create {
+  padding: var(--ui-space-5);
+  border: 0;
+  background: var(--ui-color-surface);
+  border-radius: var(--ui-radius-lg);
+}
+.record-trip .trip-head-actions > * {
+  width: auto;
+  min-height: 44px;
+}
+.record-transactions .transaction-list li,
+.record-transactions .transaction-row {
+  overflow: visible;
+}
+.record-transactions .row-actions {
+  width: auto;
+  margin: 0;
+}
+.record-transactions .row-actions > .text-button {
+  min-height: 44px;
+  padding-inline: 12px;
+}
+.record-transactions .record-more__items {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
+@media (min-width: 769px) {
+  .record-surface {
+    padding-top: var(--ui-space-5);
+  }
+  .record-detail .planner-detail-card-head {
+    padding-block: var(--ui-space-3) var(--ui-space-7);
+  }
+  .record-trip .trip-create {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .record-more[open] .record-more__items {
+    animation: record-actions-enter 140ms ease-out;
+  }
+  @keyframes record-actions-enter {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Teleported date controls inherit this language while a record is open. */
+body:has(.record-surface) .app-dialog-panel:has(.temporal-picker) {
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-shadow-high);
+}
+body:has(.record-surface) .temporal-picker button {
+  border: 0;
+  background: transparent;
+  color: var(--ui-color-text);
+  font: inherit;
+  cursor: pointer;
+}
+body:has(.record-surface) .temporal-picker h2 {
+  font-size: var(--ui-font-size-18);
+}
+body:has(.record-surface) .temporal-picker-heading button {
+  border-radius: var(--ui-radius-sm);
+  font-size: 24px;
+}
+body:has(.record-surface) .calendar-grid button {
+  min-height: 40px;
+}
+body:has(.record-surface) .temporal-picker button:hover:not(:disabled) {
+  background: var(--ui-color-primary-soft);
+}
+body:has(.record-surface) .temporal-picker button.selected,
+body:has(.record-surface) .temporal-picker .app-dialog-actions .primary {
+  background: var(--ui-color-primary-strong);
+  color: white;
+}
+body:has(.record-surface) .temporal-picker .secondary,
+body:has(.record-surface) .time-entry select {
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-surface);
+  color: var(--ui-color-text);
+}
+body:has(.record-surface) .temporal-picker .app-dialog-actions button {
+  min-height: 48px;
+  border-radius: var(--ui-radius-sm);
+}
+body:has(.record-surface) .temporal-picker button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+body:has(.record-surface) .temporal-picker :focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}

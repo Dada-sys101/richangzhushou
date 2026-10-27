@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 
-import { navigate } from "../navigation-policy";
+import { navigate, resolveNavigationSection } from "../navigation-policy";
 import { useAuthStore } from "../stores/auth";
 import { useSyncStore } from "../stores/sync";
 import AppIcon from "./AppIcon.vue";
@@ -11,6 +11,7 @@ import SyncBadge from "./SyncBadge.vue";
 const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
+const currentSection = computed(() => resolveNavigationSection(router, route));
 const sync = useSyncStore();
 const moreOpen = ref(false);
 const moreRef = ref<HTMLElement | null>(null);
@@ -28,7 +29,7 @@ function toggleMore() {
 }
 
 function isRootActive(path: string) {
-  return route.path === path;
+  return currentSection.value === path;
 }
 
 function navigateRoot(path: string) {
@@ -79,6 +80,13 @@ onBeforeUnmount(() => {
           ]"
           :key="item.to"
           :class="{ 'router-link-active': isRootActive(item.to) }"
+          :aria-current="
+            isRootActive(item.to)
+              ? route.path === item.to
+                ? 'page'
+                : 'location'
+              : undefined
+          "
           :href="item.to"
           @click.prevent="navigateRoot(item.to)"
           >{{ item.label }}</a

@@ -1,5 +1,12 @@
 # TODO
 
+## 2026-10-27 — 当前 UI 候选交付
+
+- DONE_LOCAL：已确认 UI/导航，安全依赖补丁、E2E 真实入口适配；完整 quality、治理、正式审计、依赖树、许可证/SBOM。
+- PENDING：本候选 commit/push/更新 Draft PR #83 的对应授权；候选 Linux CI（含本机失败的 Bootstrap、未运行的数据库和浏览器 E2E）。
+- PENDING：最终 HEAD 审阅、Ready/merge 和精确 SHA/环境部署授权；目标 release 构建、备份、切换、五档/真机/离线验收及观察。
+- 现有私有预览 d3db83b 保持运行；不推进公网注册或下一 canonical 功能。见 [候选记录](docs/60-ui-release-candidate-20261027.md)。下方为历史检查点。
+
 > 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](docs/55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
 
 仅使用 `NOT_STARTED`、`IN_PROGRESS`、`BLOCKED`、`DONE`、`CANCELLED`。

@@ -1,5 +1,9 @@
 # V1.5 Execution State
 
+## 最新本地候选（2026-10-27）
+
+UI-RELEASE-PREP-20261027：已确认 UI/导航、安全依赖和 E2E 入口适配为 DONE_LOCAL / UNCOMMITTED / CANDIDATE_CI_PENDING / NOT_DEPLOYED。完整 quality PASS（1157 passed / 140 DB skipped）、治理 30/30、审计 0 High/Critical；Windows Bootstrap 3 passed / 15 failed（POSIX 权限/符号链接限制），须 Linux CI 复验。HEAD/远端 PR #83 为 fbb9933，旧 CI 不覆盖本地修改。预览 d3db83b、服务 active、health 200。此节覆盖下方旧检查点的当前候选描述，保留其历史交付语义；canonical 不晋级。详见 [候选记录](../docs/60-ui-release-candidate-20261027.md)。
+
 ## Git 交付快照（2026-10-23）
 
 - 补丁提交：`fb50097e66be2e63fcc994715cd36db2252b02ba`，已推送至 `codex/preview-readiness-20261022`。
@@ -9,7 +13,7 @@
 - 本节是补丁 SHA 的已核实交付快照；本记录后续文档提交的 HEAD 和 CI 以 Git/PR 为准，不能复用父提交结果。五档宽度、真实设备、目标服务器 release 构建和部署验收未在此 CI 覆盖。
 - 用户授权的 commit/push/Draft PR 已执行；合并、转 Ready、部署和真实服务调用仍需独立授权。下方本地未提交等表述仅保留其原检查点语义，不覆盖本节。
 
-updatedAt: 2026-10-23
+updatedAt: 2026-10-27
 snapshotKind: REPOSITORY_STATE_SNAPSHOT_NOT_REALTIME_MIRROR
 mainHead: 9421d819a44a47728e6d7f6e93bfd4f98f681f24
 integrationBranch: codex/v15-integration-foundation
@@ -21,8 +25,8 @@ currentTask: PRIVATE_PREVIEW_OPERATION
 lastCompletedTask: REL-03 Private Preview Readiness
 executionStatus: ACTIVE
 deliveryStatus: ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
-currentWork: VITE-SECURITY-PATCH-20261023 DONE_PUSHED; patch fb50097e66be2e63fcc994715cd36db2252b02ba; PR #83 DRAFT; not merged/deployed
-latestDependencyGateRecheck: 2026-10-23 local Vite 8.2.4 patch; full quality and formal audit PASS; 0 high/critical, 8 moderate; patch fb50097 and PR #83 delivered; CI snapshot above
+currentWork: UI-RELEASE-PREP-20261027 DONE_LOCAL; accepted UI/navigation, security dependency patches and E2E entry adaptation; UNCOMMITTED; PR #83 DRAFT old head fbb9933; not merged/deployed
+latestDependencyGateRecheck: 2026-10-27 locked install, quality and formal audit PASS; 0 high/critical, 6 moderate, 1 low; candidate CI pending; see docs/60
 nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
 nextCanonicalTaskAfterCompletion: USER_DIRECTED_SCOPE_SELECTION
 openPullRequests: [83]
@@ -72,14 +76,14 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 ## Active Task
 
 - id: PRIVATE_PREVIEW_OPERATION
-- localWorkPackage: VITE-SECURITY-PATCH-20261023 (completed locally; PREVIEW-UPDATE-PREP-20261023 retained)
+- localWorkPackage: UI-RELEASE-PREP-20261027 (DONE_LOCAL; Git delivery and candidate CI pending)
 - branch: codex/preview-readiness-20261022
 - baseHead: 6cab22f580f3345696258dea9983ea09c6def7ab
 - contract: PLANS simplified private-preview scope and section 13; user-approved preparation and subsequent scoped Vite dependency repair
-- implementation: two frontend Vite manifest minima and root lockfile updated; affected documentation synchronized; no business-code edits
+- implementation: accepted navigation/UI family, body-parser/multer/undici security patches and E2E disclosure entry adaptation; see docs/60
 - executionStatus: ACTIVE
-- deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_DRAFT / PREVIEW_EXISTING_VERSION
-- remaining: final PR HEAD CI and review; separately authorized Ready/merge and target Linux release build/deployment/acceptance
+- deliveryStatus: DONE_LOCAL / UNCOMMITTED / CANDIDATE_CI_PENDING / PREVIEW_EXISTING_VERSION
+- remaining: scoped Git delivery authorization and candidate Linux quality/db/browser CI; separately authorized Ready/merge and exact-SHA target release build/deployment/acceptance
 - preservedMode: FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
 
 ## Previous Canonical Task

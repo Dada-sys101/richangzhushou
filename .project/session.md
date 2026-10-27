@@ -1,5 +1,9 @@
 # Current Development Session
 
+## 最新候选检查点（2026-10-27）
+
+UI-RELEASE-PREP-20261027 DONE_LOCAL / UNCOMMITTED / CANDIDATE_CI_PENDING / NOT_DEPLOYED。用户认可 UI 后要求推进上线准备，canonical 保持私人预览反馈修复。下方旧 Git 快照只覆盖其 SHA；本轮以 [docs/60](../docs/60-ui-release-candidate-20261027.md) 与更新字段为准。
+
 ## Git 交付快照（2026-10-23）
 
 - 补丁提交：`fb50097e66be2e63fcc994715cd36db2252b02ba`，已推送至 `codex/preview-readiness-20261022`。
@@ -11,38 +15,38 @@
 
 ## Session Status
 
-DONE_COMMITTED / DONE_PUSHED / PR_DRAFT / NOT_DEPLOYED
+DONE_LOCAL / UNCOMMITTED / CANDIDATE_CI_PENDING / NOT_DEPLOYED
 
 ## Task
 
-- ID: `VITE-SECURITY-PATCH-20261023`，承接 `PREVIEW-UPDATE-PREP-20261023`；canonical 保持 `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY`。
+- ID: `UI-RELEASE-PREP-20261027`；canonical 保持 `PRIVATE_PREVIEW_OPERATION / FEEDBACK_FIXES_ONLY`。
 - Branch: `codex/preview-readiness-20261022`；Base 为 Integration `6cab22f580f3345696258dea9983ea09c6def7ab`。
-- Patch commit: `fb50097e66be2e63fcc994715cd36db2252b02ba`，已推送；本记录的文档后续提交以 Git/PR HEAD 为准。
+- HEAD: `fbb993342fe1def0f87853a1496e85c14f2bbd89`，2026-10-27 核对与远端一致；本轮修改未提交。
 - Draft PR: [#83](https://github.com/Dada-sys101/richangzhushou/pull/83)，目标 `codex/v15-integration-foundation`。
-- 用户已明确授权并执行提交、推送、创建 Draft PR 及跟进 CI；合并、转 Ready、部署、迁移及真实服务调用不在范围内。
+- 本轮实施和本地验证已授权；具体 commit/push/更新 PR、Ready/merge 和精确 SHA/环境部署按 PLANS 第 13 节核验独立授权，不复用旧一次性授权。
 
 ## Current Progress
 
-Vite 最低版本和锁文件统一到 8.2.4；保留 8 项 Moderate，High/Critical 为 0。代码、文档、验证证据已交付至 Draft PR #83。补丁的 CI 结果见顶部交付快照；文档记录后续提交仍须核对其最终 HEAD 的检查，不能把父提交结果当作最新检查。
+已确认的 UI/导航、body-parser/multer/undici 安全修复和 E2E disclosure 入口适配已本地完成。完整 quality PASS，1157 passed / 140 DB skipped；治理 30/30，审计 0 High/Critical（6 Moderate、1 Low），SBOM 1056 components。Draft PR #83 未包含本地候选，旧 HEAD CI 不覆盖它。
 
 ## Remaining Work
 
-- 审阅 Draft PR #83 的最终 HEAD 与 CI，按独立授权转 Ready、合并。
+- 获得本候选 commit、push、更新 Draft PR #83 授权，运行并核验候选 Linux quality/db/browser CI；按独立授权转 Ready、合并。
 - 目标 Linux release 构建、受保护备份、预览切换、五档宽度和真实设备验收仍待对应批准与执行。
 - 既有 Moderate、许可证人工审核项与 PWA 限制继续记录；不扩大任务范围。
 
 ## Verification Status
 
-本地完整 quality、治理 30/30、1148 passed / 140 DB skipped、干净安装、依赖树和 SBOM 1057 components 通过。远端数据库和浏览器覆盖以本任务 CI 快照为准；本地跳过事实保留。详见 [修复记录](../docs/55-vite-security-patch-20261023.md)。
+本地完整 quality、治理 30/30、1157 passed / 140 DB skipped、干净安装、依赖树和 SBOM 1056 components 通过；E2E 86 项收集和修改文件 TS 检查通过，未实际运行。本机无 MySQL/Docker；额外 Cloud Bootstrap 3 passed / 15 failed（POSIX 权限及 symlink EPERM），必须 Linux CI 复验。详见 [候选记录](../docs/60-ui-release-candidate-20261027.md)。
 
-当前预览仍为之前只读核实的 `d3db83b1-20260924T133437Z`，未部署本候选；原 D:/daily-assistant 四项未提交内容保留。
+2026-10-27 只读核实预览仍为 `d3db83b1-20260924T133437Z`，服务 active、health 200，未部署本候选；原 D:/daily-assistant 四项未提交内容保留。
 
 ## Resume Instructions
 
 1. 继续使用本工作区并检查 Git/PR 的实时 HEAD，勿覆盖原目录修改。
-2. 先核对 PR #83 最新检查；修复提交或文档后续提交的旧 CI 不覆盖新 HEAD。
+2. 先核验 Git 交付授权，再提交/推送/更新 PR #83 并核对候选检查；旧 CI 不覆盖新 HEAD。
 3. 保持 Draft，未获授权不转 Ready、合并或部署；不要自动执行其他 canonical 任务。
 
 ## Last Updated
 
-2026-10-23 — 补丁已提交推送，Draft PR #83 已创建；CI 证据见交付快照，未合并或部署。
+2026-10-27 — 发布准备本地完成，待候选 Git 交付及 Linux CI，未合并或部署。

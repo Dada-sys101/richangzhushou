@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-27 — UI 候选安全与交付准备（DONE_LOCAL / UNCOMMITTED）
+
+body-parser 2.4.0、Multer 2.5.0、Undici 8.12.2 消除 High；适配 E2E 的更多菜单和新增折叠入口，保留业务断言。干净安装、完整 quality、1157 passed / 140 DB skipped、治理 30/30、审计 0 High/Critical、SBOM 1056 通过；Windows Bootstrap 15 项失败留待 Linux CI，数据库/真实后端浏览器未运行。当前 UI/导航候选尚未提交或部署，见 [候选记录](docs/60-ui-release-candidate-20261027.md)。
+
 > 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](docs/55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
 
 ## 2026-10-23 — Vite 安全依赖补丁（DONE_LOCAL / UNCOMMITTED）

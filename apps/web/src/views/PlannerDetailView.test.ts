@@ -199,7 +199,9 @@ describe("PlannerDetailView", () => {
 
     expect(wrapper.find(".page-header-back").text()).toContain("返回待办");
     await findButton(wrapper, "编辑").trigger("click");
-    await wrapper.find("input[required]").setValue("整理已归档发票");
+    await wrapper
+      .find(":is(input, textarea)[required]")
+      .setValue("整理已归档发票");
     await wrapper.find(".planner-detail-form").trigger("submit");
     await flushPromises();
 
@@ -372,7 +374,9 @@ describe("PlannerDetailView", () => {
       .mockResolvedValue(restored);
 
     await findButton(wrapper, "编辑").trigger("click");
-    await wrapper.find("input[required]").setValue("更新后的评审");
+    await wrapper
+      .find(":is(input, textarea)[required]")
+      .setValue("更新后的评审");
     await wrapper.find(".planner-detail-form").trigger("submit");
     await flushPromises();
     expect(update).toHaveBeenCalledWith(
@@ -406,7 +410,9 @@ describe("PlannerDetailView", () => {
       .mockResolvedValue({ calendarEvent: updated });
 
     await findButton(wrapper, "编辑").trigger("click");
-    await wrapper.find("input[required]").setValue("重试后的日程");
+    await wrapper
+      .find(":is(input, textarea)[required]")
+      .setValue("重试后的日程");
     await wrapper.find(".planner-detail-form").trigger("submit");
     await flushPromises();
     expect(wrapper.text()).toContain("操作失败，请稍后重试");
@@ -442,7 +448,9 @@ describe("PlannerDetailView", () => {
       .mockResolvedValue(restored);
 
     await findButton(wrapper, "编辑").trigger("click");
-    await wrapper.find("input[required]").setValue("更新后的提醒");
+    await wrapper
+      .find(":is(input, textarea)[required]")
+      .setValue("更新后的提醒");
     await wrapper.find(".planner-detail-form").trigger("submit");
     await flushPromises();
     expect(update).toHaveBeenCalledWith(
@@ -476,7 +484,9 @@ describe("PlannerDetailView", () => {
       .mockResolvedValue(updated);
 
     await findButton(wrapper, "编辑").trigger("click");
-    await wrapper.find("input[required]").setValue("重试后的提醒");
+    await wrapper
+      .find(":is(input, textarea)[required]")
+      .setValue("重试后的提醒");
     await wrapper.find(".planner-detail-form").trigger("submit");
     await flushPromises();
     expect(wrapper.text()).toContain("操作失败，请稍后重试");
@@ -504,7 +514,9 @@ describe("PlannerDetailView", () => {
     vi.spyOn(api, "getTask").mockResolvedValue(initial);
     const second = await mountDetail("/tasks/task-1");
     await findButton(second.wrapper, "编辑").trigger("click");
-    await second.wrapper.find("input[required]").setValue("已修改");
+    await second.wrapper
+      .find(":is(input, textarea)[required]")
+      .setValue("已修改");
     await second.router.push("/plan");
     expect(AppConfirm.requestAppConfirm).toHaveBeenCalledOnce();
     expect(second.router.currentRoute.value.fullPath).toBe("/tasks/task-1");
@@ -538,7 +550,7 @@ describe("PlannerDetailView", () => {
       .mockResolvedValue(updated);
 
     await findButton(wrapper, "编辑").trigger("click");
-    await wrapper.find("input[required]").setValue("已重试保存");
+    await wrapper.find(":is(input, textarea)[required]").setValue("已重试保存");
     await wrapper.find(".planner-detail-form").trigger("submit");
     await flushPromises();
 
@@ -740,7 +752,9 @@ describe("PlannerDetailView", () => {
     const context = await mountDetail("/calendar/event-1");
 
     await findButton(context.wrapper, "编辑").trigger("click");
-    await context.wrapper.find("input[required]").setValue("未保存的标题");
+    await context.wrapper
+      .find(":is(input, textarea)[required]")
+      .setValue("未保存的标题");
     await findButton(context.wrapper, "取消编辑").trigger("click");
 
     expect(context.wrapper.find(".planner-detail-form").exists()).toBe(false);
@@ -762,13 +776,20 @@ describe("PlannerDetailView", () => {
     async (_entity, path, getter, detail) => {
       vi.spyOn(api, getter).mockResolvedValue(detail as never);
       const context = await mountDetail(path);
-      const focus = vi.spyOn(HTMLInputElement.prototype, "focus");
+      const focus = vi.spyOn(
+        _entity === "task"
+          ? HTMLTextAreaElement.prototype
+          : HTMLInputElement.prototype,
+        "focus",
+      );
 
       await findButton(context.wrapper, "编辑").trigger("click");
       await flushPromises();
 
       const form = context.wrapper.find("#planner-detail-edit-form");
-      const title = form.find<HTMLInputElement>("input[required]");
+      const title = form.find<HTMLInputElement | HTMLTextAreaElement>(
+        ":is(input, textarea)[required]",
+      );
       expect(form.exists()).toBe(true);
       expect(title.exists()).toBe(true);
       expect(context.wrapper.findAll("fieldset")).toHaveLength(2);
@@ -797,6 +818,32 @@ describe("PlannerDetailView", () => {
         .some((button) => button.text() === "编辑"),
     ).toBe(false);
     expect(context.wrapper.text()).toContain("已删除，可恢复");
+  });
+
+  it("gives task editing one page title and restores the detail after cancel", async () => {
+    vi.spyOn(api, "getTask").mockResolvedValue(task());
+    const context = await mountDetail("/tasks/task-1");
+    await findButton(context.wrapper, "编辑").trigger("click");
+    await flushPromises();
+
+    expect(context.wrapper.get("h1").text()).toBe("编辑待办");
+    expect(context.wrapper.find(".planner-detail-card-head").exists()).toBe(
+      false,
+    );
+    expect(context.wrapper.find(".planner-detail-editor-head").exists()).toBe(
+      false,
+    );
+    const title = context.wrapper.get("textarea[required]");
+    expect(title.attributes("maxlength")).toBe("200");
+    expect(title.attributes("aria-labelledby")).toBe("task-edit-title-label");
+    expect(title.attributes("aria-describedby")).toBe("task-edit-title-help");
+
+    await findButton(context.wrapper, "取消编辑").trigger("click");
+    await flushPromises();
+    expect(context.wrapper.get("h1").text()).toBe("待办详情");
+    expect(context.wrapper.get(".planner-detail-card-head").text()).toContain(
+      "整理发票",
+    );
   });
 
   it("submits task priority and a null due date with the current version", async () => {
@@ -831,7 +878,7 @@ describe("PlannerDetailView", () => {
 
     await findButton(context.wrapper, "编辑").trigger("click");
     await findLabel(context.wrapper, "标题")
-      .find("input")
+      .find<HTMLInputElement | HTMLTextAreaElement>("input, textarea")
       .setValue("保存中的待办");
     const form = context.wrapper.find(".planner-detail-form");
     await form.trigger("submit");
@@ -841,9 +888,11 @@ describe("PlannerDetailView", () => {
     expect(findButton(context.wrapper, "保存中…").attributes("disabled")).toBe(
       "",
     );
-    expect(findLabel(context.wrapper, "标题").find("input").element.value).toBe(
-      "保存中的待办",
-    );
+    expect(
+      findLabel(context.wrapper, "标题").find<
+        HTMLInputElement | HTMLTextAreaElement
+      >("input, textarea").element.value,
+    ).toBe("保存中的待办");
 
     save.resolve(task({ title: "保存中的待办", version: 2 }));
     await flushPromises();
@@ -1050,7 +1099,7 @@ describe("PlannerDetailView", () => {
 
       await findButton(context.wrapper, "编辑").trigger("click");
       await findLabel(context.wrapper, "标题")
-        .find("input")
+        .find<HTMLInputElement | HTMLTextAreaElement>("input, textarea")
         .setValue(`状态${status}后重试`);
       await context.wrapper.find(".planner-detail-form").trigger("submit");
       await flushPromises();
@@ -1059,7 +1108,9 @@ describe("PlannerDetailView", () => {
       expect(context.wrapper.text()).toContain(message);
       expect(context.wrapper.text()).not.toContain("internal secret");
       expect(
-        findLabel(context.wrapper, "标题").find("input").element.value,
+        findLabel(context.wrapper, "标题").find<
+          HTMLInputElement | HTMLTextAreaElement
+        >("input, textarea").element.value,
       ).toBe(`状态${status}后重试`);
 
       await findButton(context.wrapper, "重试").trigger("click");
@@ -1083,7 +1134,7 @@ describe("PlannerDetailView", () => {
 
     await findButton(context.wrapper, "编辑").trigger("click");
     await findLabel(context.wrapper, "标题")
-      .find("input")
+      .find<HTMLInputElement | HTMLTextAreaElement>("input, textarea")
       .setValue("尚未保存的待办");
     await findButton(context.wrapper, "取消编辑").trigger("click");
     await flushPromises();
@@ -1091,9 +1142,11 @@ describe("PlannerDetailView", () => {
       expect.objectContaining({ title: "放弃未保存的编辑？" }),
     );
     expect(context.wrapper.find(".planner-detail-form").exists()).toBe(true);
-    expect(findLabel(context.wrapper, "标题").find("input").element.value).toBe(
-      "尚未保存的待办",
-    );
+    expect(
+      findLabel(context.wrapper, "标题").find<
+        HTMLInputElement | HTMLTextAreaElement
+      >("input, textarea").element.value,
+    ).toBe("尚未保存的待办");
 
     const focus = vi.spyOn(HTMLButtonElement.prototype, "focus");
     await findButton(context.wrapper, "取消编辑").trigger("click");
@@ -1127,14 +1180,16 @@ describe("PlannerDetailView", () => {
 
     await findButton(context.wrapper, "编辑").trigger("click");
     await findLabel(context.wrapper, "标题")
-      .find("input")
+      .find<HTMLInputElement | HTMLTextAreaElement>("input, textarea")
       .setValue("保留当前输入");
     await context.router.push("/tasks/task-2");
     await flushPromises();
     expect(context.router.currentRoute.value.fullPath).toBe("/tasks/task-1");
-    expect(findLabel(context.wrapper, "标题").find("input").element.value).toBe(
-      "保留当前输入",
-    );
+    expect(
+      findLabel(context.wrapper, "标题").find<
+        HTMLInputElement | HTMLTextAreaElement
+      >("input, textarea").element.value,
+    ).toBe("保留当前输入");
 
     await context.router.push("/tasks/task-2");
     await flushPromises();

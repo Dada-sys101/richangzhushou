@@ -1,5 +1,9 @@
 # Session End
 
+## 2026-10-27 — UI 发布准备（DONE_LOCAL / UNCOMMITTED）
+
+已确认 UI/导航、安全依赖修复及 E2E 入口适配准备完成；完整 quality、1157 项测试（140 DB skipped）、治理 30/30、审计 0 High/Critical、SBOM 通过。Windows Bootstrap 3 passed / 15 failed，需候选 Linux CI；E2E 86 项仅收集和 TS 检查通过。待独立授权 commit/push/更新 Draft PR #83，后续 Ready/merge/现有预览部署按精确 SHA 和环境核验。原目录四项修改保留，未部署或迁移，canonical 不晋级。见 [候选记录](docs/60-ui-release-candidate-20261027.md)。下方为历史检查点。
+
 > 2026-10-23 交付更新：补丁 fb50097 已提交推送，Draft PR #83 已创建；PR CI 39916174760 SUCCESS（数据库 162 项、浏览器 86 项通过），Push CI 39916145898 也为 SUCCESS。后续文档提交的最终 HEAD/CI 以 PR 为准。详见 [交付快照](docs/55-vite-security-patch-20261023.md)；以下未提交状态为早期检查点，未合并或部署。
 
 ## 2026-10-23 — Vite 安全依赖补丁（DONE_LOCAL / UNCOMMITTED）
