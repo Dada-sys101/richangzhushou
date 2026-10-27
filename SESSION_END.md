@@ -1,5 +1,9 @@
 # Session End
 
+## 2026-10-27 — Git 交付与实施 CI
+
+实施 f50d20cb519c827759e011999b46103c499e08ab 已按明确授权提交推送、更新 Draft PR #83。PR CI 40458997179、Push CI 40458991356 三项 SUCCESS；MySQL 162/162、浏览器 86/86、Linux Bootstrap 18/18。后续文档提交另核最终 HEAD CI；尚未 Ready、合并或部署，现有 d3db83b 保持运行。下方为原检查点，见 [候选记录](docs/60-ui-release-candidate-20261027.md)。
+
 ## 2026-10-27 — UI 发布准备（DONE_LOCAL / UNCOMMITTED）
 
 已确认 UI/导航、安全依赖修复及 E2E 入口适配准备完成；完整 quality、1157 项测试（140 DB skipped）、治理 30/30、审计 0 High/Critical、SBOM 通过。Windows Bootstrap 3 passed / 15 failed，需候选 Linux CI；E2E 86 项仅收集和 TS 检查通过。待独立授权 commit/push/更新 Draft PR #83，后续 Ready/merge/现有预览部署按精确 SHA 和环境核验。原目录四项修改保留，未部署或迁移，canonical 不晋级。见 [候选记录](docs/60-ui-release-candidate-20261027.md)。下方为历史检查点。

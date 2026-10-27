@@ -1,5 +1,11 @@
 # TODO
 
+## 2026-10-27 — 实施交付后待办
+
+- DONE_PUSHED：f50d20c 已进入 Draft PR #83，PR/Push CI 三项 SUCCESS；数据库 162/162、浏览器 86/86、Linux Bootstrap 18/18。
+- PENDING：本记录后续文档提交的最终 HEAD CI 与审阅；Ready、merge、精确 SHA/环境部署授权及目标 release 构建、备份、切换/回滚与真机/离线验收。
+- 不再将旧检查点的 Git 授权、实施 CI 或 Windows Bootstrap 限制作为未补齐门禁；canonical 保持反馈修复。见 [候选记录](docs/60-ui-release-candidate-20261027.md)。
+
 ## 2026-10-27 — 当前 UI 候选交付
 
 - DONE_LOCAL：已确认 UI/导航，安全依赖补丁、E2E 真实入口适配；完整 quality、治理、正式审计、依赖树、许可证/SBOM。

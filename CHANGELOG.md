@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-27 — UI 候选交付
+
+实施 f50d20c 已提交推送并更新 Draft PR #83；PR CI 40458997179、Push CI 40458991356 三项 SUCCESS，数据库 162/162、浏览器 86/86、Linux Bootstrap 18/18。文档后续提交另核最终 CI，未合并或部署。下方 UNCOMMITTED 为历史准备检查点。见 [候选记录](docs/60-ui-release-candidate-20261027.md)。
+
 ## 2026-10-27 — UI 候选安全与交付准备（DONE_LOCAL / UNCOMMITTED）
 
 body-parser 2.4.0、Multer 2.5.0、Undici 8.12.2 消除 High；适配 E2E 的更多菜单和新增折叠入口，保留业务断言。干净安装、完整 quality、1157 passed / 140 DB skipped、治理 30/30、审计 0 High/Critical、SBOM 1056 通过；Windows Bootstrap 15 项失败留待 Linux CI，数据库/真实后端浏览器未运行。当前 UI/导航候选尚未提交或部署，见 [候选记录](docs/60-ui-release-candidate-20261027.md)。

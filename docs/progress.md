@@ -1,5 +1,11 @@
 # 项目进度（派生摘要）
 
+## 2026-10-27 — UI 候选已推送 / 实施 CI 通过
+
+- 用户明确授权 commit/push/更新既有 PR；实施 f50d20c 已进入 Draft PR #83，尚未 Ready/合并/部署。
+- PR CI 40458997179、Push CI 40458991356 三项 SUCCESS；MySQL 8.4.13 数据库 162/162、Chromium desktop/mobile 86/86、Linux Bootstrap 18/18。补齐下方本地检查点的对应 CI 缺口，保留 Windows 失败/DB skipped 事实。
+- 本交付记录后续提交另核最终 HEAD CI；目标 release 构建、备份、部署和真机/真正离线验收尚待，canonical 不晋级。见 [候选记录](60-ui-release-candidate-20261027.md)。
+
 ## 2026-10-27 — 已确认 UI 的发布准备（DONE_LOCAL / UNCOMMITTED）
 
 - 用户认可 UI 并要求推进上线准备；补齐安全依赖修复、E2E 更多/新增入口与发布回滚记录，不扩展新功能。

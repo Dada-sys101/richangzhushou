@@ -2,7 +2,7 @@
 
 ## 最新本地候选（2026-10-27）
 
-当前工作包为 UI-RELEASE-PREP-20261027，DONE_LOCAL / UNCOMMITTED / CANDIDATE_CI_PENDING / NOT_DEPLOYED。此节及下方更新字段为当前事实；旧 Git 交付快照仅适用于其 SHA。完整候选、证据和回滚见 [docs/60](../docs/60-ui-release-candidate-20261027.md)。
+当前工作包为 UI-RELEASE-PREP-20261027，DONE_COMMITTED / DONE_PUSHED / PR_DRAFT / IMPLEMENTATION_CI_PASS / NOT_DEPLOYED。实施 f50d20cb519c827759e011999b46103c499e08ab 已推送，用户已授权并执行 commit/push/更新 PR #83。PR CI 40458997179、Push CI 40458991356 三项 SUCCESS，MySQL 162 项、浏览器 86 项、Linux Bootstrap 18 项通过；后续文档提交须另核最终 HEAD CI。旧 Git 快照仅适用于其 SHA。完整候选、证据和回滚见 [docs/60](../docs/60-ui-release-candidate-20261027.md)。
 
 ## Git 交付快照（2026-10-23）
 
@@ -15,7 +15,7 @@
 
 ## Last Updated
 
-2026-10-27 — UI 方向经用户认可；发布准备本地完成，候选未提交、未部署。
+2026-10-27 — UI 发布候选已提交推送，Draft PR #83 更新，实施 CI 通过；未合并或部署。
 
 ## Repository State
 
@@ -23,7 +23,7 @@
 - Main: `9421d819a44a47728e6d7f6e93bfd4f98f681f24`。
 - Integration: `codex/v15-integration-foundation` / `6cab22f580f3345696258dea9983ea09c6def7ab`；2026-10-23 远端重核。
 - Worktree: `C:/Users/hebia/.codex/worktrees/preview-readiness-20261022/daily-assistant`。
-- Branch: `codex/preview-readiness-20261022`；当前 HEAD/远端 PR #83 为 `fbb993342fe1def0f87853a1496e85c14f2bbd89`，2026-10-27 重核；本地候选未提交。
+- Branch: `codex/preview-readiness-20261022`；实施提交 `f50d20cb519c827759e011999b46103c499e08ab` 已推送，2026-10-27 重核；文档后续提交 HEAD/CI 以 Git/PR 实时为准。
 - 原始 `D:/daily-assistant` 分支与四项未提交内容保留，详见更新准备清单。
 
 ## Project Summary
@@ -35,11 +35,11 @@
 - Canonical: `PRIVATE_PREVIEW_OPERATION / ACTIVE / FEEDBACK_FIXES_ONLY`。
 - 本轮已完成：`UI-RELEASE-PREP-20261027` 本地准备，纳入用户认可的 UI/导航、安全依赖修复和 E2E 入口适配；canonical 保持不变。
 - 当前运行 release：`/opt/daily-assistant-preview/releases/d3db83b1-20260924T133437Z`；API、Nginx、MySQL active。
-- 交付候选：HEAD fbb9933 加本地未提交修改；Draft PR #83 尚不包含本轮候选。历史 R1 APPROVED、独立 Staging 豁免、H6/H7/H8 关闭保持原范围；H1/H2 仍为豁免而非设备通过。
+- 交付候选：实施 f50d20c 已进入 Draft PR #83，实施 CI 通过；文档后续提交另核最终检查。历史 R1 APPROVED、独立 Staging 豁免、H6/H7/H8 关闭保持原范围；H1/H2 仍为豁免而非设备通过。
 
 ## Last Completed Task
 
-本轮 UI 发布准备为 DONE_LOCAL，待 Git 交付。此前 Vite 补丁已推送至 Draft PR #83；Integration #82 已合并至 6cab22f，但未部署。canonical 上次完成的 REL-03 历史收口语义保留。
+本轮 UI 发布候选为 DONE_COMMITTED / DONE_PUSHED / PR_DRAFT，实施 CI 通过；尚未合并或部署。Integration #82 为 6cab22f，canonical 上次完成的 REL-03 历史收口语义保留。
 
 ## Completed Work
 
@@ -52,14 +52,14 @@
 
 ## Remaining Work
 
-- 本候选 commit、push、更新 Draft PR #83 的对应授权；候选 Linux quality/db-validation/browser-qa CI、最终 HEAD 审阅及后续 Ready/merge/部署。
+- 文档后续提交的最终 HEAD CI 及审阅；取得对应 Ready/merge/精确 SHA 环境部署授权后执行。
 - 新候选目标 Linux 构建、备份、切换与业务/设备验收尚未执行。
 - 公网发布、扩容、新基础设施、R2/R3 保持延后。
 
 ## Blockers
 
-- 本候选未提交，旧 PR CI 不能复用；本机无 MySQL/Docker，数据库和真实后端浏览器 E2E 待候选 CI。
-- Cloud Bootstrap 在 Windows 为 3 passed / 15 failed（私有目录 POSIX 权限及 symlink EPERM），保留 Linux CI 门禁；不改保护以使本地通过。
+- 实施 f50d20c CI 已通过；文档后续提交不能复用父提交 CI。
+- 本机无 MySQL/Docker；Windows Bootstrap 3 passed / 15 failed 保留为本地事实，Linux CI 已 18/18 通过，数据库/浏览器 CI 亦通过，相关候选验证缺口已补齐。
 - 目标 Linux release 构建、备份及部署后验收未执行；Git/外部动作按 PLANS 第 13 节及对应有效授权执行。
 
 ## Known Issues
@@ -72,8 +72,8 @@
 ## Verification Status
 
 - 已核实：2026-10-27 远端 SHA、Draft PR #83、服务器 current/服务 active/health 200、兼容性差异；旧 HEAD CI 不覆盖候选。
-- 当前干净安装、完整 quality、治理 30/30、依赖树、SBOM 1056 components PASS；业务测试 1157 passed / 140 DB skipped；正式审计 0 High/Critical。E2E 收集 86 项及相关 TS 检查通过，未实际执行；额外 Bootstrap 本机失败如上。见 docs/60。
-- 未执行：本候选真实数据库/后端浏览器 E2E、真实 Provider、目标 Linux 候选构建、部署与真机/真正离线验收。
+- 当前干净安装、完整 quality、治理 30/30、依赖树、SBOM 1056 components PASS；业务测试 1157 passed / 140 DB skipped；正式审计 0 High/Critical。实施 SHA 的 Linux CI 三项 SUCCESS，MySQL 8.4.13 数据库 162/162、浏览器 86/86、Bootstrap 18/18。见 docs/60。
+- 未执行：真实 Provider、目标 Linux release 构建、部署与真机/真正离线验收；后续文档提交 CI 尚须独立核验。
 
 ## Recent Changes
 
@@ -81,7 +81,7 @@
 
 ## Next Recommended Task
 
-取得本候选 commit/push/更新 Draft PR #83 的对应授权后，运行候选 CI 并处理失败；再按最终 SHA/环境的独立授权推进 Ready、合并、现有预览更新与验收。不要自动执行下一 canonical 功能任务。
+核验文档提交后的最终 HEAD CI 与审阅，再按独立授权推进 Ready、合并及最终 SHA/环境的现有预览更新验收。不要自动执行下一 canonical 功能任务。
 
 ## Handoff Instructions
 

@@ -2,7 +2,7 @@
 
 ## 最新本地候选（2026-10-27）
 
-UI-RELEASE-PREP-20261027：已确认 UI/导航、安全依赖和 E2E 入口适配为 DONE_LOCAL / UNCOMMITTED / CANDIDATE_CI_PENDING / NOT_DEPLOYED。完整 quality PASS（1157 passed / 140 DB skipped）、治理 30/30、审计 0 High/Critical；Windows Bootstrap 3 passed / 15 failed（POSIX 权限/符号链接限制），须 Linux CI 复验。HEAD/远端 PR #83 为 fbb9933，旧 CI 不覆盖本地修改。预览 d3db83b、服务 active、health 200。此节覆盖下方旧检查点的当前候选描述，保留其历史交付语义；canonical 不晋级。详见 [候选记录](../docs/60-ui-release-candidate-20261027.md)。
+UI-RELEASE-PREP-20261027：实施 f50d20cb519c827759e011999b46103c499e08ab 已按明确授权提交推送并更新 Draft PR #83，DONE_COMMITTED / DONE_PUSHED / PR_DRAFT / IMPLEMENTATION_CI_PASS / NOT_DEPLOYED。PR CI 40458997179、Push CI 40458991356 三项 SUCCESS，MySQL 162/162、浏览器 86/86、Linux Bootstrap 18/18；后续文档提交须另核最终 HEAD CI。完整本地 quality、治理 30/30、审计 0 High/Critical 通过；Windows 失败/本地 DB skipped 保留原检查点语义。预览 d3db83b、服务 active、health 200。此节覆盖下方旧候选描述，canonical 不晋级。详见 [候选记录](../docs/60-ui-release-candidate-20261027.md)。
 
 ## Git 交付快照（2026-10-23）
 
@@ -25,8 +25,8 @@ currentTask: PRIVATE_PREVIEW_OPERATION
 lastCompletedTask: REL-03 Private Preview Readiness
 executionStatus: ACTIVE
 deliveryStatus: ACTIVE / FEEDBACK_FIXES_ONLY / PRIVATE_PREVIEW_AVAILABLE / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
-currentWork: UI-RELEASE-PREP-20261027 DONE_LOCAL; accepted UI/navigation, security dependency patches and E2E entry adaptation; UNCOMMITTED; PR #83 DRAFT old head fbb9933; not merged/deployed
-latestDependencyGateRecheck: 2026-10-27 locked install, quality and formal audit PASS; 0 high/critical, 6 moderate, 1 low; candidate CI pending; see docs/60
+currentWork: UI-RELEASE-PREP-20261027 DONE_PUSHED; implementation f50d20c; PR #83 DRAFT; implementation PR/Push CI SUCCESS; follow-up documentation HEAD CI requires separate verification; not merged/deployed
+latestDependencyGateRecheck: 2026-10-27 locked install, local and implementation CI quality/audit PASS; 0 high/critical, 6 moderate, 1 low; see docs/60
 nextCanonicalTask: PRIVATE_PREVIEW_FEEDBACK_FIXES_ONLY
 nextCanonicalTaskAfterCompletion: USER_DIRECTED_SCOPE_SELECTION
 openPullRequests: [83]
@@ -76,14 +76,14 @@ persistedSuccessorGate: REL-03 PRIVATE PREVIEW READINESS READY / EXISTING_ENVIRO
 ## Active Task
 
 - id: PRIVATE_PREVIEW_OPERATION
-- localWorkPackage: UI-RELEASE-PREP-20261027 (DONE_LOCAL; Git delivery and candidate CI pending)
+- localWorkPackage: UI-RELEASE-PREP-20261027 (DONE_PUSHED; implementation CI PASS; final documentation HEAD CI verification remains)
 - branch: codex/preview-readiness-20261022
 - baseHead: 6cab22f580f3345696258dea9983ea09c6def7ab
-- contract: PLANS simplified private-preview scope and section 13; user-approved preparation and subsequent scoped Vite dependency repair
+- contract: PLANS simplified private-preview scope and section 13; user-approved UI/navigation and release preparation, then explicit commit/push/update Draft PR #83 authorization
 - implementation: accepted navigation/UI family, body-parser/multer/undici security patches and E2E disclosure entry adaptation; see docs/60
 - executionStatus: ACTIVE
-- deliveryStatus: DONE_LOCAL / UNCOMMITTED / CANDIDATE_CI_PENDING / PREVIEW_EXISTING_VERSION
-- remaining: scoped Git delivery authorization and candidate Linux quality/db/browser CI; separately authorized Ready/merge and exact-SHA target release build/deployment/acceptance
+- deliveryStatus: DONE_COMMITTED / DONE_PUSHED / PR_DRAFT / IMPLEMENTATION_CI_PASS / PREVIEW_EXISTING_VERSION
+- remaining: final documentation HEAD CI and review; separately authorized Ready/merge and exact-SHA target release build/deployment/acceptance
 - preservedMode: FEEDBACK_FIXES_ONLY / R1.1_PUSH_ACTIVE / H8_CLOSED / H6_DEVICE_ACCEPTANCE_PASS
 
 ## Previous Canonical Task

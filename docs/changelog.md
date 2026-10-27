@@ -1,5 +1,10 @@
 # 变更日志（Changelog）
 
+## 2026-10-27 — 实施交付与 CI 证据
+
+- f50d20cb519c827759e011999b46103c499e08ab 已按明确授权提交推送、更新 Draft PR #83。
+- PR CI 40458997179、Push CI 40458991356 三项 SUCCESS；MySQL 数据库 162/162、浏览器 86/86、Linux Bootstrap 18/18。后续文档提交另核最终 HEAD CI，未 Ready/合并/部署。下方未提交等状态仅为原检查点。见 [候选记录](60-ui-release-candidate-20261027.md)。
+
 ## 2026-10-27 — UI 发布候选与安全依赖（DONE_LOCAL / UNCOMMITTED）
 
 - 固定 body-parser 2.4.0、Multer 2.5.0、Undici 8.12.2 及必要锁文件解析；未升级 Nest、修改审计门禁、数据库或部署配置。
